@@ -1,0 +1,79 @@
+﻿@inherits LayoutComponentBase
+<style>
+    body {
+        font-family: "Open Sans", serif;
+        background-color: #debdde;
+        background-image: linear-gradient(338deg, #debdde 0%, #a9dfe6 100%)!important;
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+
+    }
+</style>
+<MudLayout>
+    <MudAppBar Elevation="1" Dense="false">
+        <MudImage Src="favicon.png" Fluid="true" Width="32" Class="mr-3" Style="margin-left: -16px;"
+                  ObjectPosition="ObjectPosition.Center"></MudImage>
+        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudColor.Inherit" Edge="Edge.Start"
+                       OnClick="@ToggleDrawer"/>
+        <MudSpacer/>
+        <UserPersonalToolBar/>
+    </MudAppBar>
+    <MudDrawer @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
+               Variant="@DrawerVariant.Mini" Class="bg-side-nav">
+        <NavMenu/>
+        <MudSpacer/>
+        <MudNavMenu Style="margin-bottom: 75px">
+            <MudNavLink Match="NavLinkMatch.All" Href="/user-manager" Icon="fas fa-users-medical"
+                        IconColor="MudColor.Info">User Manager
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon=" fas fa-right-from-bracket" IconColor="MudColor.Info"
+                        OnClick="Logout">Log out
+            </MudNavLink>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent Class="pt-16 px-16">
+        <MudContainer Class="mt-6">
+            @Body
+        </MudContainer>
+    </MudMainContent>
+
+</MudLayout>
+
+<MudThemeProvider Theme="_currentTheme"/>
+<MudPopoverProvider/>
+<MudDialogProvider/>
+<MudSnackbarProvider/>
+
+@code{
+private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
+private bool _open = false;
+
+protected override async Task OnInitializedAsync()
+{
+await CheckPasswordReset();
+}
+
+private void ToggleDrawer()
+{
+_open = !_open;
+}
+
+private void Logout(MouseEventArgs obj)
+{
+NavigationManager.NavigateTo("/");
+}
+
+private async Task CheckPasswordReset()
+{
+if (ApplicationState.CurrentUser.IsForceReset &&
+ApplicationState.CurrentUser.RoleName != RoleConstants.AdministratorRole)
+{
+var parameters = new DialogParameters();
+var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+await DialogService.ShowAsync<PasswordResetModal>("", parameters, options);
+}
+}
+
+}

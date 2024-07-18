@@ -1,0 +1,147 @@
+﻿@using Shared.Constants.Application
+@using Shared.Requests.UserAccounts
+@using Shared.Responses.UserAccounts
+<MudDialog>
+    <DialogContent>
+        <Validations @ref="@ValidationsRef" Model="@_userRequest" Mode="ValidationMode.Manual">
+            <MudItem md="12">
+                <MudStack Row="true" Justify="MudJustify.FlexStart">
+                    <MudItem md="4">
+                        <DexInputField Label="First Name" @bind-FieldDataSource="@_userRequest.Username"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <DexInputField Label="Last Name" @bind-FieldDataSource="@_userRequest.LastName"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <DexInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@_userRequest.Email"/>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+            <MudItem Class="mt-3" md="12">
+                <MudStack Row="true" Justify="MudJustify.FlexStart">
+                    <MudItem md="5">
+                        <DexInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@_userRequest.Phone"/>
+                    </MudItem>
+                    <MudItem md="7">
+                        <DexInputField Label="MCN" @bind-FieldDataSource="@_userRequest.Mcn"/>
+                    </MudItem>
+
+                </MudStack>
+            </MudItem>
+            <MudItem Class="mt-3">
+                <MudStack Row="true">
+                    <MudItem md="5">
+                        <Field>
+                            <FieldLabel>User type</FieldLabel>
+                            <Select @bind-SelectedValue="@_userRequest.UserType">
+                                @foreach (var item in Roles)
+                                {
+                                <SelectItem Value="@(item)">@item</SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                       
+                    </MudItem>
+                    <MudItem md="7">
+                        <Field>
+                            <FieldLabel>Roles</FieldLabel>
+                            <Select @bind-SelectedValue="@_userRequest.UserRole">
+                                @foreach (var item in Roles)
+                                {
+                                <SelectItem Value="@(item)">@item</SelectItem>
+                                }
+                            </Select>
+                        </Field>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+            <hr class="hr-thin"/>
+            <MudItem>
+                <MudStack>
+                    <MudText Typo="Typo.h6">Login Information:</MudText>
+                    <MudItem>
+                        <MudStack Row="true">
+                            <MudItem>
+                                <DexInputField Label="Username" @bind-FieldDataSource="@_userRequest.Username"/>
+                            </MudItem>
+                            <MudItem>
+                                <DexInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@_userRequest.Password"/>
+                            </MudItem>
+                            <MudItem>
+                                <MudCheckBox Label="Active" T="bool" @bind-Value="_userRequest.IsActive"></MudCheckBox>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row="true">
+                            <MudItem>
+                                <Field>
+                                    <FieldLabel>Reset Password</FieldLabel>
+                                    <Select @bind-SelectedValue="@_userRequest.ResetPassword">
+                                        @foreach (var item in ResetPasswordDurations)
+                                        {
+                                            <SelectItem Value="@(item)">@item</SelectItem>
+                                        }
+                                    </Select>
+                                </Field>
+                            </MudItem>
+                            <MudItem>
+                                <MudStack >
+                                    <MudCheckBox Label="Update Password" T="bool" @bind-Value="_userRequest.IsUpdatePassword"></MudCheckBox>
+                                    <MudCheckBox Label="Force Reset" T="bool" @bind-Value="_userRequest.IsForceReset"></MudCheckBox>
+                                </MudStack>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        </Validations>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@_processing" OnClick="SaveUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
+                <MudText Class="ms-2">Processing</MudText>
+            }
+            else
+            {
+                <MudText>Save User</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _processing;
+    private List<RoleResponse> Roles { get; set; } = new();
+    private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
+    private CreateUserRequest _userRequest = new();
+    Validations ValidationsRef { get; set; }
+
+    private async Task GetRoles()
+    {
+        Roles = await UnitOfWork.User.GetRoles();
+    }
+
+    private async Task SaveUser()
+    {
+        _processing = true;
+        if (await ValidationsRef.ValidateAll())
+        {
+            await Task.Delay(2000);
+            var res = await UnitOfWork.User.SaveUser(_userRequest);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                _userRequest = new CreateUserRequest();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }   
+        }
+        _processing = false;
+    }
+
+}

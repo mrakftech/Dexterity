@@ -1,0 +1,94 @@
+﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
+@using Shared.Responses.Patient
+<MudDataGrid Loading="_patientLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="PatientListResponse" Dense="true" Bordered="true" Hover="true" Items="@Patients" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+             Hideable="true">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
+        <MudFab Color="MudColor.Primary" StartIcon="fa fa-arrows-rotate" Size="MudSize.Small" Label="Load Patients" Class="ml-5" OnClick="GetPatients"/>
+        <MudFab Color="MudColor.Primary" StartIcon="fa fa-plus" Size="MudSize.Small" Label="Add New Patient" Class="ml-5" OnClick="AddNewPatient"/>
+        <MudSpacer/>
+        <MudItem md="3">
+            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          Variant="Variant.Outlined"
+                          IconSize="MudSize.Medium"
+                          Margin="MudMargin.Dense"
+                          Class="mt-0">
+            </MudTextField>
+        </MudItem>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.CreatedDate" Title="Created At" Format="MM/dd/yyyy h:mm tt" Sortable="false" Filterable="false"/>
+        <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
+        <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
+        <PropertyColumn Property="x => x.DateOfBirth" Title="Date of Birth" Sortable="false" Filterable="false"/>
+        <PropertyColumn Property="x => x.EmailAddress" Title="Email" Sortable="false" Filterable="false"/>
+        <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
+        <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
+            <CellTemplate>
+                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Edit" Color="MudColor.Primary"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(context.Item.Id)"/>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <PagerContent>
+        <MudDataGridPager T="PatientListResponse"/>
+    </PagerContent>
+</MudDataGrid>
+
+@code {
+    private List<PatientListResponse> Patients { get; set; } = new();
+    private string _searchString;
+    private bool _patientLoading;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        // await GetPatients();
+    }
+
+    private async Task AddNewPatient()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<CreatePatientModal>("New Patient", parameters, options);
+    }
+
+    private Func<PatientListResponse, bool> QuickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        return false;
+    };
+
+    private async Task GetPatients()
+    {
+        _patientLoading = true;
+        await Task.Delay(2000);
+        Patients = await UnitOfWork.Patient.GetPatients();
+        _patientLoading = false;
+    }
+
+    private async Task DeletePatient(Guid id)
+    {
+        var parameters = new DialogParameters();
+        //parameters.Add("ContentText", "Do you want to confirm?");
+        //parameters.Add("ButtonText", "Yes");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var patientRes = await UnitOfWork.Patient.DeletePatient(id);
+            var patient = Patients.FirstOrDefault(x => x.Id == id);
+            Patients.Remove(patient);
+            StateHasChanged();
+            Snackbar.SuccessMessge(patientRes.Messages.First());
+        }
+    }
+
+}

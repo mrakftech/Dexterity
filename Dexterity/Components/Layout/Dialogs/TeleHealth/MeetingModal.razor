@@ -1,0 +1,99 @@
+﻿@using Shared.Helper
+<MudDialog>
+    <TitleContent>
+
+    </TitleContent>
+    <DialogContent>
+        @if (_processing)
+        {
+            <CommonLoader/>
+        }
+        else
+        {
+            <p>@_messageFrameLoading</p>
+            <MudStack Row>
+                @if (string.IsNullOrWhiteSpace(_messageFrameLoading))
+                {
+                    <MudGrid Justify="MudJustify.FlexEnd">
+                        <MudItem>
+                            <MudTooltip Size="Size.Large" Text="Invite patients">
+                                <MudIconButton Icon="fas fa-paper-plane" Color="MudColor.Primary" OnClick="ToggleOpen"></MudIconButton>
+                            </MudTooltip>
+                            <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
+                                <MudPaper Outlined="true" Class="px-4 py-8">
+                                    <MudTextField Variant="Variant.Outlined" @bind-Value="_patientEmail" Label="Patient Email" Margin="MudMargin.Dense" InputType="MudInputType.Email"></MudTextField>
+                                    <MudButton Color="MudColor.Primary" OnClick="ShareLinkToPatient">Send</MudButton>
+                                    <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                </MudPaper>
+                            </MudPopover>
+                        </MudItem>
+                        <MudItem>
+                            <MudTooltip Size="Size.Large" Text="Copy Meeting Link">
+                                <MudIconButton Icon=" fas fa-copy" Color="MudColor.Primary" OnClick="CopyMeetingLink"></MudIconButton>
+                            </MudTooltip>
+                        </MudItem>
+                        <MudItem>
+                            <MudButton Size="MudSize.Large" OnClick="EndCall" Variant="Variant.Filled" Color="MudColor.Secondary"> End Meeting</MudButton>
+
+                        </MudItem>
+                    </MudGrid>
+                }
+            </MudStack>
+            <iframe allow="camera; microphone" src="@_meetingLink" height="800" @onload="FrameLoaded"></iframe>
+        }
+    </DialogContent>
+    <DialogActions>
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+
+    private bool _processing;
+    private string _patientEmail;
+    private string _meetingLink;
+    private string _messageFrameLoading = "Loading video call components....";
+
+    private bool _open;
+    private void ToggleOpen() => _open = !_open;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await CreateMeetingLink();
+    }
+
+    private async Task CreateMeetingLink()
+    {
+        _processing = true;
+        _messageFrameLoading = "Loading video call components....";
+        ApplicationState.MeetingName = CryptographyHelper.GetUniqueKey(25);
+        var res = await DailyMeetingRoom.CreateMeetingLink(ApplicationState.MeetingName);
+        _meetingLink = res.Url;
+        await Task.Delay(2000);
+        _processing = false;
+    }
+
+    private async Task EndCall(MouseEventArgs obj)
+    {
+        await DailyMeetingRoom.DeleteRoom(ApplicationState.MeetingName);
+        MudDialog.Close();
+    }
+
+    private void FrameLoaded(ProgressEventArgs e)
+    {
+        _messageFrameLoading = "";
+    }
+
+    private async Task CopyMeetingLink()
+    {
+        await JsRuntime.InvokeVoidAsync("clipboardCopy.copyText", _meetingLink);
+        Snackbar.SuccessMessge("Link Copied");
+    }
+
+    private void ShareLinkToPatient(MouseEventArgs obj)
+    {
+        throw new NotImplementedException();
+    }
+
+}

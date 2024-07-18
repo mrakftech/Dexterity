@@ -1,0 +1,26 @@
+﻿@using Dexterity.Components.Layout.Dialogs.TeleHealth
+<MudNavMenu Style="margin-top: 30px">
+    <MudItem>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-home" IconColor="MudColor.Info" Href="/home">Dashboard</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-check" IconColor="MudColor.Info">Appointment</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-hourglass-start" IconColor="MudColor.Info" Href="/waiting-room">Waiting Room</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-hospital-user" IconColor="MudColor.Info" Href="/patient-management">Patient Manager</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message-dots" IconColor="MudColor.Info" Href="/messaging">Messaging</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">Settings</MudNavLink>
+        <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">Telehealth</MudNavLink>
+
+    </MudItem>
+    <MudSpacer/>
+
+</MudNavMenu>
+
+@code{
+
+    private async Task OpenVideoLinkModal()
+    {
+        var parameters = new DialogParameters { };
+        var options = new DialogOptions() {CloseButton = false, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center, FullScreen = true, CloseOnEscapeKey = false};
+        var dialogresult = await DialogService.ShowAsync<MeetingModal>("", parameters, options);
+    }
+
+}

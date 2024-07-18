@@ -1,0 +1,80 @@
+﻿@using Dexterity.Components.Pages.Messaging.Dialogs.SmsTemplate
+@using Domain.Entities.Messaging
+<MudDataGrid Items="SmsTemplateList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Sms Templates</MudText>
+        <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Add" Color="MudColor.Primary" OnClick="() => UpsertSmsTemplateModal(Guid.Empty)"/>
+        <MudSpacer/>
+        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
+        </MudTextField>
+    </ToolBarContent>
+    <Columns>
+        <PropertyColumn Property="x => x.Name"/>
+        <PropertyColumn Property="x => x.Content"/>
+        <TemplateColumn CellClass="d-flex justify-end">
+            <CellTemplate>
+                <MudStack Row>
+                    <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertSmsTemplateModal(context.Item.Id)"/>
+                    <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteTemplate(context.Item.Id)"/>
+                </MudStack>
+            </CellTemplate>
+        </TemplateColumn>
+    </Columns>
+    <NoRecordsContent>
+        <MudText>No records found.</MudText>
+    </NoRecordsContent>
+</MudDataGrid>
+
+@code{
+    public List<SmsTemplate> SmsTemplateList { get; set; } = new();
+    private string _searchString;
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _processing = true;
+        await GetTemplates();
+        _processing = false;
+    }
+
+    private async Task GetTemplates()
+    {
+        SmsTemplateList = await UnitOfWork.SmsTemplate.GetSmsTemplates();
+    }
+
+    private async Task UpsertSmsTemplateModal(Guid id)
+    {
+        var title = id == Guid.Empty ? "New Template" : "Edit Template";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertSmsTemplateModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetTemplates();
+        }
+    }
+
+    private async Task DeleteTemplate(Guid id)
+    {
+        var parameters = new DialogParameters();
+        //parameters.Add("ContentText", "Do you want to confirm?");
+        //parameters.Add("ButtonText", "Yes");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.SmsTemplate.DeleteSmsTemplate(id);
+            if (res.Succeeded)
+            {
+                await GetTemplates();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}

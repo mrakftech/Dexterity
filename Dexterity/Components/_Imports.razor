@@ -1,0 +1,50 @@
+﻿@using System.Net.Http
+@using System.Net.Http.Json
+@using Microsoft.AspNetCore.Components.Forms
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using Microsoft.JSInterop
+@using Dexterity
+@using Dexterity.Components
+@using Dexterity.Components.Layout
+@using Shared.Requests.Auth
+@using Dexterity.Components.Layout.Loaders
+@using global::Services.Contracts.Repositroy
+@using Blazored.FluentValidation
+@using DailyCo.Services
+@using MudBlazor
+@using Dexterity.Settings
+@using Dexterity.Components.Layout.Components
+@using Dexterity.Components.Layout.Dialogs
+@using Shared.Constants.Role
+@using Shared.State
+@using ClickATell.Services
+@using global::Services.Features.Messaging.Mail
+@using Blazorise.RichTextEdit
+@using Blazorise
+@using Blazorise.Components
+
+@inject NavigationManager NavigationManager;
+@inject Services.SnackbarNotificationService Snackbar;
+@inject IDialogService DialogService;
+@inject IJSRuntime JsRuntime
+@inject IUnitOfWork UnitOfWork;
+@inject IMailService MailService;
+
+
+@inject RoomEnpoints DailyMeetingRoom;
+@inject SmsEndpoints SmsEndpoints;
+
+@using MudSize = MudBlazor.Size
+@using MudJustify = MudBlazor.Justify
+@using MudInputType = MudBlazor.InputType
+@using MudAlign = MudBlazor.Align
+@using MudPosition = MudBlazor.Position
+@using MudMargin = MudBlazor.Margin
+@using MudColor = MudBlazor.Color
+@using MudBreakpoint = MudBlazor.Breakpoint
+@using MudDividerType = MudBlazor.DividerType
+@using MudButtonType = MudBlazor.ButtonType
+
+

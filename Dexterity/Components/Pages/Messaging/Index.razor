@@ -1,0 +1,50 @@
+﻿@layout MainLayout
+@page "/messaging"
+@using Dexterity.Components.Pages.Messaging.Tabs
+<TopTitleBar Title="Communication"
+             Image="messaging/communication1.svg">
+</TopTitleBar>
+<style>
+    
+</style>
+<div style="margin-top: 10%">
+
+  
+    <MudTabs SliderAnimation="true"
+             MaxHeight="600"
+             Outlined="true"
+             Position="MudPosition.Top"
+             Border="true" Color="MudColor.Primary" Elevation="1" 
+             Rounded="true" PanelClass="pa-6" ActiveTabClass="border-solid border-2 mud-border-primary"
+             ApplyEffectsToContainer="true" Class="mt-8">
+        
+        <MudTabPanel Text="User Tasks" Icon="fas fa-bars-progress">
+            <UserTask/>
+        </MudTabPanel>
+        <MudTabPanel Text="Contacts" Icon="fas fa-address-book">
+            <MudText>Content Two</MudText>
+        </MudTabPanel>
+        <MudTabPanel Text="SMS Messaging" Icon="fas fa-mobile">
+            <Sms/>
+        </MudTabPanel>
+        <MudTabPanel Text="Instant Messaging" Icon="fas fa-message">
+            <MudText>Content Three</MudText>
+        </MudTabPanel>
+        <MudTabPanel Text="Lab Messaging" Icon="fas fa-inbox">
+            <MudText>Content Three</MudText>
+        </MudTabPanel>
+        <MudTabPanel Text="Phone Directory" Icon="fas fa-phone-rotary">
+            <MudText>Content Three</MudText>
+        </MudTabPanel>
+    </MudTabs>
+</div>
+
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+    }
+
+}

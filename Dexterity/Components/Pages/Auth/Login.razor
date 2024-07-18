@@ -1,0 +1,90 @@
+﻿@layout AuthLayout
+@page "/"
+<div class="d-lg-flex half" style="height: 15px">
+
+    <div class="bg order-1 order-md-2"
+         style="background-image: url('assets/images/login-screen-image.png');border-top-right-radius: 20px;border-bottom-right-radius:20px ">
+    </div>
+    <div class="contents order-2 order-md-1" style="border-top-left-radius: 20px;border-bottom-left-radius:20px ">
+        <div class="container">
+            <div class="row align-items-center justify-content-center">
+                <div class="col-md-7">
+                    <img src="assets/images/large_logo.png" alt="logo" class="img-fluid logo"/>
+                    <h1 style="color: crimson;font-size: 28px">
+                        <strong>General Practice</strong>
+                    </h1>
+                    <h3 style="color: darkblue;font-size: 20px">
+                        <strong>Management Software</strong>
+                    </h3>
+                    <div class="mt-5">
+                        <Validations @ref="@ValidationsRef" Model="@_loginRequest" Mode="ValidationMode.Manual">
+                            <DexInputField Label="Username" @bind-FieldDataSource="@_loginRequest.Username"/>
+                            <DexInputField Label="Password" @bind-FieldDataSource="@_loginRequest.Password" FieldRole="TextRole.Password"/>
+                            <MudButton Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                                    <MudText Class="ms-2 white-color">Processing</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Class="white-color">Login</MudText>
+                                }
+                            </MudButton>
+                        </Validations>
+                        <MudGrid Justify="MudJustify.Center" Class="mt-15">
+                            <MudItem md="12">
+                                @* <MudButton Color="MudColor.Primary" Variant="Variant.Filled" FullWidth="true" OnClick="TerminateApp">Exit Application</MudButton> *@
+                            </MudItem>
+                        </MudGrid>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+@code {
+    private LoginRequest _loginRequest = new();
+    private bool _processing;
+    Validations ValidationsRef { get; set; }
+
+    private async Task LoginUser()
+    {
+        _processing = true;
+        if (await ValidationsRef.ValidateAll())
+        {
+            var res = await UnitOfWork.User.LoginAsync(_loginRequest);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                await Task.Delay(1500);
+                NavigationManager.NavigateTo("home/");
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+
+                foreach (var item in res.Messages)
+                {
+                    Console.WriteLine(item);
+                }
+            }
+
+            await Task.Delay(2500);
+            await ValidationsRef.ClearAll();
+        }
+
+        _processing = false;
+        
+    }
+
+
+    private void TerminateApp()
+    {
+        Application.Current.Quit();
+    }
+
+}

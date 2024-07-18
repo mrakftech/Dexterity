@@ -1,0 +1,23 @@
+﻿@page "/user-manager"
+@using Dexterity.Components.Pages.UserManager.Components
+@layout MainLayout
+
+<MudCard>
+
+    <MudTabs Elevation="4" Color="@MudColor.Secondary">
+        <MudTabPanel Text="User Manager">
+            <MudItem>
+                <UserList/>
+            </MudItem>
+        </MudTabPanel>
+        <MudTabPanel Text="Permission Manager">
+            <Permissions/>
+        </MudTabPanel>
+    </MudTabs>
+</MudCard>
+
+
+@code {
+
+
+}

@@ -1,0 +1,90 @@
+﻿@using Shared.Responses.Patient
+@using Dexterity.Components.Pages.PatientManager.Components
+@using Shared.Requests.Messaging
+<MudStack>
+    <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+    <MudItem>
+        <RichTextEdit @ref="richTextEditRef"
+                      Theme="RichTextEditTheme.Snow"
+                      ContentChanged="@OnContentChanged"
+                      PlaceHolder="Type your post here..."
+                      SubmitOnEnter="false">
+            <Editor>My example content</Editor>
+            <Toolbar>
+                <RichTextEditToolbarGroup>
+                    <RichTextEditToolbarButton Action="RichTextEditAction.Bold"/>
+                    <RichTextEditToolbarButton Action="RichTextEditAction.Italic"/>
+                    <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
+                        <RichTextEditToolbarSelectItem Value="small"/>
+                        <RichTextEditToolbarSelectItem Selected/>
+                        <RichTextEditToolbarSelectItem Value="large"/>
+                        <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
+                    </RichTextEditToolbarSelect>
+                    <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered"/>
+                    <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet"/>
+                </RichTextEditToolbarGroup>
+            </Toolbar>
+        </RichTextEdit>
+    </MudItem>
+    <MudItem>
+        <MudTextField @bind-Value="_subject" Variant="Variant.Outlined"
+                      Label="Subject"
+                      Margin="MudMargin.Dense">
+        </MudTextField>
+    </MudItem>
+    <MudItem>
+        <MudTextField @bind-Value="_email" Variant="Variant.Outlined"
+                      Label="Email"
+                      Margin="MudMargin.Dense">
+        </MudTextField>
+    </MudItem>
+    <MudItem>
+        <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                <MudText Class="ms-2 white-color">Processing</MudText>
+            }
+            else
+            {
+                <MudText><i class="fas fa-paper-plane"></i> Send Mail</MudText>
+            }
+        </MudButton>
+    </MudItem>
+</MudStack>
+
+@code {
+    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    private string _body;
+    private string _email;
+    private string _subject;
+    private bool _processing;
+    protected RichTextEdit richTextEditRef;
+
+    private void ChangePatient(PatientListResponse obj)
+    {
+        if (obj.Id != Guid.Empty)
+        {
+            _email = obj.EmailAddress;
+        }
+    }
+
+    private async Task SendSmsClick()
+    {
+        _processing = true;
+        await Task.Delay(2500);
+        var request = new MailRequest()
+        {
+            To = _email
+        };
+        await MailService.SendAsync(request, default);
+        Snackbar.SuccessMessge("Email has been sent.");
+        _processing = false;
+    }
+
+    private async Task OnContentChanged()
+    {
+        _body = await richTextEditRef.GetHtmlAsync();
+    }
+
+}

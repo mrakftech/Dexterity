@@ -1,0 +1,84 @@
+﻿.mud-button-filled.mud-button-filled-primary {
+    background-image: linear-gradient(to right, #2b5876 0%, #4e4376 51%, #2b5876 100%);
+    text-decoration: none !important;
+    text-align: center;
+    text-transform: uppercase;
+    transition: .5s;
+    background-size: 200% auto;
+    color: #fff!important;
+    box-shadow: 0 0 20px #eee;
+    border-radius: 10px;
+    display: block;
+}
+
+
+@media (hover: hover) and (pointer: fine) {
+    .mud-button-filled:hover {
+        background-position: right center !important;
+        color: #fff !important;
+        text-decoration: none !important;
+    }
+}
+.mud-input-label-outlined{
+    background-color: transparent!important;
+}
+
+.mud-drawer {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;
+    color: #ffffff !important;;
+}
+
+.mud-appbar {
+    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;
+    color: #ffffff !important;;
+}
+
+.mud-list .mud-list-item-clickable:hover {
+    background-color: lightgrey !important;
+    color: black !important;
+}
+.mud-tabs-panels{
+    background-color: white!important;
+}
+.form-control{
+    border-color: #0077B5!important;
+}
+.form-select{
+    border-color: #0077B5!important;
+}
+.white-color {
+    color: white !important;
+}
+
+h1:focus {
+    outline: none;
+}
+
+.top-right {
+    position: absolute;
+    top: 8px;
+    right: 16px;
+    font-size: 18px;
+}
+
+.text-bold {
+    font-weight: bolder !important;
+}
+
+.hr-thin {
+    color: #0077B5;
+    border: 2px;
+}
+
+.validation-message {
+    color: crimson !important;
+    font-weight: bolder;
+}
+
+.nav-tabs > li > .nav-link {
+    border-color: crimson;
+}
+
+.nav-tabs > li > .nav-link.active {
+    border-color: #0077B5;
+}

@@ -1,0 +1,113 @@
+﻿@using ClickATell.Requests
+@using Domain.Entities.Messaging
+@using Shared.Responses.Patient
+@using Dexterity.Components.Pages.PatientManager.Components
+@using Shared.Requests.Messaging
+<Validations @ref="@ValidationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
+    <MudStack>
+        <MudItem>
+            <Validation>
+                <FieldLabel>Sms Template</FieldLabel>
+                <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
+                    <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
+                    @foreach (var item in SmsTemplates)
+                    {
+                        <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
+                    }
+                </MudSelect>
+            </Validation>
+        </MudItem>
+        <MudItem>
+            <Validation>
+                <FieldLabel>Content</FieldLabel>
+                <MemoEdit @bind-Text="_messageRequest.Content"/>
+            </Validation>
+        </MudItem>
+        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+        <MudItem>
+            <DexInputField Label="Mobile" @bind-FieldDataSource="_messageRequest.Mobile"></DexInputField>
+        </MudItem>
+        <MudItem>
+            <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2 white-color">Processing</MudText>
+                }
+                else
+                {
+                    <MudText><i class="fas fa-paper-plane"></i> Send SMS</MudText>
+                }
+            </MudButton>
+        </MudItem>
+    </MudStack>
+</Validations>
+
+
+@code{
+    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    Validations ValidationsRef { get; set; }
+    private SendMessageRequest _messageRequest = new();
+    private List<SmsTemplate> SmsTemplates { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSmsTemplates();
+    }
+
+
+    private async Task GetSmsTemplates()
+    {
+        SmsTemplates = await UnitOfWork.SmsTemplate.GetSmsTemplates();
+    }
+
+    private async Task SendSmsClick()
+    {
+        _processing = true;
+        await Task.Delay(2500);
+        var request = new SmsRequest()
+        {
+            Content = _messageRequest.Content,
+            To = [_messageRequest.Mobile]
+        };
+        var res = await SmsEndpoints.SendMessage(request);
+        if (res.ResponseCode == 202)
+        {
+            Snackbar.SuccessMessge("Message has been sent.");
+        }
+        else
+        {
+            foreach (var item in res.Messages)
+            {
+                Console.WriteLine(item.ErrorDescription);
+            }
+        }
+
+        _processing = false;
+    }
+
+
+    private async Task ChangeSmsTemplate(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            _messageRequest.Content = "";
+        }
+        else
+        {
+            var res = await UnitOfWork.SmsTemplate.GetSmsTemplate(id);
+            _messageRequest.Content = res.Data.Content;
+        }
+    }
+
+    private void ChangePatient(PatientListResponse obj)
+    {
+        if (obj.Id != Guid.Empty)
+        {
+            _messageRequest.Mobile = obj.Mobile;
+        }
+    }
+
+
+}

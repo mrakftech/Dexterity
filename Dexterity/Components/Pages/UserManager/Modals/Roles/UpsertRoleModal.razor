@@ -1,0 +1,47 @@
+﻿<MudDialog>
+    <DialogContent>
+        
+        <MudStack Class="mt-2">
+            <MudTextField @bind-Value="RoleName" Variant="Variant.Outlined"
+                          Margin="MudMargin.Dense">
+            </MudTextField>
+            <MudButton Variant="Variant.Filled" Color="MudColor.Primary" OnClick="SaveRole">Save</MudButton>
+        </MudStack>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private string RoleName { get; set; } 
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            var role = await UnitOfWork.User.GetUserRole(Id);
+            RoleName = role.Name;
+        }
+    }
+
+    private async Task SaveRole()
+    {
+        if (RoleName == null || string.IsNullOrWhiteSpace(RoleName))
+        {
+            Snackbar.FailMessge("Role Name required.");
+            return;
+        }
+
+        var res = await UnitOfWork.User.SaveRole(RoleName, Id);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

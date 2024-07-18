@@ -1,0 +1,36 @@
+﻿@using Dexterity.Settings
+@inherits LayoutComponentBase
+<style>
+    body {
+        font-family: "Open Sans", serif;
+        background-image: url("assets/images/login-bg.jpg");
+        background-repeat: no-repeat;
+        background-attachment: fixed;
+        background-position: center;
+        background-size: cover;
+        
+    }
+
+
+    .top-right {
+        position: absolute;
+        top: 8px;
+        right: 16px;
+        font-size: 18px;
+    }
+</style>
+<MudThemeProvider Theme="_currentTheme"/>
+<MudSnackbarProvider/>
+@* <MudIconButton Icon="fas fa-close" OnClick="TerminateApp" Class="top-right" Color="MudColor.Secondary" t></MudIconButton> *@
+<MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex align-center " Style="height: 20px;margin-top: 25%">
+    
+    @Body
+
+</MudContainer>
+
+@code {
+    private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
+
+   
+
+}

@@ -1,0 +1,15 @@
+﻿<MudStack Justify="MudJustify.Center" Row Style="background-color: #0077B5;;height: 50px;width: 100%;border-radius: 5px">
+    <MudImage Src=@($"assets/images/{Image}") Fluid="true" Width="48"></MudImage>
+    <MudText
+        Typo="Typo.h4"
+        Align="MudAlign.Center"
+        Style="color: white;font-weight: bolder">
+        @Title
+    </MudText>
+
+</MudStack>
+
+@code {
+    [Parameter] public string Title { get; set; }
+    [Parameter] public string Image { get; set; } = "waitingRoom/waiting-room.svg";
+}

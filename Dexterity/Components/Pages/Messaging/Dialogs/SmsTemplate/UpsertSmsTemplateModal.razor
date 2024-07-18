@@ -1,0 +1,74 @@
+﻿@using Domain.Entities.Messaging
+<MudDialog>
+    <DialogContent>
+        <EditForm Model="SmsTemplateRequest" OnValidSubmit="SaveSmsTemplate">
+            <DataAnnotationsValidator/>
+            <MudStack Class="mt-2">
+                <div class="col-sm-8 text-danger">
+                    <ValidationMessage For="() => SmsTemplateRequest.Name"/>
+
+                </div>
+                <MudTextField @bind-Value="SmsTemplateRequest.Name" Variant="Variant.Outlined"
+                              Label="Template Name"
+                              Margin="MudMargin.Dense">
+                </MudTextField>
+                <div class="col-sm-8 text-danger">
+                    <ValidationMessage For="() => SmsTemplateRequest.Content"/>
+                </div>
+                <MudTextField @bind-Value="SmsTemplateRequest.Content" Variant="Variant.Outlined"
+                              Lines="10"
+                              Label="Content"
+                              Margin="MudMargin.Dense">
+                </MudTextField>
+                <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2">Processing</MudText>
+                    }
+                    else
+                    {
+                        <MudText>Save Template</MudText>
+                    }
+                </MudButton>
+            </MudStack>
+        </EditForm>
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private SmsTemplate SmsTemplateRequest { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            var s = await UnitOfWork.SmsTemplate.GetSmsTemplate(Id);
+            SmsTemplateRequest = s.Data;
+        }
+    }
+
+    private async Task SaveSmsTemplate()
+    {
+        _processing = true;
+        await Task.Delay(1000);
+        var res = await UnitOfWork.SmsTemplate.SaveSmsTemplate(Id, SmsTemplateRequest);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+}
