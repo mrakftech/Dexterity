@@ -3,32 +3,34 @@
 @using Shared.Responses.Patient
 @using Dexterity.Components.Pages.PatientManager.Components
 @using Shared.Requests.Messaging
-<Validations @ref="@ValidationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
+<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
     <MudStack>
         <MudItem>
-            <Validation>
-                <FieldLabel>Sms Template</FieldLabel>
-                <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
-                    <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
-                    @foreach (var item in SmsTemplates)
-                    {
-                        <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
-                    }
-                </MudSelect>
-            </Validation>
+            <FieldLabel>Sms Template</FieldLabel>
+            <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
+                <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
+                @foreach (var item in SmsTemplates)
+                {
+                    <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
+                }
+            </MudSelect>
         </MudItem>
         <MudItem>
             <Validation>
                 <FieldLabel>Content</FieldLabel>
-                <MemoEdit @bind-Text="_messageRequest.Content"/>
+                <MemoEdit @bind-Text="@_messageRequest.Content">
+                    <Feedback>
+                        <ValidationError/>
+                    </Feedback>
+                </MemoEdit>
             </Validation>
         </MudItem>
         <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
         <MudItem>
-            <DexInputField Label="Mobile" @bind-FieldDataSource="_messageRequest.Mobile"></DexInputField>
+            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageRequest.Mobile"></DexInputField>
         </MudItem>
         <MudItem>
-            <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+            <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
                 @if (_processing)
                 {
                     <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
@@ -46,7 +48,7 @@
 
 @code{
     [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
-    Validations ValidationsRef { get; set; }
+    Validations _validationsRef;
     private SendMessageRequest _messageRequest = new();
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
     private bool _processing;
@@ -65,23 +67,28 @@
     private async Task SendSmsClick()
     {
         _processing = true;
-        await Task.Delay(2500);
-        var request = new SmsRequest()
+        if (await _validationsRef.ValidateAll())
         {
-            Content = _messageRequest.Content,
-            To = [_messageRequest.Mobile]
-        };
-        var res = await SmsEndpoints.SendMessage(request);
-        if (res.ResponseCode == 202)
-        {
-            Snackbar.SuccessMessge("Message has been sent.");
-        }
-        else
-        {
-            foreach (var item in res.Messages)
+            await Task.Delay(2500);
+            var request = new SmsRequest()
             {
-                Console.WriteLine(item.ErrorDescription);
+                Content = _messageRequest.Content,
+                To = [_messageRequest.Mobile]
+            };
+            var res = await SmsEndpoints.SendMessage(request);
+            if (res.ResponseCode == 202)
+            {
+                Snackbar.SuccessMessge("Message has been sent.");
             }
+            else
+            {
+                foreach (var item in res.Messages)
+                {
+                    Console.WriteLine(item.ErrorDescription);
+                }
+            }
+
+            await _validationsRef.ClearAll();
         }
 
         _processing = false;

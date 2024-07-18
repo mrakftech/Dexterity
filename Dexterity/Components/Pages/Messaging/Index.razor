@@ -7,17 +7,16 @@
 <style>
     
 </style>
-<div style="margin-top: 10%">
+<div style="margin-top: 5%">
 
-  
     <MudTabs SliderAnimation="true"
              MaxHeight="600"
              Outlined="true"
              Position="MudPosition.Top"
-             Border="true" Color="MudColor.Primary" Elevation="1" 
+             Border="true" Color="MudColor.Primary" Elevation="1"
              Rounded="true" PanelClass="pa-6" ActiveTabClass="border-solid border-2 mud-border-primary"
              ApplyEffectsToContainer="true" Class="mt-8">
-        
+
         <MudTabPanel Text="User Tasks" Icon="fas fa-bars-progress">
             <UserTask/>
         </MudTabPanel>
@@ -40,11 +39,6 @@
 </div>
 
 @code {
-    bool _drawerOpen = true;
 
-    void DrawerToggle()
-    {
-        _drawerOpen = !_drawerOpen;
-    }
 
 }

@@ -1,0 +1,54 @@
+﻿@using Shared.Requests.Messaging
+@using Shared.Responses.Patient
+@using Dexterity.Components.Pages.PatientManager.Components
+<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_whatsAppRequest">
+    <MudStack>
+        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+
+        <MudItem>
+            <DexInputField Label="Mobile Number"></DexInputField>
+        </MudItem>
+        <MudItem>
+            <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                    <MudText Class="ms-2 white-color">Processing</MudText>
+                }
+                else
+                {
+                    <MudText><i class="fas fa-paper-plane"></i> Send Message</MudText>
+                }
+            </MudButton>
+        </MudItem>
+    </MudStack>
+</Validations>
+
+@code {
+    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    Validations _validationsRef;
+    private bool _processing;
+    private WhatsAppRequest _whatsAppRequest = new();
+
+    private async Task SendSmsClick()
+    {
+        _processing = true;
+        //if (await _validationsRef.ValidateAll())
+        //{
+        await Task.Delay(2500);
+        Snackbar.SuccessMessge("WhatsApp has been sent.");
+        await _validationsRef.ClearAll();
+        //}
+
+        _processing = false;
+    }
+
+    private void ChangePatient(PatientListResponse obj)
+    {
+        if (obj.Id != Guid.Empty)
+        {
+            // _mailRequest.To = obj.EmailAddress;
+        }
+    }
+
+}

@@ -1,7 +1,9 @@
-﻿namespace Shared.Requests.Messaging;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Shared.Requests.Messaging;
 
 public class SendMessageRequest
 {
-    public string Content { get; set; }
-    public string Mobile { get; set; }
+    [Required] public string Content { get; set; }
+    [Required] public string Mobile { get; set; }
 }

@@ -1,13 +1,17 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs.SmsTemplate
+@using Margin = MudBlazor.Margin
 @using Domain.Entities.Messaging
 <MudDataGrid Items="SmsTemplateList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
     <ToolBarContent>
         <MudText Typo="Typo.h6">Sms Templates</MudText>
         <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Add" Color="MudColor.Primary" OnClick="() => UpsertSmsTemplateModal(Guid.Empty)"/>
         <MudSpacer/>
-        <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                      AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
-        </MudTextField>
+        <MudItem md="2">
+            <MudTextField Variant="Variant.Outlined" Margin="Margin.Dense" @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@Icons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
+            </MudTextField>
+            
+        </MudItem>
     </ToolBarContent>
     <Columns>
         <PropertyColumn Property="x => x.Name"/>
