@@ -2,7 +2,6 @@ using AutoMapper;
 using Database;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
-using Services.Respository;
 using Shared.Constants.Role;
 using Shared.Helper;
 using Shared.Requests.Auth;
@@ -13,16 +12,15 @@ using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
 
-public class UserRepository(ApplicationDbContext context, IMapper mapper)
-    : RepositoryBase<User>(context), IUserRepository
+public class UserService(ApplicationDbContext context, IMapper mapper)
+    : IUserService
 {
-    private readonly ApplicationDbContext _context = context;
 
     #region User
 
     public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request)
     {
-        var userInDb = await _context.Users.Include(x => x.Role)
+        var userInDb = await context.Users.Include(x => x.Role)
             .SingleOrDefaultAsync(x => x.Username == request.Username);
 
         if (userInDb is null)
@@ -52,7 +50,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserResponse>> GetUsers()
     {
-        var usersList = await _context.Users.Include(x => x.Role).Where(x => x.IsDeleted == false)
+        var usersList = await context.Users.Include(x => x.Role).Where(x => x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedDate).ToListAsync();
         var users = mapper.Map<List<UserResponse>>(usersList);
         return users;
@@ -60,7 +58,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<UserResponse> GetUser(Guid id)
     {
-        var userInDb = await _context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
+        var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
         return mapper.Map<UserResponse>(userInDb);
     }
 
@@ -70,12 +68,12 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
         {
             if (request.Id == Guid.Empty)
             {
-                if (_context.Users.Any(x => x.Username == request.Username))
+                if (context.Users.Any(x => x.Username == request.Username))
                 {
                     return await Result.FailAsync("Username already exists.");
                 }
 
-                var role = await _context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
+                var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
                 request.Id = Guid.NewGuid();
                 request.RoleId = role.Id;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
@@ -83,8 +81,8 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
                 user.PasswordHash = hashPassword;
-                _context.Users.Add(user);
-                await _context.SaveChangesAsync();
+                context.Users.Add(user);
+                await context.SaveChangesAsync();
                 return await Result.SuccessAsync("User saved");
             }
             else
@@ -94,14 +92,14 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
                     request.Password = SecurePasswordHasher.Hash(request.Password);
                 }
 
-                var role = await _context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
-                var userInDb = await _context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
+                var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
+                var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
                 request.RoleId = role.Id;
                 request.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 request.ModifiedDate = DateTime.Today;
                 userInDb = mapper.Map(request, userInDb);
-                _context.Users.Update(userInDb);
-                await _context.SaveChangesAsync();
+                context.Users.Update(userInDb);
+                await context.SaveChangesAsync();
                 return await Result.SuccessAsync("User saved");
             }
         }
@@ -113,7 +111,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteUser(Guid id)
     {
-        var userInDb = await _context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
+        var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
         if (userInDb.Role.Name == RoleConstants.AdministratorRole)
         {
             return await Result.FailAsync("Can't be delete admin user");
@@ -125,7 +123,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
         }
 
         userInDb.IsDeleted = true;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return await Result.SuccessAsync("User has been deleted.");
     }
 
@@ -142,26 +140,26 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<RoleResponse> GetUserRole(Guid roleId)
     {
-        var roleInDb = await _context.Roles.FirstOrDefaultAsync(x => x.Id == roleId);
+        var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == roleId);
         return mapper.Map<RoleResponse>(roleInDb);
     }
 
     public async Task<Guid> GetRoleId(string name)
     {
-        var role = await _context.Roles.FirstOrDefaultAsync(x => x.Name == name);
+        var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == name);
         return role.Id;
     }
 
     public async Task<List<RoleResponse>> GetRoles()
     {
-        var role = await _context.Roles.ToListAsync();
+        var role = await context.Roles.ToListAsync();
         var data = mapper.Map<List<RoleResponse>>(role);
         return data;
     }
 
     public async Task<IResult> SaveRole(string name, Guid id)
     {
-        if (_context.Roles.Any(x => x.Name == name))
+        if (context.Roles.Any(x => x.Name == name))
         {
             return await Result.FailAsync("Role name is already avaialble");
         }
@@ -174,11 +172,11 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
                 CreatedBy = ApplicationState.CurrentUser.UserId,
                 CreatedDate = DateTime.Today,
             };
-            _context.Roles.Add(role);
+            context.Roles.Add(role);
         }
         else
         {
-            var roleInDb = await _context.Roles.FirstOrDefaultAsync(x => x.Id == id);
+            var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == id);
 
             if (roleInDb == null)
                 return await Result.FailAsync("Role not found");
@@ -192,19 +190,19 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
             roleInDb.ModifiedDate = DateTime.Today;
         }
 
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return await Result.SuccessAsync("Role has been saved.");
     }
 
     public async Task<IResult> DeleteRole(Guid id)
     {
-        var roleInDb = await _context.Roles.FirstOrDefaultAsync(x => x.Id == id);
+        var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (roleInDb == null)
             return await Result.FailAsync("Role not found");
         if (roleInDb.IsDefualt)
             return await Result.FailAsync("Default roles can't be delete.");
-        _context.Roles.Remove(roleInDb);
-        await _context.SaveChangesAsync();
+        context.Roles.Remove(roleInDb);
+        await context.SaveChangesAsync();
         return await Result.SuccessAsync("Role has been deleted.");
     }
 
@@ -214,7 +212,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<PermissionResponse>> GetPermissions(Guid roleId, string module)
     {
-        var permissions = await _context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleName == module)
+        var permissions = await context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleName == module)
             .ToListAsync();
         var data = mapper.Map<List<PermissionResponse>>(permissions);
         return data;
@@ -224,9 +222,9 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
     {
         foreach (var request in requests)
         {
-            var p = await _context.PermissionClaims.FirstOrDefaultAsync(x => x.Id == request.Id);
+            var p = await context.PermissionClaims.FirstOrDefaultAsync(x => x.Id == request.Id);
             p.Allowed = request.Value;
-            await _context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
 
         return await Result.SuccessAsync("Permission Updated");
@@ -234,7 +232,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> ResetPassword(ResetPasswordRequest request)
     {
-        var userInDb = await _context.Users.Include(x => x.Role)
+        var userInDb = await context.Users.Include(x => x.Role)
             .FirstOrDefaultAsync(x => x.Id == ApplicationState.CurrentUser.UserId);
         
         if (userInDb == null)
@@ -245,7 +243,7 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
         var hashedPassword = SecurePasswordHasher.Hash(request.NewPassword);
         userInDb.IsForceReset = false;
         userInDb.PasswordHash = hashedPassword;
-        await _context.SaveChangesAsync();
+        await context.SaveChangesAsync();
         return await Result.SuccessAsync("Password has been reset");
     }
 

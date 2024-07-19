@@ -3,9 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Services.Respository;
 using Shared.Wrapper;
 
-namespace Services.Features.Messaging.SmsTemplate;
+namespace Services.Features.Settings.SmsTemplates;
 
-public class SmsTemplateRepository(ApplicationDbContext context) : RepositoryBase<Domain.Entities.Messaging.SmsTemplate>(context), ISmsTemplateRepository
+public class SettingService(ApplicationDbContext context) 
+    :  ISettingService
 {
     public async Task<List<Domain.Entities.Messaging.SmsTemplate>> GetSmsTemplates()
     {

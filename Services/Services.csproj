@@ -19,10 +19,14 @@
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Contracts\Modules\" />
+	  <Folder Include="Features\Settings\" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Reference Include="PhoneNumbers">
 	    <HintPath>C:\Users\Muzammil\.nuget\packages\libphonenumber-csharp\8.13.40\lib\net7.0\PhoneNumbers.dll</HintPath>
 	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="Respository\RepositoryBase.cs" />
 	</ItemGroup>
 </Project>

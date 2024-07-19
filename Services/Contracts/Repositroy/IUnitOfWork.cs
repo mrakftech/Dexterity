@@ -1,14 +1,15 @@
-using Services.Features.Messaging;
-using Services.Features.Messaging.SmsTemplate;
+using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
+using Services.Features.Settings.SmsTemplates;
 using Services.Features.UserAccounts.Service;
 
 namespace Services.Contracts.Repositroy;
 
 public interface IUnitOfWork
 {
-    IUserRepository User { get; }
-    IPatientRepository Patient { get; }
-    ISmsTemplateRepository SmsTemplate { get; }
+    IUserService User { get; }
+    IPatientService Patient { get; }
+    ISettingService SmsTemplate { get; }
+    IMessagingService UserTask { get; }
     void Save();
 }

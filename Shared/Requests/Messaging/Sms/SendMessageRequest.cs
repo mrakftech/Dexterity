@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Requests.Messaging;
+namespace Shared.Requests.Messaging.Sms;
 
 public class SendMessageRequest
 {

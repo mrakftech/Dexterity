@@ -11,19 +11,11 @@ namespace Database;
 
 public class ApplicationDbContext : DbContext
 {
-    //public DbSet<Appointment> Appointment { get; set; }
-    // public DbSet<NewTask> NewTask { get; set; }
-    // public DbSet<Drug> Drug { get; set; }
-    // public DbSet<Wax> Wax { get; set; }
-    //public DbSet<Notes> Notes { get; set; }
-    // public DbSet<NoteTemplate> NoteTemplate { get; set; }
-    // public DbSet<Template> Template { get; set; }
-    // public DbSet<Message> Message { get; set; }
-    //public DbSet<Consultation> Consultation { get; set; }
     public DbSet<SmsTemplate> SmsTemplates { get; set; }
     public DbSet<Role> Roles { get; set; }
     public DbSet<Patient> Patients { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserTask> UserTasks { get; set; }
     public DbSet<PermissionClaim> PermissionClaims { get; set; }
     
     

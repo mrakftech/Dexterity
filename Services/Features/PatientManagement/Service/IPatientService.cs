@@ -7,7 +7,7 @@ using Shared.Wrapper;
 
 namespace Services.Features.PatientManagement.Service;
 
-public interface IPatientRepository : IRepositoryBase<Patient>
+public interface IPatientService 
 {
     public Task<List<PatientListResponse>> GetPatients();
 

@@ -14,8 +14,8 @@ using Shared.Wrapper;
 
 namespace Services.Features.PatientManagement.Service;
 
-public class PatientRepository(ApplicationDbContext context, IMapper mapper)
-    : RepositoryBase<Patient>(context), IPatientRepository
+public class PatientService(ApplicationDbContext context, IMapper mapper)
+    : IPatientService
 {
     private readonly ApplicationDbContext _context = context;
 

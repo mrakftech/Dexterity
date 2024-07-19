@@ -1,4 +1,4 @@
-﻿namespace Shared.Requests.Messaging;
+﻿namespace Shared.Requests.Messaging.Sms;
 
 public class MailRequest
 {

@@ -7,7 +7,7 @@ using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
 
-public interface IUserRepository : IRepositoryBase<User>
+public interface IUserService 
 {
     Task<Result<LoginResponse>> LoginAsync(LoginRequest request);
 

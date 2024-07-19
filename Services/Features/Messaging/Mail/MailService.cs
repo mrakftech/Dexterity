@@ -4,6 +4,7 @@ using Microsoft.Extensions.Options;
 using MimeKit;
 using Services.Configurations;
 using Shared.Requests.Messaging;
+using Shared.Requests.Messaging.Sms;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Services.Features.Messaging.Mail;

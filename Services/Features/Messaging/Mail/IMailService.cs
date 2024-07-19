@@ -1,4 +1,5 @@
 ﻿using Shared.Requests.Messaging;
+using Shared.Requests.Messaging.Sms;
 
 namespace Services.Features.Messaging.Mail
 {

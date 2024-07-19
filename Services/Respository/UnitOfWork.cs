@@ -1,54 +1,69 @@
 using AutoMapper;
 using Database;
 using Services.Contracts.Repositroy;
-using Services.Features.Messaging;
-using Services.Features.Messaging.SmsTemplate;
+using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
+using Services.Features.Settings.SmsTemplates;
 using Services.Features.UserAccounts.Service;
 
 namespace Services.Respository;
 
 public class UnitOfWork(
     ApplicationDbContext context,
-    IUserRepository user,
+    IUserService user,
     IMapper mapper,
-    IPatientRepository patient,
-    ISmsTemplateRepository smsTemplate)
+    IPatientService patient,
+    IMessagingService messaging,
+    ISettingService setting)
     : IUnitOfWork
 {
-    public ISmsTemplateRepository SmsTemplate
+    
+    
+    public IMessagingService UserTask
     {
         get
         {
-            if (smsTemplate == null)
+            if (messaging == null)
             {
-                smsTemplate = new SmsTemplateRepository(context);
+                messaging = new MessagingService(context);
             }
 
-            return smsTemplate;
+            return messaging;
+        }
+    }
+    public ISettingService SmsTemplate
+    {
+        get
+        {
+            if (setting == null)
+            {
+                setting = new SettingService(context);
+            }
+
+            return setting;
         }
     }
 
-    public IUserRepository User
+    public IUserService User
     {
         get
         {
             if (user == null)
             {
-                user = new UserRepository(context, mapper);
+                user = new UserService(context, mapper);
             }
 
             return user;
         }
     }
 
-    public IPatientRepository Patient
+    public IPatientService Patient
     {
         get
         {
             if (patient == null)
             {
-                user = new UserRepository(context, mapper);
+                user = new UserService(context, mapper);
             }
 
             return patient;

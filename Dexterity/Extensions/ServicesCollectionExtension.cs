@@ -3,8 +3,9 @@ using DailyCo.Extensions;
 using MailKit;
 using Services.Contracts.Repositroy;
 using Services.Features.Messaging;
-using Services.Features.Messaging.SmsTemplate;
+using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
+using Services.Features.Settings.SmsTemplates;
 using Services.Features.UserAccounts.Service;
 using Services.Respository;
 using IMailService = Services.Features.Messaging.Mail.IMailService;
@@ -16,9 +17,10 @@ public static class ServicesCollectionExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IPatientRepository, PatientRepository>();
-        services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<ISmsTemplateRepository, SmsTemplateRepository>();
+        services.AddScoped<IPatientService, PatientService>();
+        services.AddScoped<IUserService, UserService>();
+        services.AddScoped<ISettingService, SettingService>();
+        services.AddScoped<IMessagingService, MessagingService>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IMailService, MailService>();
 
