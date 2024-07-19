@@ -1,13 +1,13 @@
-﻿<MudStack Justify="MudJustify.Center" Row Style="background-color: #0077B5;;height: 50px;width: 100%;border-radius: 5px">
+﻿<MudAppBar Color="MudColor.Primary" Fixed="false" Style="z-index: 1;">
     <MudImage Src=@($"assets/images/{Image}") Fluid="true" Width="48"></MudImage>
     <MudText
         Typo="Typo.h4"
         Align="MudAlign.Center"
-        Style="color: white;font-weight: bolder">
+        Style="color: white;font-weight: bolder;margin-left: 15px">
         @Title
     </MudText>
 
-</MudStack>
+</MudAppBar>
 
 @code {
     [Parameter] public string Title { get; set; }

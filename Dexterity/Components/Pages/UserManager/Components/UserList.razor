@@ -5,11 +5,11 @@
              Hideable="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Class="text-bold">Users</MudText>
-        <MudFab Color="MudColor.Primary" StartIcon="@Icons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="AddNewUser"/>
+        <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="AddNewUser"/>
         <MudSpacer/>
         <MudItem md="3">
             <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
+                          AdornmentIcon="@MudIcons.Material.Filled.Search"
                           Variant="Variant.Outlined"
                           IconSize="MudSize.Medium"
                           Margin="MudMargin.Dense"
@@ -37,8 +37,8 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
             <CellTemplate>
-                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Edit" Color="MudColor.Primary"/>
-                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUser(context.Item.Id)"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUser(context.Item.Id)"/>
             </CellTemplate>
         </TemplateColumn>
     </Columns>

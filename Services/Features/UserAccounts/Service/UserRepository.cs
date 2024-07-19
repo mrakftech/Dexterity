@@ -43,7 +43,8 @@ public class UserRepository(ApplicationDbContext context, IMapper mapper)
         {
             UserId = userInDb.Id,
             RoleName = userInDb.Role.Name,
-            IsForceReset = userInDb.IsForceReset
+            IsForceReset = userInDb.IsForceReset,
+            Name = userInDb.FullName
         };
         ApplicationState.CurrentUser = response;
         return await Result<LoginResponse>.SuccessAsync("User Logged in successfully.");

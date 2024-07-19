@@ -1,0 +1,114 @@
+﻿@using Dexterity.Components.Pages.Messaging.Dialogs
+@using Shared.Helper
+
+<MudItem>
+    <MudStack>
+        <MudItem>
+            <MudStack Row>
+                <MudItem>
+                    <MudMenu Label="Load Group" Variant="Variant.Filled" Color="MudColor.Primary" AnchorOrigin="Origin.CenterCenter" TransformOrigin="Origin.TopLeft" Dense>
+                        <MudMenuItem>
+                            <MudMenu ActivationEvent="MouseEvent.MouseOver" AnchorOrigin="Origin.TopRight" TransformOrigin="Origin.TopLeft" Dense>
+                                <ActivatorContent>
+                                    <MudMenuItem> Patients </MudMenuItem>
+                                </ActivatorContent>
+                                <ChildContent>
+                                    <MudMenuItem OnClick="LoadPatents">All Patients</MudMenuItem>
+                                </ChildContent>
+                            </MudMenu>
+                        </MudMenuItem>
+                    </MudMenu>
+                   
+                </MudItem>
+                @if (ValidPatients is {Count: > 0})
+                {
+                    <MudItem>
+                        <MudButton Color="MudColor.Primary" Variant="Variant.Filled" OnClick="SendBulkSms">Send Bulk Sms</MudButton>
+                    </MudItem>
+                }
+
+            </MudStack>
+        </MudItem>
+        <MudItem>
+            @if (ValidPatients is {Count: > 0})
+            {
+                <MudDataGrid Loading="_patientLoading"
+                             RowsPerPage="5"
+                             LoadingProgressColor="MudColor.Secondary"
+                             FixedHeader="true"
+                             T="PatientListResponse"
+                             Dense="true"
+                             Bordered="true"
+                             Hover="true"
+                             Items="@ValidPatients"
+                             SortMode="SortMode.Multiple"
+                             Filterable="true"
+                             QuickFilter="@QuickFilter"
+                             Hideable="true">
+                    <ToolBarContent>
+                        <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
+                        <MudSpacer/>
+                        <MudItem md="3">
+                            <Validations Mode="ValidationMode.Manual">
+                                <DexInputField @bind-FieldDataSource="_searchString" Label="Search"></DexInputField>
+                            </Validations>
+                        </MudItem>
+                    </ToolBarContent>
+                    <Columns>
+                        <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
+                        <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
+                        <PropertyColumn Property="x => x.Mobile" Title="Mobile" Sortable="false" Filterable="false"/>
+                        <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
+                    </Columns>
+                    <PagerContent>
+                        <MudDataGridPager T="PatientListResponse" RowsPerPageString="5"/>
+                    </PagerContent>
+                    <NoRecordsContent>Patients are not found.</NoRecordsContent>
+                </MudDataGrid>
+            }
+        </MudItem>
+    </MudStack>
+</MudItem>
+
+@code {
+    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    private List<PatientListResponse> ValidPatients { get; set; } = new();
+    private bool _patientLoading;
+    private string _searchString;
+
+    private Func<PatientListResponse, bool> QuickFilter => x =>
+    {
+        if (string.IsNullOrWhiteSpace(_searchString))
+            return true;
+
+        if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+
+
+        return false;
+    };
+
+    private void LoadPatents(
+        )
+    {
+        _patientLoading = true;
+        foreach (var item in PatientList)
+        {
+            if (!string.IsNullOrWhiteSpace(item.Mobile))
+            {
+                item.Mobile = Method.GetMobileFormat(item.Mobile);
+                ValidPatients.Add(item);
+            }
+        }
+
+        _patientLoading = false;
+    }
+
+    private async Task SendBulkSms(MouseEventArgs obj)
+    {
+        var parameters = new DialogParameters {{"ValidPatients", ValidPatients}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<BulkSmsValidateDialog>("", parameters, options);
+    }
+
+}

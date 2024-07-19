@@ -4,6 +4,7 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using PhoneNumbers;
 using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Constants.Permission;
@@ -27,7 +28,6 @@ public class DatabaseSeeder(
         {
             SeedUsers();
         }
-        
 
 
         if (!context.PermissionClaims.Any())
@@ -76,6 +76,8 @@ public class DatabaseSeeder(
         {
             if (!context.Patients.Any())
             {
+                var util = PhoneNumberUtil.GetInstance();
+                var num = util.GetExampleNumber("US");
                 var types = PatientConstants.PatientTypes;
                 var fakePatients = new Faker<Patient>()
                     .RuleFor(x => x.FirstName, x => x.Person.FirstName)
@@ -84,13 +86,13 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.DateOfBirth, x => DateOnly.FromDateTime(x.Person.DateOfBirth))
                     .RuleFor(x => x.Gender, x => x.Person.Gender.ToString())
                     .RuleFor(x => x.AddressLine1, x => x.Address.FullAddress())
-                    .RuleFor(x => x.Mobile, x => x.Person.Phone)
+                    .RuleFor(x => x.Mobile, x => util.Format(num, PhoneNumberFormat.E164))
                     .RuleFor(x => x.HomePhone, x => x.Phone.PhoneNumber())
                     .RuleFor(x => x.EmailAddress, x => x.Person.Email)
                     .RuleFor(x => x.PatientStatus, "Active")
-                    .RuleFor(x => x.IhINumber, x=>x.Random.Number(1,2000000000).ToString())
-                    .RuleFor(x => x.UniqueNumber, x=>x.Random.Number(1,2000000000).ToString())
-                    .RuleFor(x => x.Ppsn, x=>x.Random.Number(1,1500000000).ToString())
+                    .RuleFor(x => x.IhINumber, x => x.Random.Number(1, 2000000000).ToString())
+                    .RuleFor(x => x.UniqueNumber, x => x.Random.Number(1, 2000000000).ToString())
+                    .RuleFor(x => x.Ppsn, x => x.Random.Number(1, 1500000000).ToString())
                     .RuleFor(x => x.PatientType, x => x.PickRandom(types))
                     .RuleFor(x => x.City, x => x.Address.City())
                     .RuleFor(x => x.Title, x => x.Name.Prefix())
@@ -186,13 +188,11 @@ public class DatabaseSeeder(
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.UserRole)!.Id
                 },
-               
             };
-           
-                await context.Users.AddRangeAsync(users);
-                await context.SaveChangesAsync();
-                logger.LogInformation("Users seeded");
-            
+
+            await context.Users.AddRangeAsync(users);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Users seeded");
         }).GetAwaiter().GetResult();
     }
 
@@ -219,21 +219,18 @@ public class DatabaseSeeder(
                     CreatedDate = DateTime.Today,
                     Name = RoleConstants.UserRole,
                     IsDefualt = true
-
                 },
                 new()
                 {
                     CreatedDate = DateTime.Today,
                     Name = RoleConstants.Doctor,
                     IsDefualt = true
-
                 },
                 new()
                 {
                     CreatedDate = DateTime.Today,
                     Name = RoleConstants.Nurse,
                     IsDefualt = true
-
                 },
                 new()
                 {
@@ -241,13 +238,11 @@ public class DatabaseSeeder(
                     Name = RoleConstants.Receptionist,
                     IsDefualt = true
                 }
-                
             };
-           
-                await context.Roles.AddRangeAsync(roles);
-                await context.SaveChangesAsync();
-                logger.LogInformation("Roles seeded");
-            
+
+            await context.Roles.AddRangeAsync(roles);
+            await context.SaveChangesAsync();
+            logger.LogInformation("Roles seeded");
         }).GetAwaiter().GetResult();
     }
 }

@@ -2,12 +2,14 @@
 <MudNavMenu Style="margin-top: 30px">
     <MudItem>
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-home" IconColor="MudColor.Info" Href="/home">Dashboard</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-check" IconColor="MudColor.Info">Appointment</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-check" IconColor="MudColor.Info" Href="/appointments">Appointment</MudNavLink>
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-hourglass-start" IconColor="MudColor.Info" Href="/waiting-room">Waiting Room</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-doctor-message" IconColor="MudColor.Info" Href="/consultation">Consultation</MudNavLink>
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-hospital-user" IconColor="MudColor.Info" Href="/patient-management">Patient Manager</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-file-invoice" IconColor="MudColor.Info" Href="/reporting">Reporting</MudNavLink>
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message-dots" IconColor="MudColor.Info" Href="/messaging">Messaging</MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">Settings</MudNavLink>
         <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">Telehealth</MudNavLink>
+        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">Settings</MudNavLink>
 
     </MudItem>
     <MudSpacer/>

@@ -1,0 +1,178 @@
+﻿@using ClickATell.Requests
+<MudDialog>
+    <TitleContent>
+        <MudText Align="Align.Center" Style="font-weight: bolder">Bulk Sms Details</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudStack Justify="Justify.Center" AlignItems="AlignItems.Center">
+            <MudItem md="12">
+                <MudGrid Justify="Justify.Center">
+                    <MudItem md="12">
+                        <MudStack Row>
+                            <MudItem>
+                                <MudText Style="font-weight: bolder">Created By:</MudText>
+                            </MudItem>
+                            <MudItem>@ApplicationState.CurrentUser.Name</MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem md="12">
+                        <MudStack Row>
+                            <MudItem>
+                                <MudText Style="font-weight: bolder">Valid Mobile Numbers:</MudText>
+                            </MudItem>
+                            <MudItem>@ValidPatients.Count</MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem md="12">
+                        <MudStack Row>
+                            <MudItem>
+                                <MudText Style="font-weight: bolder">Selected Patients:</MudText>
+                            </MudItem>
+                            <MudItem>@_selectedPatients.Count</MudItem>
+                        </MudStack>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12">
+                <MudExpansionPanels>
+                    <MudExpansionPanel Text="@($"{_selectedPatients.Count} selected persons")" Expanded="false">
+                        <MudDataGrid RowsPerPage="5" T="PatientListResponse" MultiSelection="true" Items="@ValidPatients" SortMode="SortMode.Multiple" Filterable="true"
+                                     Hideable="true" SelectedItemsChanged="@SelectedItemsChanged">
+                            <ToolBarContent>
+                                <MudText Typo="Typo.h6">Valid list</MudText>
+                            </ToolBarContent>
+                            <Columns>
+                                <SelectColumn T="PatientListResponse"/>
+                                <PropertyColumn Property="x => x.FullName" Title="Full Name" Sortable="false" Filterable="false"/>
+                                <PropertyColumn Property="x => x.Mobile"/>
+                            </Columns>
+                            <PagerContent>
+                                <MudDataGridPager T="PatientListResponse"/>
+                            </PagerContent>
+                        </MudDataGrid>
+
+                    </MudExpansionPanel>
+                </MudExpansionPanels>
+            </MudItem>
+
+            <MudItem md="12">
+                <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
+                    <MudStack>
+                        <MudItem>
+                            <FieldLabel>Sms Template</FieldLabel>
+                            <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
+                                <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
+                                @foreach (var item in SmsTemplates)
+                                {
+                                    <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </MudItem>
+                        <MudItem>
+                            <Validation>
+                                <FieldLabel>Content</FieldLabel>
+                                <MemoEdit @bind-Text="@_messageRequest.Content">
+                                    <Feedback>
+                                        <ValidationError/>
+                                    </Feedback>
+                                </MemoEdit>
+                            </Validation>
+                        </MudItem>
+                        <MudItem>
+                            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageRequest.Mobile"></DexInputField>
+                        </MudItem>
+                        <MudItem>
+                            <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                                @if (_processing)
+                                {
+                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                                    <MudText Class="ms-2 white-color">Processing</MudText>
+                                }
+                                else
+                                {
+                                    <MudText><i class="fas fa-paper-plane"></i> Send SMS</MudText>
+                                }
+                            </MudButton>
+                        </MudItem>
+                    </MudStack>
+                </Validations>
+            </MudItem>
+        </MudStack>
+
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public List<PatientListResponse> ValidPatients { get; set; } = new();
+    private List<SmsTemplate> SmsTemplates { get; set; } = new();
+    private HashSet<PatientListResponse> _selectedPatients = new();
+    Validations _validationsRef;
+    private SendMessageRequest _messageRequest = new();
+    private bool _processing;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSmsTemplates();
+    }
+
+    private async Task GetSmsTemplates()
+    {
+        SmsTemplates = await UnitOfWork.SmsTemplate.GetSmsTemplates();
+    }
+
+    void SelectedItemsChanged(HashSet<PatientListResponse> items)
+    {
+        _selectedPatients = items;
+    }
+
+    private async Task ChangeSmsTemplate(Guid id)
+    {
+        if (id == Guid.Empty)
+        {
+            _messageRequest.Content = "";
+        }
+        else
+        {
+            var res = await UnitOfWork.SmsTemplate.GetSmsTemplate(id);
+            _messageRequest.Content = res.Data.Content;
+        }
+    }
+
+    private async Task SendSmsClick()
+    {
+        _processing = true;
+        if (_selectedPatients.Count == 0)
+        {
+            Snackbar.FailMessge("Please select person for sending msg");
+            return;
+        }
+
+        if (await _validationsRef.ValidateAll())
+        {
+            await Task.Delay(2500);
+            var request = new SmsRequest()
+            {
+                Content = _messageRequest.Content,
+                To = _selectedPatients.Select(x => x.Mobile).ToList()
+            };
+            var res = await SmsEndpoints.SendMessage(request);
+            if (res.ResponseCode == 202)
+            {
+                Snackbar.SuccessMessge("Message has been sent.");
+            }
+            else
+            {
+                foreach (var item in res.Messages)
+                {
+                    Console.WriteLine(item.ErrorDescription);
+                }
+            }
+
+            await _validationsRef.ClearAll();
+        }
+
+        _processing = false;
+    }
+
+}

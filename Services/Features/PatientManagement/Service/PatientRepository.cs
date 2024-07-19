@@ -3,8 +3,11 @@ using AutoMapper;
 using Database;
 using Domain.Entities.PatientManagement;
 using Microsoft.EntityFrameworkCore;
+using PhoneNumbers;
 using Services.Respository;
+using Shared.Constants.Application;
 using Shared.Dtos.Patient;
+using Shared.Helper;
 using Shared.Responses.Patient;
 using Shared.State;
 using Shared.Wrapper;
@@ -33,6 +36,7 @@ public class PatientRepository(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            request.Mobile = Method.GetMobileFormat(request.Mobile);
             request.CreatedBy = ApplicationState.CurrentUser.UserId;
             var patient = mapper.Map<Patient>(request);
             await _context.Patients.AddAsync(patient, cancellationToken);

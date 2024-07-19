@@ -1,14 +1,20 @@
-﻿@using Shared.Requests.Messaging
-@using Shared.Responses.Patient
-@using Dexterity.Components.Pages.PatientManager.Components
-<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_whatsAppRequest">
-    <MudStack>
-        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+﻿@using Shared.Helper
 
-        <MudItem>
-            <DexInputField Label="Mobile Number"></DexInputField>
+<MudStack>
+    <MudItem>
+        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+        
+    </MudItem>
+    @if (!string.IsNullOrWhiteSpace(_waLink))
+    {
+        <MudItem md="2">
+            
+        <MudButton FullWidth="false" Size="MudSize.Medium" Href="@_waLink" Color="MudColor.Primary" Variant="Variant.Filled"  StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
         </MudItem>
-        <MudItem>
+    }
+    <MudItem>
+        @if (!string.IsNullOrWhiteSpace(_mobile))
+        {
             <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
                 @if (_processing)
                 {
@@ -17,29 +23,27 @@
                 }
                 else
                 {
-                    <MudText><i class="fas fa-paper-plane"></i> Send Message</MudText>
+                    <MudText><i class="fas fa-paper-plane"></i> Generate Link</MudText>
                 }
             </MudButton>
-        </MudItem>
-    </MudStack>
-</Validations>
+        }
+
+    </MudItem>
+</MudStack>
 
 @code {
     [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
-    Validations _validationsRef;
     private bool _processing;
-    private WhatsAppRequest _whatsAppRequest = new();
+    private string _waLink = "";
+    private string _mobile = "";
 
     private async Task SendSmsClick()
     {
         _processing = true;
-        //if (await _validationsRef.ValidateAll())
-        //{
+        var n = Method.GetMobileFormat(_mobile);
         await Task.Delay(2500);
-        Snackbar.SuccessMessge("WhatsApp has been sent.");
-        await _validationsRef.ClearAll();
-        //}
-
+        _waLink = $"https://wa.me/{n}";
+        Snackbar.SuccessMessge("WhatsApp link generated.");
         _processing = false;
     }
 
@@ -47,7 +51,7 @@
     {
         if (obj.Id != Guid.Empty)
         {
-            // _mailRequest.To = obj.EmailAddress;
+            _mobile = obj.Mobile;
         }
     }
 

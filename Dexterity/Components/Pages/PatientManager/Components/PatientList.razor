@@ -1,6 +1,5 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
-@using Shared.Responses.Patient
-<MudDataGrid Loading="_patientLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="PatientListResponse" Dense="true" Bordered="true" Hover="true" Items="@Patients" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+<MudDataGrid RowsPerPage="8" Loading="_patientLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="PatientListResponse" Dense="true" Bordered="true" Hover="true" Items="@Patients" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
              Hideable="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
@@ -8,8 +7,9 @@
         <MudFab Color="MudColor.Primary" StartIcon="fa fa-plus" Size="MudSize.Small" Label="Add New Patient" Class="ml-5" OnClick="AddNewPatient"/>
         <MudSpacer/>
         <MudItem md="3">
-            <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                          AdornmentIcon="@Icons.Material.Filled.Search"
+            <MudTextField @bind-Value="_searchString"
+                          Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                          AdornmentIcon="@MudIcons.Material.Filled.Search"
                           Variant="Variant.Outlined"
                           IconSize="MudSize.Medium"
                           Margin="MudMargin.Dense"
@@ -26,14 +26,15 @@
         <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
         <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
             <CellTemplate>
-                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Edit" Color="MudColor.Primary"/>
-                <MudIconButton Size="@MudSize.Small" Icon="@Icons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(context.Item.Id)"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(context.Item.Id)"/>
             </CellTemplate>
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="PatientListResponse"/>
+        <MudDataGridPager T="PatientListResponse" RowsPerPageString="8"/>
     </PagerContent>
+    <NoRecordsContent>Patients are not found.</NoRecordsContent>
 </MudDataGrid>
 
 @code {
@@ -42,10 +43,10 @@
     private bool _patientLoading;
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        // await GetPatients();
-    }
+    // protected override async Task OnInitializedAsync()
+    // {
+    //     // await GetPatients();
+    // }
 
     private async Task AddNewPatient()
     {

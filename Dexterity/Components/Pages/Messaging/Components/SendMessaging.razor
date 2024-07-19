@@ -1,8 +1,5 @@
 ﻿@using ClickATell.Requests
-@using Domain.Entities.Messaging
-@using Shared.Responses.Patient
-@using Dexterity.Components.Pages.PatientManager.Components
-@using Shared.Requests.Messaging
+
 <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
     <MudStack>
         <MudItem>
@@ -69,11 +66,14 @@
         _processing = true;
         if (await _validationsRef.ValidateAll())
         {
+            var util = PhoneNumberUtil.GetInstance();
+            var s = util.Parse(_messageRequest.Mobile, ApplicationConstants.AppRegion);
+            var n = util.Format(s, PhoneNumberFormat.E164);
             await Task.Delay(2500);
             var request = new SmsRequest()
             {
                 Content = _messageRequest.Content,
-                To = [_messageRequest.Mobile]
+                To = [n]
             };
             var res = await SmsEndpoints.SendMessage(request);
             if (res.ResponseCode == 202)

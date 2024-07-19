@@ -33,6 +33,15 @@ namespace Dexterity
                 .AddFontAwesomeIcons();
             builder.Services
                 .AddBlazoriseRichTextEdit();
+            builder.Services.AddBlazorContextMenu(options =>
+            {
+                options.ConfigureTemplate("myTemplate", template =>
+                {
+                    template.MenuCssClass = "my-menu";
+                    template.MenuItemCssClass = "my-menu-item";
+                    //...
+                });
+            });
 #if WINDOWS
             builder.ConfigureLifecycleEvents(events =>
             {

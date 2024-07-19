@@ -24,6 +24,15 @@
 @using Blazorise.RichTextEdit
 @using Blazorise
 @using Blazorise.Components
+@using Shared.Responses.Patient
+@using Domain.Entities.Messaging
+@using Dexterity.Components.Pages.PatientManager.Components
+@using Shared.Requests.Messaging
+@using Shared.Constants.Application
+@using PhoneNumbers
+@using BlazorContextMenu
+
+
 
 @inject NavigationManager NavigationManager;
 @inject Services.SnackbarNotificationService Snackbar;
@@ -46,5 +55,6 @@
 @using MudBreakpoint = MudBlazor.Breakpoint
 @using MudDividerType = MudBlazor.DividerType
 @using MudButtonType = MudBlazor.ButtonType
+@using MudIcons = MudBlazor.Icons
 
 

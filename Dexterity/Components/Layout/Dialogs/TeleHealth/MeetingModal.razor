@@ -1,7 +1,10 @@
-﻿@using Shared.Helper
+﻿@using Shared.Responses.Patient
+@using Shared.Helper
+@using Dexterity.Components.Pages.PatientManager.Components
+@using Shared.Requests.Messaging
 <MudDialog>
     <TitleContent>
-
+        Meeting
     </TitleContent>
     <DialogContent>
         @if (_processing)
@@ -21,9 +24,25 @@
                             </MudTooltip>
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
                                 <MudPaper Outlined="true" Class="px-4 py-8">
-                                    <MudTextField Variant="Variant.Outlined" @bind-Value="_patientEmail" Label="Patient Email" Margin="MudMargin.Dense" InputType="MudInputType.Email"></MudTextField>
-                                    <MudButton Color="MudColor.Primary" OnClick="ShareLinkToPatient">Send</MudButton>
-                                    <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                    <MudStack>
+                                        <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
+                                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+                                            <DexInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexInputField>
+                                            <MudButton Disabled="@_processing" OnClick="ShareLinkToPatient" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                                                @if (_processing)
+                                                {
+                                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                                                    <MudText Class="ms-2 white-color">Processing</MudText>
+                                                }
+                                                else
+                                                {
+                                                    <MudText><i class="fas fa-paper-plane"></i> Send Mail</MudText>
+                                                }
+                                            </MudButton>
+                                            <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                        </Validations>
+
+                                    </MudStack>
                                 </MudPaper>
                             </MudPopover>
                         </MudItem>
@@ -49,11 +68,13 @@
 
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-
+    private List<PatientListResponse> PatientList { get; set; } = new();
     private bool _processing;
-    private string _patientEmail;
     private string _meetingLink;
+    private MailRequest _mailRequest = new();
+
     private string _messageFrameLoading = "Loading video call components....";
+    Validations _validationsRef;
 
     private bool _open;
     private void ToggleOpen() => _open = !_open;
@@ -70,6 +91,7 @@
         ApplicationState.MeetingName = CryptographyHelper.GetUniqueKey(25);
         var res = await DailyMeetingRoom.CreateMeetingLink(ApplicationState.MeetingName);
         _meetingLink = res.Url;
+        await GetPatients();
         await Task.Delay(2000);
         _processing = false;
     }
@@ -91,9 +113,42 @@
         Snackbar.SuccessMessge("Link Copied");
     }
 
-    private void ShareLinkToPatient(MouseEventArgs obj)
+    private async Task ShareLinkToPatient()
     {
-        throw new NotImplementedException();
+        if (string.IsNullOrWhiteSpace(_mailRequest.To))
+        {
+            Snackbar.FailMessge("Please enter patient email");
+            return;
+        }
+
+        _processing = true;
+        if (await _validationsRef.ValidateAll())
+        {
+            await Task.Delay(2500);
+            var mailRequest = new MailRequest()
+            {
+                Subject = "Meeting Link",
+                Body = _meetingLink,
+                To = _mailRequest.To
+            };
+            await MailService.SendAsync(mailRequest, default);
+            Snackbar.SuccessMessge("Email has been sent.");
+        }
+
+        _processing = false;
+    }
+
+    private async Task GetPatients()
+    {
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private void ChangePatient(PatientListResponse obj)
+    {
+        if (obj.Id != Guid.Empty)
+        {
+            _mailRequest.To = obj.EmailAddress;
+        }
     }
 
 }

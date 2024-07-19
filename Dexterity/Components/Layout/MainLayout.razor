@@ -15,7 +15,7 @@
     <MudAppBar Elevation="1" Dense="false">
         <MudImage Src="favicon.png" Fluid="true" Width="32" Class="mr-3" Style="margin-left: -16px;"
                   ObjectPosition="ObjectPosition.Center"></MudImage>
-        <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="MudColor.Inherit" Edge="Edge.Start"
+        <MudIconButton Icon="@MudIcons.Material.Filled.Menu" Color="MudColor.Inherit" Edge="Edge.Start"
                        OnClick="@ToggleDrawer"/>
         <MudSpacer/>
         <UserPersonalToolBar/>
@@ -34,7 +34,7 @@
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="pt-16 px-16">
-        <MudContainer Class="mt-6">
+        <MudContainer Class="mt-6" MaxWidth="MaxWidth.ExtraExtraLarge">
             @Body
         </MudContainer>
     </MudMainContent>

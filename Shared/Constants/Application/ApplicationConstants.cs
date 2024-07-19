@@ -3,6 +3,7 @@ namespace Shared.Constants.Application;
 public static class ApplicationConstants
 {
     public const string DefaultPassword = "Dexterity123@";
+    public const string AppRegion = "US";
 
 
     public static List<string> GetPasswordResetDuration()
