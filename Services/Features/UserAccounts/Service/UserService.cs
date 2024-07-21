@@ -2,12 +2,11 @@ using AutoMapper;
 using Database;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
+using Services.Features.UserAccounts.Dtos.Auth;
+using Services.Features.UserAccounts.Dtos.User;
+using Services.State;
 using Shared.Constants.Role;
 using Shared.Helper;
-using Shared.Requests.Auth;
-using Shared.Requests.UserAccounts;
-using Shared.Responses.UserAccounts;
-using Shared.State;
 using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
@@ -18,26 +17,26 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #region User
 
-    public async Task<Result<LoginResponse>> LoginAsync(LoginRequest request)
+    public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
-            .SingleOrDefaultAsync(x => x.Username == request.Username);
+            .SingleOrDefaultAsync(x => x.Username == dto.Username);
 
         if (userInDb is null)
         {
-            return await Result<LoginResponse>.FailAsync("Invalid Credentials");
+            return await Result<LoginResponseDto>.FailAsync("Invalid Credentials");
         }
 
         if (!userInDb.IsActive || userInDb.IsDeleted)
         {
-            return await Result<LoginResponse>.FailAsync("user is deactivated. contact support.");
+            return await Result<LoginResponseDto>.FailAsync("user is deactivated. contact support.");
         }
 
-        var isValid = SecurePasswordHasher.Verify(request.Password, userInDb.PasswordHash);
+        var isValid = SecurePasswordHasher.Verify(dto.Password, userInDb.PasswordHash);
 
-        if (!isValid) return await Result<LoginResponse>.FailAsync("Invalid Credentials");
+        if (!isValid) return await Result<LoginResponseDto>.FailAsync("Invalid Credentials");
 
-        var response = new LoginResponse()
+        var response = new LoginResponseDto()
         {
             UserId = userInDb.Id,
             RoleName = userInDb.Role.Name,
@@ -45,39 +44,39 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             Name = userInDb.FullName
         };
         ApplicationState.CurrentUser = response;
-        return await Result<LoginResponse>.SuccessAsync("User Logged in successfully.");
+        return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
     }
 
-    public async Task<List<UserResponse>> GetUsers()
+    public async Task<List<UserResponseDto>> GetUsers()
     {
         var usersList = await context.Users.Include(x => x.Role).Where(x => x.IsDeleted == false)
             .OrderByDescending(x => x.CreatedDate).ToListAsync();
-        var users = mapper.Map<List<UserResponse>>(usersList);
+        var users = mapper.Map<List<UserResponseDto>>(usersList);
         return users;
     }
 
-    public async Task<UserResponse> GetUser(Guid id)
+    public async Task<UserResponseDto> GetUser(Guid id)
     {
         var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
-        return mapper.Map<UserResponse>(userInDb);
+        return mapper.Map<UserResponseDto>(userInDb);
     }
 
-    public async Task<IResult> SaveUser(Guid id, CreateUserRequest request)
+    public async Task<IResult> SaveUser(Guid id, CreateUserDto dto)
     {
         try
         {
             if (id == Guid.Empty)
             {
-                if (context.Users.Any(x => x.Username == request.Username))
+                if (context.Users.Any(x => x.Username == dto.Username))
                 {
                     return await Result.FailAsync("Username already exists.");
                 }
 
-                request.RoleId = request.RoleId;
-                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
-                request.CreatedBy = ApplicationState.CurrentUser.UserId;
-                var hashPassword = SecurePasswordHasher.Hash(request.Password);
-                var user = mapper.Map<User>(request);
+                dto.RoleId = dto.RoleId;
+                dto.ResetPasswordAt = Method.GetPasswordResetTime(dto.ResetPassword);
+                dto.CreatedBy = ApplicationState.CurrentUser.UserId;
+                var hashPassword = SecurePasswordHasher.Hash(dto.Password);
+                var user = mapper.Map<User>(dto);
                 user.PasswordHash = hashPassword;
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
@@ -85,17 +84,17 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             }
             else
             {
-                if (request.IsUpdatePassword)
+                if (dto.IsUpdatePassword)
                 {
-                    request.Password = SecurePasswordHasher.Hash(request.Password);
+                    dto.Password = SecurePasswordHasher.Hash(dto.Password);
                 }
 
                 var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                request.RoleId = request.RoleId;
-                request.ModifiedBy = ApplicationState.CurrentUser.UserId;
-                request.ModifiedDate = DateTime.Today;
-                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
-                userInDb = mapper.Map(request, userInDb);
+                dto.RoleId = dto.RoleId;
+                dto.ModifiedBy = ApplicationState.CurrentUser.UserId;
+                dto.ModifiedDate = DateTime.Today;
+                dto.ResetPasswordAt = Method.GetPasswordResetTime(dto.ResetPassword);
+                userInDb = mapper.Map(dto, userInDb);
                 context.Users.Update(userInDb);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("User saved");
@@ -128,7 +127,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public void Logout()
     {
-        ApplicationState.CurrentUser = new LoginResponse();
+        ApplicationState.CurrentUser = new LoginResponseDto();
         ApplicationState.IsLoggedIn = false;
     }
 
@@ -136,10 +135,10 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #region Roles
 
-    public async Task<RoleResponse> GetUserRole(Guid roleId)
+    public async Task<RoleResponseDto> GetUserRole(Guid roleId)
     {
         var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == roleId);
-        return mapper.Map<RoleResponse>(roleInDb);
+        return mapper.Map<RoleResponseDto>(roleInDb);
     }
 
     public async Task<Guid> GetRoleId(string name)
@@ -148,10 +147,10 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return role.Id;
     }
 
-    public async Task<List<RoleResponse>> GetRoles()
+    public async Task<List<RoleResponseDto>> GetRoles()
     {
         var role = await context.Roles.ToListAsync();
-        var data = mapper.Map<List<RoleResponse>>(role);
+        var data = mapper.Map<List<RoleResponseDto>>(role);
         return data;
     }
 
@@ -208,15 +207,15 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #region Permissions
 
-    public async Task<List<PermissionResponse>> GetPermissions(Guid roleId, string module)
+    public async Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, string module)
     {
         var permissions = await context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleName == module)
             .ToListAsync();
-        var data = mapper.Map<List<PermissionResponse>>(permissions);
+        var data = mapper.Map<List<PermissionResponseDto>>(permissions);
         return data;
     }
 
-    public async Task<IResult> UpdatePermissions(List<UpdatePermissionRequest> requests)
+    public async Task<IResult> UpdatePermissions(List<UpdatePermissionDto> requests)
     {
         foreach (var request in requests)
         {
@@ -228,7 +227,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Permission Updated");
     }
 
-    public async Task<IResult> ResetPassword(ResetPasswordRequest request)
+    public async Task<IResult> ResetPassword(ResetPasswordDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
             .FirstOrDefaultAsync(x => x.Id == ApplicationState.CurrentUser.UserId);
@@ -238,7 +237,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             return await Result.FailAsync("User not found.");
         }
 
-        var hashedPassword = SecurePasswordHasher.Hash(request.NewPassword);
+        var hashedPassword = SecurePasswordHasher.Hash(dto.NewPassword);
         userInDb.IsForceReset = false;
         userInDb.PasswordHash = hashedPassword;
         await context.SaveChangesAsync();

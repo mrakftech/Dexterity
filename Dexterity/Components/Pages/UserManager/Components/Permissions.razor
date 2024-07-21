@@ -1,8 +1,7 @@
 ﻿@using Dexterity.Components.Layout.Dialogs
 @using Dexterity.Components.Pages.UserManager.Modals.Roles
+@using global::Services.Features.UserAccounts.Dtos.User
 @using Shared.Constants.Permission
-@using Shared.Requests.UserAccounts
-@using Shared.Responses.UserAccounts
 
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Permissions</MudText>
 
@@ -53,9 +52,9 @@
 </MudGrid>
 
 @code {
-    private List<RoleResponse> Roles { get; set; } = new();
+    private List<RoleResponseDto> Roles { get; set; } = new();
     private List<string> Modules { get; set; } = PermissionConstants.Modules;
-    public List<PermissionResponse> PermissionList { get; set; } = new();
+    public List<PermissionResponseDto> PermissionList { get; set; } = new();
     private bool _isModuleDropdownDisabled = true;
     private bool _isLoadPermissionBtnDisabled = true;
     private bool _isSavePermissionBtnDisabled = true;
@@ -141,7 +140,7 @@
 
     private async Task SavePermission()
     {
-        var list = new List<UpdatePermissionRequest>()
+        var list = new List<UpdatePermissionDto>()
         {
             new()
             {

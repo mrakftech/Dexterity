@@ -1,28 +1,28 @@
-﻿@using Shared.Constants.Module
-@using Shared.Dtos.Patient
+﻿@using global::Services.Features.PatientManagement.Dtos
+@using Shared.Constants.Module
 <MudDialog>
     <DialogContent>
         <MudItem Class="mt-2" md="12">
-            <EditForm Model="PatientRequest">
+            <EditForm Model="UpsertPatientDto">
                 <MudStack Row Justify="MudJustify.Center">
                     <MudItem>
                         <MudStack >
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="First Name"
                                               Margin="MudMargin.Dense">
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.LastName"
+                                <MudTextField @bind-Value="UpsertPatientDto.LastName"
                                               Variant="Variant.Outlined"
                                               Label="First Name"
                                               Margin="MudMargin.Dense">
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.DateOfBirth"
+                                <MudTextField @bind-Value="UpsertPatientDto.DateOfBirth"
                                               Variant="Variant.Outlined"
                                               Label="Date of Birth"
                                               InputType="InputType.Date"
@@ -30,7 +30,7 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.AddressLine1"
+                                <MudTextField @bind-Value="UpsertPatientDto.AddressLine1"
                                               Variant="Variant.Outlined"
                                               Label="Address Line 1"
                                               Lines="3"
@@ -38,7 +38,7 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.AddressLine2"
+                                <MudTextField @bind-Value="UpsertPatientDto.AddressLine2"
                                               Variant="Variant.Outlined"
                                               Label="Address Line 2"
                                               Lines="3"
@@ -46,7 +46,7 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Gender" Variant="Variant.Outlined" @bind-Value="PatientRequest.Gender">
+                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Gender" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.Gender">
                                     <MudSelectItem Value="@("Patient Type")"/>
                                     @foreach (var item in PatientConstants.Gender)
                                     {
@@ -55,14 +55,14 @@
                                 </MudSelect>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.Ppsn"
+                                <MudTextField @bind-Value="UpsertPatientDto.Ppsn"
                                               Variant="Variant.Outlined"
                                               Label="PPSN"
                                               Margin="MudMargin.Dense">
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.HomePhone"
+                                <MudTextField @bind-Value="UpsertPatientDto.HomePhone"
                                               Variant="Variant.Outlined"
                                               Label="Home Phone"
                                               Margin="MudMargin.Dense">
@@ -74,7 +74,7 @@
                     <MudItem>
                         <MudStack >
                             <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="User Type" Variant="Variant.Outlined" @bind-Value="PatientRequest.PatientType">
+                                <MudSelect Margin="MudMargin.Dense" T="string" Label="User Type" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
                                     <MudSelectItem Value="@("Patient Type")"/>
                                     @foreach (var item in PatientConstants.PatientTypes)
                                     {
@@ -83,7 +83,7 @@
                                 </MudSelect>
                             </MudItem>
                             <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="GSM Doctor" Disabled Variant="Variant.Outlined" @bind-Value="PatientRequest.PatientType">
+                                <MudSelect Margin="MudMargin.Dense" T="string" Label="GSM Doctor" Disabled Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
                                     <MudSelectItem Value="@("Patient Type")"/>
                                     @foreach (var item in PatientConstants.PatientTypes)
                                     {
@@ -92,7 +92,7 @@
                                 </MudSelect>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="GSM Doctor Number"
                                               Disabled
@@ -100,7 +100,7 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="GSM Number"
                                               Disabled
@@ -108,7 +108,7 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="Expiry"
                                               Disabled
@@ -117,26 +117,26 @@
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Insurance" Variant="Variant.Outlined" @bind-Value="PatientRequest.PatientType">
+                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Insurance" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
                                     <MudSelectItem Value="@("")"/>
                                 </MudSelect>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="Policy Number"
                                               Margin="MudMargin.Dense">
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="Mobile Number"
                                               Margin="MudMargin.Dense">
                                 </MudTextField>
                             </MudItem>
                             <MudItem>
-                                <MudTextField @bind-Value="PatientRequest.FirstName"
+                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
                                               Variant="Variant.Outlined"
                                               Label="Email"
                                               InputType="InputType.Email"
@@ -165,7 +165,7 @@
 </MudDialog>
 
 @code {
-    public PatientRequest PatientRequest { get; set; } = new();
+    public UpsertPatientDto UpsertPatientDto { get; set; } = new();
     private bool _processing;
 
     private async Task CreatePatient(MouseEventArgs obj)

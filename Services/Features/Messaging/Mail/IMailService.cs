@@ -1,5 +1,4 @@
-﻿using Shared.Requests.Messaging;
-using Shared.Requests.Messaging.Sms;
+﻿using Services.Features.Messaging.Dtos.Sms;
 
 namespace Services.Features.Messaging.Mail
 {

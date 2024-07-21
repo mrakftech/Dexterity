@@ -1,5 +1,7 @@
-﻿@using Shared.Requests.Messaging.Sms
+﻿@using global::Services.Features.PatientManagement.Dtos
 @using ClickATell.Requests
+@using global::Services.Features.Messaging.Dtos.Sms
+@using global::Services.State
 <MudDialog>
     <TitleContent>
         <MudText Align="Align.Center" Style="font-weight: bolder">Bulk Sms Details</MudText>
@@ -37,18 +39,18 @@
             <MudItem md="12">
                 <MudExpansionPanels>
                     <MudExpansionPanel Text="@($"{_selectedPatients.Count} selected persons")" Expanded="false">
-                        <MudDataGrid RowsPerPage="5" T="PatientListResponse" MultiSelection="true" Items="@ValidPatients" SortMode="SortMode.Multiple" Filterable="true"
+                        <MudDataGrid RowsPerPage="5" T="PatientListDto" MultiSelection="true" Items="@ValidPatients" SortMode="SortMode.Multiple" Filterable="true"
                                      Hideable="true" SelectedItemsChanged="@SelectedItemsChanged">
                             <ToolBarContent>
                                 <MudText Typo="Typo.h6">Valid list</MudText>
                             </ToolBarContent>
                             <Columns>
-                                <SelectColumn T="PatientListResponse"/>
+                                <SelectColumn T="PatientListDto"/>
                                 <PropertyColumn Property="x => x.FullName" Title="Full Name" Sortable="false" Filterable="false"/>
                                 <PropertyColumn Property="x => x.Mobile"/>
                             </Columns>
                             <PagerContent>
-                                <MudDataGridPager T="PatientListResponse"/>
+                                <MudDataGridPager T="PatientListDto"/>
                             </PagerContent>
                         </MudDataGrid>
 
@@ -57,7 +59,7 @@
             </MudItem>
 
             <MudItem md="12">
-                <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
+                <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
                     <MudStack>
                         <MudItem>
                             <FieldLabel>Sms Template</FieldLabel>
@@ -72,7 +74,7 @@
                         <MudItem>
                             <Validation>
                                 <FieldLabel>Content</FieldLabel>
-                                <MemoEdit @bind-Text="@_messageRequest.Content">
+                                <MemoEdit @bind-Text="@_messageDto.Content">
                                     <Feedback>
                                         <ValidationError/>
                                     </Feedback>
@@ -80,7 +82,7 @@
                             </Validation>
                         </MudItem>
                         <MudItem>
-                            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageRequest.Mobile"></DexInputField>
+                            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexInputField>
                         </MudItem>
                         <MudItem>
                             <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
@@ -104,11 +106,11 @@
 </MudDialog>
 
 @code {
-    [Parameter] public List<PatientListResponse> ValidPatients { get; set; } = new();
+    [Parameter] public List<PatientListDto> ValidPatients { get; set; } = new();
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
-    private HashSet<PatientListResponse> _selectedPatients = new();
+    private HashSet<PatientListDto> _selectedPatients = new();
     Validations _validationsRef;
-    private SendMessageRequest _messageRequest = new();
+    private SendMessageDto _messageDto = new();
     private bool _processing;
 
 
@@ -122,7 +124,7 @@
         SmsTemplates = await UnitOfWork.SmsTemplate.GetSmsTemplates();
     }
 
-    void SelectedItemsChanged(HashSet<PatientListResponse> items)
+    void SelectedItemsChanged(HashSet<PatientListDto> items)
     {
         _selectedPatients = items;
     }
@@ -131,12 +133,12 @@
     {
         if (id == Guid.Empty)
         {
-            _messageRequest.Content = "";
+            _messageDto.Content = "";
         }
         else
         {
             var res = await UnitOfWork.SmsTemplate.GetSmsTemplate(id);
-            _messageRequest.Content = res.Data.Content;
+            _messageDto.Content = res.Data.Content;
         }
     }
 
@@ -154,7 +156,7 @@
             await Task.Delay(2500);
             var request = new SmsRequest()
             {
-                Content = _messageRequest.Content,
+                Content = _messageDto.Content,
                 To = _selectedPatients.Select(x => x.Mobile).ToList()
             };
             var res = await SmsEndpoints.SendMessage(request);

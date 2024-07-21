@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.Messaging;
 using Services.Contracts.Repositroy;
-using Shared.Requests.Messaging.UserTasks;
+using Services.Features.Messaging.Dtos.UserTasks;
 using Shared.Wrapper;
 
 namespace Services.Features.Messaging.Service;

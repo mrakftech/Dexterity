@@ -1,5 +1,7 @@
-﻿@using Shared.Helper
-@using Shared.Requests.Messaging.Sms
+﻿@using global::Services.Features.Messaging.Dtos.Sms
+@using global::Services.Features.PatientManagement.Dtos
+@using global::Services.State
+@using Shared.Helper
 <MudDialog>
     <TitleContent>
         Meeting
@@ -66,7 +68,7 @@
 
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    private List<PatientListResponse> PatientList { get; set; } = new();
+    private List<PatientListDto> PatientList { get; set; } = new();
     private bool _processing;
     private string _meetingLink;
     private MailRequest _mailRequest = new();
@@ -141,7 +143,7 @@
         PatientList = await UnitOfWork.Patient.GetPatients();
     }
 
-    private void ChangePatient(PatientListResponse obj)
+    private void ChangePatient(PatientListDto obj)
     {
         if (obj.Id != Guid.Empty)
         {

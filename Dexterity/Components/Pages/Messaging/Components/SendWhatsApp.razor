@@ -1,4 +1,5 @@
-﻿@using Shared.Helper
+﻿@using global::Services.Features.PatientManagement.Dtos
+@using Shared.Helper
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">WhatsApp</MudText>
 <MudStack>
     <MudItem>
@@ -32,7 +33,7 @@
 </MudStack>
 
 @code {
-    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     private bool _processing;
     private string _waLink = "";
     private string _mobile = "";
@@ -47,7 +48,7 @@
         _processing = false;
     }
 
-    private void ChangePatient(PatientListResponse obj)
+    private void ChangePatient(PatientListDto obj)
     {
         if (obj.Id != Guid.Empty)
         {

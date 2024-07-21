@@ -1,7 +1,8 @@
-﻿@using Shared.Requests.Messaging.Sms
-@using ClickATell.Requests
+﻿@using ClickATell.Requests
+@using global::Services.Features.Messaging.Dtos.Sms
+@using global::Services.Features.PatientManagement.Dtos
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send SMS</MudText>
-<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageRequest">
+<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
     <MudStack>
         <MudItem>
             <FieldLabel>Sms Template</FieldLabel>
@@ -16,7 +17,7 @@
         <MudItem>
             <Validation>
                 <FieldLabel>Content</FieldLabel>
-                <MemoEdit @bind-Text="@_messageRequest.Content">
+                <MemoEdit @bind-Text="@_messageDto.Content">
                     <Feedback>
                         <ValidationError/>
                     </Feedback>
@@ -25,7 +26,7 @@
         </MudItem>
         <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
         <MudItem>
-            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageRequest.Mobile"></DexInputField>
+            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexInputField>
         </MudItem>
         <MudItem>
             <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
@@ -45,9 +46,9 @@
 
 
 @code{
-    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     Validations _validationsRef;
-    private SendMessageRequest _messageRequest = new();
+    private SendMessageDto _messageDto = new();
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
     private bool _processing;
 
@@ -68,12 +69,12 @@
         if (await _validationsRef.ValidateAll())
         {
             var util = PhoneNumberUtil.GetInstance();
-            var s = util.Parse(_messageRequest.Mobile, ApplicationConstants.AppRegion);
+            var s = util.Parse(_messageDto.Mobile, ApplicationConstants.AppRegion);
             var n = util.Format(s, PhoneNumberFormat.E164);
             await Task.Delay(2500);
             var request = new SmsRequest()
             {
-                Content = _messageRequest.Content,
+                Content = _messageDto.Content,
                 To = [n]
             };
             var res = await SmsEndpoints.SendMessage(request);
@@ -100,20 +101,20 @@
     {
         if (id == Guid.Empty)
         {
-            _messageRequest.Content = "";
+            _messageDto.Content = "";
         }
         else
         {
             var res = await UnitOfWork.SmsTemplate.GetSmsTemplate(id);
-            _messageRequest.Content = res.Data.Content;
+            _messageDto.Content = res.Data.Content;
         }
     }
 
-    private void ChangePatient(PatientListResponse obj)
+    private void ChangePatient(PatientListDto obj)
     {
         if (obj.Id != Guid.Empty)
         {
-            _messageRequest.Mobile = obj.Mobile;
+            _messageDto.Mobile = obj.Mobile;
         }
     }
 

@@ -1,19 +1,18 @@
 using Domain.Entities.UserAccounts;
 using Services.Contracts.Repositroy;
-using Shared.Requests.Auth;
-using Shared.Requests.UserAccounts;
-using Shared.Responses.UserAccounts;
+using Services.Features.UserAccounts.Dtos.Auth;
+using Services.Features.UserAccounts.Dtos.User;
 using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
 
 public interface IUserService 
 {
-    Task<Result<LoginResponse>> LoginAsync(LoginRequest request);
+    Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto);
 
-    Task<List<UserResponse>> GetUsers();
-    Task<UserResponse> GetUser(Guid id);
-    Task<IResult> SaveUser(Guid id,CreateUserRequest request);
+    Task<List<UserResponseDto>> GetUsers();
+    Task<UserResponseDto> GetUser(Guid id);
+    Task<IResult> SaveUser(Guid id,CreateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
 
 
@@ -22,20 +21,20 @@ public interface IUserService
 
     #region Roles
 
-    Task<List<RoleResponse>> GetRoles();
+    Task<List<RoleResponseDto>> GetRoles();
     Task<IResult> SaveRole(string name, Guid id);
     Task<IResult> DeleteRole(Guid id);
 
-    Task<RoleResponse> GetUserRole(Guid roleId);
+    Task<RoleResponseDto> GetUserRole(Guid roleId);
     Task<Guid> GetRoleId(string name);
 
     #endregion
 
     #region Permissions
 
-    Task<List<PermissionResponse>> GetPermissions(Guid roleId, string module);
-    Task<IResult> UpdatePermissions(List<UpdatePermissionRequest> request);
-    Task<IResult> ResetPassword(ResetPasswordRequest request);
+    Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, string module);
+    Task<IResult> UpdatePermissions(List<UpdatePermissionDto> request);
+    Task<IResult> ResetPassword(ResetPasswordDto dto);
 
     #endregion
 }

@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities.Messaging;
-using Shared.Requests.Messaging.UserTasks;
+using Services.Features.Messaging.Dtos.UserTasks;
 
 namespace Services.Features.Messaging.Mapping;
 

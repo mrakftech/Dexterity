@@ -1,8 +1,8 @@
-﻿@using Shared.Responses.Patient
+﻿@using global::Services.Features.PatientManagement.Dtos
 <MudItem xs="12" sm="6" md="12">
     <FieldLabel>Patients</FieldLabel>
-    <Autocomplete TItem="PatientListResponse"
-                  TValue="PatientListResponse"
+    <Autocomplete TItem="PatientListDto"
+                  TValue="PatientListDto"
                   Data="@PatientList"
                   TextField="@((item) => item.FullName)"
                   ValueField="@((item) => item)"
@@ -16,6 +16,6 @@
 </MudItem>
 
 @code {
-    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
-    [Parameter] public EventCallback<PatientListResponse> OnChangePatient { get; set; }
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
+    [Parameter] public EventCallback<PatientListDto> OnChangePatient { get; set; }
 }

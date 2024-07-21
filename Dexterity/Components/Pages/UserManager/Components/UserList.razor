@@ -1,8 +1,8 @@
 ﻿@using Dexterity.Components.Pages.UserManager.Modals.User
-@using Shared.Responses.UserAccounts
+@using global::Services.Features.UserAccounts.Dtos.User
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Users</MudText>
 
-<MudDataGrid RowsPerPage="8" Style="margin-top: 3%" Loading="_userLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="UserResponse" Dense="true" Bordered="true" Hover="true" Items="@UsersList" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+<MudDataGrid RowsPerPage="8" Style="margin-top: 3%" Loading="_userLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="UserResponseDto" Dense="true" Bordered="true" Hover="true" Items="@UsersList" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
              Hideable="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Class="text-bold">Users</MudText>
@@ -44,12 +44,12 @@
         </TemplateColumn>
     </Columns>
     <PagerContent>
-        <MudDataGridPager T="UserResponse"/>
+        <MudDataGridPager T="UserResponseDto"/>
     </PagerContent>
 </MudDataGrid>
 
 @code {
-    private List<UserResponse> UsersList { get; set; } = new();
+    private List<UserResponseDto> UsersList { get; set; } = new();
     private string _searchString;
     private bool _userLoading;
 
@@ -66,7 +66,7 @@
         _userLoading = false;
     }
 
-    private Func<UserResponse, bool> QuickFilter => x =>
+    private Func<UserResponseDto, bool> QuickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;

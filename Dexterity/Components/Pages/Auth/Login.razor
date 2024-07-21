@@ -1,5 +1,6 @@
 ﻿@layout AuthLayout
 @page "/"
+@using global::Services.Features.UserAccounts.Dtos.Auth
 <div class="d-lg-flex half" style="height: 15px">
 
     <div class="bg order-1 order-md-2"
@@ -17,9 +18,9 @@
                         <strong>Management Software</strong>
                     </h3>
                     <div class="mt-5">
-                        <Validations @ref="@ValidationsRef" Model="@_loginRequest" Mode="ValidationMode.Manual">
-                            <DexInputField Label="Username" @bind-FieldDataSource="@_loginRequest.Username"/>
-                            <DexInputField Label="Password" @bind-FieldDataSource="@_loginRequest.Password" FieldRole="TextRole.Password"/>
+                        <Validations @ref="@ValidationsRef" Model="@_loginDto" Mode="ValidationMode.Manual">
+                            <DexInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
+                            <DexInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password"/>
                             <MudButton Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
                                 @if (_processing)
                                 {
@@ -47,7 +48,7 @@
 </div>
 
 @code {
-    private LoginRequest _loginRequest = new();
+    private LoginDto _loginDto = new();
     private bool _processing;
     Validations ValidationsRef { get; set; }
 
@@ -56,7 +57,7 @@
         _processing = true;
         if (await ValidationsRef.ValidateAll())
         {
-            var res = await UnitOfWork.User.LoginAsync(_loginRequest);
+            var res = await UnitOfWork.User.LoginAsync(_loginDto);
             if (res.Succeeded)
             {
                 Snackbar.SuccessMessge(res.Messages.First());

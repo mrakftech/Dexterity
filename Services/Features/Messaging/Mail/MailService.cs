@@ -3,8 +3,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using MimeKit;
 using Services.Configurations;
-using Shared.Requests.Messaging;
-using Shared.Requests.Messaging.Sms;
+using Services.Features.Messaging.Dtos.Sms;
 using SmtpClient = MailKit.Net.Smtp.SmtpClient;
 
 namespace Services.Features.Messaging.Mail;

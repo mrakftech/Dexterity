@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace ClickATell.Requests;
+﻿namespace ClickATell.Requests;
 
 public class SmsRequest
 {

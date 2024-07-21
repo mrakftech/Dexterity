@@ -3,3 +3,44 @@
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
+<div style="margin-top: 3%">
+    <MudPaper Height="650px" Style="overflow:hidden; position:relative;">
+        <MudDrawerContainer Class="mud-height-full">
+            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
+                       OpenMiniOnHover="true">
+                <MudNavMenu>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("appointments"))">
+                        Appointments
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("new-appointments"))">
+                        New Appointment
+                    </MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+            <div class="d-flex justify-center align-center">
+                <Tabs SelectedTab="@_selectedTab" Style="width: 100%">
+                    <Content>
+                        <TabPanel Name="appointments">
+                        </TabPanel>
+                        <TabPanel Name="new-appointments">
+                        </TabPanel>
+
+                    </Content>
+                </Tabs>
+            </div>
+        </MudDrawerContainer>
+    </MudPaper>
+</div>
+
+@code {
+    private bool _open = false;
+    string _selectedTab = "user-tasks-tab";
+
+    private void ClickChanged(string tabName)
+    {
+        _selectedTab = tabName;
+    }
+
+}

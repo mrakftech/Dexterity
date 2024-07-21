@@ -1,17 +1,16 @@
 using System.Collections.ObjectModel;
 using Domain.Entities.PatientManagement;
 using Services.Contracts.Repositroy;
-using Shared.Dtos.Patient;
-using Shared.Responses.Patient;
+using Services.Features.PatientManagement.Dtos;
 using Shared.Wrapper;
 
 namespace Services.Features.PatientManagement.Service;
 
 public interface IPatientService 
 {
-    public Task<List<PatientListResponse>> GetPatients();
+    public Task<List<PatientListDto>> GetPatients();
 
-    public Task<PatientResponse> GetPatient(Guid id);
-    public Task<IResult> CreatePatient(PatientRequest request, CancellationToken cancellationToken);
+    public Task<PatientDto> GetPatient(Guid id);
+    public Task<IResult> CreatePatient(UpsertPatientDto dto, CancellationToken cancellationToken);
     public Task<IResult> DeletePatient(Guid id);
 }

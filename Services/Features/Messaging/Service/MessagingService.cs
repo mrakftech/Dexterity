@@ -2,10 +2,10 @@
 using Database;
 using Domain.Entities.Messaging;
 using Microsoft.EntityFrameworkCore;
+using Services.Features.Messaging.Dtos.UserTasks;
+using Services.State;
 using Shared.Constants.Module;
 using Shared.Helper;
-using Shared.Requests.Messaging.UserTasks;
-using Shared.State;
 using Shared.Wrapper;
 
 namespace Services.Features.Messaging.Service;

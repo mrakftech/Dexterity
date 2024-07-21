@@ -1,34 +1,33 @@
-﻿@using Shared.Helper
-@using Shared.Requests.UserAccounts
+﻿@using global::Services.Features.UserAccounts.Dtos.User
+@using Shared.Helper
 @using Size = MudBlazor.Size
-@using Shared.Responses.UserAccounts
 <MudDialog>
     <TitleContent>
         <MudText Typo="Typo.h4" Class="text-bold">@_title</MudText>
     </TitleContent>
     <DialogContent>
-        <EditForm Model="UserRequest">
-            <Validations @ref="@ValidationsRef" Model="@UserRequest" Mode="ValidationMode.Manual">
+        <EditForm Model="UserDto">
+            <Validations @ref="@ValidationsRef" Model="@UserDto" Mode="ValidationMode.Manual">
                 <MudItem md="12">
                     <MudStack Row="true" Justify="MudJustify.FlexStart">
                         <MudItem md="4">
-                            <DexInputField Label="First Name" @bind-FieldDataSource="@UserRequest.FirstName"/>
+                            <DexInputField Label="First Name" @bind-FieldDataSource="@UserDto.FirstName"/>
                         </MudItem>
                         <MudItem md="4">
-                            <DexInputField Label="Last Name" @bind-FieldDataSource="@UserRequest.LastName"/>
+                            <DexInputField Label="Last Name" @bind-FieldDataSource="@UserDto.LastName"/>
                         </MudItem>
                         <MudItem md="4">
-                            <DexInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserRequest.Email"/>
+                            <DexInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserDto.Email"/>
                         </MudItem>
                     </MudStack>
                 </MudItem>
                 <MudItem Class="mt-3" md="12">
                     <MudStack Row="true" Justify="MudJustify.FlexStart">
                         <MudItem md="5">
-                            <DexInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserRequest.Phone"/>
+                            <DexInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserDto.Phone"/>
                         </MudItem>
                         <MudItem md="7">
-                            <DexInputField Label="MCN" @bind-FieldDataSource="@UserRequest.Mcn"/>
+                            <DexInputField Label="MCN" @bind-FieldDataSource="@UserDto.Mcn"/>
                         </MudItem>
 
                     </MudStack>
@@ -38,7 +37,7 @@
                         <MudItem md="5">
                             <Field>
                                 <FieldLabel>User type</FieldLabel>
-                                <Select @bind-SelectedValue="@UserRequest.UserType" TValue="string">
+                                <Select @bind-SelectedValue="@UserDto.UserType" TValue="string">
                                     @foreach (var item in UserTypeConstants.UserTypes)
                                     {
                                         <SelectItem Value="@(item)">@item</SelectItem>
@@ -50,7 +49,7 @@
                         <MudItem md="7">
                             <Field>
                                 <FieldLabel>Roles</FieldLabel>
-                                <Select @bind-SelectedValue="@UserRequest.RoleId" TValue="Guid">
+                                <Select @bind-SelectedValue="@UserDto.RoleId" TValue="Guid">
                                     <SelectItem Value="@(Guid.Empty)">Select Role</SelectItem>
 
                                     @foreach (var item in Roles)
@@ -68,7 +67,7 @@
                         <MudItem md="12">
                             <Field>
                                 <FieldLabel>Reset Password</FieldLabel>
-                                <Select @bind-SelectedValue="@UserRequest.ResetPassword">
+                                <Select @bind-SelectedValue="@UserDto.ResetPassword">
                                     @foreach (var item in ResetPasswordDurations)
                                     {
                                         <SelectItem Value="@(item)">@item</SelectItem>
@@ -80,9 +79,9 @@
                             <MudStack Row="true">
                                 <MudItem>
                                     <MudStack Row>
-                                        <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserRequest.IsActive"></MudCheckBox>
-                                        <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserRequest.IsUpdatePassword"></MudCheckBox>
-                                        <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserRequest.IsForceReset"></MudCheckBox>
+                                        <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserDto.IsActive"></MudCheckBox>
+                                        <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserDto.IsUpdatePassword"></MudCheckBox>
+                                        <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserDto.IsForceReset"></MudCheckBox>
                                     </MudStack>
                                 </MudItem>
                             </MudStack>
@@ -91,12 +90,12 @@
                         <MudItem>
                             <MudStack Row="true">
                                 <MudItem>
-                                    <DexInputField Label="Username" @bind-FieldDataSource="@UserRequest.Username"/>
+                                    <DexInputField Label="Username" @bind-FieldDataSource="@UserDto.Username"/>
                                 </MudItem>
                                 @if (Id == Guid.Empty)
                                 {
                                     <MudItem>
-                                        <DexInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserRequest.Password"/>
+                                        <DexInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserDto.Password"/>
                                     </MudItem>
                                 }
                             </MudStack>
@@ -127,9 +126,9 @@
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid Id { get; set; } = Guid.Empty;
-    private List<RoleResponse> Roles { get; set; } = new();
+    private List<RoleResponseDto> Roles { get; set; } = new();
     private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
-    private CreateUserRequest UserRequest { get; set; } = new();
+    private CreateUserDto UserDto { get; set; } = new();
     Validations ValidationsRef { get; set; }
     private bool _processing;
     private string _title = "";
@@ -146,9 +145,9 @@
         {
             _title = "Edit User";
             var user = await UnitOfWork.User.GetUser(Id);
-            var data = mapper.Map<CreateUserRequest>(user);
+            var data = Mapper.Map<CreateUserDto>(user);
             data.ResetPassword = Method.GetPasswordResetIn(user.ResetPasswordAt);
-            UserRequest = data;
+            UserDto = data;
         }
         else
         {
@@ -167,14 +166,14 @@
 
         if (await ValidationsRef.ValidateAll())
         {
-            if (string.IsNullOrWhiteSpace(UserRequest.UserType))
+            if (string.IsNullOrWhiteSpace(UserDto.UserType))
             {
                 Snackbar.FailMessge("Please select user type.");
                 _processing = false;
                 return;
             }
 
-            if (UserRequest.RoleId == Guid.Empty)
+            if (UserDto.RoleId == Guid.Empty)
             {
                 Snackbar.FailMessge("Please select role.");
                 _processing = false;
@@ -183,7 +182,7 @@
             }
 
             await Task.Delay(2000);
-            var res = await UnitOfWork.User.SaveUser(Id, UserRequest);
+            var res = await UnitOfWork.User.SaveUser(Id, UserDto);
             if (res.Succeeded)
             {
                 MudDialog.Close();
@@ -200,13 +199,13 @@
 
     Task OnRoleSelectedValueChanged(Guid value)
     {
-        UserRequest.RoleId = value;
+        UserDto.RoleId = value;
         return Task.CompletedTask;
     }
 
     Task OnUserTypeSelectedValueChanged(string value)
     {
-        UserRequest.UserType = value;
+        UserDto.UserType = value;
         return Task.CompletedTask;
     }
 

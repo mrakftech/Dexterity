@@ -73,6 +73,7 @@
      
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.5.3" />
         <PackageReference Include="Blazorise.RichTextEdit" Version="1.5.3" />
+        <PackageReference Include="BlazorScheduler" Version="4.3.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

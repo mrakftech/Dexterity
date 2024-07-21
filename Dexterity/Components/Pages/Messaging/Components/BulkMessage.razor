@@ -1,4 +1,5 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs
+@using global::Services.Features.PatientManagement.Dtos
 @using Shared.Helper
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Bulk SMS</MudText>
 
@@ -35,7 +36,7 @@
                          RowsPerPage="5"
                          LoadingProgressColor="MudColor.Secondary"
                          FixedHeader="true"
-                         T="PatientListResponse"
+                         T="PatientListDto"
                          Dense="true"
                          Bordered="true"
                          Hover="true"
@@ -60,7 +61,7 @@
                     <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
                 </Columns>
                 <PagerContent>
-                    <MudDataGridPager T="PatientListResponse" RowsPerPageString="5"/>
+                    <MudDataGridPager T="PatientListDto" RowsPerPageString="5"/>
                 </PagerContent>
                 <NoRecordsContent>Patients are not found.</NoRecordsContent>
             </MudDataGrid>
@@ -69,12 +70,12 @@
 </MudItem>
 
 @code {
-    [Parameter] public List<PatientListResponse> PatientList { get; set; } = new();
-    private List<PatientListResponse> ValidPatients { get; set; } = new();
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
+    private List<PatientListDto> ValidPatients { get; set; } = new();
     private bool _patientLoading;
     private string _searchString;
 
-    private Func<PatientListResponse, bool> QuickFilter => x =>
+    private Func<PatientListDto, bool> QuickFilter => x =>
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
