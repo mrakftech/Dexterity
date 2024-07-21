@@ -1,4 +1,6 @@
-﻿@using Shared.Requests.UserAccounts
+﻿@using Shared.Helper
+@using Shared.Requests.UserAccounts
+@using Size = MudBlazor.Size
 @using Shared.Responses.UserAccounts
 <MudDialog>
     <TitleContent>
@@ -63,6 +65,28 @@
                 <hr class="hr-thin"/>
                 <MudItem>
                     <MudStack>
+                        <MudItem md="12">
+                            <Field>
+                                <FieldLabel>Reset Password</FieldLabel>
+                                <Select @bind-SelectedValue="@UserRequest.ResetPassword">
+                                    @foreach (var item in ResetPasswordDurations)
+                                    {
+                                        <SelectItem Value="@(item)">@item</SelectItem>
+                                    }
+                                </Select>
+                            </Field>
+                        </MudItem>
+                        <MudItem>
+                            <MudStack Row="true">
+                                <MudItem>
+                                    <MudStack Row>
+                                        <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserRequest.IsActive"></MudCheckBox>
+                                        <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserRequest.IsUpdatePassword"></MudCheckBox>
+                                        <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserRequest.IsForceReset"></MudCheckBox>
+                                    </MudStack>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
                         <MudText Typo="Typo.h6">Login Information:</MudText>
                         <MudItem>
                             <MudStack Row="true">
@@ -78,28 +102,7 @@
                             </MudStack>
                         </MudItem>
                         <MudItem>
-                            <MudStack Row="true">
-                                <MudItem>
-                                    <Field>
-                                        <FieldLabel>Reset Password</FieldLabel>
-                                        <Select @bind-SelectedValue="@UserRequest.ResetPassword">
-                                            @foreach (var item in ResetPasswordDurations)
-                                            {
-                                                <SelectItem Value="@(item)">@item</SelectItem>
-                                            }
-                                        </Select>
-                                    </Field>
-                                </MudItem>
-                                <MudItem>
-                                    <MudStack >
-                                        <MudCheckBox Label="Update Password" T="bool" @bind-Value="UserRequest.IsUpdatePassword"></MudCheckBox>
-                                        <MudCheckBox Label="Force Reset" T="bool" @bind-Value="UserRequest.IsForceReset"></MudCheckBox>
-                                        <MudItem>
-                                            <MudCheckBox Label="Active" T="bool" @bind-Value="UserRequest.IsActive"></MudCheckBox>
-                                        </MudItem>
-                                    </MudStack>
-                                </MudItem>
-                            </MudStack>
+                          
                         </MudItem>
                     </MudStack>
                 </MudItem>
@@ -144,6 +147,7 @@
             _title = "Edit User";
             var user = await UnitOfWork.User.GetUser(Id);
             var data = mapper.Map<CreateUserRequest>(user);
+            data.ResetPassword = Method.GetPasswordResetIn(user.ResetPasswordAt);
             UserRequest = data;
         }
         else
