@@ -5,7 +5,6 @@ namespace Shared.Requests.UserAccounts;
 
 public class CreateUserRequest
 {
-    public Guid Id { get; set; } = Guid.Empty;
 
     [Required(ErrorMessage = "First Name is Required")]
     public string FirstName { get; set; }
@@ -20,6 +19,7 @@ public class CreateUserRequest
     [EmailAddress]
     public string Email { get; set; }
     
+    [Required]
     public Guid RoleId { get; set; }
 
     [Required(ErrorMessage = "Username is Required")]

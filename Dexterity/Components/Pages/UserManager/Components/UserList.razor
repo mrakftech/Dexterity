@@ -1,11 +1,12 @@
-﻿@using Dexterity.Components.Layout.Dialogs
-@using Dexterity.Components.Pages.UserManager.Modals.User
+﻿@using Dexterity.Components.Pages.UserManager.Modals.User
 @using Shared.Responses.UserAccounts
-<MudDataGrid Loading="_userLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="UserResponse" Dense="true" Bordered="true" Hover="true" Items="@UsersList" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
+<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Users</MudText>
+
+<MudDataGrid RowsPerPage="8" Style="margin-top: 3%" Loading="_userLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="UserResponse" Dense="true" Bordered="true" Hover="true" Items="@UsersList" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
              Hideable="true">
     <ToolBarContent>
         <MudText Typo="Typo.h6" Class="text-bold">Users</MudText>
-        <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="AddNewUser"/>
+        <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
         <MudSpacer/>
         <MudItem md="3">
             <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
@@ -37,7 +38,7 @@
         </TemplateColumn>
         <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
             <CellTemplate>
-                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary"/>
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserModal(context.Item.Id)"/>
                 <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUser(context.Item.Id)"/>
             </CellTemplate>
         </TemplateColumn>
@@ -69,7 +70,11 @@
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-
+        
+        if (x.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
         if (x.Username.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
 
@@ -86,7 +91,7 @@
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
-           var userRes = await UnitOfWork.User.DeleteUser(id);
+            var userRes = await UnitOfWork.User.DeleteUser(id);
             var user = UsersList.FirstOrDefault(x => x.Id == id);
             UsersList.Remove(user);
             StateHasChanged();
@@ -94,11 +99,16 @@
         }
     }
 
-    private async Task AddNewUser()
+    private async Task UpsertUserModal(Guid id)
     {
-        var parameters = new DialogParameters();
+        var parameters = new DialogParameters {{"Id", id}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<UpsertUserModal>("New User", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<UpsertUserModal>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetUsers();
+        }
     }
 
 }

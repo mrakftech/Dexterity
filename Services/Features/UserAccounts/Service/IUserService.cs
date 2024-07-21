@@ -13,7 +13,7 @@ public interface IUserService
 
     Task<List<UserResponse>> GetUsers();
     Task<UserResponse> GetUser(Guid id);
-    Task<IResult> SaveUser(CreateUserRequest request);
+    Task<IResult> SaveUser(Guid id,CreateUserRequest request);
     Task<IResult> DeleteUser(Guid id);
 
 

@@ -9,7 +9,10 @@
     box-shadow: 0 0 20px #eee;
     border-radius: 10px;
 }
-
+.sub-drawer {
+    background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%) !important;
+    color: #ffffff !important;;
+}
 
 @media (hover: hover) and (pointer: fine) {
     .mud-button-filled:hover {

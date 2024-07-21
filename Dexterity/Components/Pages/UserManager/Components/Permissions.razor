@@ -4,8 +4,10 @@
 @using Shared.Requests.UserAccounts
 @using Shared.Responses.UserAccounts
 
-<MudGrid Justify="MudJustify.Center">
-    <MudItem md="4">
+<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Permissions</MudText>
+
+<MudGrid Justify="MudJustify.Center" Style="margin-top: 3%">
+    <MudItem md="12">
         <MudStack Class="mt-5">
             <MudItem>
                 <MudStack Row="true">
@@ -17,9 +19,9 @@
                         }
                     </MudSelect>
                     <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
-                        <MudButton   OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create</MudButton>
-                        <MudButton   OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary" Disabled="_isRolesActionButtonsDisabled">Edit</MudButton>
-                        <MudButton  Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled" OnClick="() => DeleteRole(_roleId)">Delete</MudButton>
+                        <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create</MudButton>
+                        <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary" Disabled="_isRolesActionButtonsDisabled">Edit</MudButton>
+                        <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled" OnClick="() => DeleteRole(_roleId)">Delete</MudButton>
                     </MudButtonGroup>
                 </MudStack>
             </MudItem>
@@ -32,10 +34,10 @@
                 </MudSelect>
             </MudItem>
             <MudItem>
-                <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Secondary" Disabled="_isLoadPermissionBtnDisabled" FullWidth="true" OnClick="LoadPermissions">Load Permissions</MudButton>
+                <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" Disabled="_isLoadPermissionBtnDisabled" FullWidth="true" OnClick="LoadPermissions">Load Permissions</MudButton>
             </MudItem>
             <MudItem>
-                <MudStack >
+                <MudStack Row>
                     <MudCheckBox @bind-Value="_create" Label="Create" T="bool"></MudCheckBox>
                     <MudCheckBox @bind-Value="_read" Label="Read" T="bool"></MudCheckBox>
                     <MudCheckBox @bind-Value="_update" Label="Update" T="bool"></MudCheckBox>
@@ -44,7 +46,7 @@
                 </MudStack>
             </MudItem>
             <MudItem Class="mb-10">
-                <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Secondary" Disabled="_isSavePermissionBtnDisabled" FullWidth="true" OnClick="SavePermission">Save Permissions</MudButton>
+                <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled"  Disabled="_isSavePermissionBtnDisabled" FullWidth="true" OnClick="SavePermission">Save Permissions</MudButton>
             </MudItem>
         </MudStack>
     </MudItem>

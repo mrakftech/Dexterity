@@ -1,101 +1,110 @@
-﻿@using Shared.Constants.Application
-@using Shared.Requests.UserAccounts
+﻿@using Shared.Requests.UserAccounts
 @using Shared.Responses.UserAccounts
 <MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h4" Class="text-bold">@_title</MudText>
+    </TitleContent>
     <DialogContent>
-        <Validations @ref="@ValidationsRef" Model="@_userRequest" Mode="ValidationMode.Manual">
-            <MudItem md="12">
-                <MudStack Row="true" Justify="MudJustify.FlexStart">
-                    <MudItem md="4">
-                        <DexInputField Label="First Name" @bind-FieldDataSource="@_userRequest.Username"/>
-                    </MudItem>
-                    <MudItem md="4">
-                        <DexInputField Label="Last Name" @bind-FieldDataSource="@_userRequest.LastName"/>
-                    </MudItem>
-                    <MudItem md="4">
-                        <DexInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@_userRequest.Email"/>
-                    </MudItem>
-                </MudStack>
-            </MudItem>
-            <MudItem Class="mt-3" md="12">
-                <MudStack Row="true" Justify="MudJustify.FlexStart">
-                    <MudItem md="5">
-                        <DexInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@_userRequest.Phone"/>
-                    </MudItem>
-                    <MudItem md="7">
-                        <DexInputField Label="MCN" @bind-FieldDataSource="@_userRequest.Mcn"/>
-                    </MudItem>
+        <EditForm Model="UserRequest">
+            <Validations @ref="@ValidationsRef" Model="@UserRequest" Mode="ValidationMode.Manual">
+                <MudItem md="12">
+                    <MudStack Row="true" Justify="MudJustify.FlexStart">
+                        <MudItem md="4">
+                            <DexInputField Label="First Name" @bind-FieldDataSource="@UserRequest.FirstName"/>
+                        </MudItem>
+                        <MudItem md="4">
+                            <DexInputField Label="Last Name" @bind-FieldDataSource="@UserRequest.LastName"/>
+                        </MudItem>
+                        <MudItem md="4">
+                            <DexInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserRequest.Email"/>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+                <MudItem Class="mt-3" md="12">
+                    <MudStack Row="true" Justify="MudJustify.FlexStart">
+                        <MudItem md="5">
+                            <DexInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserRequest.Phone"/>
+                        </MudItem>
+                        <MudItem md="7">
+                            <DexInputField Label="MCN" @bind-FieldDataSource="@UserRequest.Mcn"/>
+                        </MudItem>
 
-                </MudStack>
-            </MudItem>
-            <MudItem Class="mt-3">
-                <MudStack Row="true">
-                    <MudItem md="5">
-                        <Field>
-                            <FieldLabel>User type</FieldLabel>
-                            <Select @bind-SelectedValue="@_userRequest.UserType">
-                                @foreach (var item in Roles)
+                    </MudStack>
+                </MudItem>
+                <MudItem Class="mt-3">
+                    <MudStack Row="true">
+                        <MudItem md="5">
+                            <Field>
+                                <FieldLabel>User type</FieldLabel>
+                                <Select @bind-SelectedValue="@UserRequest.UserType" TValue="string">
+                                    @foreach (var item in UserTypeConstants.UserTypes)
+                                    {
+                                        <SelectItem Value="@(item)">@item</SelectItem>
+                                    }
+                                </Select>
+                            </Field>
+
+                        </MudItem>
+                        <MudItem md="7">
+                            <Field>
+                                <FieldLabel>Roles</FieldLabel>
+                                <Select @bind-SelectedValue="@UserRequest.RoleId" TValue="Guid">
+                                    <SelectItem Value="@(Guid.Empty)">Select Role</SelectItem>
+
+                                    @foreach (var item in Roles)
+                                    {
+                                        <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
+                                    }
+                                </Select>
+                            </Field>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+                <hr class="hr-thin"/>
+                <MudItem>
+                    <MudStack>
+                        <MudText Typo="Typo.h6">Login Information:</MudText>
+                        <MudItem>
+                            <MudStack Row="true">
+                                <MudItem>
+                                    <DexInputField Label="Username" @bind-FieldDataSource="@UserRequest.Username"/>
+                                </MudItem>
+                                @if (Id == Guid.Empty)
                                 {
-                                <SelectItem Value="@(item)">@item</SelectItem>
+                                    <MudItem>
+                                        <DexInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserRequest.Password"/>
+                                    </MudItem>
                                 }
-                            </Select>
-                        </Field>
-                       
-                    </MudItem>
-                    <MudItem md="7">
-                        <Field>
-                            <FieldLabel>Roles</FieldLabel>
-                            <Select @bind-SelectedValue="@_userRequest.UserRole">
-                                @foreach (var item in Roles)
-                                {
-                                <SelectItem Value="@(item)">@item</SelectItem>
-                                }
-                            </Select>
-                        </Field>
-                    </MudItem>
-                </MudStack>
-            </MudItem>
-            <hr class="hr-thin"/>
-            <MudItem>
-                <MudStack>
-                    <MudText Typo="Typo.h6">Login Information:</MudText>
-                    <MudItem>
-                        <MudStack Row="true">
-                            <MudItem>
-                                <DexInputField Label="Username" @bind-FieldDataSource="@_userRequest.Username"/>
-                            </MudItem>
-                            <MudItem>
-                                <DexInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@_userRequest.Password"/>
-                            </MudItem>
-                            <MudItem>
-                                <MudCheckBox Label="Active" T="bool" @bind-Value="_userRequest.IsActive"></MudCheckBox>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack Row="true">
-                            <MudItem>
-                                <Field>
-                                    <FieldLabel>Reset Password</FieldLabel>
-                                    <Select @bind-SelectedValue="@_userRequest.ResetPassword">
-                                        @foreach (var item in ResetPasswordDurations)
-                                        {
-                                            <SelectItem Value="@(item)">@item</SelectItem>
-                                        }
-                                    </Select>
-                                </Field>
-                            </MudItem>
-                            <MudItem>
-                                <MudStack >
-                                    <MudCheckBox Label="Update Password" T="bool" @bind-Value="_userRequest.IsUpdatePassword"></MudCheckBox>
-                                    <MudCheckBox Label="Force Reset" T="bool" @bind-Value="_userRequest.IsForceReset"></MudCheckBox>
-                                </MudStack>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                </MudStack>
-            </MudItem>
-        </Validations>
+                            </MudStack>
+                        </MudItem>
+                        <MudItem>
+                            <MudStack Row="true">
+                                <MudItem>
+                                    <Field>
+                                        <FieldLabel>Reset Password</FieldLabel>
+                                        <Select @bind-SelectedValue="@UserRequest.ResetPassword">
+                                            @foreach (var item in ResetPasswordDurations)
+                                            {
+                                                <SelectItem Value="@(item)">@item</SelectItem>
+                                            }
+                                        </Select>
+                                    </Field>
+                                </MudItem>
+                                <MudItem>
+                                    <MudStack >
+                                        <MudCheckBox Label="Update Password" T="bool" @bind-Value="UserRequest.IsUpdatePassword"></MudCheckBox>
+                                        <MudCheckBox Label="Force Reset" T="bool" @bind-Value="UserRequest.IsForceReset"></MudCheckBox>
+                                        <MudItem>
+                                            <MudCheckBox Label="Active" T="bool" @bind-Value="UserRequest.IsActive"></MudCheckBox>
+                                        </MudItem>
+                                    </MudStack>
+                                </MudItem>
+                            </MudStack>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+            </Validations>
+        </EditForm>
     </DialogContent>
     <DialogActions>
         <MudButton Disabled="@_processing" OnClick="SaveUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
@@ -113,11 +122,35 @@
 </MudDialog>
 
 @code {
-    private bool _processing;
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; } = Guid.Empty;
     private List<RoleResponse> Roles { get; set; } = new();
     private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
-    private CreateUserRequest _userRequest = new();
+    private CreateUserRequest UserRequest { get; set; } = new();
     Validations ValidationsRef { get; set; }
+    private bool _processing;
+    private string _title = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetEditUser();
+        await GetRoles();
+    }
+
+    private async Task GetEditUser()
+    {
+        if (Id != Guid.Empty)
+        {
+            _title = "Edit User";
+            var user = await UnitOfWork.User.GetUser(Id);
+            var data = mapper.Map<CreateUserRequest>(user);
+            UserRequest = data;
+        }
+        else
+        {
+            _title = "New User";
+        }
+    }
 
     private async Task GetRoles()
     {
@@ -127,21 +160,50 @@
     private async Task SaveUser()
     {
         _processing = true;
+
         if (await ValidationsRef.ValidateAll())
         {
+            if (string.IsNullOrWhiteSpace(UserRequest.UserType))
+            {
+                Snackbar.FailMessge("Please select user type.");
+                _processing = false;
+                return;
+            }
+
+            if (UserRequest.RoleId == Guid.Empty)
+            {
+                Snackbar.FailMessge("Please select role.");
+                _processing = false;
+
+                return;
+            }
+
             await Task.Delay(2000);
-            var res = await UnitOfWork.User.SaveUser(_userRequest);
+            var res = await UnitOfWork.User.SaveUser(Id, UserRequest);
             if (res.Succeeded)
             {
+                MudDialog.Close();
                 Snackbar.SuccessMessge(res.Messages.First());
-                _userRequest = new CreateUserRequest();
             }
             else
             {
                 Snackbar.FailMessge(res.Messages.First());
-            }   
+            }
         }
+
         _processing = false;
+    }
+
+    Task OnRoleSelectedValueChanged(Guid value)
+    {
+        UserRequest.RoleId = value;
+        return Task.CompletedTask;
+    }
+
+    Task OnUserTypeSelectedValueChanged(string value)
+    {
+        UserRequest.UserType = value;
+        return Task.CompletedTask;
     }
 
 }

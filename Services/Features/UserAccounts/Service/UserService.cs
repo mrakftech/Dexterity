@@ -62,20 +62,18 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return mapper.Map<UserResponse>(userInDb);
     }
 
-    public async Task<IResult> SaveUser(CreateUserRequest request)
+    public async Task<IResult> SaveUser(Guid id, CreateUserRequest request)
     {
         try
         {
-            if (request.Id == Guid.Empty)
+            if (id == Guid.Empty)
             {
                 if (context.Users.Any(x => x.Username == request.Username))
                 {
                     return await Result.FailAsync("Username already exists.");
                 }
 
-                var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
-                request.Id = Guid.NewGuid();
-                request.RoleId = role.Id;
+                request.RoleId = request.RoleId;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
                 request.CreatedBy = ApplicationState.CurrentUser.UserId;
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
@@ -92,9 +90,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                     request.Password = SecurePasswordHasher.Hash(request.Password);
                 }
 
-                var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == request.UserRole);
-                var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == request.Id);
-                request.RoleId = role.Id;
+                var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
+                request.RoleId = request.RoleId;
                 request.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 request.ModifiedDate = DateTime.Today;
                 userInDb = mapper.Map(request, userInDb);

@@ -1,5 +1,6 @@
 ﻿@using System.Net.Http
 @using System.Net.Http.Json
+@using AutoMapper
 @using Microsoft.AspNetCore.Components.Forms
 @using Microsoft.AspNetCore.Components.Routing
 @using Microsoft.AspNetCore.Components.Web
@@ -40,7 +41,7 @@
 @inject IJSRuntime JsRuntime
 @inject IUnitOfWork UnitOfWork;
 @inject IMailService MailService;
-
+@inject IMapper mapper;
 
 @inject RoomEnpoints DailyMeetingRoom;
 @inject SmsEndpoints SmsEndpoints;

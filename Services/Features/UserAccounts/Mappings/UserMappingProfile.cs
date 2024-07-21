@@ -11,6 +11,7 @@ public class UserMappingProfile :Profile
     {
         CreateMap<User, CreateUserRequest>().ReverseMap();
         CreateMap<User, UserResponse>().ReverseMap();
+        CreateMap<CreateUserRequest, UserResponse>().ReverseMap();
         CreateMap<Role, RoleResponse>().ReverseMap();
         CreateMap<PermissionClaim, PermissionResponse>().ReverseMap();
     }

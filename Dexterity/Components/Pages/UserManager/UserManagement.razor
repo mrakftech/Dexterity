@@ -2,22 +2,49 @@
 @using Dexterity.Components.Pages.UserManager.Components
 @layout MainLayout
 
-<MudCard>
+<TopTitleBar Title="User Management"
+             Image="modules/users.svg">
+</TopTitleBar>
+<div style="margin-top: 3%">
+    <MudPaper Height="600px" Style="overflow:hidden; position:relative;">
+        <MudDrawerContainer Class="mud-height-full">
+            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
+                       OpenMiniOnHover="true">
+                <MudNavMenu>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-users" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("users"))">
+                        User Manager
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-sliders" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("permissions"))">
+                        Permission
+                    </MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+            <div class="d-flex justify-center align-center">
+                <Tabs SelectedTab="@_selectedTab" Style="width: 100%">
+                    <Content>
+                        <TabPanel Name="users">
+                            <UserList/>
 
-    <MudTabs Elevation="4" Color="@MudColor.Secondary">
-        <MudTabPanel Text="User Manager">
-            <MudItem>
-                <UserList/>
-            </MudItem>
-        </MudTabPanel>
-        <MudTabPanel Text="Permission Manager">
-            <Permissions/>
-        </MudTabPanel>
-    </MudTabs>
-</MudCard>
-
+                        </TabPanel>
+                        <TabPanel Name="permissions">
+                            <Permissions/>
+                        </TabPanel>
+                    </Content>
+                </Tabs>
+            </div>
+        </MudDrawerContainer>
+    </MudPaper>
+</div>
 
 @code {
+    string _selectedTab = "users";
+    private bool _open = true;
 
+    private void ClickChanged(string tabName)
+    {
+        _selectedTab = tabName;
+    }
 
 }
