@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Requests.Auth;
+namespace Services.Features.UserAccounts.Dtos.Auth;
 
-public class LoginRequest
+public class LoginDto
 {
     [Required] public string Username { get; set; } = "admin@dexterity";
 

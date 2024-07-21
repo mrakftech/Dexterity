@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Requests.Messaging.Sms;
+namespace Services.Features.Messaging.Dtos.Sms;
 
-public class SendMessageRequest
+public class SendMessageDto
 {
     [Required] public string Content { get; set; }
     [Required] public string Mobile { get; set; }

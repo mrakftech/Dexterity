@@ -1,6 +1,6 @@
-namespace Shared.Responses.UserAccounts;
+namespace Services.Features.UserAccounts.Dtos.User;
 
-public class LoginResponse
+public class LoginResponseDto
 {
     public Guid UserId { get; set; }
     public string RoleName { get; set; }

@@ -1,6 +1,6 @@
-namespace Shared.Responses.Patient;
+namespace Services.Features.PatientManagement.Dtos;
 
-public class PatientResponse
+public class PatientDto
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public DateTime CreatedDate { get; set; } = DateTime.Today;

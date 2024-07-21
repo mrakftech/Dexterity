@@ -7,13 +7,13 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Database;
 using Dexterity.Extensions;
-using Dexterity.Services;
+using Dexterity.UiServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
 using Services.DbInitaiizer;
-using Shared.State;
+using Services.State;
 
 namespace Dexterity
 {

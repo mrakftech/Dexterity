@@ -1,4 +1,4 @@
-﻿namespace Dexterity.Services;
+﻿namespace Dexterity.UiServices;
 
 public interface ITrayService
 {

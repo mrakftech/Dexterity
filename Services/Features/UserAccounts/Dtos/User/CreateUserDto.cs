@@ -1,9 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace Services.Features.UserAccounts.Dtos.User;
 
-namespace Shared.Requests.UserAccounts;
-
-public class CreateUserRequest
+public class CreateUserDto
 {
 
     [Required(ErrorMessage = "First Name is Required")]

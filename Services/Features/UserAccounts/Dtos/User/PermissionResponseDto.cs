@@ -1,6 +1,6 @@
-namespace Shared.Responses.UserAccounts;
+namespace Services.Features.UserAccounts.Dtos.User;
 
-public class PermissionResponse
+public class PermissionResponseDto
 {
     public string Module { get; set; }
     public List<string> Claims { get; set; }

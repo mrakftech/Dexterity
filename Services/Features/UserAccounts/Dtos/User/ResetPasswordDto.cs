@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Shared.Requests.UserAccounts;
+namespace Services.Features.UserAccounts.Dtos.User;
 
-public class ResetPasswordRequest
+public class ResetPasswordDto
 {
     [Required]
     public string NewPassword { get; set; }

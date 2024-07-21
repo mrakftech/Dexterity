@@ -1,10 +1,10 @@
-using Shared.Responses.UserAccounts;
+using Services.Features.UserAccounts.Dtos.User;
 
-namespace Shared.State;
+namespace Services.State;
 
 public static class ApplicationState
 {
-    public static LoginResponse CurrentUser { get; set; }
+    public static LoginResponseDto CurrentUser { get; set; }
     public static bool IsLoggedIn { get; set; }
     public static string MeetingName { get; set; }
 }

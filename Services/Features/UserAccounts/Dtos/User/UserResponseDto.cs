@@ -1,6 +1,6 @@
-namespace Shared.Responses.UserAccounts;
+namespace Services.Features.UserAccounts.Dtos.User;
 
-public class UserResponse
+public class UserResponseDto
 {
     public Guid Id { get; set; }
     public string Username { get; set; }
@@ -22,6 +22,6 @@ public class UserResponse
     public bool IsBlocked { get; set; } = false;
     public bool IsUpdatePassword { get; set; }
     public bool IsForceReset { get; set; }
-    public RoleResponse Role { get; set; }
+    public RoleResponseDto Role { get; set; }
 
 }

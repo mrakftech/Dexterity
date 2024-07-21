@@ -1,10 +1,8 @@
-using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
+namespace Services.Features.PatientManagement.Dtos;
 
-namespace Shared.Dtos.Patient;
-
-public class PatientRequest 
+public class UpsertPatientDto 
 {
     public Guid Id { get; set; }
     public Guid CreatedBy { get; set; }

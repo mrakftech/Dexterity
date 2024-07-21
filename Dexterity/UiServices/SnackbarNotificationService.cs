@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Components;
 using MudBlazor;
 
-namespace Dexterity.Services;
+namespace Dexterity.UiServices;
 
 public class SnackbarNotificationService(ISnackbar snackbar)
 {

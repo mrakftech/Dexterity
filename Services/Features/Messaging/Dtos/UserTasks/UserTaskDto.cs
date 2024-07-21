@@ -1,4 +1,4 @@
-﻿namespace Shared.Requests.Messaging.UserTasks;
+﻿namespace Services.Features.Messaging.Dtos.UserTasks;
 
 public class UserTaskDto
 {

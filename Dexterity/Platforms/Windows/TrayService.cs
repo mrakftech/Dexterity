@@ -1,5 +1,5 @@
 ﻿using Dexterity.NativeWindowing;
-using Dexterity.Services;
+using Dexterity.UiServices;
 
 namespace Dexterity;
 public class TrayService : ITrayService
