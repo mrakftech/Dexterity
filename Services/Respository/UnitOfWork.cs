@@ -17,20 +17,19 @@ public class UnitOfWork(
     ISettingService setting)
     : IUnitOfWork
 {
-    
-    
-    public IMessagingService UserTask
+    public IMessagingService Messaging
     {
         get
         {
             if (messaging == null)
             {
-                messaging = new MessagingService(context);
+                messaging = new MessagingService(context, mapper);
             }
 
             return messaging;
         }
     }
+
     public ISettingService SmsTemplate
     {
         get

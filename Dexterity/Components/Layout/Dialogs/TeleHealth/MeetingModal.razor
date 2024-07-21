@@ -1,8 +1,5 @@
-﻿@using Shared.Responses.Patient
-@using Shared.Helper
-@using Dexterity.Components.Pages.PatientManager.Components
+﻿@using Shared.Helper
 @using Shared.Requests.Messaging.Sms
-@using Shared.Requests.Messaging
 <MudDialog>
     <TitleContent>
         Meeting
@@ -20,7 +17,7 @@
                 {
                     <MudGrid Justify="MudJustify.FlexEnd">
                         <MudItem>
-                            <MudTooltip Size="Size.Large" Text="Invite patients">
+                            <MudTooltip  Text="Invite patients">
                                 <MudIconButton Icon="fas fa-paper-plane" Color="MudColor.Primary" OnClick="ToggleOpen"></MudIconButton>
                             </MudTooltip>
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
@@ -48,7 +45,7 @@
                             </MudPopover>
                         </MudItem>
                         <MudItem>
-                            <MudTooltip Size="Size.Large" Text="Copy Meeting Link">
+                            <MudTooltip  Text="Copy Meeting Link">
                                 <MudIconButton Icon=" fas fa-copy" Color="MudColor.Primary" OnClick="CopyMeetingLink"></MudIconButton>
                             </MudTooltip>
                         </MudItem>

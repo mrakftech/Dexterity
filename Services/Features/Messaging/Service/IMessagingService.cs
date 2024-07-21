@@ -8,8 +8,9 @@ namespace Services.Features.Messaging.Service;
 public interface IMessagingService
 {
     #region User Task
-    public IQueryable<UserTask> GetUserTaskList();
-    public Task<IResult> SaveTask(Guid id, UpsertUserTaskRequest request);
+    public Task<List<UserTask>> GetUserTaskList(string view = "All");
+    public Task<IResult> SaveTask(Guid id, UserTaskDto dto);
+    public Task<UserTaskDto> GetTask(Guid id);
     public Task<IResult> DeleteTask(Guid id);
 
     #endregion

@@ -1,5 +1,6 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs
 @using Shared.Helper
+<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Bulk SMS</MudText>
 
 <MudItem>
     <MudStack>
@@ -30,42 +31,39 @@
             </MudStack>
         </MudItem>
         <MudItem>
-            @if (ValidPatients is {Count: > 0})
-            {
-                <MudDataGrid Loading="_patientLoading"
-                             RowsPerPage="5"
-                             LoadingProgressColor="MudColor.Secondary"
-                             FixedHeader="true"
-                             T="PatientListResponse"
-                             Dense="true"
-                             Bordered="true"
-                             Hover="true"
-                             Items="@ValidPatients"
-                             SortMode="SortMode.Multiple"
-                             Filterable="true"
-                             QuickFilter="@QuickFilter"
-                             Hideable="true">
-                    <ToolBarContent>
-                        <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
-                        <MudSpacer/>
-                        <MudItem md="3">
-                            <Validations Mode="ValidationMode.Manual">
-                                <DexInputField @bind-FieldDataSource="_searchString" Label="Search"></DexInputField>
-                            </Validations>
-                        </MudItem>
-                    </ToolBarContent>
-                    <Columns>
-                        <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
-                        <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
-                        <PropertyColumn Property="x => x.Mobile" Title="Mobile" Sortable="false" Filterable="false"/>
-                        <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
-                    </Columns>
-                    <PagerContent>
-                        <MudDataGridPager T="PatientListResponse" RowsPerPageString="5"/>
-                    </PagerContent>
-                    <NoRecordsContent>Patients are not found.</NoRecordsContent>
-                </MudDataGrid>
-            }
+            <MudDataGrid Loading="_patientLoading"
+                         RowsPerPage="5"
+                         LoadingProgressColor="MudColor.Secondary"
+                         FixedHeader="true"
+                         T="PatientListResponse"
+                         Dense="true"
+                         Bordered="true"
+                         Hover="true"
+                         Items="@ValidPatients"
+                         SortMode="SortMode.Multiple"
+                         Filterable="true"
+                         QuickFilter="@QuickFilter"
+                         Hideable="true">
+                <ToolBarContent>
+                    <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
+                    <MudSpacer/>
+                    <MudItem md="3">
+                        <Validations Mode="ValidationMode.Manual">
+                            <DexInputField @bind-FieldDataSource="_searchString" Label="Search"></DexInputField>
+                        </Validations>
+                    </MudItem>
+                </ToolBarContent>
+                <Columns>
+                    <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
+                    <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
+                    <PropertyColumn Property="x => x.Mobile" Title="Mobile" Sortable="false" Filterable="false"/>
+                    <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
+                </Columns>
+                <PagerContent>
+                    <MudDataGridPager T="PatientListResponse" RowsPerPageString="5"/>
+                </PagerContent>
+                <NoRecordsContent>Patients are not found.</NoRecordsContent>
+            </MudDataGrid>
         </MudItem>
     </MudStack>
 </MudItem>

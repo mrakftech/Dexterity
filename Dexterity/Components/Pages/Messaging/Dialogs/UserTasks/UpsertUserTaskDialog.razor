@@ -1,0 +1,69 @@
+﻿@using Shared.Requests.Messaging.UserTasks
+<MudDialog>
+    <TitleContent>
+        <MudText Align="Align.Center" Style="font-weight: bolder">Add/Edit Task</MudText>
+    </TitleContent>
+    <DialogContent>
+        <Validations Mode="ValidationMode.Manual" Model="_userTask" @ref="_validationsRef">
+            <DexInputField Label="Subject" @bind-FieldDataSource="_userTask.Subject"></DexInputField>
+            <DexInputField Label="Description" @bind-FieldDataSource="_userTask.Description"></DexInputField>
+            <MudItem>
+                <Field>
+                    <FieldLabel>Task date:</FieldLabel>
+                    <FieldBody>
+                        <DatePicker TValue="DateTime" @bind-Date="@_userTask.TaskDate" DisplayFormat="dd/MM/yyyy"/>
+                    </FieldBody>
+                </Field>
+            </MudItem>
+            <MudCheckBox Label="Active" T="bool" @bind-Value="_userTask.IsActive"></MudCheckBox>
+            <MudItem>
+                <MudButton Disabled="@_processing" OnClick="@SaveUserTask" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2 white-color">Processing</MudText>
+                    }
+                    else
+                    {
+                        <MudText><i class="fas fa-paper-plane"></i> Save Task</MudText>
+                    }
+                </MudButton>
+            </MudItem>
+        </Validations>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDilaog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private UserTaskDto _userTask = new();
+    private bool _processing;
+    Validations _validationsRef;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            _userTask = await UnitOfWork.Messaging.GetTask(Id);
+        }
+
+    }
+
+    private async Task SaveUserTask()
+    {
+        _processing = true;
+        if (await _validationsRef.ValidateAll())
+        {
+            var res = await UnitOfWork.Messaging.SaveTask(Id, _userTask);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                MudDilaog.Close();
+            }
+            await _validationsRef.ClearAll();
+        }
+        _processing = false;
+    }
+
+}

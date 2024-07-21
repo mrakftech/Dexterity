@@ -10,6 +10,7 @@
         background-size: cover;
 
     }
+   
 </style>
 <MudLayout>
     <MudAppBar Elevation="1" Dense="false">
@@ -20,7 +21,7 @@
         <MudSpacer/>
         <UserPersonalToolBar/>
     </MudAppBar>
-    <MudDrawer @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
+    <MudDrawer Style="color: white!important; background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;" @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
                Variant="@DrawerVariant.Mini" Class="bg-side-nav">
         <NavMenu/>
         <MudSpacer/>

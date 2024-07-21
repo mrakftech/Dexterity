@@ -10,6 +10,6 @@ public interface IUnitOfWork
     IUserService User { get; }
     IPatientService Patient { get; }
     ISettingService SmsTemplate { get; }
-    IMessagingService UserTask { get; }
+    IMessagingService Messaging { get; }
     void Save();
 }

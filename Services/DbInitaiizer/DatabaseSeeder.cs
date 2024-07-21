@@ -36,8 +36,8 @@ public class DatabaseSeeder(
             SeedUserPermissions();
         }
 
-        SeedFakePatientData();
-        SeedFakeUserData();
+        //SeedFakePatientData();
+      //  SeedFakeUserData();
     }
 
     private void SeedFakeUserData()

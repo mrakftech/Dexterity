@@ -1,7 +1,5 @@
-﻿@using Shared.Responses.Patient
-@using Dexterity.Components.Pages.PatientManager.Components
-@using Shared.Requests.Messaging.Sms
-@using Shared.Requests.Messaging
+﻿@using Shared.Requests.Messaging.Sms
+<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send Email</MudText>
 <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
     <MudStack>
         <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>

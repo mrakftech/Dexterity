@@ -59,8 +59,8 @@ namespace Database.Migrations
                     b.Property<string>("Subject")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("TaskDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("TaskDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
