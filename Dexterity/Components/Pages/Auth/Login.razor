@@ -1,6 +1,10 @@
 ﻿@layout AuthLayout
 @page "/"
+@using Domain.Entities.Settings
+@using Domain.Entities.UserAccounts
 @using global::Services.Features.UserAccounts.Dtos.Auth
+@using Services.Features.Settings.Dtos
+@using Services.State
 <div class="d-lg-flex half" style="height: 15px">
 
     <div class="bg order-1 order-md-2"
@@ -18,10 +22,35 @@
                         <strong>Management Software</strong>
                     </h3>
                     <div class="mt-5">
-                        <Validations @ref="@ValidationsRef" Model="@_loginDto" Mode="ValidationMode.Manual">
-                            <DexInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
-                            <DexInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password"/>
-                            <MudButton Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                        <MudItem Style="@($"display:{LoginBoxDisplay}")">
+                            <Validations @ref="@ValidationsRef" Model="@_loginDto" Mode="ValidationMode.Manual">
+                                <DexInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
+                                <DexInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password"/>
+                                <MudButton Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                                    @if (_processing)
+                                    {
+                                        <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                                        <MudText Class="ms-2 white-color">Processing</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText Class="white-color"><i class="fas fa-sign-in"></i> Login</MudText>
+                                    }
+                                </MudButton>
+                            </Validations>
+
+                        </MudItem>
+                        <MudItem Style="@($"display:{ClinicBoxDisplay}")">
+                            <FieldLabel>Clinic:</FieldLabel>
+                            <Select TValue="int" @bind-SelectedValue="@_clinicId">
+                                <SelectItem Value="0">Select Clinic</SelectItem>
+
+                                @foreach (var item in _clinics)
+                                {
+                                    <SelectItem Value="@item.Id">@item.Clinic.Name - @item.Clinic.Branch</SelectItem>
+                                }
+                            </Select>
+                            <MudButton Class="mt-5" Disabled="@_processing" OnClick="NavigateToDashboard" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
                                 @if (_processing)
                                 {
                                     <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
@@ -29,15 +58,10 @@
                                 }
                                 else
                                 {
-                                    <MudText Class="white-color"><i class="fas fa-sign-in"></i> Login</MudText>
+                                    <MudText Class="white-color"><i class="fas fa-sign-in"></i> Proceed</MudText>
                                 }
                             </MudButton>
-                        </Validations>
-                        <MudGrid Justify="MudJustify.Center" Class="mt-15">
-                            <MudItem md="12">
-                                @* <MudButton Color="MudColor.Primary" Variant="Variant.Filled" FullWidth="true" OnClick="TerminateApp">Exit Application</MudButton> *@
-                            </MudItem>
-                        </MudGrid>
+                        </MudItem>
                     </div>
                 </div>
 
@@ -51,6 +75,14 @@
     private LoginDto _loginDto = new();
     private bool _processing;
     Validations ValidationsRef { get; set; }
+    private string LoginBoxDisplay { get; set; } = "";
+    private string ClinicBoxDisplay { get; set; } = "none";
+    int _clinicId = 0;
+    private List<UserClinic> _clinics { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+    }
 
     private async Task LoginUser()
     {
@@ -62,7 +94,10 @@
             {
                 Snackbar.SuccessMessge(res.Messages.First());
                 await Task.Delay(1500);
-                NavigationManager.NavigateTo("home/");
+                LoginBoxDisplay = "none";
+                ClinicBoxDisplay = "";
+                _clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
+
             }
             else
             {
@@ -81,10 +116,26 @@
         _processing = false;
     }
 
-
-    private void TerminateApp()
+    private async Task NavigateToDashboard()
     {
-        Application.Current.Quit();
+        _processing = true;
+        if (_clinicId > 0)
+        {
+            ApplicationState.CurrentUser.ClinicId = _clinicId;
+            await Task.Delay(1500);
+            if (ApplicationState.CurrentUser.ClinicId > 0)
+            {
+                NavigationManager.NavigateTo("/home");
+            }
+
+            _processing = false;
+        }
+        else
+        {
+            Snackbar.FailMessge("Select Clinic");
+            _processing = false;
+        }
     }
+
 
 }

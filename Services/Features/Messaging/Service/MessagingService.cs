@@ -42,17 +42,15 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveTask(Guid id, UserTaskDto dto)
     {
+       // var hcps = dto.SelectedHealthCares.Select(x => x.Id).ToList();
+
         if (id == Guid.Empty)
         {
-            var task = new UserTask()
-            {
-                Id = Guid.NewGuid(),
-                Subject = dto.Subject,
-                TaskDate = dto.TaskDate,
-                Description = dto.Description,
-                IsActive = dto.IsActive,
-                UserId = ApplicationState.CurrentUser.UserId,
-            };
+            var task = mapper.Map<UserTask>(dto);
+            task.Id = Guid.NewGuid();
+            task.CreatedAt = DateTime.Now;
+            task.UserId = ApplicationState.CurrentUser.UserId;
+
             await context.UserTasks.AddAsync(task);
             await context.SaveChangesAsync();
         }
@@ -62,10 +60,7 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
             if (taskInDb == null)
                 return await Result.FailAsync("Task not found.");
 
-            taskInDb.TaskDate = dto.TaskDate;
-            taskInDb.Subject = dto.Subject;
-            taskInDb.Description = dto.Description;
-            taskInDb.IsActive = dto.IsActive;
+            taskInDb = mapper.Map(dto, taskInDb);
             context.UserTasks.Update(taskInDb);
             await context.SaveChangesAsync();
         }
@@ -75,7 +70,7 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<UserTaskDto> GetTask(Guid id)
     {
-        var taskInDb = await context.UserTasks.FirstOrDefaultAsync(x => x.Id == id);
+        var taskInDb = await context.UserTasks.Include(x => x.Patient).FirstOrDefaultAsync(x => x.Id == id);
         var s = mapper.Map<UserTaskDto>(taskInDb);
         return s;
     }

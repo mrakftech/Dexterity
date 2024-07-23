@@ -1,11 +1,9 @@
 ﻿using ClickATell.Extensions;
 using DailyCo.Extensions;
-using MailKit;
 using Services.Contracts.Repositroy;
-using Services.Features.Messaging;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
-using Services.Features.Settings.SmsTemplates;
+using Services.Features.Settings.Service;
 using Services.Features.UserAccounts.Service;
 using Services.Respository;
 using IMailService = Services.Features.Messaging.Mail.IMailService;
@@ -17,11 +15,11 @@ public static class ServicesCollectionExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
-        services.AddScoped<IPatientService, PatientService>();
-        services.AddScoped<IUserService, UserService>();
-        services.AddScoped<ISettingService, SettingService>();
-        services.AddScoped<IMessagingService, MessagingService>();
-        services.AddScoped<IUnitOfWork, UnitOfWork>();
+        services.AddTransient<IPatientService, PatientService>();
+        services.AddTransient<IUserService, UserService>();
+        services.AddTransient<ISettingService, SettingService>();
+        services.AddTransient<IMessagingService, MessagingService>();
+        services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IMailService, MailService>();
 
         return services;

@@ -1,4 +1,5 @@
 using Domain.Contracts;
+using Domain.Entities.Settings;
 
 namespace Domain.Entities.UserAccounts;
 
@@ -49,4 +50,6 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public bool IsBlocked { get; set; } = false;
     public Role Role { get; set; }
     public Guid RoleId { get; set; }
+    public virtual ICollection<UserClinic> UserClinics { get; set; }
+
 }

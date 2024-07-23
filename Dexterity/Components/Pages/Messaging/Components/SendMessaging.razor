@@ -60,7 +60,7 @@
 
     private async Task GetSmsTemplates()
     {
-        SmsTemplates = await UnitOfWork.SmsTemplate.GetSmsTemplates();
+        SmsTemplates = await UnitOfWork.Setting.GetSmsTemplates();
     }
 
     private async Task SendSmsClick()
@@ -105,7 +105,7 @@
         }
         else
         {
-            var res = await UnitOfWork.SmsTemplate.GetSmsTemplate(id);
+            var res = await UnitOfWork.Setting.GetSmsTemplate(id);
             _messageDto.Content = res.Data.Content;
         }
     }

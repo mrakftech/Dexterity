@@ -1,6 +1,7 @@
 using Bogus;
 using Database;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.Settings;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,36 +15,30 @@ using Shared.Helper;
 namespace Services.DbInitaiizer;
 
 public class DatabaseSeeder(
-    ApplicationDbContext context,
+    IDbContextFactory<ApplicationDbContext> contextFactory,
     ILogger<DatabaseSeeder> logger) : IDatabaseSeeder
 {
     public void Initialize()
     {
-        if (!context.Roles.Any())
-        {
-            SeedRoles();
-        }
+        SeedClinics();
+        SeedRoles();
+        SeedUsers();
+        SeedAdminPermissions();
+        SeedUserPermissions();
 
-        if (!context.Users.Any())
-        {
-            SeedUsers();
-        }
-
-
-        if (!context.PermissionClaims.Any())
-        {
-            SeedAdminPermissions();
-            SeedUserPermissions();
-        }
-
-        //SeedFakePatientData();
-      //  SeedFakeUserData();
+        SeedFakePatientData();
+        //SeedFakeUserData();
     }
 
     private void SeedFakeUserData()
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.Users.Any())
+                return;
+
             var userTypes = UserTypeConstants.UserTypes as IEnumerable<string>;
             var roleIds = context.Roles.Select(x => x.Id).ToList();
             if (context.Users.Count() == 2)
@@ -74,6 +69,11 @@ public class DatabaseSeeder(
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.Patients.Any())
+                return;        
+
             if (!context.Patients.Any())
             {
                 var util = PhoneNumberUtil.GetInstance();
@@ -109,6 +109,9 @@ public class DatabaseSeeder(
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            if (context.PermissionClaims.Any())
+                return;
             var list = new List<PermissionClaim>();
             var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.AdministratorRole);
             foreach (var module in PermissionConstants.Modules)
@@ -133,6 +136,9 @@ public class DatabaseSeeder(
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            if (context.PermissionClaims.Any())
+                return;
             var list = new List<PermissionClaim>();
             var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.UserRole);
             foreach (var module in PermissionConstants.Modules)
@@ -153,10 +159,31 @@ public class DatabaseSeeder(
         }).GetAwaiter().GetResult();
     }
 
+    private void SeedClinics()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            if (context.Clinics.Any())
+                return;
+            var c = new Clinic()
+            {
+                Branch = "Not set",
+                Name = "Clinic"
+            };
+            context.Clinics.Add(c);
+            await context.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
+    }
+
     private void SeedUsers()
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.Users.Any())
+                return;
             var passHash = SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword);
             var users = new List<User>()
             {
@@ -192,6 +219,16 @@ public class DatabaseSeeder(
 
             await context.Users.AddRangeAsync(users);
             await context.SaveChangesAsync();
+            foreach (var user in users)
+            {
+                var clinic = new UserClinic()
+                {
+                    UserId = user.Id,
+                    ClinicId = 1
+                };
+                context.UserClinics.Add(clinic);
+                await context.SaveChangesAsync();
+            }
             logger.LogInformation("Users seeded");
         }).GetAwaiter().GetResult();
     }
@@ -200,6 +237,11 @@ public class DatabaseSeeder(
     {
         Task.Run(async () =>
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.Roles.Any())
+                return;
+
             var roles = new List<Role>()
             {
                 new()

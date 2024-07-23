@@ -8,6 +8,7 @@ public class UserMappingProfile :Profile
 {
     public UserMappingProfile()
     {
+        CreateMap<User, HealthcareDto>().ReverseMap();
         CreateMap<User, CreateUserDto>().ReverseMap();
         CreateMap<User, UserResponseDto>().ReverseMap();
         CreateMap<CreateUserDto, UserResponseDto>().ReverseMap();

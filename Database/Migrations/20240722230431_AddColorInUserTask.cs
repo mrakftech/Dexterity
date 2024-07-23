@@ -5,25 +5,26 @@
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIsDefualtRoles : Migration
+    public partial class AddColorInUserTask : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<bool>(
-                name: "IsDefualt",
-                table: "Roles",
-                type: "bit",
-                nullable: false,
-                defaultValue: false);
+            migrationBuilder.AddColumn<string>(
+                name: "Color",
+                schema: "Messaging",
+                table: "UserTasks",
+                type: "nvarchar(max)",
+                nullable: true);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "IsDefualt",
-                table: "Roles");
+                name: "Color",
+                schema: "Messaging",
+                table: "UserTasks");
         }
     }
 }

@@ -1,28 +1,32 @@
 using AutoMapper;
 using Database;
+using Microsoft.EntityFrameworkCore;
 using Services.Contracts.Repositroy;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
-using Services.Features.Settings.SmsTemplates;
+using Services.Features.Settings.Service;
 using Services.Features.UserAccounts.Service;
 
 namespace Services.Respository;
 
-public class UnitOfWork(
-    ApplicationDbContext context,
+public sealed class UnitOfWork(
     IUserService user,
-    IMapper mapper,
     IPatientService patient,
     IMessagingService messaging,
-    ISettingService setting)
+    IMapper mapper,
+    ISettingService setting,
+    ApplicationDbContext context)
     : IUnitOfWork
 {
+    private bool _disposed;
+
     public IMessagingService Messaging
     {
         get
         {
             if (messaging == null)
             {
+                 
                 messaging = new MessagingService(context, mapper);
             }
 
@@ -30,13 +34,15 @@ public class UnitOfWork(
         }
     }
 
-    public ISettingService SmsTemplate
+    public ISettingService Setting
     {
         get
         {
             if (setting == null)
             {
-                setting = new SettingService(context);
+                
+
+                setting = new SettingService(context, mapper);
             }
 
             return setting;
@@ -49,6 +55,8 @@ public class UnitOfWork(
         {
             if (user == null)
             {
+                
+
                 user = new UserService(context, mapper);
             }
 
@@ -62,6 +70,7 @@ public class UnitOfWork(
         {
             if (patient == null)
             {
+                
                 user = new UserService(context, mapper);
             }
 
@@ -69,8 +78,21 @@ public class UnitOfWork(
         }
     }
 
-    public void Save()
+    private void Dispose(bool disposing)
     {
-        context.SaveChanges();
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                context.Dispose();
+            }
+        }
+        _disposed = true;
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

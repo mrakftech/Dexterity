@@ -1,0 +1,92 @@
+﻿@using Dexterity.Components.Pages.Settings.Dialogs.Clinic
+@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings
+<MudItem Style="margin-top: 3%;width: 75%">
+    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Clinics</MudText>
+    <MudItem md="12">
+        <MudStack Row Style="margin-top: 20px">
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => UpsertClinicModal(0)">Add New Clinic</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetClinics" Variant="Variant.Filled">Load Clinics</MudButton>
+        </MudStack>
+    </MudItem>
+    <MudDataGrid Style="margin-top: 20px" Items="ClinicList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Clinics</MudText>
+            <MudSpacer/>
+            <MudItem md="4">
+                <MudTextField Variant="Variant.Outlined" Margin="MudMargin.Dense" @bind-Value="_searchString"
+                              Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                              AdornmentIcon="@MudIcons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
+                </MudTextField>
+
+            </MudItem>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Name"/>
+            <PropertyColumn Property="x => x.Branch"/>
+            <TemplateColumn CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => UpsertClinicModal(context.Item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteClinic(context.Item.Id)"/>
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <NoRecordsContent>
+            <MudText>No records found.</MudText>
+        </NoRecordsContent>
+    </MudDataGrid>
+
+</MudItem>
+
+@code {
+    private List<ClinicDto> ClinicList { get; set; } = new();
+    private string _searchString;
+    private bool _processing;
+
+    private async Task GetClinics()
+    {
+        _processing = true;
+        ClinicList = await UnitOfWork.Setting.GetClinics();
+        _processing = false;
+    }
+
+    private async Task DeleteClinic(int id)
+    {
+        var parameters = new DialogParameters();
+//parameters.Add("ContentText", "Do you want to confirm?");
+//parameters.Add("ButtonText", "Yes");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteClinic(id);
+            if (res.Succeeded)
+            {
+                await GetClinics();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+    private async Task UpsertClinicModal(int id)
+    {
+        var title = id == 0 ? "New Clinic" : "Edit Clinic";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertClinicModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetClinics();
+        }
+    }
+
+}

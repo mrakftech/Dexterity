@@ -62,19 +62,14 @@
     <ItemGroup>
      
         <PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
-     
         <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
-     
         <PackageReference Include="Blazorise.Bootstrap5" Version="1.5.3" />
-     
         <PackageReference Include="Blazorise.Components" Version="1.5.3" />
-     
         <PackageReference Include="Blazorise.Generator.Features" Version="1.5.3" />
-     
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.5.3" />
         <PackageReference Include="Blazorise.RichTextEdit" Version="1.5.3" />
         <PackageReference Include="BlazorScheduler" Version="4.3.3" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
@@ -106,7 +101,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\Pages\Settings\Dialogs\" />
       <Folder Include="wwwroot\assets\fonts\" />
     </ItemGroup>
 

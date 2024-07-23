@@ -15,7 +15,8 @@ public class Appointment : IBaseId, IBaseActionBy, IBaseActionOn
     public int Duration { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
-
+    public string Color { get; set; }
+    public string Title { get; set; }
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
 }

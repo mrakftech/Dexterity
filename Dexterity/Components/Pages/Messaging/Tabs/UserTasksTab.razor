@@ -8,9 +8,9 @@
 else
 {
     <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">User Tasks</MudText>
-   
+
     <MudStack Style="margin-top: 3%">
-        <MudItem>
+        <MudItem >
             <MudStack Row>
                 <MudItem md="2">
                     <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-list-check" Size="MudSize.Small" Label="All Tasks" Class="" OnClick="AllTasks"/>
@@ -19,10 +19,10 @@ else
                     <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-day" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks"/>
                 </MudItem>
                 <MudItem md="2">
-                    <MudFab  IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-week" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
+                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-week" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
                 </MudItem>
                 <MudItem md="2">
-                    <MudFab  IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-days" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks"/>
+                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-days" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks"/>
                 </MudItem>
                 <MudItem md="2">
                     <MudSelect Margin="MudMargin.Dense" T="string" Variant="Variant.Outlined" ValueChanged="Callback">
@@ -43,7 +43,7 @@ else
                 <ToolBarContent>
                     <MudText Typo="Typo.h6" Class="text-bold">My Tasks</MudText>
 
-                    <MudFab  Color="MudColor.Primary" StartIcon="fa fa-plus" Size="MudSize.Small" Label="Add New Task" Class="ml-5" OnClick="() => UpsertUserTaskModal(Guid.Empty)"/>
+                    <MudFab Color="MudColor.Primary" StartIcon="fa fa-plus" Size="MudSize.Small" Label="Add New Task" Class="ml-5" OnClick="() => UpsertUserTaskModal(Guid.Empty)"/>
                     <MudSpacer/>
                     <MudItem md="3">
                     </MudItem>
@@ -54,14 +54,7 @@ else
                     <PropertyColumn Property="x => x.Description" Title="Description" Sortable="false" Filterable="false"/>
                     <TemplateColumn CellClass="" Title="Status">
                         <CellTemplate>
-                            @if (context.Item.IsActive)
-                            {
-                                <MudText Color="MudColor.Primary"> Active</MudText>
-                            }
-                            else
-                            {
-                                <MudText Color="MudColor.Error">Inactive</MudText>
-                            }
+                            <MudText Color="MudColor.Primary">@context.Item.Status</MudText>
                         </CellTemplate>
                     </TemplateColumn>
                     <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
@@ -95,8 +88,10 @@ else
 
     private async Task GetUserTasks()
     {
+        UserTaskList = new();
         _userTaskLoading = true;
-        UserTaskList = await UnitOfWork.Messaging.GetUserTaskList();
+        var list = await UnitOfWork.Messaging.GetUserTaskList();
+        UserTaskList = list;
         _userTaskLoading = false;
     }
 
@@ -104,7 +99,7 @@ else
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertUserTaskDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
@@ -116,8 +111,6 @@ else
     private async Task DeleteUserTask(Guid id)
     {
         var parameters = new DialogParameters();
-        //parameters.Add("ContentText", "Do you want to confirm?");
-        //parameters.Add("ButtonText", "Yes");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
@@ -161,10 +154,10 @@ else
         switch (status)
         {
             case "Active":
-                UserTaskList = taskList.Where(x => x.IsActive).ToList();
+                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatus.Active).ToList();
                 break;
             case "Inactive":
-                UserTaskList = taskList.Where(x => x.IsActive == false).ToList();
+                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatus.Inactive).ToList();
                 break;
             default:
                 UserTaskList = taskList;

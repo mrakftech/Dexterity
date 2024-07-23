@@ -1,8 +1,9 @@
 ﻿using Domain.Entities.Messaging;
-using Services.Contracts.Repositroy;
+using Domain.Entities.Settings;
+using Services.Features.Settings.Dtos;
 using Shared.Wrapper;
 
-namespace Services.Features.Settings.SmsTemplates;
+namespace Services.Features.Settings.Service;
 
 public interface ISettingService
 {
@@ -12,6 +13,18 @@ public interface ISettingService
     public Task<IResult<SmsTemplate>> GetSmsTemplate(Guid id);
     public Task<IResult> SaveSmsTemplate(Guid id, SmsTemplate request);
     public Task<IResult> DeleteSmsTemplate(Guid id);
+
+    #endregion
+
+    #region Clinic
+
+    public Task<List<ClinicDto>> GetClinics();
+    public Task<IResult<ClinicDto>> GetClinic(int id);
+    public Task<IResult> SaveClinic(int id, ClinicDto request);
+
+
+    public Task<IResult> DeleteClinic(int id);
+
 
     #endregion
 }

@@ -12,46 +12,88 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240712210314_AddChatMessage")]
-    partial class AddChatMessage
+    [Migration("20240722140045_InitialDatabase")]
+    partial class InitialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "8.0.2")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("Domain.Entities.Messaging.ChatMessage", b =>
+            modelBuilder.Entity("Domain.Entities.Messaging.SmsTemplate", b =>
                 {
-                    b.Property<long>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("Id"));
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("FromUserId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("Message")
+                    b.Property<string>("Content")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("ToUserId")
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmsTemplates", "Messaging");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.UserTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Location")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("TaskDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("FromUserId");
+                    b.HasIndex("UserId");
 
-                    b.HasIndex("ToUserId");
-
-                    b.ToTable("ChatMessages");
+                    b.ToTable("UserTasks", "Messaging");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Patient", b =>
@@ -60,14 +102,47 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("AddressLine1")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("AddressLine2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
+
+                    b.Property<string>("EmailAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("HomePhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IhINumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
@@ -77,15 +152,53 @@ namespace Database.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("Mobile")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PatientStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ppsn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UniqueNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", "PatientManagement");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Clinic", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Branch")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Clinics", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
@@ -110,7 +223,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("PermissionClaims");
+                    b.ToTable("Permissions", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.Role", b =>
@@ -142,7 +255,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles");
+                    b.ToTable("Roles", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
@@ -153,6 +266,9 @@ namespace Database.Migrations
 
                     b.Property<string>("Ban")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -216,26 +332,45 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ClinicId");
+
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", "UserManagement");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Messaging.ChatMessage", b =>
+            modelBuilder.Entity("Domain.Entities.UserAccounts.UserClinic", b =>
                 {
-                    b.HasOne("Domain.Entities.UserAccounts.User", "FromUser")
-                        .WithMany("ChatMessagesFromUsers")
-                        .HasForeignKey("FromUserId")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("UsersClinics", "UserManagement");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.UserTask", b =>
+                {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserAccounts.User", "ToUser")
-                        .WithMany("ChatMessagesToUsers")
-                        .HasForeignKey("ToUserId")
-                        .IsRequired();
-
-                    b.Navigation("FromUser");
-
-                    b.Navigation("ToUser");
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
@@ -251,20 +386,50 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
                 {
+                    b.HasOne("Domain.Entities.Settings.Clinic", "Clinic")
+                        .WithMany("Users")
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.UserAccounts.Role", "Role")
                         .WithMany()
                         .HasForeignKey("RoleId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Clinic");
+
                     b.Navigation("Role");
+                });
+
+            modelBuilder.Entity("Domain.Entities.UserAccounts.UserClinic", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Clinic", "Clinic")
+                        .WithMany()
+                        .HasForeignKey("ClinicId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAccounts.User", "User")
+                        .WithMany("UserClinics")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Clinic");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Clinic", b =>
+                {
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
                 {
-                    b.Navigation("ChatMessagesFromUsers");
-
-                    b.Navigation("ChatMessagesToUsers");
+                    b.Navigation("UserClinics");
                 });
 #pragma warning restore 612, 618
         }

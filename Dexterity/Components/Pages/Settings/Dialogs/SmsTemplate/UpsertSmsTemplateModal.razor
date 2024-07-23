@@ -1,38 +1,28 @@
-﻿@using Domain.Entities.Messaging
-<MudDialog>
+﻿<MudDialog>
     <DialogContent>
-        <EditForm Model="SmsTemplateRequest" OnValidSubmit="SaveSmsTemplate">
-            <DataAnnotationsValidator/>
-            <MudStack Class="mt-2">
-                <div class="col-sm-8 text-danger">
-                    <ValidationMessage For="() => SmsTemplateRequest.Name"/>
+        <Validations @ref="validations" Mode="ValidationMode.Manual">
+            <EditForm Model="SmsTemplateRequest" OnValidSubmit="SaveSmsTemplate">
+                <MudStack Class="mt-2">
+                    <DexInputField Label="Template" bind-FieldDataSource="@SmsTemplateRequest.Name"></DexInputField>
+                    <MudItem>
+                        <FieldLabel>Content</FieldLabel>
+                        <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@SmsTemplateRequest.Content"/>
+                    </MudItem>
+                    <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Save Template</MudText>
+                        }
+                    </MudButton>
+                </MudStack>
+            </EditForm>
+        </Validations>
 
-                </div>
-                <MudTextField @bind-Value="SmsTemplateRequest.Name" Variant="Variant.Outlined"
-                              Label="Template Name"
-                              Margin="MudMargin.Dense">
-                </MudTextField>
-                <div class="col-sm-8 text-danger">
-                    <ValidationMessage For="() => SmsTemplateRequest.Content"/>
-                </div>
-                <MudTextField @bind-Value="SmsTemplateRequest.Content" Variant="Variant.Outlined"
-                              Lines="10"
-                              Label="Content"
-                              Margin="MudMargin.Dense">
-                </MudTextField>
-                <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                    @if (_processing)
-                    {
-                        <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
-                        <MudText Class="ms-2">Processing</MudText>
-                    }
-                    else
-                    {
-                        <MudText>Save Template</MudText>
-                    }
-                </MudButton>
-            </MudStack>
-        </EditForm>
     </DialogContent>
     <DialogActions>
     </DialogActions>
@@ -43,12 +33,13 @@
     [Parameter] public Guid Id { get; set; }
     private SmsTemplate SmsTemplateRequest { get; set; } = new();
     private bool _processing;
+    Validations validations;
 
     protected override async Task OnInitializedAsync()
     {
         if (Id != Guid.Empty)
         {
-            var s = await UnitOfWork.SmsTemplate.GetSmsTemplate(Id);
+            var s = await UnitOfWork.Setting.GetSmsTemplate(Id);
             SmsTemplateRequest = s.Data;
         }
     }
@@ -56,18 +47,21 @@
     private async Task SaveSmsTemplate()
     {
         _processing = true;
-        await Task.Delay(1000);
-        var res = await UnitOfWork.SmsTemplate.SaveSmsTemplate(Id, SmsTemplateRequest);
-        if (res.Succeeded)
+        if (await validations.ValidateAll())
         {
-            Snackbar.SuccessMessge(res.Messages.First());
-            MudDialog.Close();
-        }
-        else
-        {
-            Snackbar.FailMessge(res.Messages.First());
+            var res = await UnitOfWork.Setting.SaveSmsTemplate(Id, SmsTemplateRequest);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                MudDialog.Close();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
         }
 
+        await Task.Delay(1000);
         _processing = false;
     }
 

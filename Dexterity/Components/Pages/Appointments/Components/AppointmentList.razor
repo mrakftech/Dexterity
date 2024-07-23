@@ -1,0 +1,20 @@
+﻿@using Services.Features.Appointments
+<MudStack>
+    <MudItem></MudItem>
+    <MudItem md="12">
+        <Scheduler>
+            <Appointments>
+                @foreach (var app in Appointments)
+                {
+                    <Appointment Start="@app.StartDate" End="@app.EndDate" Color="@app.Color">
+                        @app.Title
+                    </Appointment>
+                }
+            </Appointments>
+        </Scheduler>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<AppointmentDto> Appointments { get; set; } = new();
+}

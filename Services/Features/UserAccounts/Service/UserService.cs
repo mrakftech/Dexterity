@@ -14,7 +14,6 @@ namespace Services.Features.UserAccounts.Service;
 public class UserService(ApplicationDbContext context, IMapper mapper)
     : IUserService
 {
-
     #region User
 
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
@@ -57,7 +56,11 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<UserResponseDto> GetUser(Guid id)
     {
-        var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
+        var userInDb = await context.Users
+            .Include(x => x.Role)
+            .Include(x => x.UserClinics)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         return mapper.Map<UserResponseDto>(userInDb);
     }
 
@@ -231,7 +234,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         var userInDb = await context.Users.Include(x => x.Role)
             .FirstOrDefaultAsync(x => x.Id == ApplicationState.CurrentUser.UserId);
-        
+
         if (userInDb == null)
         {
             return await Result.FailAsync("User not found.");
@@ -242,6 +245,71 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         userInDb.PasswordHash = hashedPassword;
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Password has been reset");
+    }
+
+    #endregion
+
+    #region User Clinic
+
+    public async Task<List<UserClinic>> GetUserClinics(Guid userId)
+    {
+        return await context.UserClinics
+            .Where(x => x.UserId == userId)
+            .Include(x => x.Clinic).ToListAsync();
+    }
+
+    public async Task<IResult> SaveUserClinic(int id, UserClinic request)
+    {
+        if (id == 0)
+        {
+            if (context.UserClinics.Any(x => x.ClinicId == request.ClinicId && x.UserId == request.UserId))
+                return await Result.FailAsync("Clinic already exists.");
+
+            await context.UserClinics.AddAsync(request);
+        }
+        else
+        {
+            var clinic = context.UserClinics.FirstOrDefault(x => x.Id == id);
+
+            if (clinic == null)
+                return await Result.FailAsync("clinic not found.");
+
+            context.UserClinics.Update(request);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Clinic saved.");
+    }
+
+    public async Task<IResult> DeleteClinic(int id)
+    {
+        var clinic = context.UserClinics.FirstOrDefault(x => x.Id == id);
+        if (clinic == null)
+            return await Result.FailAsync("clinic not found.");
+
+        context.UserClinics.Remove(clinic);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("User Clinic deleted.");
+    }
+
+    public async Task<List<HealthcareDto>> GetUsersByClinic(int clinicId)
+    {
+        var list = new List<HealthcareDto>();
+        var users = await context.UserClinics
+            .Where(x => x.ClinicId == clinicId)
+            .Select(x => x.User)
+            .ToListAsync();
+        foreach (var user in users)
+        {
+            var data = mapper.Map<HealthcareDto>(user);
+            //Excluding logged in user.
+            if (data.Id != ApplicationState.CurrentUser.UserId)
+            {
+                list.Add(data);
+            }
+        }
+
+        return list;
     }
 
     #endregion

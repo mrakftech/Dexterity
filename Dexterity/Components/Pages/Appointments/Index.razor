@@ -1,10 +1,13 @@
 ﻿@layout MainLayout
 @page "/appointments"
+@using Dexterity.Components.Pages.Appointments.Components
+@using Width = Blazorise.Width
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
 <div style="margin-top: 3%">
-    <MudPaper Height="650px" Style="overflow:hidden; position:relative;">
+    
+    <MudPaper Height="700px" Style="overflow:hidden; position:relative;">
         <MudDrawerContainer Class="mud-height-full">
             <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
                        OpenMiniOnHover="true">
@@ -20,13 +23,14 @@
                 </MudNavMenu>
             </MudDrawer>
             <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab" Style="width: 100%">
+                <Tabs SelectedTab="@_selectedTab"  Width="Width.Is100">
                     <Content>
                         <TabPanel Name="appointments">
+                            <AppointmentList/>
                         </TabPanel>
                         <TabPanel Name="new-appointments">
                         </TabPanel>
-
+    
                     </Content>
                 </Tabs>
             </div>
@@ -36,7 +40,7 @@
 
 @code {
     private bool _open = false;
-    string _selectedTab = "user-tasks-tab";
+    string _selectedTab = "appointments";
 
     private void ClickChanged(string tabName)
     {

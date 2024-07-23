@@ -1,0 +1,66 @@
+﻿@using Services.Features.Settings.Dtos
+<MudDialog>
+    <DialogContent>
+        <Validations @ref="validations" Mode="ValidationMode.Manual">
+            <EditForm Model="ClinicDto" OnValidSubmit="SaveClinic">
+                <MudStack Class="mt-2">
+                    <DexInputField Label="Name" @bind-FieldDataSource="@ClinicDto.Name"></DexInputField>
+                    <DexInputField Label="Branch" @bind-FieldDataSource="@ClinicDto.Branch"></DexInputField>
+                    <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                        @if (_processing)
+                        {
+                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
+                            <MudText Class="ms-2">Processing</MudText>
+                        }
+                        else
+                        {
+                            <MudText>Save Clinic</MudText>
+                        }
+                    </MudButton>
+                </MudStack>
+            </EditForm>
+        </Validations>
+
+    </DialogContent>
+    <DialogActions>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private ClinicDto ClinicDto { get; set; } = new();
+    private bool _processing;
+    Validations validations;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var s = await UnitOfWork.Setting.GetClinic(Id);
+            ClinicDto = s.Data;
+        }
+    }
+
+    private async Task SaveClinic()
+    {
+        _processing = true;
+        if (await validations.ValidateAll())
+        {
+            var res = await UnitOfWork.Setting.SaveClinic(Id, ClinicDto);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                MudDialog.Close();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+}

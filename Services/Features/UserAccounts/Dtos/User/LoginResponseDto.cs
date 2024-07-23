@@ -7,4 +7,6 @@ public class LoginResponseDto
     public string Name { get; set; }
     public bool IsForceReset { get; set; }
 
+    public int ClinicId { get; set; }
+
 }

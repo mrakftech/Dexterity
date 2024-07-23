@@ -10,7 +10,6 @@
 @using Dexterity.Components
 @using Dexterity.Components.Layout
 @using Dexterity.Components.Layout.Loaders
-@using global::Services.Contracts.Repositroy
 @using Blazored.FluentValidation
 @using DailyCo.Services
 @using MudBlazor
@@ -30,6 +29,8 @@
 @using BlazorContextMenu
 @using BlazorScheduler
 @using Dexterity.UiServices
+@using Services.Contracts.Repositroy
+@using Services.Features.Messaging.Service
 
 @inject NavigationManager NavigationManager;
 @inject SnackbarNotificationService Snackbar;
@@ -38,6 +39,7 @@
 @inject IUnitOfWork UnitOfWork;
 @inject IMailService MailService;
 @inject IMapper Mapper;
+
 
 @inject RoomEnpoints DailyMeetingRoom;
 @inject SmsEndpoints SmsEndpoints;

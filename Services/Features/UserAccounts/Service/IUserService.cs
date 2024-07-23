@@ -1,18 +1,17 @@
 using Domain.Entities.UserAccounts;
-using Services.Contracts.Repositroy;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
 
-public interface IUserService 
+public interface IUserService
 {
     Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto);
 
     Task<List<UserResponseDto>> GetUsers();
     Task<UserResponseDto> GetUser(Guid id);
-    Task<IResult> SaveUser(Guid id,CreateUserDto dto);
+    Task<IResult> SaveUser(Guid id, CreateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
 
 
@@ -35,6 +34,16 @@ public interface IUserService
     Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, string module);
     Task<IResult> UpdatePermissions(List<UpdatePermissionDto> request);
     Task<IResult> ResetPassword(ResetPasswordDto dto);
+
+    #endregion
+
+    #region User Clinics
+    Task<List<UserClinic>> GetUserClinics(Guid userId);
+
+    Task<IResult> SaveUserClinic(int id, UserClinic request);
+    Task<IResult> DeleteClinic(int id);
+    Task<List<HealthcareDto>> GetUsersByClinic(int clinicId);
+
 
     #endregion
 }

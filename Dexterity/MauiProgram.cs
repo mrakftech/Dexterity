@@ -86,8 +86,10 @@ namespace Dexterity
                 configuration.SnackbarConfiguration.VisibleStateDuration = 3000;
                 configuration.SnackbarConfiguration.ShowCloseIcon = false;
             });
-            builder.Services.AddDbContext<ApplicationDbContext>(options =>
-                    options.UseSqlServer(configuration.GetConnectionString("AppConnection")))
+            builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")),
+                     ServiceLifetime.Transient
+                )
                 .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
             builder.Services.AddRepositories();
             builder.Services.AddExternalApis();

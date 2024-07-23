@@ -1,6 +1,3 @@
-using System.Collections.ObjectModel;
-using Domain.Entities.PatientManagement;
-using Services.Contracts.Repositroy;
 using Services.Features.PatientManagement.Dtos;
 using Shared.Wrapper;
 

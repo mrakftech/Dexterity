@@ -1,13 +1,9 @@
-using System.Collections.ObjectModel;
 using AutoMapper;
 using Database;
 using Domain.Entities.PatientManagement;
 using Microsoft.EntityFrameworkCore;
-using PhoneNumbers;
 using Services.Features.PatientManagement.Dtos;
-using Services.Respository;
 using Services.State;
-using Shared.Constants.Application;
 using Shared.Helper;
 using Shared.Wrapper;
 

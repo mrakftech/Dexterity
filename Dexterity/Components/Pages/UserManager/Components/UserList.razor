@@ -46,6 +46,7 @@
     <PagerContent>
         <MudDataGridPager T="UserResponseDto"/>
     </PagerContent>
+    <NoRecordsContent>Users not found.</NoRecordsContent>
 </MudDataGrid>
 
 @code {
@@ -101,8 +102,8 @@
 
     private async Task UpsertUserModal(Guid id)
     {
-        var parameters = new DialogParameters {{"Id", id}};
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var parameters = new DialogParameters {{"UserId", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertUserModal>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)

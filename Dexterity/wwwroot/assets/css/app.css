@@ -105,8 +105,8 @@ h1:focus {
 }
 
 .hr-thin {
-    color: #0077B5;
-    border: 2px;
+    color: #0077B5!important;
+    border: 2px!important;
 }
 
 .validation-message {
