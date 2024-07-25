@@ -22,7 +22,7 @@
             <PropertyColumn Property="x => x.CreatedDate" Title="Created At" Format="MM/dd/yyyy h:mm tt" Sortable="false" Filterable="false"/>
             <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
             <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
-            <PropertyColumn Property="x => x.DateOfBirth" Title="Date of Birth" Sortable="false" Filterable="false"/>
+            <PropertyColumn Property="x => x.DateOfBirth" Title="Date of Birth" Sortable="false" Filterable="false" Format="dd/MM/yyyy"/>
             <PropertyColumn Property="x => x.EmailAddress" Title="Email" Sortable="false" Filterable="false"/>
             <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
             <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
@@ -46,10 +46,10 @@
     private bool _patientLoading;
 
 
-    // protected override async Task OnInitializedAsync()
-    // {
-    //     // await GetPatients();
-    // }
+    protected override async Task OnInitializedAsync()
+    {
+         await GetPatients();
+    }
 
   
     private Func<PatientListDto, bool> QuickFilter => x =>

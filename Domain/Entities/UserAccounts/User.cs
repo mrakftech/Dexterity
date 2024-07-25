@@ -1,4 +1,5 @@
 using Domain.Contracts;
+using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
 
 namespace Domain.Entities.UserAccounts;
@@ -51,5 +52,7 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public Role Role { get; set; }
     public Guid RoleId { get; set; }
     public virtual ICollection<UserClinic> UserClinics { get; set; }
+    public virtual ICollection<Patient> Patients { get; set; }
+
 
 }

@@ -1,152 +1,81 @@
 ﻿@using global::Services.Features.PatientManagement.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.State
 @using Shared.Constants.Module
 <MudDialog>
     <DialogContent>
         <MudItem Class="mt-2" md="12">
-            <EditForm Model="UpsertPatientDto">
-                <MudStack Row Justify="MudJustify.Center">
+            <Validations @ref="_validationsRef" Model="UpsertPatientDto" Mode="ValidationMode.Manual">
+                <MudStack>
                     <MudItem>
-                        <MudStack >
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="First Name"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                        <MudStack Row >
+                            <MudItem md="3">
+                                <DexTextInputField Label="Family Name" @bind-FieldDataSource="@UpsertPatientDto.FamilyName"></DexTextInputField>
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.LastName"
-                                              Variant="Variant.Outlined"
-                                              Label="First Name"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                            <MudItem md="3">
+                                <DexTextInputField Label="First Name" @bind-FieldDataSource="@UpsertPatientDto.FirstName"></DexTextInputField>
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.DateOfBirth"
-                                              Variant="Variant.Outlined"
-                                              Label="Date of Birth"
-                                              InputType="InputType.Date"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                            <MudItem md="3">
+                                <DexTextInputField Label="Last Name" @bind-FieldDataSource="@UpsertPatientDto.LastName"></DexTextInputField>
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.AddressLine1"
-                                              Variant="Variant.Outlined"
-                                              Label="Address Line 1"
-                                              Lines="3"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.AddressLine2"
-                                              Variant="Variant.Outlined"
-                                              Label="Address Line 2"
-                                              Lines="3"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Gender" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.Gender">
-                                    <MudSelectItem Value="@("Patient Type")"/>
-                                    @foreach (var item in PatientConstants.Gender)
-                                    {
-                                        <MudSelectItem Value="@(item)"/>
-                                    }
-                                </MudSelect>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.Ppsn"
-                                              Variant="Variant.Outlined"
-                                              Label="PPSN"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.HomePhone"
-                                              Variant="Variant.Outlined"
-                                              Label="Home Phone"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                            <MudItem md="3">
+                                <Field >
+                                    <FieldLabel >Date of Birth</FieldLabel>
+                                    <FieldBody >
+                                        <DateEdit TValue="DateTime" Date="@UpsertPatientDto.DateOfBirth"/>
+                                    </FieldBody>
+                                </Field>
                             </MudItem>
                         </MudStack>
                     </MudItem>
-                    <MudDivider Vertical="true" FlexItem="true" DividerType="MudDividerType.FullWidth"/>
                     <MudItem>
-                        <MudStack >
-                            <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="User Type" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
-                                    <MudSelectItem Value="@("Patient Type")"/>
-                                    @foreach (var item in PatientConstants.PatientTypes)
-                                    {
-                                        <MudSelectItem Value="@(item)"/>
-                                    }
-                                </MudSelect>
+                        <MudStack Row >
+                            <MudItem md="3">
+                                <Field>
+                                    <FieldLabel >Gender</FieldLabel>
+                                    <FieldBody >
+                                        <Select TValue="string" @bind-SelectedValue="@UpsertPatientDto.Gender">
+                                            <SelectItem Value="@("")">Select Gender</SelectItem>
+                                            @foreach (var item in PatientConstants.Gender)
+                                            {
+                                                <SelectItem Value="@(item)">@item</SelectItem>
+                                            }
+                                        </Select>
+                                    </FieldBody>
+                                </Field>
                             </MudItem>
-                            <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="GSM Doctor" Disabled Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
-                                    <MudSelectItem Value="@("Patient Type")"/>
-                                    @foreach (var item in PatientConstants.PatientTypes)
-                                    {
-                                        <MudSelectItem Value="@(item)"/>
-                                    }
-                                </MudSelect>
+                            <MudItem md="9">
+                                <DexTextInputField Label="Address" @bind-FieldDataSource="@UpsertPatientDto.AddressLine1"></DexTextInputField>
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="GSM Doctor Number"
-                                              Disabled
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row >
+                            <MudItem md="4">
+                                <DexTextInputField Label="Mobile Number" @bind-FieldDataSource="@UpsertPatientDto.Mobile"></DexTextInputField>
+
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="GSM Number"
-                                              Disabled
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                            <MudItem md="4">
+                                <DexTextInputField Label="Email" @bind-FieldDataSource="@UpsertPatientDto.EmailAddress" FieldRole="TextRole.Email"></DexTextInputField>
                             </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="Expiry"
-                                              Disabled
-                                              InputType="InputType.Date"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudSelect Margin="MudMargin.Dense" T="string" Label="Insurance" Variant="Variant.Outlined" @bind-Value="UpsertPatientDto.PatientType">
-                                    <MudSelectItem Value="@("")"/>
-                                </MudSelect>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="Policy Number"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="Mobile Number"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
-                            </MudItem>
-                            <MudItem>
-                                <MudTextField @bind-Value="UpsertPatientDto.FirstName"
-                                              Variant="Variant.Outlined"
-                                              Label="Email"
-                                              InputType="InputType.Email"
-                                              Margin="MudMargin.Dense">
-                                </MudTextField>
+                            <MudItem md="4">
+                                <Field >
+                                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                                    <FieldBody ColumnSize="ColumnSize.Is10">
+                                        <Select TValue="Guid" @bind-SelectedValue="@UpsertPatientDto.HealthCareProfessionalId">
+                                            <SelectItem Value="@(Guid.Empty)">Select Doctor</SelectItem>
+                                            @foreach (var item in HealthCares)
+                                            {
+                                                <SelectItem Value="@(item.Id)">@item.FullName</SelectItem>
+                                            }
+                                        </Select>
+                                    </FieldBody>
+                                </Field>
                             </MudItem>
                         </MudStack>
                     </MudItem>
                 </MudStack>
-            </EditForm>
+            </Validations>
         </MudItem>
     </DialogContent>
     <DialogActions>
@@ -164,15 +93,49 @@
     </DialogActions>
 </MudDialog>
 
+
 @code {
     public UpsertPatientDto UpsertPatientDto { get; set; } = new();
     private bool _processing;
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    Validations _validationsRef;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+    }
 
     private async Task CreatePatient(MouseEventArgs obj)
     {
         _processing = true;
-        await Task.Delay(2500);
+        if (await _validationsRef.ValidateAll())
+        {
+            if (UpsertPatientDto.HealthCareProfessionalId == Guid.Empty)
+            {
+                Snackbar.FailMessge("Please Select Doctor");
+                _processing = false;
+                return;
+            }
+
+            await Task.Delay(2500);
+            var res = await UnitOfWork.Patient.CreatePatient(UpsertPatientDto, default);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+
         _processing = false;
+    }
+
+    private async Task GetHealthCares()
+    {
+        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        HealthCares = users.Where(x => x.UserType == UserTypeConstants.Doctor).ToList();
     }
 
 }

@@ -1,8 +1,9 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.Settings;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Messaging;
+namespace Domain.Entities.Messaging.UserTasks;
 
 public class UserTask : IBaseId
 {
@@ -19,12 +20,18 @@ public class UserTask : IBaseId
     public string Status { get; set; }
     public string Color { get; set; }
     public bool IsPrivate { get; set; }
-    
+
+    public Clinic Clinic { get; set; }
+    public int ClinicId { get; set; }
     
     public User User { get; set; }
     public Guid UserId { get; set; }
+    
+    public User AssignedBy { get; set; }
+    public Guid? AssignedById { get; set; }
 
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
+
 
 }

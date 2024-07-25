@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Settings;
@@ -10,4 +11,5 @@ public class Clinic
     public string Branch { get; set; }
 
     public virtual ICollection<User> Users { get; set; }
+    public virtual ICollection<Patient> Patients { get; set; }
 }

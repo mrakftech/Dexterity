@@ -60,7 +60,7 @@
 
 @code {
     private bool _open = true;
-    string _selectedTab = "search-patients";
+    string _selectedTab = "search-patient";
 
     private void ClickChanged(string tabName)
     {
@@ -69,7 +69,7 @@
     private async Task AddNewPatient()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<CreatePatientModal>("New Patient", parameters, options);
     }
 

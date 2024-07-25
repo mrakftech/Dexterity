@@ -33,6 +33,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         {
             dto.Mobile = Method.GetMobileFormat(dto.Mobile);
             dto.CreatedBy = ApplicationState.CurrentUser.UserId;
+            dto.ClinicId = ApplicationState.CurrentUser.ClinicId;
             var patient = mapper.Map<Patient>(dto);
             await _context.Patients.AddAsync(patient, cancellationToken);
             var rowsUpdated = await _context.SaveChangesAsync(cancellationToken);

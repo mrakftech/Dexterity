@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Messaging;
+using Domain.Entities.Messaging.UserTasks;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Services.State;
@@ -20,38 +21,63 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
         var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
         return view switch
         {
-            UserTaskConstants.All => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId)
+            UserTaskConstants.All => await context.UserTasks
+                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
+                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                .Include(x=>x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.DayView => await context.UserTasks
-                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId)
+                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
+                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
                 .Where(x => x.TaskDate.Date == DateTime.Today.Date)
+                .Include(x=>x.AssignedBy)
                 .ToListAsync(),
 
             UserTaskConstants.WeekView => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
-                            x.TaskDate.Date < startOfWeek.AddDays(7))
+                            x.TaskDate.Date < startOfWeek.AddDays(7) &&
+                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                .Include(x=>x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.MonthView => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
-                            x.TaskDate.Date.Month == DateTime.Today.Date.Month)
+                            x.TaskDate.Date.Month == DateTime.Today.Date.Month &&
+                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                .Include(x=>x.AssignedBy)
                 .ToListAsync(),
 
-            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId).ToListAsync(),
+            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId).Include(x=>x.AssignedBy).ToListAsync(),
         };
     }
 
     public async Task<IResult> SaveTask(Guid id, UserTaskDto dto)
     {
-       // var hcps = dto.SelectedHealthCares.Select(x => x.Id).ToList();
-
         if (id == Guid.Empty)
         {
+            var healthCares = dto.SelectedHealthCares.ToList();
+
             var task = mapper.Map<UserTask>(dto);
             task.Id = Guid.NewGuid();
             task.CreatedAt = DateTime.Now;
-            task.UserId = ApplicationState.CurrentUser.UserId;
+            task.ClinicId = ApplicationState.CurrentUser.ClinicId;
 
-            await context.UserTasks.AddAsync(task);
+            if (healthCares.Count == 0)
+            {
+                //Personal Tasks
+                task.UserId = ApplicationState.CurrentUser.UserId;
+                await context.UserTasks.AddAsync(task);
+            }
+            else
+            {
+                //Assigning Task to others
+                foreach (var item in healthCares)
+                {
+                    task.UserId = item.Id;
+                    task.AssignedById = ApplicationState.CurrentUser.UserId;
+                    await context.UserTasks.AddAsync(task);
+                }
+            }
+
             await context.SaveChangesAsync();
         }
         else
@@ -66,6 +92,19 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
         }
 
         return await Result.SuccessAsync("Task has been saved.");
+    }
+
+    public async Task<IResult> UpdateTaskStatus(Guid id, string status)
+    {
+        var taskInDb = await context.UserTasks.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (taskInDb == null)
+            return await Result.FailAsync("Task not found.");
+        taskInDb.Status = status;
+        context.UserTasks.Update(taskInDb);
+        await context.SaveChangesAsync();
+        context.Entry(taskInDb).State = EntityState.Detached;
+        return await Result.SuccessAsync("Task has been updated.");
+
     }
 
     public async Task<UserTaskDto> GetTask(Guid id)

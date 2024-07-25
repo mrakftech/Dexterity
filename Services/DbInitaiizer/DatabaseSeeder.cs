@@ -93,22 +93,12 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.FirstName, x => x.Person.FirstName)
                     .RuleFor(x => x.LastName, x => x.Person.LastName)
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
-                    .RuleFor(x => x.DateOfBirth, x => DateOnly.FromDateTime(x.Person.DateOfBirth))
                     .RuleFor(x => x.Gender, x => x.Person.Gender.ToString())
                     .RuleFor(x => x.AddressLine1, x => x.Address.FullAddress())
                     .RuleFor(x => x.Mobile, x => util.Format(num, PhoneNumberFormat.E164))
-                    .RuleFor(x => x.HomePhone, x => x.Phone.PhoneNumber())
                     .RuleFor(x => x.EmailAddress, x => x.Person.Email)
-                    .RuleFor(x => x.PatientStatus, "Active")
-                    .RuleFor(x => x.IhINumber, x => x.Random.Number(1, 2000000000).ToString())
-                    .RuleFor(x => x.UniqueNumber, x => x.Random.Number(1, 2000000000).ToString())
-                    .RuleFor(x => x.Ppsn, x => x.Random.Number(1, 1500000000).ToString())
-                    .RuleFor(x => x.PatientType, x => x.PickRandom(types))
-                    .RuleFor(x => x.City, x => x.Address.City())
-                    .RuleFor(x => x.Title, x => x.Name.Prefix())
-                    .RuleFor(x => x.Country, x => x.Address.Country())
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
-                var patients = fakePatients.Generate(500);
+                var patients = fakePatients.Generate(50);
                 await context.Patients.AddRangeAsync(patients);
                 await context.SaveChangesAsync();
             }

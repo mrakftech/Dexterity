@@ -47,7 +47,7 @@
 
                                 @foreach (var item in _clinics)
                                 {
-                                    <SelectItem Value="@item.Id">@item.Clinic.Name - @item.Clinic.Branch</SelectItem>
+                                    <SelectItem Value="@item.ClinicId">@item.Clinic.Name - @item.Clinic.Branch</SelectItem>
                                 }
                             </Select>
                             <MudButton Class="mt-5" Disabled="@_processing" OnClick="NavigateToDashboard" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">

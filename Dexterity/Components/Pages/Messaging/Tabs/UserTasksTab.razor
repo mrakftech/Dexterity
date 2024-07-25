@@ -1,4 +1,5 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs.UserTasks
+@using Domain.Entities.Messaging.UserTasks
 @using Size = MudBlazor.Size
 @using Shared.Constants.Module
 @if (_comLoading)
@@ -11,7 +12,7 @@ else
 
     <MudStack Style="margin: 1%">
         <MudItem >
-            <MudStack Row>
+            <MudStack Row Spacing="2">
                 <MudItem md="2">
                     <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-list-check" Size="MudSize.Small" Label="All Tasks" Class="" OnClick="AllTasks"/>
                 </MudItem>
@@ -52,6 +53,24 @@ else
                     <PropertyColumn Property="x => x.TaskDate" Title="Task Date" Format="MM/dd/yyyy" Sortable="false" Filterable="false"/>
                     <PropertyColumn Property="x => x.Subject" Title="Subject" Sortable="false" Filterable="false"/>
                     <PropertyColumn Property="x => x.Description" Title="Description" Sortable="false" Filterable="false"/>
+                    <TemplateColumn CellClass="" Title="Assigned By">
+                        <CellTemplate>
+                            @if (@context.Item.AssignedBy != null)
+                            {
+                                <MudText Color="MudColor.Primary">
+                                    @context.Item.AssignedBy.FullName
+
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText Color="MudColor.Primary">
+                                    -
+                                </MudText>
+                            }
+
+                        </CellTemplate>
+                    </TemplateColumn>
                     <TemplateColumn CellClass="" Title="Status">
                         <CellTemplate>
                             <MudText Color="MudColor.Primary">@context.Item.Status</MudText>
@@ -59,8 +78,22 @@ else
                     </TemplateColumn>
                     <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
                         <CellTemplate>
-                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(context.Item.Id)"/>
-                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserTask(context.Item.Id)"/>
+                            @if (context.Item.AssignedById == null)
+                            {
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(context.Item.Id)"/>
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserTask(context.Item.Id)"/>
+                            }
+                            else
+                            {
+                                <Select TValue="string" @onchange="(ChangeEventArgs e) => ChangeStatus(e, context.Item.Id)">
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Active">@UserTaskConstants.TaskStatus.Active</SelectItem>
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Complete">@UserTaskConstants.TaskStatus.Complete</SelectItem>
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.InProgress">@UserTaskConstants.TaskStatus.InProgress</SelectItem>
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Postponed">@UserTaskConstants.TaskStatus.Postponed</SelectItem>
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Cancelled">@UserTaskConstants.TaskStatus.Cancelled</SelectItem>
+                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Inactive">@UserTaskConstants.TaskStatus.Inactive</SelectItem>
+                                </Select>
+                            }
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
@@ -162,6 +195,15 @@ else
             default:
                 UserTaskList = taskList;
                 break;
+        }
+    }
+
+    private async Task ChangeStatus(ChangeEventArgs e, Guid id)
+    {
+        var res = await UnitOfWork.Messaging.UpdateTaskStatus(id, e.Value.ToString());
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
         }
     }
 

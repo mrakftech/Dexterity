@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240725095745_AddClininUserTask")]
+    partial class AddClininUserTask
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -150,10 +153,17 @@ namespace Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("AddressLine1")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
+                    b.Property<string>("AddressLine2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("City")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Country")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
@@ -161,13 +171,10 @@ namespace Database.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DateOfBirth")
-                        .HasColumnType("datetime2");
+                    b.Property<DateOnly>("DateOfBirth")
+                        .HasColumnType("date");
 
                     b.Property<string>("EmailAddress")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("FamilyName")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -179,10 +186,14 @@ namespace Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Gender")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("HealthCareProfessionalId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("HomePhone")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("IhINumber")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
@@ -192,6 +203,7 @@ namespace Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Mobile")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid?>("ModifiedBy")
@@ -200,11 +212,22 @@ namespace Database.Migrations
                     b.Property<DateTime?>("ModifiedDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("PatientStatus")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Ppsn")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UniqueNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
-
-                    b.HasIndex("ClinicId");
-
-                    b.HasIndex("HealthCareProfessionalId");
 
                     b.ToTable("Patients", "PatientManagement");
                 });
@@ -479,25 +502,6 @@ namespace Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Patient", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Clinic", "Clinic")
-                        .WithMany("Patients")
-                        .HasForeignKey("ClinicId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.UserAccounts.User", "HealthCareProfessional")
-                        .WithMany("Patients")
-                        .HasForeignKey("HealthCareProfessionalId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
-                    b.Navigation("Clinic");
-
-                    b.Navigation("HealthCareProfessional");
-                });
-
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.Role", "Role")
@@ -545,15 +549,11 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Settings.Clinic", b =>
                 {
-                    b.Navigation("Patients");
-
                     b.Navigation("Users");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
                 {
-                    b.Navigation("Patients");
-
                     b.Navigation("UserClinics");
                 });
 #pragma warning restore 612, 618

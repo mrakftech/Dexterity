@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Messaging;
+using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Templates;
@@ -44,18 +45,33 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<UserClinic>(entity => { entity.ToTable(name: "UsersClinics", "Identity"); });
         builder.Entity<Role>(entity => { entity.ToTable(name: "Roles", "Identity"); });
         builder.Entity<PermissionClaim>(entity => { entity.ToTable(name: "Permissions", "Identity"); });
-        
-        
+
+
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
-        
-        
-        
+
+
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinics", "Setting"); });
-        
-        
+
+
         builder.Entity<Patient>(entity => { entity.ToTable(name: "Patients", "PatientManagement"); });
         builder.Entity<Appointment>(entity => { entity.ToTable(name: "Appointments", "Scheduler"); });
+
+        builder.Entity<Patient>(entity =>
+        {
+            entity.HasOne(d => d.Clinic)
+                .WithMany(p => p.Patients)
+                .HasForeignKey(d => d.ClinicId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+        
+        builder.Entity<Patient>(entity =>
+        {
+            entity.HasOne(d => d.HealthCareProfessional)
+                .WithMany(p => p.Patients)
+                .HasForeignKey(d => d.HealthCareProfessionalId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
     }
 }
