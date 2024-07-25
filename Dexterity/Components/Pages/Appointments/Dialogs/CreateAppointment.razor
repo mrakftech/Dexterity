@@ -3,11 +3,12 @@
 @using Services.State
 @using Services.Features.Appointments.Dtos
 <MudDialog>
-    <TitleContent></TitleContent>
+    <TitleContent>
+        <MudText Align="Align.Center" Style="font-weight: bolder">New Appointment</MudText>
+        
+    </TitleContent>
     <DialogContent>
 
-        @StartDate.ToString(Thread.CurrentThread.CurrentCulture)
-        @Appointment.Duration
         <MudStack>
             <MudItem>
                 <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
@@ -40,14 +41,14 @@
                             <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
                             <FieldBody ColumnSize="ColumnSize.Is10">
                                 <MudSelect T="Guid"
-                                           SelectAll="true"
-                                           MultiSelection="true"
                                            Variant="Variant.Outlined"
                                            Margin="MudMargin.Dense"
-                                           @bind-SelectedValues="Options">
+                                           @bind-Value="Appointment.HcpId">
+                                    <MudSelectItem Value="@(Guid.Empty)">Select Hcp</MudSelectItem>
+                                    
                                     @foreach (var item in HealthCares)
                                     {
-                                        <MudSelectItem T="Guid" Value="@(item.Id)">@item.FullName</MudSelectItem>
+                                        <MudSelectItem Value="@(item.Id)">@item.FullName</MudSelectItem>
                                     }
                                 </MudSelect>
                             </FieldBody>
@@ -61,7 +62,12 @@
                             </FieldBody>
                         </Field>
                     </MudItem>
+                   
                 </MudStack>
+            </MudItem>
+            <MudItem>
+                <FieldLabel>Content</FieldLabel>
+                <MemoEdit @bind-Text="@Appointment.Notes"/>
             </MudItem>
         </MudStack>
     </DialogContent>
@@ -73,26 +79,6 @@
     private AppointmentDto Appointment { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private Guid _patientId;
-
-    private IEnumerable<Guid> Options { get; set; } = new HashSet<Guid>() { };
-
-    private string[] states =
-    {
-        "Alabama", "Alaska", "American Samoa", "Arizona",
-        "Arkansas", "California", "Colorado", "Connecticut",
-        "Delaware", "District of Columbia", "Federated States of Micronesia",
-        "Florida", "Georgia", "Guam", "Hawaii", "Idaho",
-        "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
-        "Louisiana", "Maine", "Marshall Islands", "Maryland",
-        "Massachusetts", "Michigan", "Minnesota", "Mississippi",
-        "Missouri", "Montana", "Nebraska", "Nevada",
-        "New Hampshire", "New Jersey", "New Mexico", "New York",
-        "North Carolina", "North Dakota", "Northern Mariana Islands", "Ohio",
-        "Oklahoma", "Oregon", "Palau", "Pennsylvania", "Puerto Rico",
-        "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
-        "Texas", "Utah", "Vermont", "Virgin Island", "Virginia",
-        "Washington", "West Virginia", "Wisconsin", "Wyoming",
-    };
 
     protected override async Task OnInitializedAsync()
     {

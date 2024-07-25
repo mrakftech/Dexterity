@@ -20,7 +20,11 @@
         <MudIconButton Icon="@MudIcons.Material.Filled.Menu" Color="MudColor.Inherit" Edge="Edge.Start"
                        OnClick="@ToggleDrawer"/>
         <MudSpacer/>
-        <UserPersonalToolBar/>
+        <UserPersonalToolBar />
+        <MudToggleIconButton
+            @bind-Toggled="@_isDarkMode"
+            Icon="@MudIcons.Material.Filled.DarkMode" Color="MudColor.Info"
+            ToggledIcon="@MudIcons.Material.Filled.WbSunny" ToggledColor="MudColor.Info"/>
     </MudAppBar>
     <MudDrawer Style="color: white!important; background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;" @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
                Variant="@DrawerVariant.Mini" Class="bg-side-nav">
@@ -33,6 +37,7 @@
             <MudNavLink Match="NavLinkMatch.All" Icon=" fas fa-right-from-bracket" IconColor="MudColor.Info"
                         OnClick="Logout">Log out
             </MudNavLink>
+           
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="pt-16 px-16">
@@ -43,7 +48,7 @@
 
 </MudLayout>
 
-<MudThemeProvider Theme="_currentTheme"/>
+<MudThemeProvider @bind-IsDarkMode="_isDarkMode" Theme="_currentTheme"/>
 <MudPopoverProvider/>
 <MudDialogProvider/>
 <MudSnackbarProvider/>
@@ -51,6 +56,7 @@
 @code{
 private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
 private bool _open = false;
+private bool _isDarkMode;
 
 protected override async Task OnInitializedAsync()
 {

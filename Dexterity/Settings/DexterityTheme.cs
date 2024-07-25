@@ -1,5 +1,6 @@
 ﻿using MudBlazor;
 using Button = MudBlazor.Button;
+using Colors = MudBlazor.Colors;
 
 namespace Dexterity.Settings
 {
@@ -121,7 +122,7 @@ namespace Dexterity.Settings
                 PrimaryContrastText = "#FFF",
                 Secondary = "#b94e48",
                 Dark = "#000",
-                Surface = "#D3D3D3",
+                Surface = "#FFF",
                 Info = "#FFF",
                 HoverOpacity = 0.6,
                 TableLines = "#0077B5",
@@ -130,6 +131,13 @@ namespace Dexterity.Settings
                 
                 
                 
+            },
+            PaletteDark = new PaletteDark()
+            {
+                Primary = "#FFF",
+                TextPrimary = "#FFF",
+                PrimaryContrastText = "#FFF",
+                Info = "#FFF",
             },
             Typography = DefaultTypography,
             LayoutProperties = DefaultLayoutProperties
