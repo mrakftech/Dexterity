@@ -4,7 +4,7 @@ public class AppointmentDto
 {
     public string Title { get; set; }
     public string Color { get; set; }
-    public int Duration { get; set; }
+    public int Duration { get; set; } = 15;
     public string Notes { get; set; }
     public DateTime StartDate { get; set; }
     public TimeSpan StartTime { get; set; }

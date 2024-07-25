@@ -58,7 +58,7 @@
                         <Field >
                             <FieldLabel ColumnSize="ColumnSize.Is2">Duration</FieldLabel>
                             <FieldBody ColumnSize="ColumnSize.Is10">
-                                <NumericEdit Label="Duration" TValue="int" @bind-Value="@Appointment.Duration"/>
+                                <NumericEdit Label="Duration" TValue="int" @bind-Value="@Appointment.Duration" Min="15" Step="5"/>
                             </FieldBody>
                         </Field>
                     </MudItem>
@@ -66,7 +66,7 @@
                 </MudStack>
             </MudItem>
             <MudItem>
-                <FieldLabel>Content</FieldLabel>
+                <FieldLabel>Notes</FieldLabel>
                 <MemoEdit @bind-Text="@Appointment.Notes"/>
             </MudItem>
         </MudStack>
