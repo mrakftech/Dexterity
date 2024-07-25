@@ -1,0 +1,76 @@
+﻿@layout MainLayout
+@page "/patient-management"
+@using Dexterity.Components.Pages.PatientManager.Dialogs
+<style>
+    .tab-content {
+        width: 85%;
+    }
+</style>
+<TopTitleBar Title="Patient Management" Image="modules/patients.svg"/>
+<MudItem md="12" Style="margin-top: 5%">
+    <MudPaper Height="650px" Style="overflow:hidden; position:relative;">
+        <MudDrawerContainer Class="mud-height-full">
+            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1"
+                       Variant="@DrawerVariant.Mini"
+                       OpenMiniOnHover="true">
+                <MudNavMenu>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-magnifying-glass" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("search-patient"))">
+                        Search Patient
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-person-circle-plus" IconColor="MudColor.Info"
+                                @onclick="@(AddNewPatient)">
+                        Quick Patient
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("add-patient"))">
+                        Add Patient
+                    </MudNavLink>
+
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-pen" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("open-patient"))">
+                        Open Patient
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-family" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("patient-families"))">
+                        Patient Families
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-rectangle-list" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("patient-summary"))">
+                        Open Patient Summary
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-solid fa-file-user" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("patient-accounts"))">
+                        Patients Accounts
+                    </MudNavLink>
+                </MudNavMenu>
+            </MudDrawer>
+            <div class="d-flex justify-center align-center">
+                <Tabs SelectedTab="@_selectedTab">
+                    <Content>
+                        <TabPanel Name="search-patient">
+                            <PatientList/>
+                        </TabPanel>
+                    </Content>
+                </Tabs>
+            </div>
+        </MudDrawerContainer>
+    </MudPaper>
+</MudItem>
+
+@code {
+    private bool _open = true;
+    string _selectedTab = "search-patients";
+
+    private void ClickChanged(string tabName)
+    {
+        _selectedTab = tabName;
+    }
+    private async Task AddNewPatient()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<CreatePatientModal>("New Patient", parameters, options);
+    }
+
+}

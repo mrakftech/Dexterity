@@ -1,9 +1,10 @@
-﻿<MudDialog>
+﻿@using Domain.Entities.Settings.Templates
+<MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
             <EditForm Model="SmsTemplateRequest" OnValidSubmit="SaveSmsTemplate">
                 <MudStack Class="mt-2">
-                    <DexInputField Label="Template" bind-FieldDataSource="@SmsTemplateRequest.Name"></DexInputField>
+                    <DexTextInputField Label="Template" @bind-FieldDataSource="@SmsTemplateRequest.Name"></DexTextInputField>
                     <MudItem>
                         <FieldLabel>Content</FieldLabel>
                         <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@SmsTemplateRequest.Content"/>

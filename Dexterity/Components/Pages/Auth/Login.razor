@@ -24,9 +24,9 @@
                     <div class="mt-5">
                         <MudItem Style="@($"display:{LoginBoxDisplay}")">
                             <Validations @ref="@ValidationsRef" Model="@_loginDto" Mode="ValidationMode.Manual">
-                                <DexInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
-                                <DexInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password"/>
-                                <MudButton Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
+                                <DexTextInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
+                                <DexTextInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password"/>
+                                <MudButton Class="mt-5" Disabled="@_processing" OnClick="LoginUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
                                     @if (_processing)
                                     {
                                         <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
@@ -41,9 +41,9 @@
 
                         </MudItem>
                         <MudItem Style="@($"display:{ClinicBoxDisplay}")">
-                            <FieldLabel>Clinic:</FieldLabel>
+                            <FieldLabel>Select Practice:</FieldLabel>
                             <Select TValue="int" @bind-SelectedValue="@_clinicId">
-                                <SelectItem Value="0">Select Clinic</SelectItem>
+                                <SelectItem Value="0">Select Practice</SelectItem>
 
                                 @foreach (var item in _clinics)
                                 {

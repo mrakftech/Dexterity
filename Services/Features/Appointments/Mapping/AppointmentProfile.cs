@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
+using Services.Features.Appointments.Dtos;
 
 namespace Services.Features.Appointments.Mapping;
 

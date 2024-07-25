@@ -19,6 +19,10 @@
                                 @onclick="@(() => ClickChanged("sms-templates"))">
                         Sms Templates
                     </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope-open-text" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged("email-templates"))">
+                        Email Templates
+                    </MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-house-chimney-medical" IconColor="MudColor.Info"
                                 @onclick="@(() => ClickChanged("clinics"))">
                         Clinics
@@ -26,15 +30,19 @@
                 </MudNavGroup>
             </MudNavMenu>
         </MudDrawer>
-        <div class="d-flex justify-center align-center" > 
+        <div class="d-flex justify-center align-center">
             <Tabs SelectedTab="@_selectedTab" Style="width: 50%;">
                 <Content>
                     <TabPanel Name="sms-templates">
                         <SmsTemplateTab/>
                     </TabPanel>
+                    <TabPanel Name="email-templates">
+                        <EmailTemplateTab/>
+                    </TabPanel>
                     <TabPanel Name="clinics">
                         <ClinicTab/>
                     </TabPanel>
+
                 </Content>
             </Tabs>
         </div>

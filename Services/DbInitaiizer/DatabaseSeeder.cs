@@ -26,8 +26,8 @@ public class DatabaseSeeder(
         SeedAdminPermissions();
         SeedUserPermissions();
 
-        SeedFakePatientData();
-        //SeedFakeUserData();
+        // SeedFakePatientData();
+        // SeedFakeUserData();
     }
 
     private void SeedFakeUserData()
@@ -58,8 +58,18 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.IsActive, true)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
-                var user = fakeUsers.Generate(150);
-                await context.Users.AddRangeAsync(user);
+                var users = fakeUsers.Generate(30);
+                await context.Users.AddRangeAsync(users);
+                await context.SaveChangesAsync();
+                foreach (var item in users)
+                {
+                    var userClinic = new UserClinic()
+                    {
+                        ClinicId = 1,
+                        UserId = item.Id
+                    };
+                    await context.UserClinics.AddAsync(userClinic);
+                }
                 await context.SaveChangesAsync();
             }
         }).GetAwaiter().GetResult();
@@ -72,7 +82,7 @@ public class DatabaseSeeder(
             await using var context = await contextFactory.CreateDbContextAsync();
 
             if (context.Patients.Any())
-                return;        
+                return;
 
             if (!context.Patients.Any())
             {
@@ -229,6 +239,7 @@ public class DatabaseSeeder(
                 context.UserClinics.Add(clinic);
                 await context.SaveChangesAsync();
             }
+
             logger.LogInformation("Users seeded");
         }).GetAwaiter().GetResult();
     }

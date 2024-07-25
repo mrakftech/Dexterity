@@ -71,7 +71,7 @@
     {
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
-        
+
         if (x.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))

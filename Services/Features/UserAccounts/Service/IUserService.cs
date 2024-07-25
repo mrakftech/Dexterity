@@ -9,7 +9,7 @@ public interface IUserService
 {
     Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto);
 
-    Task<List<UserResponseDto>> GetUsers();
+    Task<List<UserResponseDto>> GetUsers(string usertype=null);
     Task<UserResponseDto> GetUser(Guid id);
     Task<IResult> SaveUser(Guid id, CreateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
@@ -43,7 +43,6 @@ public interface IUserService
     Task<IResult> SaveUserClinic(int id, UserClinic request);
     Task<IResult> DeleteClinic(int id);
     Task<List<HealthcareDto>> GetUsersByClinic(int clinicId);
-
 
     #endregion
 }

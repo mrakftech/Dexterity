@@ -5,9 +5,14 @@
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
+<style>
+    .tab-content{
+        width: 75%!important;
+    }
+</style>
 <div style="margin-top: 3%">
     
-    <MudPaper Height="700px" Style="overflow:hidden; position:relative;">
+    <MudPaper Height="800px" Style="overflow:hidden; position:relative;">
         <MudDrawerContainer Class="mud-height-full">
             <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
                        OpenMiniOnHover="true">

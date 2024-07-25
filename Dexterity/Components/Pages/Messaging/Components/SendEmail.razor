@@ -28,10 +28,10 @@
             </RichTextEdit>
         </MudItem>
         <MudItem>
-            <DexInputField Label="Subject" @bind-FieldDataSource="_mailRequest.Subject"></DexInputField>
+            <DexTextInputField Label="Subject" @bind-FieldDataSource="_mailRequest.Subject"></DexTextInputField>
         </MudItem>
         <MudItem>
-            <DexInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexInputField>
+            <DexTextInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexTextInputField>
         </MudItem>
         <MudItem>
             <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">

@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240724083514_ChangeSchemaOfAppoinment")]
+    partial class ChangeSchemaOfAppoinment
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -74,6 +77,25 @@ namespace Database.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Appointments", "Scheduler");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.SmsTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("SmsTemplates", "Messaging");
                 });
 
             modelBuilder.Entity("Domain.Entities.Messaging.UserTask", b =>
@@ -238,44 +260,6 @@ namespace Database.Migrations
                     b.ToTable("Clinics", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.EmailTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("EmailTemplates", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.SmsTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SmsTemplates", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
                 {
                     b.Property<Guid>("Id")
@@ -298,7 +282,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Permissions", "Identity");
+                    b.ToTable("Permissions", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.Role", b =>
@@ -330,7 +314,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", "Identity");
+                    b.ToTable("Roles", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
@@ -411,7 +395,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Users", "Identity");
+                    b.ToTable("Users", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.UserClinic", b =>
@@ -434,7 +418,7 @@ namespace Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UsersClinics", "Identity");
+                    b.ToTable("UsersClinics", "UserManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.Appointments.Appointment", b =>

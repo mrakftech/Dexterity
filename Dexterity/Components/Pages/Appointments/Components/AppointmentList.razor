@@ -1,20 +1,103 @@
-﻿@using Services.Features.Appointments
-<MudStack>
-    <MudItem></MudItem>
+﻿@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.State
+<MudStack >
+    <MudItem Class="mt-3" >
+        <MudStack Row>
+            <MudItem e>
+              
+                <Field Horizontal>
+                    <FieldLabel ColumnSize="ColumnSize.Is2">View</FieldLabel>
+                    <FieldBody ColumnSize="ColumnSize.Is10">
+                        <Select @bind-SelectedValue="@selectedValue">
+                            <SelectItem Value="@("Active")">Active</SelectItem>
+                            <SelectItem Value="@("Cancelled / DNA")">Cancelled / DNA</SelectItem>
+                        </Select>
+                    </FieldBody>
+                </Field>
+            </MudItem>
+            <MudItem >
+                <Field Horizontal>
+                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                    <FieldBody ColumnSize="ColumnSize.Is10">
+                        <Select TValue="Guid" @bind-SelectedValue="@selectedValue1">
+                            @foreach (var item in Healthcares)
+                            {
+                                <SelectItem Value="@(item.Id)">@item.FullName</SelectItem>
+                            }
+                        </Select>
+                    </FieldBody>
+                </Field>
+            </MudItem>
+            <MudSpacer/>
+            <MudItem>
+                <MudIconButton Icon="fas fa-print" Color="MudColor.Primary"></MudIconButton>
+            </MudItem>
+        </MudStack>
+    </MudItem>
     <MudItem md="12">
-        <Scheduler>
-            <Appointments>
-                @foreach (var app in Appointments)
-                {
-                    <Appointment Start="@app.StartDate" End="@app.EndDate" Color="@app.Color">
-                        @app.Title
-                    </Appointment>
-                }
-            </Appointments>
-        </Scheduler>
+        <MudCalendar
+            Color="MudColor.Primary"
+            Elevation="1"
+            ShowTodayButton="true"
+            ShowWeek="false"
+            ShowMonth="false" ShowWorkWeek DayTimeInterval="CalendarTimeInterval.Minutes15" CellClicked="CellClicked" ItemClicked="ItemClicked">
+            <ToolbarContent>
+            </ToolbarContent>
+        </MudCalendar>
     </MudItem>
 </MudStack>
 
 @code {
-    private List<AppointmentDto> Appointments { get; set; } = new();
+    private List<CalendarItem> Appointments { get; set; } = new();
+    private List<HealthcareDto> Healthcares { get; set; } = new();
+
+    private Guid selectedValue1;
+    private string selectedValue;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+        //await GetCalendarItems();
+    }
+
+    private async Task GetCalendarItems()
+    {
+        var appts = await UnitOfWork.Appointment.GetAppoinments();
+        foreach (var item in appts)
+        {
+            Appointments.Add(new CalendarItem()
+            {
+                Start = item.StartDate,
+                End = item.EndDate,
+                Text = item.Title
+            });
+        }
+    }
+
+    private async Task GetHealthCares()
+    {
+        Healthcares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task CellClicked(DateTime dateTime)
+    {
+        
+        var parameters = new DialogParameters();
+        parameters.Add("StartDate", dateTime);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<CreateAppointment>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            //await GetUserTasks();
+        }
+       
+    }
+
+    private Task ItemClicked(CalendarItem item)
+    {
+        return DialogService.ShowMessageBox("Item Clicked", item.Text);
+    }
+
 }

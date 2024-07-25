@@ -1,0 +1,43 @@
+﻿@using System.Linq.Expressions
+<Validation>
+    <Field Horizontal="@Horizontal">
+        <FieldLabel>@Label:</FieldLabel>
+        <NumericEdit
+            Placeholder="@Placeholder"
+            ReadOnly="@IsFieldReadOnly"
+            Disabled="@IsFieldDisabled"
+            Min="1"
+            >
+            <Feedback>
+                <FieldHelp>@HelpText</FieldHelp>
+                <ValidationError/>
+            </Feedback>
+        </NumericEdit>
+    </Field>
+</Validation>
+
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public string HelpText { get; set; } = "";
+    [Parameter] public bool IsFieldReadOnly { get; set; } = false;
+    [Parameter] public bool IsFieldDisabled { get; set; } = false;
+    [Parameter] public bool Horizontal { get; set; } = false;
+
+    protected int _fieldDataSource;
+
+    [Parameter]
+    public int FieldDataSource
+    {
+        get => _fieldDataSource;
+        set
+        {
+            if (_fieldDataSource == value) return;
+            _fieldDataSource = value;
+            FieldDataSourceChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<int> FieldDataSourceChanged { get; set; }
+    [Parameter] public Expression<Func<string>> FieldDataSourceExpression { get; set; }
+}

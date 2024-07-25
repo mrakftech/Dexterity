@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.Settings;
 
 namespace Domain.Entities.Appointments;
 
@@ -11,12 +12,18 @@ public class Appointment : IBaseId, IBaseActionBy, IBaseActionOn
     public DateTime CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
     public bool IsDeleted { get; set; }
-    
+
     public int Duration { get; set; }
     public DateTime StartDate { get; set; }
     public DateTime EndDate { get; set; }
     public string Color { get; set; }
     public string Title { get; set; }
+    public string Status { get; set; }
+
+
+    public Clinic Clinic { get; set; }
+    public int ClinicId { get; set; }
+
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
 }

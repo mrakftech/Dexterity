@@ -19,7 +19,7 @@ else
         <MudDrawerContainer Class="mud-height-full">
             <MudDrawer Style="background-color: #319ae1;background-image: linear-gradient(135deg, #319ae1 0%, #bdbdd4 100%);;!important; color: #ffffff !important;;" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true">
                 <MudNavMenu>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("Sms"))">Sms</MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("Sms"))">Messages</MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelopes-bulk" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("bulk-msg"))">Bulk Sms</MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="fab fa-whatsapp" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("whatsapp"))">WhatsApp</MudNavLink>
                     <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("send-mail"))">Email</MudNavLink>

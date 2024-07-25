@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
+using Domain.Entities.Settings.Templates;
 using Services.Features.Settings.Dtos;
 using Shared.Wrapper;
 
@@ -25,6 +26,15 @@ public interface ISettingService
 
     public Task<IResult> DeleteClinic(int id);
 
+
+    #endregion
+    
+    #region Email Template
+
+    public Task<List<EmailTemplate>> GetEmailTemplates();
+    public Task<IResult<EmailTemplate>> GetEmailTemplate(Guid id);
+    public Task<IResult> SaveEmailTemplate(Guid id, EmailTemplate request);
+    public Task<IResult> DeleteEmailTemplate(Guid id);
 
     #endregion
 }

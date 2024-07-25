@@ -1,5 +1,6 @@
 ﻿@using global::Services.Features.PatientManagement.Dtos
 @using ClickATell.Requests
+@using Domain.Entities.Settings.Templates
 @using global::Services.Features.Messaging.Dtos.Sms
 @using global::Services.State
 <MudDialog>
@@ -82,7 +83,7 @@
                             </Validation>
                         </MudItem>
                         <MudItem>
-                            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexInputField>
+                            <DexTextInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexTextInputField>
                         </MudItem>
                         <MudItem>
                             <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">

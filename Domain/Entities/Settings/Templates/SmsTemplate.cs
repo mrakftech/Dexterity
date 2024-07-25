@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Messaging
+namespace Domain.Entities.Settings.Templates
 {
     public class SmsTemplate
     {

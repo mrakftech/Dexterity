@@ -1,11 +1,14 @@
-﻿@using Services.Features.Settings.Dtos
+﻿@using Domain.Entities.Settings.Templates
 <MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="ClinicDto" OnValidSubmit="SaveClinic">
+            <EditForm Model="EmailTemplateRequest" OnValidSubmit="SaveSmsTemplate">
                 <MudStack Class="mt-2">
-                    <DexTextInputField Label="Name" @bind-FieldDataSource="@ClinicDto.Name"></DexTextInputField>
-                    <DexTextInputField Label="Branch" @bind-FieldDataSource="@ClinicDto.Branch"></DexTextInputField>
+                    <DexTextInputField Label="Template" @bind-FieldDataSource="@EmailTemplateRequest.Name"></DexTextInputField>
+                    <MudItem>
+                        <FieldLabel>Content</FieldLabel>
+                        <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@EmailTemplateRequest.Content"/>
+                    </MudItem>
                     <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
                         @if (_processing)
                         {
@@ -14,7 +17,7 @@
                         }
                         else
                         {
-                            <MudText>Save Clinic</MudText>
+                            <MudText>Save Template</MudText>
                         }
                     </MudButton>
                 </MudStack>
@@ -28,26 +31,26 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
-    private ClinicDto ClinicDto { get; set; } = new();
+    [Parameter] public Guid Id { get; set; }
+    private EmailTemplate EmailTemplateRequest { get; set; } = new();
     private bool _processing;
     Validations validations;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id > 0)
+        if (Id != Guid.Empty)
         {
-            var s = await UnitOfWork.Setting.GetClinic(Id);
-            ClinicDto = s.Data;
+            var s = await UnitOfWork.Setting.GetEmailTemplate(Id);
+            EmailTemplateRequest = s.Data;
         }
     }
 
-    private async Task SaveClinic()
+    private async Task SaveSmsTemplate()
     {
         _processing = true;
         if (await validations.ValidateAll())
         {
-            var res = await UnitOfWork.Setting.SaveClinic(Id, ClinicDto);
+            var res = await UnitOfWork.Setting.SaveEmailTemplate(Id, EmailTemplateRequest);
             if (res.Succeeded)
             {
                 Snackbar.SuccessMessge(res.Messages.First());

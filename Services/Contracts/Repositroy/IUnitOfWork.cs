@@ -1,3 +1,4 @@
+using Services.Features.Appointments.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -11,4 +12,5 @@ public interface IUnitOfWork: IDisposable
     IPatientService Patient { get; }
     ISettingService Setting { get; }
     IMessagingService Messaging { get; }
+    IAppointmentService Appointment { get; }
 }

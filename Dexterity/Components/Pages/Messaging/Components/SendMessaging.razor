@@ -1,4 +1,5 @@
 ﻿@using ClickATell.Requests
+@using Domain.Entities.Settings.Templates
 @using global::Services.Features.Messaging.Dtos.Sms
 @using global::Services.Features.PatientManagement.Dtos
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send SMS</MudText>
@@ -26,7 +27,7 @@
         </MudItem>
         <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
         <MudItem>
-            <DexInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexInputField>
+            <DexTextInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexTextInputField>
         </MudItem>
         <MudItem>
             <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">

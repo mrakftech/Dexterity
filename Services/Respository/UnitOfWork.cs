@@ -1,7 +1,7 @@
 using AutoMapper;
 using Database;
-using Microsoft.EntityFrameworkCore;
 using Services.Contracts.Repositroy;
+using Services.Features.Appointments.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -15,10 +15,24 @@ public sealed class UnitOfWork(
     IMessagingService messaging,
     IMapper mapper,
     ISettingService setting,
+    IAppointmentService appointment,
     ApplicationDbContext context)
     : IUnitOfWork
 {
     private bool _disposed;
+
+    public IAppointmentService Appointment
+    {
+        get
+        {
+            if (appointment == null)
+            {
+                appointment = new AppointmentService(context, mapper);
+            }
+
+            return appointment;
+        }
+    }
 
     public IMessagingService Messaging
     {
@@ -26,7 +40,6 @@ public sealed class UnitOfWork(
         {
             if (messaging == null)
             {
-                 
                 messaging = new MessagingService(context, mapper);
             }
 
@@ -40,8 +53,6 @@ public sealed class UnitOfWork(
         {
             if (setting == null)
             {
-                
-
                 setting = new SettingService(context, mapper);
             }
 
@@ -55,8 +66,6 @@ public sealed class UnitOfWork(
         {
             if (user == null)
             {
-                
-
                 user = new UserService(context, mapper);
             }
 
@@ -70,7 +79,6 @@ public sealed class UnitOfWork(
         {
             if (patient == null)
             {
-                
                 user = new UserService(context, mapper);
             }
 
@@ -87,6 +95,7 @@ public sealed class UnitOfWork(
                 context.Dispose();
             }
         }
+
         _disposed = true;
     }
 

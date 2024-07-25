@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Database;
-using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
+using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Shared.Wrapper;
@@ -105,6 +105,49 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.Clinics.Remove(clinic);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Clinic deleted.");
+    }
+
+    #endregion
+
+    #region Email Templates
+
+    public async Task<List<EmailTemplate>> GetEmailTemplates()
+    {
+        return await context.EmailTemplates.ToListAsync();
+    }
+
+    public async Task<IResult<EmailTemplate>> GetEmailTemplate(Guid id)
+    {
+        var emailTemplate = context.EmailTemplates.FirstOrDefault(x => x.Id == id);
+        if (emailTemplate == null)
+            return await Result<EmailTemplate>.FailAsync("template not found.");
+
+        return await Result<EmailTemplate>.SuccessAsync(emailTemplate);
+    }
+
+    public async Task<IResult> SaveEmailTemplate(Guid id, EmailTemplate request)
+    {
+        if (id == Guid.Empty)
+        {
+            await context.EmailTemplates.AddAsync(request);
+        }
+        else
+        {
+            context.EmailTemplates.Update(request);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Sms template saved.");
+    }
+
+    public async Task<IResult> DeleteEmailTemplate(Guid id)
+    {
+        var email = context.EmailTemplates.FirstOrDefault(x => x.Id == id);
+        if (email == null)
+            return await Result.FailAsync("template not found.");
+        context.EmailTemplates.Remove(email);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Sms template deleted.");
     }
 
     #endregion

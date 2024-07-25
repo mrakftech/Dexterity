@@ -1,4 +1,8 @@
-﻿.mud-button-filled.mud-button-filled-primary {
+﻿:root {
+    --mud-palette-surface: "#fff";
+}
+
+.mud-button-filled.mud-button-filled-primary {
     background-image: linear-gradient(to right, #2b5876 0%, #4e4376 51%, #2b5876 100%);
     text-decoration: none !important;
     text-align: center;
@@ -9,6 +13,7 @@
     box-shadow: 0 0 20px #eee;
     border-radius: 10px;
 }
+
 .sub-drawer {
     background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%) !important;
     color: #ffffff !important;;
@@ -55,10 +60,6 @@
 }
 
 
-
-
-
-
 .mud-appbar {
     background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;
     color: #ffffff !important;;
@@ -68,9 +69,14 @@
     color: white !important;
 }
 
+.mud-list .mud-selected-item {
+    background-color: #FF7F7F !important;
+    color: white !important;
+}
+
 .mud-list .mud-list-item-clickable:hover {
-    background-color: lightgrey !important;
-    color: black !important;
+    background-color: crimson !important;
+    color: white !important;
 }
 
 .mud-tabs-panels {
@@ -105,8 +111,8 @@ h1:focus {
 }
 
 .hr-thin {
-    color: #0077B5!important;
-    border: 2px!important;
+    color: #0077B5 !important;
+    border: 2px !important;
 }
 
 .validation-message {

@@ -1,0 +1,124 @@
+﻿@using Services.Features.PatientManagement.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.State
+@using Services.Features.Appointments.Dtos
+<MudDialog>
+    <TitleContent></TitleContent>
+    <DialogContent>
+
+        @StartDate.ToString(Thread.CurrentThread.CurrentCulture)
+        @Appointment.Duration
+        <MudStack>
+            <MudItem>
+                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+            </MudItem>
+            <MudItem>
+                <MudStack Row>
+                    <MudItem md="6">
+                        <Field >
+                            <FieldLabel ColumnSize="ColumnSize.Is2">Start Date</FieldLabel>
+                            <FieldBody ColumnSize="ColumnSize.Is10">
+                                <DateEdit TValue="DateTime" @bind-Date="@Appointment.StartDate"/>
+                            </FieldBody>
+                        </Field>
+                    </MudItem>
+                    <MudItem md="6">
+                        <Field >
+                            <FieldLabel ColumnSize="ColumnSize.Is2">Start Time</FieldLabel>
+                            <FieldBody ColumnSize="ColumnSize.Is10">
+                                <TimeEdit TValue="TimeSpan" @bind-Time="@Appointment.StartTime"/>
+                            </FieldBody>
+                        </Field>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+            <MudItem>
+                <MudStack Row>
+                    <MudItem md="6">
+
+                        <Field >
+                            <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                            <FieldBody ColumnSize="ColumnSize.Is10">
+                                <MudSelect T="Guid"
+                                           SelectAll="true"
+                                           MultiSelection="true"
+                                           Variant="Variant.Outlined"
+                                           Margin="MudMargin.Dense"
+                                           @bind-SelectedValues="Options">
+                                    @foreach (var item in HealthCares)
+                                    {
+                                        <MudSelectItem T="Guid" Value="@(item.Id)">@item.FullName</MudSelectItem>
+                                    }
+                                </MudSelect>
+                            </FieldBody>
+                        </Field>
+                    </MudItem>
+                    <MudItem md="6">
+                        <Field >
+                            <FieldLabel ColumnSize="ColumnSize.Is2">Duration</FieldLabel>
+                            <FieldBody ColumnSize="ColumnSize.Is10">
+                                <NumericEdit Label="Duration" TValue="int" @bind-Value="@Appointment.Duration"/>
+                            </FieldBody>
+                        </Field>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        </MudStack>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public DateTime StartDate { get; set; }
+    private List<PatientListDto> PatientList { get; set; } = new();
+    private AppointmentDto Appointment { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private Guid _patientId;
+
+    private IEnumerable<Guid> Options { get; set; } = new HashSet<Guid>() { };
+
+    private string[] states =
+    {
+        "Alabama", "Alaska", "American Samoa", "Arizona",
+        "Arkansas", "California", "Colorado", "Connecticut",
+        "Delaware", "District of Columbia", "Federated States of Micronesia",
+        "Florida", "Georgia", "Guam", "Hawaii", "Idaho",
+        "Illinois", "Indiana", "Iowa", "Kansas", "Kentucky",
+        "Louisiana", "Maine", "Marshall Islands", "Maryland",
+        "Massachusetts", "Michigan", "Minnesota", "Mississippi",
+        "Missouri", "Montana", "Nebraska", "Nevada",
+        "New Hampshire", "New Jersey", "New Mexico", "New York",
+        "North Carolina", "North Dakota", "Northern Mariana Islands", "Ohio",
+        "Oklahoma", "Oregon", "Palau", "Pennsylvania", "Puerto Rico",
+        "Rhode Island", "South Carolina", "South Dakota", "Tennessee",
+        "Texas", "Utah", "Vermont", "Virgin Island", "Virginia",
+        "Washington", "West Virginia", "Wisconsin", "Wyoming",
+    };
+
+    protected override async Task OnInitializedAsync()
+    {
+        Appointment.StartDate = StartDate;
+        Appointment.StartTime = StartDate.TimeOfDay;
+        await GetPatients();
+        await GetHealthCares();
+    }
+
+    private void ChangePatient(PatientListDto obj)
+    {
+        if (obj.Id != Guid.Empty)
+        {
+            _patientId = obj.Id;
+        }
+    }
+
+    private async Task GetPatients()
+    {
+        await Task.Delay(2000);
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
+}

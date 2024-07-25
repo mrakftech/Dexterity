@@ -80,9 +80,9 @@
                                 <MudItem Style="margin-top: 15px;margin-bottom: 5px">
                                     <PatientAutoComplete PatientList="Patients" OnChangePatient="ChangePatient"/>
                                     <MudItem Class="mt-3">
-                                        <DexInputField Label="Subject" @bind-FieldDataSource="_userTask.Subject"></DexInputField>
+                                        <DexTextInputField Label="Subject" @bind-FieldDataSource="_userTask.Subject"></DexTextInputField>
                                     </MudItem>
-                                    <DexInputField Label="Location" @bind-FieldDataSource="_userTask.Location"></DexInputField>
+                                    <DexTextInputField Label="Location" @bind-FieldDataSource="_userTask.Location"></DexTextInputField>
                                     <FieldLabel>Description</FieldLabel>
                                     <MemoEdit @bind-Text="@_userTask.Description"/>
                                 </MudItem>

@@ -2,6 +2,7 @@ using AutoMapper;
 using Database;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
+using Services.Features.Appointments.Dtos;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Services.State;
@@ -46,11 +47,35 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
     }
 
-    public async Task<List<UserResponseDto>> GetUsers()
+    public async Task<List<UserResponseDto>> GetUsers(string usertype = null)
     {
-        var usersList = await context.Users.Include(x => x.Role).Where(x => x.IsDeleted == false)
-            .OrderByDescending(x => x.CreatedDate).ToListAsync();
-        var users = mapper.Map<List<UserResponseDto>>(usersList);
+        var userList = new List<User>();
+        switch (usertype)
+        {
+            case null:
+                userList = await context.Users
+                    .Include(x => x.Role)
+                    .Where(x => x.IsDeleted == false)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .ToListAsync();
+                break;
+            case UserTypeConstants.Doctor:
+                userList = await context.Users
+                    .Include(x => x.Role)
+                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .ToListAsync();
+                break;
+            case UserTypeConstants.Nurse:
+                userList = await context.Users
+                    .Include(x => x.Role)
+                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
+                    .OrderByDescending(x => x.CreatedDate)
+                    .ToListAsync();
+                break;
+        }
+
+        var users = mapper.Map<List<UserResponseDto>>(userList);
         return users;
     }
 

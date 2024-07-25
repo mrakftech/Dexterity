@@ -1,6 +1,7 @@
 ﻿using ClickATell.Extensions;
 using DailyCo.Extensions;
 using Services.Contracts.Repositroy;
+using Services.Features.Appointments.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -15,6 +16,7 @@ public static class ServicesCollectionExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
+        services.AddTransient<IAppointmentService, AppointmentService>();
         services.AddTransient<IPatientService, PatientService>();
         services.AddTransient<IUserService, UserService>();
         services.AddTransient<ISettingService, SettingService>();
