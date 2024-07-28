@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Domain.Entities.Appointments;
 using Domain.Entities.Settings;
 using Services.Features.Settings.Dtos;
 
@@ -9,6 +10,7 @@ public class SettingMapping : Profile
     public SettingMapping()
     {
         CreateMap<Clinic, ClinicDto>().ReverseMap();
+        CreateMap<AppointmentType, AppointmentTypeDto>().ReverseMap();
 
     }
 }

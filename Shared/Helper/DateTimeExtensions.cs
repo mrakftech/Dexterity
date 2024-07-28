@@ -7,4 +7,5 @@ public static class DateTimeExtensions
         int diff = (7 + (dt.DayOfWeek - startOfWeek)) % 7;
         return dt.AddDays(-1 * diff).Date;
     }
+    
 }

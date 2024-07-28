@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Appointments;
-using Domain.Entities.Messaging;
 using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
@@ -22,6 +21,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PermissionClaim> PermissionClaims { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<AppointmentType> AppointmentTypes { get; set; }
+    public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -56,7 +57,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 
         builder.Entity<Patient>(entity => { entity.ToTable(name: "Patients", "PatientManagement"); });
+
         builder.Entity<Appointment>(entity => { entity.ToTable(name: "Appointments", "Scheduler"); });
+        builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
+        builder.Entity<AppointmentCancellationReason>(entity => { entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler"); });
 
         builder.Entity<Patient>(entity =>
         {

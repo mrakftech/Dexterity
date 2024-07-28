@@ -1,0 +1,72 @@
+﻿@using Domain.Entities.Appointments
+<MudDialog>
+    <TitleContent>
+        <MudText Align="Align.Center" Style="font-weight: bolder">Cancel Appointment</MudText>
+    </TitleContent>
+    <DialogContent>
+        <Select TValue="int" SelectedValueChanged="@OnSelectedValueChanged">
+            <SelectItem Value="0">Select Reason</SelectItem>
+            @foreach (var item in Reasons)
+            {
+                <SelectItem Value="@item.Id">@item.Reason</SelectItem>
+            }
+        </Select>
+
+    </DialogContent>
+    <DialogActions>
+        <MudButton Disabled="@_processing" OnClick="@CancelAppointmentClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+            @if (_processing)
+            {
+                <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
+                <MudText Class="ms-2" Color="MudColor.Info">Processing</MudText>
+            }
+            else
+            {
+                <MudText><i class="fas fa-ban"></i> Cancel Appointment</MudText>
+            }
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid AppointmentId { get; set; }
+    private List<AppointmentCancellationReason> Reasons { get; set; } = new();
+    private bool _processing;
+    int _reasonId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Reasons = await UnitOfWork.Setting.GetAppointmentCancelReasons();
+    }
+
+
+    Task OnSelectedValueChanged(int value)
+    {
+        _reasonId = value;
+        return Task.CompletedTask;
+    }
+
+    private async Task CancelAppointmentClick(MouseEventArgs obj)
+    {
+        if (_reasonId == 0)
+        {
+            Snackbar.FailMessge("Please select reason");
+            _processing = false;
+            return;
+        }
+        _processing = true;
+        await Task.Delay(2000);
+        var res = await UnitOfWork.Appointment.CancelAppointment(AppointmentId, _reasonId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+        _processing = false;
+    }
+
+}

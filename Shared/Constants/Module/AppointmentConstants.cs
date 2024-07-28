@@ -1,6 +1,6 @@
 ﻿namespace Shared.Constants.Module;
 
-public static class AppoinmentConstants
+public static class AppointmentConstants
 {
     public class Status
     {

@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Database;
+using Domain.Entities.Appointments;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
@@ -148,6 +149,105 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.EmailTemplates.Remove(email);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Sms template deleted.");
+    }
+
+
+
+    #endregion
+
+    #region Appointment Type
+
+    public async Task<List<AppointmentTypeDto>> GetAppointmentTypes()
+    {
+        var list = await context.AppointmentTypes.ToListAsync();
+        var data = mapper.Map<List<AppointmentTypeDto>>(list);
+        return data;
+    }
+
+    public async Task<IResult<AppointmentTypeDto>> GetAppointmentType(int id)
+    {
+        var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
+
+        if (appointmentType == null)
+            return await Result<AppointmentTypeDto>.FailAsync("Appointment Type not found.");
+
+        var data = mapper.Map<AppointmentTypeDto>(appointmentType);
+
+        return await Result<AppointmentTypeDto>.SuccessAsync(data);
+    }
+
+    public async Task<IResult> SaveAppointmentType(int id, AppointmentTypeDto request)
+    {
+        if (id == 0)
+        {
+            var appt = mapper.Map<AppointmentType>(request);
+            await context.AppointmentTypes.AddAsync(appt);
+        }
+        else
+        {
+            var appt = mapper.Map<AppointmentType>(request);
+            context.AppointmentTypes.Update(appt);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Type saved.");
+    }
+
+    public async Task<IResult> DeleteAppointmentType(int id)
+    {
+        var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
+        if (appointmentType == null)
+            return await Result.FailAsync("Appointment Type not found.");
+        context.AppointmentTypes.Remove(appointmentType);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Type deleted.");
+    }
+
+
+
+    #endregion
+
+    #region Appointment Cancel Reasons
+
+    public async Task<List<AppointmentCancellationReason>> GetAppointmentCancelReasons()
+    {
+        return await context.AppointmentCancellationReasons.ToListAsync();
+    }
+
+    public async Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(int id)
+    {
+        var appointmentType = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
+
+        if (appointmentType == null)
+            return await Result<AppointmentCancellationReason>.FailAsync("Appointment reason not found.");
+
+        return await Result<AppointmentCancellationReason>.SuccessAsync(appointmentType);
+
+    }
+
+    public async Task<IResult> SaveAppointmentCancelReason(int id, AppointmentCancellationReason request)
+    {
+        if (id == 0)
+        {
+            await context.AppointmentCancellationReasons.AddAsync(request);
+        }
+        else
+        {
+            context.AppointmentCancellationReasons.Update(request);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment cancel reason saved.");
+    }
+
+    public async Task<IResult> DeleteAppointmentCancelReason(int id)
+    {
+        var cancellationReason = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
+        if (cancellationReason == null)
+            return await Result.FailAsync("Appointment reason not found..");
+        context.AppointmentCancellationReasons.Remove(cancellationReason);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Cancel Reason deleted.");
     }
 
     #endregion

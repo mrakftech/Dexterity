@@ -1,8 +1,11 @@
 ﻿.sub-drawer {
     background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%) !important;
-    color: #ffffff !important;;
+    color: #ffffff !important;
+    width:200px
 }
-
+.vertical-space {
+    margin-top: 5%!important
+}
 .form-control {
     border-color: #0077B5 !important;
 }

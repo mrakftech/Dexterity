@@ -1,5 +1,6 @@
 using Bogus;
 using Database;
+using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
 using Domain.Entities.UserAccounts;
@@ -25,11 +26,52 @@ public class DatabaseSeeder(
         SeedUsers();
         SeedAdminPermissions();
         SeedUserPermissions();
+        SeedAppointmentTypes();
+        SeedAppointmentCancelReasons();
 
         // SeedFakePatientData();
         // SeedFakeUserData();
     }
 
+    private void SeedAppointmentCancelReasons()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.AppointmentCancellationReasons.Any())
+                return;
+            var c = new AppointmentCancellationReason()
+            {
+                Reason = "Unable to attend",
+                IsDefault = true
+            };
+            context.AppointmentCancellationReasons.Add(c);
+            await context.SaveChangesAsync();
+
+
+        }).GetAwaiter().GetResult();
+    }
+    private void SeedAppointmentTypes()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.AppointmentTypes.Any())
+                return;
+            var c = new AppointmentType()
+            {
+                Name = "General",
+                Duration = 15,
+                Active = true
+            };
+            context.AppointmentTypes.Add(c);
+            await context.SaveChangesAsync();
+
+
+        }).GetAwaiter().GetResult();
+    }
     private void SeedFakeUserData()
     {
         Task.Run(async () =>

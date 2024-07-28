@@ -1,0 +1,77 @@
+﻿@using Services.Features.PatientManagement.Dtos
+@using Services.State
+<MudItem Class="m-2">
+    <MudSimpleTable Dense="true"
+                    Hover="false"
+                    Bordered="false"
+                    Striped="false"
+                    Style=" background-color:#0077B5;color:white;overflow-x: auto;text-align:center">
+        <thead>
+            <tr>
+            </tr>
+        </thead>
+        <tbody>
+        <tr>
+            <td>
+                <MudText Color="MudColor.Info">Patient Name: @Patient.FullName</MudText>
+            </td>
+            <td>
+              
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <MudText Color="MudColor.Info">Default HCP: @ApplicationState.CurrentUser.Name</MudText>
+            </td>
+            <td>
+                <MudText Color="MudColor.Warning" Align="Align.Right">
+                    <MudLink OnClick="Count" Color="MudColor.Warning" Underline="Underline.Always">GMS:0178523 (04/20)</MudLink>
+                </MudText>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <MudText Color="MudColor.Info">DOB: @Patient.DateOfBirth.ToString("d") / Age: @GetAge(Patient.DateOfBirth) Yr(s)</MudText>
+            </td>
+            <td>
+                <MudText Color="MudColor.Info" Align="Align.Right">
+                    U# 0258963
+                </MudText>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <MudText Color="MudColor.Info">H:1 (11) 500-555-0116</MudText>
+            </td>
+            <td>
+                <MudText Color="MudColor.Info" Align="Align.Right">
+                    $0.00
+                </MudText>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <MudText Color="MudColor.Info">@Patient.AddressLine1</MudText>
+            </td>
+            <td>
+            </td>
+        </tr>
+        </tbody>
+    </MudSimpleTable>
+</MudItem>
+
+@code {
+    [Parameter] public PatientListDto Patient { get; set; } = new();
+    private int counter = 0;
+    private void Count() => counter++;
+
+    public int GetAge(DateTime dateOfBirth)
+    {
+        var today = DateTime.Today;
+
+        var a = (today.Year * 100 + today.Month) * 100 + today.Day;
+        var b = (dateOfBirth.Year * 100 + dateOfBirth.Month) * 100 + dateOfBirth.Day;
+
+        return (a - b) / 10000;
+    }
+}

@@ -33,6 +33,7 @@
 
         <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
         <TargetPlatformMinVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</TargetPlatformMinVersion>
+        <Platforms>AnyCPU;x64</Platforms>
     </PropertyGroup>
 
     <ItemGroup>
@@ -68,7 +69,6 @@
         <PackageReference Include="Blazorise.Generator.Features" Version="1.5.3" />
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.5.3" />
         <PackageReference Include="Blazorise.RichTextEdit" Version="1.5.3" />
-        <PackageReference Include="Heron.MudCalendar" Version="2.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

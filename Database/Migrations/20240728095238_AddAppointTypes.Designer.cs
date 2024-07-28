@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240728095238_AddAppointTypes")]
+    partial class AddAppointTypes
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,12 +30,6 @@ namespace Database.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("AppointmentTypeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("CancelReasonId")
-                        .HasColumnType("int");
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");
@@ -76,9 +73,10 @@ namespace Database.Migrations
                     b.Property<string>("Title")
                         .HasColumnType("nvarchar(max)");
 
-                    b.HasKey("Id");
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.HasIndex("AppointmentTypeId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ClinicId");
 
@@ -87,26 +85,6 @@ namespace Database.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Appointments", "Scheduler");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Appointments.AppointmentCancellationReason", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsDefault")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Reason")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("AppointmentCancellationReasons", "Scheduler");
                 });
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentType", b =>
@@ -484,12 +462,6 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.Appointment", b =>
                 {
-                    b.HasOne("Domain.Entities.Appointments.AppointmentType", "AppointmentType")
-                        .WithMany()
-                        .HasForeignKey("AppointmentTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Settings.Clinic", "Clinic")
                         .WithMany()
                         .HasForeignKey("ClinicId")
@@ -507,8 +479,6 @@ namespace Database.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AppointmentType");
 
                     b.Navigation("Clinic");
 

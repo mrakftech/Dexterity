@@ -8,6 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="libphonenumber-csharp" Version="8.13.40" />
+	  <PackageReference Include="Heron.MudCalendar" Version="2.0.0" />
+
   </ItemGroup>
 
 </Project>

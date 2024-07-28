@@ -3,15 +3,16 @@
 @using Dexterity.Components.Pages.Settings.Components
 <style>
     .tab-content{
-        width: 75%!important;
+        width: 100%!important;
+        margin-left: 20% !important;
     }
 </style>
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
-<MudPaper Height="650px" Style="overflow:hidden; position:relative;margin-top: 3%">
+<MudPaper Height="650px" Style="overflow:hidden; position:relative;" Class="vertical-space">
     <MudDrawerContainer Class="mud-height-full">
-        <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
+        <MudDrawer Class="sub-drawer" Style="width:230px" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
                    OpenMiniOnHover="true">
             <MudNavMenu>
                 <MudNavGroup Title="  Categories & Templates" Expanded="true">
@@ -27,11 +28,26 @@
                                 @onclick="@(() => ClickChanged("clinics"))">
                         Clinics
                     </MudNavLink>
+                  
+                </MudNavGroup>
+                <MudNavGroup Title="Appointments">
+                    <MudItem>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
+                                    @onclick="@(() => ClickChanged("appointments-types"))">
+                            Appointment Types
+                        </MudNavLink>
+                    </MudItem>
+                    <MudItem>
+                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-ban" IconColor="MudColor.Info"
+                                    @onclick="@(() => ClickChanged("appointments-cancellation-reason"))">
+                            Appointment Cancellation Reason
+                        </MudNavLink>
+                    </MudItem>
                 </MudNavGroup>
             </MudNavMenu>
         </MudDrawer>
         <div class="d-flex justify-center align-center">
-            <Tabs SelectedTab="@_selectedTab" Style="width: 50%;">
+            <Tabs SelectedTab="@_selectedTab" >
                 <Content>
                     <TabPanel Name="sms-templates">
                         <SmsTemplateTab/>
@@ -42,7 +58,12 @@
                     <TabPanel Name="clinics">
                         <ClinicTab/>
                     </TabPanel>
-
+                    <TabPanel Name="appointments-types">
+                        <AppointmentTypeTab/>
+                    </TabPanel>
+                    <TabPanel Name="appointments-cancellation-reason">
+                        <AppointmentCancelReasonTab/>
+                    </TabPanel>
                 </Content>
             </Tabs>
         </div>

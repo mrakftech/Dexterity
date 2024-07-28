@@ -1,0 +1,255 @@
+﻿@using Services.Features.PatientManagement.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.State
+@using Services.Features.Appointments.Dtos
+@using Services.Features.Settings.Dtos
+<MudDialog>
+    <TitleContent>
+        <MudStack Row>
+            <MudItem>
+                <MudText Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
+            </MudItem>
+        </MudStack>
+    </TitleContent>
+    <DialogContent>
+        @if (!_loadScreen)
+        {
+            <Validations @ref="_validationsRef" Mode="ValidationMode.Manual" Model="@Appointment">
+                <MudStack>
+                    @if (Id != Guid.Empty)
+                    {
+                        <PatientAppointmentCard Patient="_patient" />
+
+                    }
+                    <MudItem>
+                        <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="12">
+                                <Field>
+                                    <FieldLabel ColumnSize="ColumnSize.Is2">Start Date</FieldLabel>
+                                    <FieldBody ColumnSize="ColumnSize.Is10">
+                                        <DateEdit TValue="DateTime" @bind-Date="@Appointment.Start" InputMode="DateInputMode.DateTime" />
+                                    </FieldBody>
+                                </Field>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem md="12">
+                        <Field>
+                            <FieldLabel ColumnSize="ColumnSize.Is2">Type</FieldLabel>
+                            <FieldBody ColumnSize="ColumnSize.Is10">
+                                <Select TValue="int" SelectedValueChanged="@OnAppointmentTypeChanged">
+                                    <SelectItem Value="0">Select Type</SelectItem>
+                                    @foreach (var item in AppointmentTypes)
+                                    {
+                                        <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
+                                    }
+                                </Select>
+                            </FieldBody>
+                        </Field>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="6">
+                                <Field>
+                                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                                    <FieldBody ColumnSize="ColumnSize.Is10">
+                                        <MudSelect T="Guid"
+                                                   Variant="Variant.Outlined"
+                                                   Margin="MudMargin.Dense"
+                                                   @bind-Value="Appointment.HcpId">
+                                            <MudSelectItem Value="@(Guid.Empty)">Select Hcp</MudSelectItem>
+                                            @foreach (var item in HealthCares)
+                                            {
+                                                <MudSelectItem Value="@(item.Id)">@item.FullName</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </FieldBody>
+                                </Field>
+                            </MudItem>
+                            <MudItem md="6">
+                                <Field>
+                                    <FieldLabel ColumnSize="ColumnSize.Is2">Duration</FieldLabel>
+                                    <FieldBody ColumnSize="ColumnSize.Is10">
+                                        <NumericEdit Label="Duration" TValue="int" @bind-Value="@Appointment.Duration" Min="15" Step="5" Max="60" />
+                                    </FieldBody>
+                                </Field>
+                            </MudItem>
+
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <FieldLabel>Notes</FieldLabel>
+                        <MemoEdit @bind-Text="@Appointment.Notes" />
+                    </MudItem>
+                </MudStack>
+            </Validations>
+        }
+        else
+        {
+            <CommonLoader />
+        }
+
+
+    </DialogContent>
+    <DialogActions>
+
+        @if (!_loadScreen)
+        {
+            @if (Id != Guid.Empty)
+            {
+                <MudButton Disabled="@_processing" OnClick="@CancelAppointment" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                    Cancel Appointment
+                </MudButton>
+            }
+            <MudButton Disabled="@_processing" OnClick="@SaveAppointment" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                @if (_processing)
+                {
+                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
+                    <MudText Class="ms-2" Color="MudColor.Info">Processing</MudText>
+                }
+                else
+                {
+                    <MudText><i class="fas fa-floppy-disk"></i> Save Appointment</MudText>
+                }
+            </MudButton>
+        }
+
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public DateTime StartDate { get; set; }
+    private List<PatientListDto> PatientList { get; set; } = new();
+    private UpsertAppointmentDto Appointment { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
+    PatientListDto _patient;
+    Validations _validationsRef;
+    private string _error;
+    private string _title;
+    private bool _processing;
+    private bool _loadScreen;
+    protected override async Task OnInitializedAsync()
+    {
+        _loadScreen = true;
+        //For New Appointment
+        if (Id == Guid.Empty)
+        {
+            _title = "New Appointment";
+            Appointment.Start = StartDate;
+        }
+        else
+        {
+            _title = "Edit Appointment";
+            var res = await UnitOfWork.Appointment.GetAppointment(Id);
+            if (res.Succeeded)
+            {
+                Appointment = Mapper.Map<UpsertAppointmentDto>(res.Data);
+                _patient = res.Data.Patient;
+            }
+        }
+
+        await GetPatients();
+        await GetHealthCares();
+        await GetAppointmentTypes();
+        _loadScreen = false;
+
+    }
+
+    private void ChangePatient(PatientListDto patient)
+    {
+        if (patient.Id != Guid.Empty)
+        {
+
+            Appointment.PatientId = patient.Id;
+        }
+    }
+
+    private async Task GetPatients()
+    {
+        await Task.Delay(2000);
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+    private async Task GetAppointmentTypes()
+    {
+        AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
+    }
+    private async Task SaveAppointment()
+    {
+        _processing = true;
+        _error = "";
+        if (Appointment.PatientId == Guid.Empty)
+        {
+            _error = "Please select patient";
+            Snackbar.FailMessge("Please select patient");
+            _processing = false;
+            return;
+
+        }
+        if (Appointment.AppointmentTypeId == 0)
+        {
+            _error = "Please select appointment type";
+            Snackbar.FailMessge("Please select appointment type");
+            _processing = false;
+            return;
+
+        }
+        if (Appointment.HcpId == Guid.Empty)
+        {
+            _error = "Please select Health care professional";
+            Snackbar.FailMessge("Please select Health care professional");
+            _processing = false;
+            return;
+        }
+
+        if (await _validationsRef.ValidateAll())
+        {
+            await Task.Delay(2500);
+            var res = await UnitOfWork.Appointment.SaveAppointment(Id, Appointment);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                MudDialog.Close();
+            }
+            await _validationsRef.ClearAll();
+        }
+
+        _processing = false;
+    }
+
+    Task OnAppointmentTypeChanged(int value)
+    {
+        var duration = AppointmentTypes.FirstOrDefault(x => x.Id == value)!.Duration;
+        Appointment.AppointmentTypeId = value;
+        Appointment.Duration = duration;
+        return Task.CompletedTask;
+    }
+
+    private async Task CancelAppointment()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("AppointmentId", Id);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<CancelAppointment>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+           MudDialog.Close();
+        }
+
+    }
+
+}

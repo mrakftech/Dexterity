@@ -14,10 +14,10 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public Guid CreatedBy { get; set; }
     public Guid? ModifiedBy { get; set; }
 
-    [Required] public string FamilyName { get; set; }
+     public string FamilyName { get; set; }
 
-    [Required] public string FirstName { get; set; }
-    [Required] public string LastName { get; set; }
+    public string FirstName { get; set; }
+    public string LastName { get; set; }
 
     public string FullName
     {
@@ -43,6 +43,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public string AddressLine1 { get; set; }
     public string Mobile { get; set; }
     public string EmailAddress { get; set; }
+    public string Age { get; set; }
 
     public User HealthCareProfessional { get; set; }
     public Guid HealthCareProfessionalId { get; set; }

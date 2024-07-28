@@ -1,27 +1,52 @@
-﻿@using Dexterity.Components.Pages.Appointments.Dialogs
+﻿@using Dexterity.Components.Pages.Appointments
+@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Services.Features.Appointments.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 @using Services.State
-<MudStack >
-    <MudItem Class="mt-3" >
+@using Shared.Constants.Module
+<style>
+    .cell-template {
+        width: 100%;
+        height: 100%;
+        border: 2px solid #0077B5;
+        cursor: pointer
+    }
+
+        .cell-template:hover {
+            border: 2px solid #000;
+        }
+
+            .cell-template:hover > .cell-header {
+                background-color: #000
+            }
+
+
+    .cell-header {
+        background-color: #0077B5
+    }
+</style>
+<MudStack>
+    <MudItem Class="mt-3">
         <MudStack Row>
             <MudItem e>
-              
+
                 <Field Horizontal>
                     <FieldLabel ColumnSize="ColumnSize.Is2">View</FieldLabel>
                     <FieldBody ColumnSize="ColumnSize.Is10">
-                        <Select @bind-SelectedValue="@selectedValue">
-                            <SelectItem Value="@("Active")">Active</SelectItem>
-                            <SelectItem Value="@("Cancelled / DNA")">Cancelled / DNA</SelectItem>
+                        <Select TValue="string" SelectedValueChanged="@OnStatusSelectedValueChanged">
+                            <SelectItem Value="@(AppointmentConstants.Status.Active)">@AppointmentConstants.Status.Active</SelectItem>
+                            <SelectItem Value="@(AppointmentConstants.Status.Cancelled)">@AppointmentConstants.Status.Cancelled</SelectItem>
                         </Select>
                     </FieldBody>
                 </Field>
             </MudItem>
-            <MudItem >
+            <MudItem>
                 <Field Horizontal>
                     <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
                     <FieldBody ColumnSize="ColumnSize.Is10">
-                        <Select TValue="Guid" @bind-SelectedValue="@selectedValue1">
-                            @foreach (var item in Healthcares)
+                        <Select TValue="Guid" SelectedValueChanged="@ChangeHcp">
+                            <SelectItem Value="@(Guid.Empty)">Filter By HCP</SelectItem>
+                            @foreach (var item in HealthCares)
                             {
                                 <SelectItem Value="@(item.Id)">@item.FullName</SelectItem>
                             }
@@ -29,74 +54,109 @@
                     </FieldBody>
                 </Field>
             </MudItem>
-            <MudSpacer/>
+            <MudItem>
+                <MudButton StartIcon="fa fa-refresh" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="RefreshAppointments">Refresh</MudButton>
+            </MudItem>
+            <MudSpacer />
             <MudItem>
                 <MudIconButton Icon="fas fa-print" Color="MudColor.Primary"></MudIconButton>
             </MudItem>
         </MudStack>
     </MudItem>
     <MudItem md="12">
-        <MudCalendar
-            Color="MudColor.Primary"
-            Elevation="1"
-            ShowTodayButton="true"
-            ShowWeek="false"
-            ShowMonth="false" ShowWorkWeek DayTimeInterval="CalendarTimeInterval.Minutes15" CellClicked="CellClicked" ItemClicked="ItemClicked">
-            <ToolbarContent>
-            </ToolbarContent>
+
+        <MudCalendar Items="@Appointments"
+                     Color="MudColor.Primary"
+                     Elevation="1"
+                     ShowTodayButton="true"
+                     ShowWeek="false"
+                     ShowMonth="false"
+                     ShowWorkWeek
+                     FirstDayOfWeek="DayOfWeek.Monday"
+                     DayTimeInterval="CalendarTimeInterval.Minutes15"
+                     CellClicked="CellClicked" MonthCellMinHeight="100" EnableResizeItems>
+            <CellTemplate>
+                <div class="cell-template" @onclick="() => UpdateModal(((GetAppointmentDto)context).Id)">
+                    <div class="cell-header">
+                        <MudText Style="color: #ffffff;" Typo="Typo.body1" Align="Align.Center">
+                            @($"{((GetAppointmentDto)context).Start.TimeOfDay} - {((GetAppointmentDto)context).End.Value.TimeOfDay} | {((GetAppointmentDto)context).Patient.FullName}")
+                        </MudText>
+                    </div>
+                    <div class="pa-2">
+                        <MudText Typo="Typo.body2">@($"Appointment Type: {((GetAppointmentDto)context).Type}")</MudText>
+                        <MudText Typo="Typo.body2">@($"DOB: {((GetAppointmentDto)context).Patient.DateOfBirth:d}")</MudText>
+                    </div>
+                </div>
+            </CellTemplate>
         </MudCalendar>
     </MudItem>
 </MudStack>
-
 @code {
-    private List<CalendarItem> Appointments { get; set; } = new();
-    private List<HealthcareDto> Healthcares { get; set; } = new();
+    private List<GetAppointmentDto> Appointments { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
 
-    private Guid selectedValue1;
-    private string selectedValue;
+    private Guid _hcpId;
     protected override async Task OnInitializedAsync()
     {
         await GetHealthCares();
-        //await GetCalendarItems();
+        await GetCalendarItems();
     }
 
-    private async Task GetCalendarItems()
+    private async Task GetCalendarItems(string status = null)
     {
-        var appts = await UnitOfWork.Appointment.GetAppoinments();
-        foreach (var item in appts)
-        {
-            Appointments.Add(new CalendarItem()
-            {
-                Start = item.StartDate,
-                End = item.EndDate,
-                Text = item.Title
-            });
-        }
+        Appointments = await UnitOfWork.Appointment.GetAppointments(status);
     }
 
     private async Task GetHealthCares()
     {
-        Healthcares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
     }
 
     private async Task CellClicked(DateTime dateTime)
     {
-        
+
         var parameters = new DialogParameters();
         parameters.Add("StartDate", dateTime);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult = await DialogService.ShowAsync<CreateAppointment>("", parameters, options);
-        var result = await dialogresult.Result;
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+        var result = await dialogResult.Result;
         if (!result.Canceled)
         {
-            //await GetUserTasks();
+            await GetCalendarItems();
         }
-       
+
     }
 
-    private Task ItemClicked(CalendarItem item)
+
+    private async Task UpdateModal(Guid id)
     {
-        return DialogService.ShowMessageBox("Item Clicked", item.Text);
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+            await GetCalendarItems();
+        }
+    }
+
+    private async Task RefreshAppointments()
+    {
+        await GetCalendarItems();
+    }
+
+    private async Task OnStatusSelectedValueChanged(string status)
+    {
+        Snackbar.SuccessMessge("Status Hit");
+        await GetCalendarItems(status);
+    }
+
+    private async Task ChangeHcp(Guid hcpId)
+    {
+        Snackbar.SuccessMessge("Hcp");
+
+        Appointments = await UnitOfWork.Appointment.GetAppointmentsByHcp(hcpId);
     }
 
 }

@@ -1,0 +1,95 @@
+﻿@using Dexterity.Components.Pages.Settings.Dialogs.AppointmentManager
+@using Domain.Entities.Appointments
+<MudItem Style="margin-top: 3%;width: 75%">
+    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Appointment Cancel Reasons</MudText>
+    <MudItem md="12">
+        <MudStack Row Style="margin-top: 20px">
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentCancelModal(0)" Variant="Variant.Filled">Add  Appointment Cancel Reason</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAppointmentTypeList" Variant="Variant.Filled">Load Appointment Cancel Reasons</MudButton>
+        </MudStack>
+    </MudItem>
+    <MudDataGrid Loading="_processing" Style="margin-top: 20px" Items="AppointmentCancelReasonList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Appointment Cancel Reasons</MudText>
+            <MudSpacer />
+            <MudItem md="4">
+                <MudTextField Variant="Variant.Outlined" Margin="MudMargin.Dense" @bind-Value="_searchString"
+                              Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                              AdornmentIcon="@MudIcons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
+                </MudTextField>
+
+            </MudItem>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.Reason" />
+            <TemplateColumn CellClass="d-flex justify-end">
+                <CellTemplate>
+                    <MudStack Row>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => UpsertAppointmentCancelModal(context.Item.Id)" />
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteAppointmentReasonCancel(context.Item.Id)" />
+                    </MudStack>
+                </CellTemplate>
+            </TemplateColumn>
+        </Columns>
+        <NoRecordsContent>
+            <MudText>No records found.</MudText>
+        </NoRecordsContent>
+    </MudDataGrid>
+
+</MudItem>
+
+@code {
+
+    private List<AppointmentCancellationReason> AppointmentCancelReasonList { get; set; } = new();
+    private string _searchString;
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAppointmentTypeList();
+    }
+
+    private async Task GetAppointmentTypeList()
+    {
+        _processing = true;
+        AppointmentCancelReasonList = await UnitOfWork.Setting.GetAppointmentCancelReasons();
+        _processing = false;
+
+    }
+
+    private async Task UpsertAppointmentCancelModal(int id)
+    {
+        var title = id == 0 ? "New Appointment Cancel Reason" : "Edit Appointment Cancel Reason";
+        var parameters = new DialogParameters { { "Id", id } };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogresult = await DialogService.ShowAsync<UpsertAppointmentCancelReasonModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetAppointmentTypeList();
+        }
+    }
+
+    private async Task DeleteAppointmentReasonCancel(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteAppointmentCancelReason(id);
+            if (res.Succeeded)
+            {
+                await GetAppointmentTypeList();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}
