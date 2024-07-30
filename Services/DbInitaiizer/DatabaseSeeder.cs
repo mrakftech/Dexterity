@@ -3,6 +3,7 @@ using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
+using Domain.Entities.Settings.Practice;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -29,8 +30,8 @@ public class DatabaseSeeder(
         SeedAppointmentTypes();
         SeedAppointmentCancelReasons();
 
-        // SeedFakePatientData();
-        // SeedFakeUserData();
+        SeedFakePatientData();
+        SeedFakeUserData();
     }
 
     private void SeedAppointmentCancelReasons()
@@ -100,7 +101,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.IsActive, true)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
-                var users = fakeUsers.Generate(30);
+                var users = fakeUsers.Generate(10);
                 await context.Users.AddRangeAsync(users);
                 await context.SaveChangesAsync();
                 foreach (var item in users)
@@ -128,6 +129,8 @@ public class DatabaseSeeder(
 
             if (!context.Patients.Any())
             {
+                var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic").Id;
+                var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "Admin").Id;
                 var util = PhoneNumberUtil.GetInstance();
                 var num = util.GetExampleNumber("US");
                 var types = PatientConstants.PatientTypes;
@@ -139,6 +142,8 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.AddressLine1, x => x.Address.FullAddress())
                     .RuleFor(x => x.Mobile, x => util.Format(num, PhoneNumberFormat.E164))
                     .RuleFor(x => x.EmailAddress, x => x.Person.Email)
+                    .RuleFor(x => x.ClinicId, clinicId)
+                    .RuleFor(x => x.HealthCareProfessionalId, hcpId)
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
                 var patients = fakePatients.Generate(50);
                 await context.Patients.AddRangeAsync(patients);
@@ -210,7 +215,7 @@ public class DatabaseSeeder(
                 return;
             var c = new Clinic()
             {
-                Branch = "Not set",
+                Address = "Not set",
                 Name = "Clinic"
             };
             context.Clinics.Add(c);

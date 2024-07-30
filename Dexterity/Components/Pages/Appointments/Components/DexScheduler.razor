@@ -1,13 +1,16 @@
 ﻿@using Dexterity.Components.Pages.Appointments.Dialogs
 @using Services.Features.Appointments.Dtos
+@using Services.Features.Appointments.Service
 @using Services.Features.PatientManagement.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 @using Shared.Constants.Module
 @using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
 @using Syncfusion.Blazor.Schedule
 @using System.ComponentModel.DataAnnotations
-
+@using System.Globalization
 <MudStack>
     <MudItem Class="mt-3">
         <MudStack Row>
@@ -46,13 +49,57 @@
         </MudStack>
     </MudItem>
     <MudItem md="12">
-        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate">
-            <ScheduleEventSettings DataSource="@DataSource"></ScheduleEventSettings>
+        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate" AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true">
+            <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting AllowAdding EnableTooltip>
+                <SfDataManager  AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
+                </SfDataManager>
+            </ScheduleEventSettings>
+            <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="@PopupOpen" ></ScheduleEvents>
             <ScheduleViews>
-                <ScheduleView Option="View.Month"></ScheduleView>
                 <ScheduleView Option="View.Day"></ScheduleView>
                 <ScheduleView Option="View.WorkWeek"></ScheduleView>
             </ScheduleViews>
+            <ScheduleQuickInfoTemplates TemplateType="TemplateType.Cell">
+                <HeaderTemplate>
+                    <div class="quick-info-header">
+                        <div class="quick-info-header-content" style="align-items: center; color: #919191;">
+                            <div class="quick-info-title">
+                            </div>
+                        </div>
+                    </div>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <div class="e-event-popup">
+                        <div class="e-popup-header">
+                            <div class="e-header-icon-wrapper">
+                            </div>
+                            <div class="e-subject-wrap">
+                                @* <div class="e-subject e-text-ellipsis"></div> *@
+                            </div>
+                        </div>
+                        <div class="e-popup-content">
+                            <div class="e-date-time">
+                                <div class="e-date-time-icon e-icons"></div>
+                                <div class="e-date-time-wrapper e-text-ellipsis">
+                                    <div class="e-date-time-details e-text-ellipsis">@(GetEventDetails((context as AppointmentDto)))</div>
+                                </div>
+                            </div>
+                            <div class="e-description">
+                            </div>
+                        </div>
+                        <div class="e-popup-footer">
+                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="()=>CellClicked(((AppointmentDto)context).StartTime)">Create Appointment</MudButton>
+                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="@(e => OnCloseClick(e, context as AppointmentDto))">Close</MudButton>
+                        </div>
+                    </div>
+
+                </ContentTemplate>
+                <FooterTemplate>
+                    <div class="cell-footer">
+                    </div>
+                </FooterTemplate>
+            </ScheduleQuickInfoTemplates>
+
         </SfSchedule>
     </MudItem>
 </MudStack>
@@ -61,22 +108,18 @@
 @code {
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
-    private List<AppointmentDto> DataSource { get; set; } = new();
-    private string Action;
+    private List<AppointmentDto> DataSource = new();
     SfSchedule<AppointmentDto> ScheduleRef;
-    DateTime CurrentDate = new DateTime(2020, 1, 10);
-    protected override async Task OnInitializedAsync()
-    {
-        await GetCalendarItems();
-    }
+    private string Action;
+    DateTime CurrentDate = DateTime.Now;
 
-    private async Task GetCalendarItems(string status = null)
+    private string GetEventDetails(AppointmentDto data)
     {
-        DataSource = await UnitOfWork.Appointment.GetAppointments(status);
+        return data.StartTime.ToString("dddd dd, MMMM yyyy", CultureInfo.InvariantCulture) + " (" + data.StartTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "-" + data.EndTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + ")";
     }
-
     private async Task PopupOpen(PopupOpenEventArgs<AppointmentDto> args)
     {
+
         if (args.Type == PopupType.Editor)
         {
             args.Cancel = true; //to prevent the default editor window
@@ -87,7 +130,8 @@
             parameters.Add("PatientList", PatientList);
             parameters.Add("HealthCares", HealthCares);
             parameters.Add("Action", Action);
-            var options = new MudBlazor.DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+            var options = new MudBlazor.DialogOptions()
+                { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
 
             if (Action == "CellClick")
             {
@@ -95,7 +139,7 @@
                 var result = await dialogResult.Result;
                 if (!result.Canceled)
                 {
-                    await GetCalendarItems();
+                    await ScheduleRef.RefreshAsync();
                 }
             }
             else
@@ -106,22 +150,16 @@
                 var result = await dialogResult.Result;
                 if (!result.Canceled)
                 {
-                    await GetCalendarItems();
+                    await ScheduleRef.RefreshAsync();
                 }
             }
         }
         if (args.Type == PopupType.QuickInfo)
         {
-            args.Cancel = true;
+            //args.Cancel = true;
         }
-        if (Action == "CellClick")
-        {
-            //   await ScheduleRef.AddEventAsync(EventData); //to add new appointment
-        }
-        else
-        {
-            // await ScheduleRef.SaveEventAsync(EventData); // to save the existing appointment
-        }
+
+
     }
 
 
@@ -131,11 +169,30 @@
     }
     private async Task RefreshAppointments()
     {
-        await GetCalendarItems();
+        await ScheduleRef.RefreshAsync();
     }
     private async Task OnStatusSelectedValueChanged(string status)
     {
-        await GetCalendarItems(status);
+        // await GetCalendarItems(status);
+    }
+    private async Task CellClicked(DateTime dateTime)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("StartDate", dateTime);
+        parameters.Add("PatientList", PatientList);
+        parameters.Add("HealthCares", HealthCares);
+        var options = new MudBlazor.DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+            await ScheduleRef.RefreshAsync();
+        }
+
+    }
+    private async Task OnCloseClick(MouseEventArgs args, AppointmentDto data)
+    {
+        await ScheduleRef.CloseQuickInfoPopupAsync();
     }
 }
 <style>

@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240730155530_AddClinicSites")]
+    partial class AddClinicSites
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,9 +40,6 @@ namespace Database.Migrations
                         .HasColumnType("int");
 
                     b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ClinicSiteId")
                         .HasColumnType("int");
 
                     b.Property<Guid>("CreatedBy")
@@ -101,8 +101,6 @@ namespace Database.Migrations
                     b.HasIndex("AppointmentTypeId");
 
                     b.HasIndex("ClinicId");
-
-                    b.HasIndex("ClinicSiteId");
 
                     b.HasIndex("HcpId");
 
@@ -539,12 +537,6 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.Practice.ClinicSite", "ClinicSite")
-                        .WithMany("Appointments")
-                        .HasForeignKey("ClinicSiteId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
                         .WithMany()
                         .HasForeignKey("HcpId")
@@ -560,8 +552,6 @@ namespace Database.Migrations
                     b.Navigation("AppointmentType");
 
                     b.Navigation("Clinic");
-
-                    b.Navigation("ClinicSite");
 
                     b.Navigation("Hcp");
 
@@ -681,11 +671,6 @@ namespace Database.Migrations
                     b.Navigation("Patients");
 
                     b.Navigation("Users");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Practice.ClinicSite", b =>
-                {
-                    b.Navigation("Appointments");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>

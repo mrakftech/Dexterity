@@ -23,13 +23,18 @@ public interface ISettingService
     public Task<List<ClinicDto>> GetClinics();
     public Task<IResult<ClinicDto>> GetClinic(int id);
     public Task<IResult> SaveClinic(int id, ClinicDto request);
-
-
     public Task<IResult> DeleteClinic(int id);
 
 
+    public Task<List<ClinicSiteDto>> GetClinicSites();
+    public Task<List<ClinicSiteDto>> GetSitesByClinic(int clinicId);
+    public Task<IResult<ClinicSiteDto>> GetClinicSite(int id);
+
+    public Task<IResult> SaveClinicSite(int id, ClinicSiteDto request);
+    public Task<IResult> DeleteClinicSite(int id);
+
     #endregion
-    
+
     #region Email Template
 
     public Task<List<EmailTemplate>> GetEmailTemplates();

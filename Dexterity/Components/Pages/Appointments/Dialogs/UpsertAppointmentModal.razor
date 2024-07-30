@@ -9,7 +9,7 @@
     <TitleContent>
         <MudStack Row>
             <MudItem>
-                <MudText Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
+                <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
             </MudItem>
         </MudStack>
     </TitleContent>
@@ -33,24 +33,36 @@
                     <MudItem>
                         <MudStack Row>
                             <MudItem md="12">
-                              <Label>Start Time:</Label>
-                                <SfDateTimePicker Min="@DateTime.Today"  TValue="DateTime" Value="@Appointment.StartTime" ></SfDateTimePicker>
+                                <Label>Start Time:</Label>
+                                <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime"></SfDateTimePicker>
                             </MudItem>
                         </MudStack>
                     </MudItem>
                     <MudItem md="12">
-                        <Label>Appointment Type:</Label>
-                        <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes">
-                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                            <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
-                        </SfDropDownList>
+                        <MudStack Row>
+                            <MudItem md="6">
+                                <Label>Appointment Type:</Label>
+                                <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                    <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
+                                </SfDropDownList>
+                            </MudItem>
+                            <MudItem md="6">
+                                <Label>Site:</Label>
+                                <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                    <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnClinicStieChanged"></DropDownListEvents>
+
+                                </SfDropDownList>
+                            </MudItem>
+                        </MudStack>
                     </MudItem>
                     <MudItem>
                         <MudStack Row>
                             <MudItem md="6">
                                 <Label>HCP:</Label>
                                 <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
-                                    <DropDownListFieldSettings Value="Id" Text="FullName"></DropDownListFieldSettings>
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                                 </SfDropDownList>
                             </MudItem>
                             <MudItem md="6">
@@ -61,7 +73,7 @@
                         </MudStack>
                     </MudItem>
                     <MudItem md="12">
-                        <SfRecurrenceEditor EndTypes="@Endtypes"></SfRecurrenceEditor>
+                        <SfRecurrenceEditor Value="@Appointment.RecurrenceRule" EndTypes="@Endtypes" ValueChanged="HandleRecurrenceEditorChange"></SfRecurrenceEditor>
                     </MudItem>
                     <MudItem>
                         <FieldLabel>Notes</FieldLabel>
@@ -81,9 +93,9 @@
 
         @if (!_loadScreen)
         {
-            @if (Id !=0)
+            @if (Id != 0)
             {
-                <DexLoadingButton Name="Cancel Appointment" Processing="_processing" Click="@CancelAppointment" Icon="fas fa-ban"></DexLoadingButton>
+                <DexLoadingButton Name="Cancel Appointment" Click="@CancelAppointment" Icon="fas fa-ban"></DexLoadingButton>
             }
 
             <DexLoadingButton Name="Save Appointment" Click="@SaveAppointment" Processing="_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
@@ -102,21 +114,20 @@
 
     private AppointmentDto Appointment { get; set; } = new();
     private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
+    private List<ClinicSiteDto> ClinicSites { get; set; } = new();
     PatientListDto _patient;
     Validations _validationsRef;
     private string _error;
     private string _title;
     private bool _processing;
     private bool _loadScreen;
-    string RecurrenceRule { get; set; } = string.Empty;
 
-    List<EndType> Endtypes = new List<EndType>()
-    {
-       EndType.Until, EndType.Count
-    };
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
+        await GetAppointmentTypes();
+        await GetClinicSites();
+
         //For New Appointment
         if (Id == 0)
         {
@@ -130,28 +141,36 @@
             if (res.Succeeded)
             {
                 Appointment = Mapper.Map<AppointmentDto>(res.Data);
-               // _patient = res.Data.Patient;
+                _patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
+                Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId).Name;
+                Appointment.PatientName = _patient.FullName;
+                Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId).Name;
             }
         }
 
-        await GetAppointmentTypes();
         _loadScreen = false;
 
     }
 
     private void ChangePatient(PatientListDto patient)
     {
-        if (patient.Id != Guid.Empty)
+        if (patient != null)
         {
-
             Appointment.PatientId = patient.Id;
+            Appointment.PatientName = patient.FullName;
         }
+
     }
 
     private async Task GetAppointmentTypes()
     {
         AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
     }
+    private async Task GetClinicSites()
+    {
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
     private async Task SaveAppointment()
     {
 
@@ -196,12 +215,20 @@
         _processing = false;
     }
 
+    Task OnClinicStieChanged(ChangeEventArgs<int, ClinicSiteDto> args)
+    {
+        var clinicSite = ClinicSites.FirstOrDefault(x => x.Id == args.Value);
+        Appointment.ClinicSiteId = clinicSite.Id;
+        Appointment.Location = clinicSite.Name;
+        return Task.CompletedTask;
+    }
+
     Task OnAppointmentTypeChanged(ChangeEventArgs<int, AppointmentTypeDto> args)
     {
-        var duration = AppointmentTypes
-        .FirstOrDefault(x => x.Id == args.Value)!.Duration;
-        Appointment.AppointmentTypeId = args.Value;
-        Appointment.Duration = duration;
+        var appointmentType = AppointmentTypes.FirstOrDefault(x => x.Id == args.Value);
+        Appointment.AppointmentTypeId = appointmentType.Id;
+        Appointment.Duration = appointmentType.Duration;
+        Appointment.Type = appointmentType.Name;
         return Task.CompletedTask;
     }
 
@@ -220,11 +247,14 @@
     }
     void HandleRecurrenceEditorChange(string value)
     {
-        RecurrenceRule = value;
+        Appointment.RecurrenceRule = value;
     }
     List<RepeatType> Repeats = new List<RepeatType>()
     {
        RepeatType.None, RepeatType.Daily, RepeatType.Weekly
     };
-
+    List<EndType> Endtypes = new List<EndType>()
+    {
+       EndType.Until, EndType.Count
+    };
 }

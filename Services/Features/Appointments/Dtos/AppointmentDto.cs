@@ -25,7 +25,11 @@ public class AppointmentDto
     public int CancelReasonId { get; set; }
     public int AppointmentTypeId { get; set; }
     public int ClinicId { get; set; }
+    public int ClinicSiteId { get; set; }
+
     public Guid PatientId { get; set; }
     public Guid HcpId { get; set; }
 
+    public string Type { get; set; }
+    public string PatientName { get; set; }
 }

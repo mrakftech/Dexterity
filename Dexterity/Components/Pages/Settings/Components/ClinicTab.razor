@@ -5,7 +5,7 @@
     <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Clinics</MudText>
     <MudItem md="12">
         <MudStack Row Style="margin-top: 20px">
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => UpsertClinicModal(0)">Add New Clinic</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => OpenUpsertClinicModal(0)">Add New Clinic</MudButton>
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetClinics" Variant="Variant.Filled">Load Clinics</MudButton>
         </MudStack>
     </MudItem>
@@ -23,13 +23,13 @@
         </ToolBarContent>
         <Columns>
             <PropertyColumn Property="x => x.Name"/>
-            <PropertyColumn Property="x => x.Branch"/>
+            <PropertyColumn Property="x => x.Address"/>
             <TemplateColumn CellClass="d-flex justify-end">
                 <CellTemplate>
                     <MudStack Row>
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
                                        Color="MudColor.Primary"
-                                       OnClick="() => UpsertClinicModal(context.Item.Id)"/>
+                                       OnClick="() => OpenUpsertClinicModal(context.Item.Id)"/>
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
                                        Color="MudColor.Error" OnClick="() => DeleteClinic(context.Item.Id)"/>
                     </MudStack>
@@ -58,8 +58,6 @@
     private async Task DeleteClinic(int id)
     {
         var parameters = new DialogParameters();
-//parameters.Add("ContentText", "Do you want to confirm?");
-//parameters.Add("ButtonText", "Yes");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
@@ -76,7 +74,7 @@
         }
     }
 
-    private async Task UpsertClinicModal(int id)
+    private async Task OpenUpsertClinicModal(int id)
     {
         var title = id == 0 ? "New Clinic" : "Edit Clinic";
         var parameters = new DialogParameters {{"Id", id}};

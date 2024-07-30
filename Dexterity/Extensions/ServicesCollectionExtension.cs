@@ -23,6 +23,8 @@ public static class ServicesCollectionExtension
         services.AddTransient<IMessagingService, MessagingService>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IMailService, MailService>();
+        services.AddScoped<AppointmentDataAdaptor>();
+
 
         return services;
     }

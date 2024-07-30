@@ -16,6 +16,7 @@ using Services.DbInitaiizer;
 using Services.State;
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
+using Services.Features.Appointments.Service;
 
 namespace Dexterity
 {

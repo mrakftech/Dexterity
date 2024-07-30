@@ -1,7 +1,7 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.PatientManagement;
-using Domain.Entities.Settings;
+using Domain.Entities.Settings.Practice;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -20,6 +20,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<UserTask> UserTasks { get; set; }
     public DbSet<PermissionClaim> PermissionClaims { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
+    public DbSet<ClinicSite> ClinicSites { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
@@ -54,6 +55,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinics", "Setting"); });
+        builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
 
 
         builder.Entity<Patient>(entity => { entity.ToTable(name: "Patients", "PatientManagement"); });
@@ -69,7 +71,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.ClinicId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
-        
+
         builder.Entity<Patient>(entity =>
         {
             entity.HasOne(d => d.HealthCareProfessional)
@@ -77,7 +79,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.HealthCareProfessionalId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
+        builder.Entity<Appointment>(entity =>
+        {
+            entity.HasOne(d => d.ClinicSite)
+                .WithMany(p => p.Appointments)
+                .HasForeignKey(d => d.ClinicSiteId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
 
-      
     }
 }

@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Settings;
+﻿using Domain.Entities.Settings.Practice;
 
 namespace Domain.Entities.UserAccounts;
 

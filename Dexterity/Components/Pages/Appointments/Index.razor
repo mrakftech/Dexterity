@@ -36,10 +36,7 @@
                                         @onclick="@(() => NewAppointment(DateTime.Now))">
                                 New Appointment
                             </MudNavLink>
-                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
-                                        @onclick="@(() => ClickChangedTab("recurring-appointments"))">
-                                Recurring Appointments
-                            </MudNavLink>
+
                         </MudItem>
                         <MudSpacer />
 
@@ -53,10 +50,6 @@
                                 @* <DexCalendar HealthCares="HealthCares" PatientList="PatientList"/> *@
                                 <DexScheduler HealthCares="HealthCares" PatientList="PatientList" />
                             </TabPanel>
-                            <TabPanel Name="recurring-appointments">
-                                @* <RecurringAppointment HealthCares="HealthCares" PatientList="PatientList" /> *@
-                            </TabPanel>
-
                         </Content>
                     </Tabs>
                 </div>

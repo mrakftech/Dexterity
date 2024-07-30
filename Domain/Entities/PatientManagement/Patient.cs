@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
-using Domain.Entities.Settings;
+using Domain.Entities.Settings.Practice;
 using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.PatientManagement;

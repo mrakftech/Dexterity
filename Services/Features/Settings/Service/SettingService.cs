@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
-using Domain.Entities.Settings;
+using Domain.Entities.Settings.Practice;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
@@ -108,6 +108,59 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Clinic deleted.");
     }
 
+    public async Task<List<ClinicSiteDto>> GetClinicSites()
+    {
+        var data = await context.ClinicSites.ToListAsync();
+        var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
+        return mappedData;
+    }
+    public async Task<List<ClinicSiteDto>> GetSitesByClinic(int clinicId)
+    {
+        var data = await context.ClinicSites.Where(x => x.ClinicId == clinicId).ToListAsync();
+        var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
+        return mappedData;
+    }
+    public async Task<IResult<ClinicSiteDto>> GetClinicSite(int id)
+    {
+        var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
+
+        if (clinic == null)
+            return await Result<ClinicSiteDto>.FailAsync("clinic not found.");
+        var mappedData = mapper.Map<ClinicSiteDto>(clinic);
+        return await Result<ClinicSiteDto>.SuccessAsync(mappedData);
+    }
+    public async Task<IResult> SaveClinicSite(int id, ClinicSiteDto request)
+    {
+        if (id == 0)
+        {
+            var mappedData = mapper.Map<ClinicSite>(request);
+            await context.ClinicSites.AddAsync(mappedData);
+        }
+        else
+        {
+            var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
+
+            if (clinic == null)
+                return await Result<ClinicSiteDto>.FailAsync("clinic site not found.");
+
+            var updatedData = mapper.Map(request, clinic);
+            context.ClinicSites.Update(updatedData);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Clinic site saved.");
+    }
+
+    public async Task<IResult> DeleteClinicSite(int id)
+    {
+        var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
+        if (clinic == null)
+            return await Result.FailAsync("clinic site not found.");
+
+        context.ClinicSites.Remove(clinic);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Clinic site deleted.");
+    }
     #endregion
 
     #region Email Templates
@@ -249,6 +302,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Appointment Cancel Reason deleted.");
     }
+
+
 
     #endregion
 }

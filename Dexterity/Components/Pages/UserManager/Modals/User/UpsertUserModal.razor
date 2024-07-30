@@ -126,7 +126,7 @@
                                             <SelectItem Value="0">Select Clinic</SelectItem>
                                             @foreach (var item in ClinicList)
                                             {
-                                                <SelectItem Value="@item.Id">@item.Name - @item.Branch</SelectItem>
+                                                <SelectItem Value="@item.Id">@item.Name - @item.Address</SelectItem>
                                             }
                                         </Select>
                                         <DexLoadingButton Name="Add Clinic" Processing="_processing" Click="SaveUser" ></DexLoadingButton>
@@ -141,7 +141,7 @@
                                 </ToolBarContent>
                                 <Columns>
                                     <PropertyColumn Property="x => x.Clinic.Name" Title="Name"/>
-                                    <PropertyColumn Property="x => x.Clinic.Branch" Title="Branch"/>
+                                    <PropertyColumn Property="x => x.Clinic.Address" Title="Branch"/>
                                     <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
                                         <CellTemplate>
                                             <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(context.Item.Id)"/>

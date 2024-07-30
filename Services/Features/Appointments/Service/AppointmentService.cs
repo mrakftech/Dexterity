@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
+using Domain.Entities.PatientManagement;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Appointments.Dtos;
 using Services.State;
+using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Wrapper;
 
@@ -16,9 +18,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         if (string.IsNullOrWhiteSpace(status) || status == AppointmentConstants.Status.Active)
         {
             var appointments = await context.Appointments
-                .Where(x => x.Status == AppointmentConstants.Status.Active && x.ClinicId==ApplicationState.CurrentUser.ClinicId)
-                .Include(x => x.Patient)
-                .Include(x => x.AppointmentType)
+                .Where(x => x.Status == AppointmentConstants.Status.Active && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
                 .ToListAsync();
             var list = mapper.Map<List<AppointmentDto>>(appointments);
             return list;
@@ -27,7 +27,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             var appointments = await context.Appointments
                 .Where(x => x.Status == AppointmentConstants.Status.Cancelled && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .Include(x => x.Patient).ToListAsync();
+                .ToListAsync();
             var list = mapper.Map<List<AppointmentDto>>(appointments);
             return list;
         }
@@ -61,6 +61,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             {
                 var appointment = mapper.Map<Appointment>(request);
                 appointment.Id = request.Id;
+                appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
                 appointment.ClinicId = ApplicationState.CurrentUser.ClinicId;
                 appointment.CreatedDate = DateTime.Now;
@@ -71,8 +72,11 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             }
             else
             {
-                var appointment = await context.Appointments.FirstOrDefaultAsync(x => x.Id == id);
+                var appointment = await context.Appointments
+
+                    .FirstOrDefaultAsync(x => x.Id == id);
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
+                appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
@@ -82,6 +86,9 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 appointment.AppointmentTypeId = request.AppointmentTypeId;
                 appointment.Duration = request.Duration;
                 appointment.Status = request.Status;
+                appointment.RecurrenceRule = request.RecurrenceRule;
+                appointment.RecurrenceException = request.RecurrenceException;
+                appointment.RecurrenceID = request.RecurrenceID;
                 context.Appointments.Update(appointment);
             }
             await context.SaveChangesAsync();
@@ -111,6 +118,65 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             return await Result<AppointmentDto>.FailAsync(e.Message);
         }
+
+    }
+
+    public async Task<List<AppointmentDto>> GetAllAppointments(DateTime StartDate, DateTime EndDate)
+    {
+        var data = await context.Appointments
+            
+             .Where(evt => evt.StartTime >= StartDate 
+             && evt.EndTime <= EndDate 
+             || evt.RecurrenceRule != null
+             && evt.Status == AppointmentConstants.Status.Active)
+             .AsNoTracking()
+             .ToListAsync();
+        return mapper.Map<List<AppointmentDto>>(data);
+    }
+
+    public async Task<IResult> CreateAppointment(AppointmentDto request)
+    {
+        var appointment = mapper.Map<Appointment>(request);
+        appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
+        appointment.ClinicId = ApplicationState.CurrentUser.ClinicId;
+        appointment.CreatedBy = ApplicationState.CurrentUser.UserId;
+        appointment.CreatedDate = DateTime.Now;
+        appointment.Status = AppointmentConstants.Status.Active;
+        context.ChangeTracker.Clear();
+        await context.Appointments.AddAsync(appointment);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Created");
+
+    }
+
+    public async Task<IResult> UpdateAppointment(AppointmentDto request)
+    {
+        var appointmentInDb = await context.Appointments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
+
+        if (appointmentInDb == null)
+            return await Result<AppointmentDto>.FailAsync("Appointment not found");
+
+        var appointment = mapper.Map<Appointment>(request);
+        appointment.EndTime = request.StartTime.AddMinutes(request.Duration); ;
+        appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
+        appointment.ModifiedDate = DateTime.Now;
+        context.ChangeTracker.Clear();
+        context.Appointments?.Update(appointment);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Updated");
+
+    }
+
+    public async Task<IResult> DeleteAppointment(int appointmentId)
+    {
+        var appointmentInDb = await context.Appointments.FirstOrDefaultAsync(x => x.Id == appointmentId);
+
+        if (appointmentInDb == null)
+            return await Result<AppointmentDto>.FailAsync("Appointment not found");
+
+        context.Appointments?.Remove(appointmentInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Appointment Deleted");
 
     }
 }
