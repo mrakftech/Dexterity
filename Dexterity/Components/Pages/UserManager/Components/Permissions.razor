@@ -1,5 +1,6 @@
 ﻿@using Dexterity.Components.Layout.Dialogs
 @using Dexterity.Components.Pages.UserManager.Modals.Roles
+@using Syncfusion.Blazor.DropDowns
 @using global::Services.Features.UserAccounts.Dtos.User
 @using Shared.Constants.Permission
 
@@ -10,13 +11,13 @@
         <MudStack Class="mt-5">
             <MudItem>
                 <MudStack Row="true">
-                    <MudSelect Margin="MudMargin.Dense" T="Guid" Label="Roles" Variant="Variant.Outlined" ValueChanged="RoleChanged">
-                        <MudSelectItem Value="@(Guid.Empty)">Select Role</MudSelectItem>
-                        @foreach (var item in Roles)
-                        {
-                            <MudSelectItem Value="@(item.Id)">@item.Name</MudSelectItem>
-                        }
-                    </MudSelect>
+                    <MudItem>
+                        <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role" DataSource="@Roles">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="Guid" TItem="RoleResponseDto" ValueChange="RoleChanged"></DropDownListEvents>
+                        </SfDropDownList>
+                    </MudItem>
+
                     <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
                         <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create</MudButton>
                         <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary" Disabled="_isRolesActionButtonsDisabled">Edit</MudButton>
@@ -25,15 +26,13 @@
                 </MudStack>
             </MudItem>
             <MudItem>
-                <MudSelect Margin="MudMargin.Dense" T="string" Disabled="_isModuleDropdownDisabled" Label="Modules" Variant="Variant.Outlined" ValueChanged="ModuleChange">
-                    @foreach (var item in Modules)
-                    {
-                        <MudSelectItem Value="@(item)"/>
-                    }
-                </MudSelect>
+                <SfDropDownList TValue="string" TItem="Module" Enabled="!_isModuleDropdownDisabled" Placeholder="Modules" DataSource="@Modules">
+                    <DropDownListFieldSettings Value="Text" Text="Text"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="string" TItem="Module" ValueChange="ModuleChange"></DropDownListEvents>
+                </SfDropDownList>
             </MudItem>
             <MudItem>
-                <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" Disabled="_isLoadPermissionBtnDisabled" FullWidth="true" OnClick="LoadPermissions">Load Permissions</MudButton>
+                <DexSimpleButton Name="Load permissions" Disabled="_isLoadPermissionBtnDisabled" Click="LoadPermissions"></DexSimpleButton>
             </MudItem>
             <MudItem>
                 <MudStack Row>
@@ -45,7 +44,7 @@
                 </MudStack>
             </MudItem>
             <MudItem Class="mb-10">
-                <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" Disabled="_isSavePermissionBtnDisabled" FullWidth="true" OnClick="SavePermission">Save Permissions</MudButton>
+                <DexSimpleButton Name="Save Permissions" Disabled="_isLoadPermissionBtnDisabled" Click="SavePermission"></DexSimpleButton>
             </MudItem>
         </MudStack>
     </MudItem>
@@ -53,7 +52,7 @@
 
 @code {
     private List<RoleResponseDto> Roles { get; set; } = new();
-    private List<string> Modules { get; set; } = PermissionConstants.Modules;
+    private List<Module> Modules { get; set; } = new();
     public List<PermissionResponseDto> PermissionList { get; set; } = new();
     private bool _isModuleDropdownDisabled = true;
     private bool _isLoadPermissionBtnDisabled = true;
@@ -76,6 +75,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        GetModules();
         await GetRoles();
     }
 
@@ -84,11 +84,12 @@
         Roles = await UnitOfWork.User.GetRoles();
     }
 
-    private void RoleChanged(Guid id)
+    private void RoleChanged(ChangeEventArgs<Guid, RoleResponseDto> args)
     {
-        if (id != Guid.Empty)
+        var role = args.ItemData;
+        if (role.Id != Guid.Empty)
         {
-            _roleId = id;
+            _roleId = role.Id;
             _isModuleDropdownDisabled = false;
             _isRolesActionButtonsDisabled = false;
         }
@@ -99,11 +100,11 @@
         }
     }
 
-    private void ModuleChange(string modName)
+    private void ModuleChange(ChangeEventArgs<string, Module> args)
     {
-        if (string.IsNullOrWhiteSpace(modName)) return;
+        if (string.IsNullOrWhiteSpace(args.Value)) return;
         _isLoadPermissionBtnDisabled = false;
-        _moduleName = modName;
+        _moduleName = args.Value;
     }
 
     private async Task LoadPermissions()
@@ -183,8 +184,8 @@
     private async Task UpsertRoleModal(Guid id)
     {
         var title = id == Guid.Empty ? "New Role" : "Edit Role";
-        var parameters = new DialogParameters {{"Id", id}};
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var parameters = new DialogParameters { { "Id", id } };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
         var dialogresult = await DialogService.ShowAsync<UpsertRoleModal>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
@@ -196,8 +197,6 @@
     private async Task DeleteRole(Guid id)
     {
         var parameters = new DialogParameters();
-        //parameters.Add("ContentText", "Do you want to confirm?");
-        //parameters.Add("ButtonText", "Yes");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
@@ -219,6 +218,22 @@
         public Guid Id { get; set; }
         public bool ClaimValue { get; set; }
     }
-
-
+    public class Module
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Text { get; set; } = string.Empty;
+    }
+    private void GetModules()
+    {
+        var list = new List<Module>();
+        foreach (var item in PermissionConstants.Modules)
+        {
+            list.Add(new Module()
+                {
+                    Id = "",
+                    Text = item
+                });
+        }
+        Modules = list;
+    }
 }

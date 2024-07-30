@@ -1,0 +1,147 @@
+﻿@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Services.Features.Appointments.Dtos
+@using Services.Features.PatientManagement.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Shared.Constants.Module
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Popups
+@using Syncfusion.Blazor.Schedule
+@using System.ComponentModel.DataAnnotations
+
+<MudStack>
+    <MudItem Class="mt-3">
+        <MudStack Row>
+            <MudItem>
+                <Field Horizontal>
+                    <FieldLabel ColumnSize="ColumnSize.Is2">View</FieldLabel>
+                    <FieldBody ColumnSize="ColumnSize.Is10">
+                        <Select TValue="string" SelectedValueChanged="@OnStatusSelectedValueChanged">
+                            <SelectItem Value="@(AppointmentConstants.Status.Active)">@AppointmentConstants.Status.Active</SelectItem>
+                            <SelectItem Value="@(AppointmentConstants.Status.Cancelled)">@AppointmentConstants.Status.Cancelled</SelectItem>
+                        </Select>
+                    </FieldBody>
+                </Field>
+            </MudItem>
+            <MudItem>
+                <Field Horizontal>
+                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                    <FieldBody ColumnSize="ColumnSize.Is10">
+                        <Select TValue="Guid" SelectedValueChanged="@ChangeHcp">
+                            <SelectItem Value="@(Guid.Empty)">Filter By HCP</SelectItem>
+                            @foreach (var item in HealthCares)
+                            {
+                                <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
+                            }
+                        </Select>
+                    </FieldBody>
+                </Field>
+            </MudItem>
+            <MudItem>
+                <MudButton StartIcon="fa fa-refresh" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="RefreshAppointments">Refresh</MudButton>
+            </MudItem>
+            <MudSpacer />
+            <MudItem>
+                <MudIconButton Icon="fas fa-print" Color="MudColor.Primary"></MudIconButton>
+            </MudItem>
+        </MudStack>
+    </MudItem>
+    <MudItem md="12">
+        <SfSchedule @ref="ScheduleRef" TValue="GetAppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate">
+            <ScheduleEventSettings DataSource="@DataSource"></ScheduleEventSettings>
+            <ScheduleViews>
+                <ScheduleView Option="View.Month"></ScheduleView>
+                <ScheduleView Option="View.Day"></ScheduleView>
+                <ScheduleView Option="View.WorkWeek"></ScheduleView>
+            </ScheduleViews>
+        </SfSchedule>
+    </MudItem>
+</MudStack>
+
+
+@code {
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
+    private List<GetAppointmentDto> DataSource { get; set; } = new();
+    private string Action;
+    SfSchedule<GetAppointmentDto> ScheduleRef;
+    DateTime CurrentDate = new DateTime(2020, 1, 10);
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCalendarItems();
+    }
+
+    private async Task GetCalendarItems(string status = null)
+    {
+        DataSource = await UnitOfWork.Appointment.GetAppointments(status);
+    }
+
+    private async Task PopupOpen(PopupOpenEventArgs<GetAppointmentDto> args)
+    {
+        if (args.Type == PopupType.Editor)
+        {
+            args.Cancel = true; //to prevent the default editor window
+            Action = args.Data.Id == Guid.Empty ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
+
+            var parameters = new DialogParameters();
+            parameters.Add("StartDate", args.Data.StartTime);
+            parameters.Add("PatientList", PatientList);
+            parameters.Add("HealthCares", HealthCares);
+            parameters.Add("Action", Action);
+            var options = new MudBlazor.DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+
+            if (Action == "CellClick")
+            {
+                var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+                var result = await dialogResult.Result;
+                if (!result.Canceled)
+                {
+                    await GetCalendarItems();
+                }
+            }
+            else
+            {
+                parameters.Add("Id", args.Data.Id);
+
+                var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+                var result = await dialogResult.Result;
+                if (!result.Canceled)
+                {
+                    await GetCalendarItems();
+                }
+            }
+        }
+        if (args.Type == PopupType.QuickInfo)
+        {
+            args.Cancel = true;
+        }
+        if (Action == "CellClick")
+        {
+            //   await ScheduleRef.AddEventAsync(EventData); //to add new appointment
+        }
+        else
+        {
+            // await ScheduleRef.SaveEventAsync(EventData); // to save the existing appointment
+        }
+    }
+
+
+    private async Task ChangeHcp(Guid hcpId)
+    {
+        DataSource = await UnitOfWork.Appointment.GetAppointmentsByHcp(hcpId);
+    }
+    private async Task RefreshAppointments()
+    {
+        await GetCalendarItems();
+    }
+    private async Task OnStatusSelectedValueChanged(string status)
+    {
+        await GetCalendarItems(status);
+    }
+}
+<style>
+    .custom-event-editor td {
+        padding: 7px;
+        padding-right: 16px;
+    }
+</style>
+

@@ -2,24 +2,15 @@
 <MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="EmailTemplateRequest" OnValidSubmit="SaveSmsTemplate">
+            <EditForm Model="EmailTemplateRequest">
                 <MudStack Class="mt-2">
                     <DexTextInputField Label="Template" @bind-FieldDataSource="@EmailTemplateRequest.Name"></DexTextInputField>
                     <MudItem>
                         <FieldLabel>Content</FieldLabel>
-                        <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@EmailTemplateRequest.Content"/>
+                        <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@EmailTemplateRequest.Content" />
                     </MudItem>
-                    <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                        @if (_processing)
-                        {
-                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
-                            <MudText Class="ms-2">Processing</MudText>
-                        }
-                        else
-                        {
-                            <MudText>Save Template</MudText>
-                        }
-                    </MudButton>
+                    <DexLoadingButton Name="Save" Click="SaveEmailTemplate" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+
                 </MudStack>
             </EditForm>
         </Validations>
@@ -45,7 +36,7 @@
         }
     }
 
-    private async Task SaveSmsTemplate()
+    private async Task SaveEmailTemplate()
     {
         _processing = true;
         if (await validations.ValidateAll())

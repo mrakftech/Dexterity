@@ -3,7 +3,7 @@
 @using Services.Features.Settings.Dtos
 @using Services.State
 @using Shared.Helper
-@if (!_processing)
+@if (!_loadScreen)
 {
     <MudDialog>
         <TitleContent>
@@ -129,20 +129,7 @@
                                                 <SelectItem Value="@item.Id">@item.Name - @item.Branch</SelectItem>
                                             }
                                         </Select>
-                                        <MudButton Size="MudSize.Small" 
-                                                   Disabled="@_processing" 
-                                                   OnClick="AddUserClinic" 
-                                                   Variant="Variant.Filled" Color="MudColor.Primary">
-                                            @if (_processing)
-                                            {
-                                                <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
-                                                <MudText Class="ms-2">Processing</MudText>
-                                            }
-                                            else
-                                            {
-                                                <MudText>Add Clinic</MudText>
-                                            }
-                                        </MudButton>
+                                        <DexLoadingButton Name="Add Clinic" Processing="_processing" Click="SaveUser" ></DexLoadingButton>
                                     </MudStack>
                                 </MudItem>
                             </MudStack>
@@ -166,22 +153,10 @@
                     </MudStack>
                 }
 
-
             </MudItem>
-
         </DialogContent>
         <DialogActions>
-            <MudButton Disabled="@_processing" OnClick="SaveUser" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                @if (_processing)
-                {
-                    <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2">Processing</MudText>
-                }
-                else
-                {
-                    <MudText>Save User</MudText>
-                }
-            </MudButton>
+            <DexLoadingButton Name="Save User" Processing="_processing" Click="SaveUser" Icon="fas fa-floppy-disk"></DexLoadingButton>
         </DialogActions>
     </MudDialog>
 }
@@ -202,16 +177,17 @@ else
     private CreateUserDto UserDto { get; set; } = new();
     Validations ValidationsRef { get; set; }
     private bool _processing;
+    private bool _loadScreen;
     private string _title = "";
     private int _clinicId = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        _processing = true;
+        _loadScreen = true;
         await GetEditUser();
         await GetRoles();
         await GetClinics();
-        _processing = false;
+        _loadScreen = false;
     }
 
     private async Task GetEditUser()

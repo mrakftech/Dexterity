@@ -14,18 +14,31 @@ public class Appointment : IBaseId, IBaseActionBy, IBaseActionOn
     public DateTime? ModifiedDate { get; set; }
     public bool IsDeleted { get; set; }
 
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
     public int Duration { get; set; }
-    public DateTime Start { get; set; }
-    public DateTime End { get; set; }
     public string Color { get; set; }
     public string Title { get; set; }
     public string Status { get; set; }
 
+
+
+
+
+
+
+
+
+
+
+
+    public int CancelReasonId { get; set; }
+
     public AppointmentType AppointmentType { get; set; }
     public int AppointmentTypeId { get; set; }
+
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
-    public int CancelReasonId { get; set; }
 
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }

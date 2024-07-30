@@ -77,5 +77,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.HealthCareProfessionalId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
+
+      
     }
 }

@@ -17,6 +17,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 {
     #region User
 
+    [Obsolete]
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
@@ -55,6 +56,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             case null:
                 userList = await context.Users
                     .Include(x => x.Role)
+                    .Include(x => x.UserClinics)
                     .Where(x => x.IsDeleted == false)
                     .OrderByDescending(x => x.CreatedDate)
                     .ToListAsync();
@@ -62,7 +64,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             case UserTypeConstants.Doctor:
                 userList = await context.Users
                     .Include(x => x.Role)
-                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
+                    .Where(x => x.IsDeleted == false && x.UserType == usertype )
                     .OrderByDescending(x => x.CreatedDate)
                     .ToListAsync();
                 break;
@@ -89,22 +91,23 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return mapper.Map<UserResponseDto>(userInDb);
     }
 
-    public async Task<IResult> SaveUser(Guid id, CreateUserDto dto)
+    public async Task<IResult> SaveUser(Guid id, CreateUserDto request)
     {
         try
         {
             if (id == Guid.Empty)
             {
-                if (context.Users.Any(x => x.Username == dto.Username))
+                if (context.Users.Any(x => x.Username == request.Username))
                 {
                     return await Result.FailAsync("Username already exists.");
                 }
 
-                dto.RoleId = dto.RoleId;
-                dto.ResetPasswordAt = Method.GetPasswordResetTime(dto.ResetPassword);
-                dto.CreatedBy = ApplicationState.CurrentUser.UserId;
-                var hashPassword = SecurePasswordHasher.Hash(dto.Password);
-                var user = mapper.Map<User>(dto);
+                request.RoleId = request.RoleId;
+                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
+                request.CreatedBy = ApplicationState.CurrentUser.UserId;
+
+                var hashPassword = SecurePasswordHasher.Hash(request.Password);
+                var user = mapper.Map<User>(request);
                 user.PasswordHash = hashPassword;
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
@@ -112,17 +115,17 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             }
             else
             {
-                if (dto.IsUpdatePassword)
+                if (request.IsUpdatePassword)
                 {
-                    dto.Password = SecurePasswordHasher.Hash(dto.Password);
+                    request.Password = SecurePasswordHasher.Hash(request.Password);
                 }
 
                 var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
-                dto.RoleId = dto.RoleId;
-                dto.ModifiedBy = ApplicationState.CurrentUser.UserId;
-                dto.ModifiedDate = DateTime.Today;
-                dto.ResetPasswordAt = Method.GetPasswordResetTime(dto.ResetPassword);
-                userInDb = mapper.Map(dto, userInDb);
+                request.RoleId = request.RoleId;
+                request.ModifiedBy = ApplicationState.CurrentUser.UserId;
+                request.ModifiedDate = DateTime.Today;
+                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
+                userInDb = mapper.Map(request, userInDb);
                 context.Users.Update(userInDb);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("User saved");
@@ -320,10 +323,13 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<HealthcareDto>> GetUsersByClinic(int clinicId)
     {
         var list = new List<HealthcareDto>();
+        
         var users = await context.UserClinics
+            .AsNoTracking()
             .Where(x => x.ClinicId == clinicId)
             .Select(x => x.User)
             .ToListAsync();
+
         foreach (var user in users)
         {
             var data = mapper.Map<HealthcareDto>(user);

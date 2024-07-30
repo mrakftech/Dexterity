@@ -4,27 +4,16 @@
         <MudText Align="Align.Center" Style="font-weight: bolder">Cancel Appointment</MudText>
     </TitleContent>
     <DialogContent>
-        <Select TValue="int" SelectedValueChanged="@OnSelectedValueChanged">
-            <SelectItem Value="0">Select Reason</SelectItem>
-            @foreach (var item in Reasons)
-            {
-                <SelectItem Value="@item.Id">@item.Reason</SelectItem>
-            }
-        </Select>
+        <MudItem>
+            <SfDropDownList TValue="int" TItem="AppointmentCancellationReason" Placeholder="Select Reason" DataSource="@Reasons">
+                <DropDownListFieldSettings Value="Id" Text="Reason"></DropDownListFieldSettings>
+                <DropDownListEvents TValue="int" TItem="AppointmentCancellationReason" ValueChange="OnSelectedValueChanged"></DropDownListEvents>
+            </SfDropDownList>
+        </MudItem>
 
     </DialogContent>
     <DialogActions>
-        <MudButton Disabled="@_processing" OnClick="@CancelAppointmentClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-            @if (_processing)
-            {
-                <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
-                <MudText Class="ms-2" Color="MudColor.Info">Processing</MudText>
-            }
-            else
-            {
-                <MudText><i class="fas fa-ban"></i> Cancel Appointment</MudText>
-            }
-        </MudButton>
+        <DexLoadingButton Click="CancelAppointmentClick" Icon="fas fa-ban" Name="Cancel Appointment" Processing="_processing"></DexLoadingButton>
     </DialogActions>
 </MudDialog>
 @code {
@@ -40,13 +29,13 @@
     }
 
 
-    Task OnSelectedValueChanged(int value)
+    Task OnSelectedValueChanged(ChangeEventArgs<int, AppointmentCancellationReason> args)
     {
-        _reasonId = value;
+        _reasonId = args.Value;
         return Task.CompletedTask;
     }
 
-    private async Task CancelAppointmentClick(MouseEventArgs obj)
+    private async Task CancelAppointmentClick()
     {
         if (_reasonId == 0)
         {

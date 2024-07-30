@@ -49,9 +49,6 @@
     private string _searchString;
     private bool _processing;
 
-    protected override async Task OnInitializedAsync()
-    {
-    }
 
     private async Task GetTemplates()
     {
@@ -77,8 +74,6 @@
     private async Task DeleteTemplate(Guid id)
     {
         var parameters = new DialogParameters();
-//parameters.Add("ContentText", "Do you want to confirm?");
-//parameters.Add("ButtonText", "Yes");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))

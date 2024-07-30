@@ -1,58 +1,98 @@
 ﻿@layout MainLayout
 @page "/appointments"
+
 @using Dexterity.Components.Pages.Appointments.Components
 @using Dexterity.Components.Pages.Appointments.Dialogs
+@using Services.Features.PatientManagement.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.State
 @using Width = Blazorise.Width
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
 <style>
-    .tab-content{
-        width: 75%!important;
+    .tab-content {
+        width: 75% !important;
     }
 </style>
 <div class="vertical-space">
-    
-    <MudPaper Height="800px" Style="overflow:hidden; position:relative;">
-        <MudDrawerContainer Class="mud-height-full">
-            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
-                       OpenMiniOnHover="true">
-                <MudNavMenu>
-                    <MudItem>
-                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
-                                    @onclick="@(() => ClickChanged("appointments"))">
-                            Appointments
-                        </MudNavLink>
-                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
-                                    @onclick="@(() => NewAppointment(DateTime.Now))">
-                            New Appointment
-                        </MudNavLink>
-                    </MudItem>
-                    <MudSpacer/>
-                
-                </MudNavMenu>
-            </MudDrawer>
-            <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab"  Width="Width.Is100">
-                    <Content>
-                        <TabPanel Name="appointments">
-                            <AppointmentList/>
-                        </TabPanel>
-                        <TabPanel Name="new-appointments">
-                        </TabPanel>
-    
-                    </Content>
-                </Tabs>
-            </div>
-        </MudDrawerContainer>
-    </MudPaper>
+    @if (_loading)
+    {
+        <CommonLoader />
+    }
+    else
+    {
+        <MudPaper Height="800px" Style="overflow:hidden; position:relative;">
+            <MudDrawerContainer Class="mud-height-full">
+                <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
+                           OpenMiniOnHover="true">
+                    <MudNavMenu>
+                        <MudItem>
+                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
+                                        @onclick="@(() => ClickChangedTab("appointments"))">
+                                Appointments
+                            </MudNavLink>
+                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
+                                        @onclick="@(() => NewAppointment(DateTime.Now))">
+                                New Appointment
+                            </MudNavLink>
+                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
+                                        @onclick="@(() => ClickChangedTab("recurring-appointments"))">
+                                Recurring Appointments
+                            </MudNavLink>
+                        </MudItem>
+                        <MudSpacer />
+
+                    </MudNavMenu>
+                </MudDrawer>
+                <div class="d-flex justify-center align-center">
+                    <Tabs SelectedTab="@_selectedTab" Width="Width.Is100">
+                        <Content>
+
+                            <TabPanel Name="appointments">
+                                @* <DexCalendar HealthCares="HealthCares" PatientList="PatientList"/> *@
+                                <DexScheduler HealthCares="HealthCares" PatientList="PatientList" />
+                            </TabPanel>
+                            <TabPanel Name="recurring-appointments">
+                                <RecurringAppointment HealthCares="HealthCares" PatientList="PatientList" />
+                            </TabPanel>
+
+                        </Content>
+                    </Tabs>
+                </div>
+            </MudDrawerContainer>
+        </MudPaper>
+
+    }
 </div>
 
 @code {
+
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private List<PatientListDto> PatientList { get; set; }
+
     private bool _open = false;
+    private bool _loading = false;
     string _selectedTab = "appointments";
 
-    private void ClickChanged(string tabName)
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetHealthCares();
+        await GetPatients();
+        _loading = false;
+
+    }
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User
+        .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+    private async Task GetPatients()
+    {
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+    private void ClickChangedTab(string tabName)
     {
         _selectedTab = tabName;
     }

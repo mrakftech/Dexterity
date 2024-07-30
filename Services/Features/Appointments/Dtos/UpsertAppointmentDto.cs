@@ -6,12 +6,12 @@ namespace Services.Features.Appointments.Dtos;
 
 public class UpsertAppointmentDto 
 {
-    public new Guid Id { get; set; }
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string Color { get; set; }
     public int Duration { get; set; }
-    public DateTime Start { get; set; }
-    public DateTime End { get; set; }
+    public DateTime StartTime { get; set; }
+    public DateTime EndTime { get; set; }
 
     public string Notes { get; set; }
     public string Status { get; set; }
@@ -20,4 +20,7 @@ public class UpsertAppointmentDto
 
     public Guid PatientId { get; set; }
     public Guid HcpId { get; set; }
+    public string RecurrenceRule { get; set; }
+    public Nullable<int> RecurrenceID { get; set; }
+    public string RecurrenceException { get; set; }
 }

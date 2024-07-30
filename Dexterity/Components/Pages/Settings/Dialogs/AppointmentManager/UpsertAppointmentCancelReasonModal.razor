@@ -2,21 +2,10 @@
 <MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="@CancellationReason" OnValidSubmit="SaveAppointmentType">
+            <EditForm Model="@CancellationReason" >
                 <MudStack Class="mt-2">
                     <DexTextInputField Label="Name" @bind-FieldDataSource="@CancellationReason.Reason"></DexTextInputField>
-                
-                    <MudButton StartIcon="fas fa-floppy-disk" Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                        @if (_processing)
-                        {
-                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">Processing</MudText>
-                        }
-                        else
-                        {
-                            <MudText>Save</MudText>
-                        }
-                    </MudButton>
+                    <DexLoadingButton Name="Save" Click="SaveAppointmentReason" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
                 </MudStack>
             </EditForm>
         </Validations>
@@ -40,7 +29,7 @@
             CancellationReason = s.Data;
         }
     }
-    private async Task SaveAppointmentType()
+    private async Task SaveAppointmentReason()
     {
         _processing = true;
         if (await validations.ValidateAll())

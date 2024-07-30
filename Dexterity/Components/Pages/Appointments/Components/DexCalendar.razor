@@ -1,6 +1,7 @@
-﻿@using Dexterity.Components.Pages.Appointments
+﻿@* @using Dexterity.Components.Pages.Appointments
 @using Dexterity.Components.Pages.Appointments.Dialogs
 @using Services.Features.Appointments.Dtos
+@using Services.Features.PatientManagement.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 @using Services.State
 @using Shared.Constants.Module
@@ -28,8 +29,7 @@
 <MudStack>
     <MudItem Class="mt-3">
         <MudStack Row>
-            <MudItem e>
-
+            <MudItem>
                 <Field Horizontal>
                     <FieldLabel ColumnSize="ColumnSize.Is2">View</FieldLabel>
                     <FieldBody ColumnSize="ColumnSize.Is10">
@@ -92,13 +92,12 @@
     </MudItem>
 </MudStack>
 @code {
+    [Parameter] public List<PatientListDto> PatientList { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
     private List<GetAppointmentDto> Appointments { get; set; } = new();
-    private List<HealthcareDto> HealthCares { get; set; } = new();
-
     private Guid _hcpId;
     protected override async Task OnInitializedAsync()
     {
-        await GetHealthCares();
         await GetCalendarItems();
     }
 
@@ -107,16 +106,12 @@
         Appointments = await UnitOfWork.Appointment.GetAppointments(status);
     }
 
-    private async Task GetHealthCares()
-    {
-        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
-    }
-
     private async Task CellClicked(DateTime dateTime)
     {
-
         var parameters = new DialogParameters();
         parameters.Add("StartDate", dateTime);
+        parameters.Add("PatientList", PatientList);
+        parameters.Add("HealthCares", HealthCares);
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
@@ -148,15 +143,12 @@
 
     private async Task OnStatusSelectedValueChanged(string status)
     {
-        Snackbar.SuccessMessge("Status Hit");
         await GetCalendarItems(status);
     }
 
     private async Task ChangeHcp(Guid hcpId)
     {
-        Snackbar.SuccessMessge("Hcp");
-
         Appointments = await UnitOfWork.Appointment.GetAppointmentsByHcp(hcpId);
     }
 
-}
+} *@

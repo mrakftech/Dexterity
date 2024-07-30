@@ -3,7 +3,7 @@
 <MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="AppointmentTypeDto" OnValidSubmit="SaveAppointmentType">
+            <EditForm Model="AppointmentTypeDto" >
                 <MudStack Class="mt-2">
                     <DexTextInputField Label="Name" @bind-FieldDataSource="@AppointmentTypeDto.Name"></DexTextInputField>
                     <Field>
@@ -12,17 +12,7 @@
                             <NumericEdit Label="Duration" TValue="int" @bind-Value="@AppointmentTypeDto.Duration" Min="15" Step="5" />
                         </FieldBody>
                     </Field>
-                    <MudButton StartIcon="fas fa-floppy-disk" Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                        @if (_processing)
-                        {
-                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true" />
-                            <MudText Class="ms-2">Processing</MudText>
-                        }
-                        else
-                        {
-                            <MudText>Save</MudText>
-                        }
-                    </MudButton>
+                    <DexLoadingButton Name="Save" Click="SaveAppointmentType" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
                 </MudStack>
             </EditForm>
         </Validations>
@@ -51,7 +41,7 @@
         _processing = true;
         if (await validations.ValidateAll())
         {
-            var res = await UnitOfWork.Setting.SaveAppointmentType(Id,AppointmentTypeDto);
+            var res = await UnitOfWork.Setting.SaveAppointmentType(Id, AppointmentTypeDto);
             if (res.Succeeded)
             {
                 Snackbar.SuccessMessge(res.Messages.First());

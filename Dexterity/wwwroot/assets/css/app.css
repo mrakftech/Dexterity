@@ -17,6 +17,9 @@
 .white-color {
     color: white !important;
 }
+.black-color {
+    color: #000000 !important;
+}
 
 h1:focus {
     outline: none;

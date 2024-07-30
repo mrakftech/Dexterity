@@ -17,7 +17,9 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             var appointments = await context.Appointments
                 .Where(x => x.Status == AppointmentConstants.Status.Active && x.ClinicId==ApplicationState.CurrentUser.ClinicId)
-                .Include(x => x.Patient).ToListAsync();
+                .Include(x => x.Patient)
+                .Include(x => x.AppointmentType)
+                .ToListAsync();
             var list = mapper.Map<List<GetAppointmentDto>>(appointments);
             return list;
         }
@@ -60,7 +62,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 var appointment = mapper.Map<Appointment>(request);
                 appointment.Id = Guid.NewGuid();
                 appointment.Id = request.Id;
-                appointment.End = request.Start.AddMinutes(request.Duration);
+                appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
                 appointment.ClinicId = ApplicationState.CurrentUser.ClinicId;
                 appointment.CreatedDate = DateTime.Now;
                 appointment.CreatedBy = ApplicationState.CurrentUser.UserId;
@@ -74,8 +76,8 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
                 appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
-                appointment.Start = request.Start;
-                appointment.End = request.Start.AddMinutes(request.Duration); ;
+                appointment.StartTime = request.StartTime;
+                appointment.EndTime = request.StartTime.AddMinutes(request.Duration); ;
                 appointment.Color = request.Color;
                 appointment.PatientId = request.PatientId;
                 appointment.HcpId = request.HcpId;

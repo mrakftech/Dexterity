@@ -2,21 +2,11 @@
 <MudDialog>
     <DialogContent>
         <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="ClinicDto" OnValidSubmit="SaveClinic">
+            <EditForm Model="ClinicDto">
                 <MudStack Class="mt-2">
                     <DexTextInputField Label="Name" @bind-FieldDataSource="@ClinicDto.Name"></DexTextInputField>
                     <DexTextInputField Label="Branch" @bind-FieldDataSource="@ClinicDto.Branch"></DexTextInputField>
-                    <MudButton Disabled="@_processing" ButtonType="MudButtonType.Submit" Variant="Variant.Filled" Color="MudColor.Primary" FullWidth="true">
-                        @if (_processing)
-                        {
-                            <MudProgressCircular Class="ms-n1" Size="MudSize.Small" Indeterminate="true"/>
-                            <MudText Class="ms-2">Processing</MudText>
-                        }
-                        else
-                        {
-                            <MudText>Save Clinic</MudText>
-                        }
-                    </MudButton>
+                    <DexLoadingButton Name="Save" Click="SaveClinic" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
                 </MudStack>
             </EditForm>
         </Validations>

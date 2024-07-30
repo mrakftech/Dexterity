@@ -1,0 +1,39 @@
+﻿<MudButton Class="mt-5"
+           Disabled="@Processing"
+           OnClick="Click"
+           Variant="Variant.Filled"
+           Color="MudColor.Primary"
+           ButtonType="@Type"
+           FullWidth="true">
+    @if (Processing)
+    {
+        <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
+        <MudText Class="ms-2 white-color">Processing</MudText>
+    }
+    else
+    {
+        <MudText Class="white-color"><i class="@Icon"></i> @Name</MudText>
+    }
+    </MudButton>
+
+@code {
+    [Parameter]
+    public string Icon { get; set; } = "";
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public bool Processing { get; set; }
+
+    [Parameter] public MudButtonType Type { get; set; } = MudButtonType.Button;
+
+    [Parameter]
+    public EventCallback Click { get; set; }
+
+    private async Task OnClick()
+    {
+        Processing = true;
+        await Click.InvokeAsync();
+        Processing = false;
+    }
+    }

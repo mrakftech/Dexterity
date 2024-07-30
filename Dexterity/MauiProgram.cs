@@ -14,6 +14,8 @@ using MudBlazor;
 using MudBlazor.Services;
 using Services.DbInitaiizer;
 using Services.State;
+using Syncfusion.Blazor;
+using Syncfusion.Licensing;
 
 namespace Dexterity
 {
@@ -33,6 +35,9 @@ namespace Dexterity
                 .AddFontAwesomeIcons();
             builder.Services
                 .AddBlazoriseRichTextEdit();
+            builder.Services.AddSyncfusionBlazor();
+            SyncfusionLicenseProvider.RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
+
             builder.Services.AddBlazorContextMenu(options =>
             {
                 options.ConfigureTemplate("myTemplate", template =>
