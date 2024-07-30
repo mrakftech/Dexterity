@@ -18,7 +18,7 @@
         {
             <Validations @ref="_validationsRef" Mode="ValidationMode.Manual" Model="@Appointment">
                 <MudStack>
-                    @if (Id != Guid.Empty)
+                    @if (Id != 0)
                     {
                         <PatientAppointmentCard Patient="_patient" />
 
@@ -65,7 +65,7 @@
                     </MudItem>
                     <MudItem>
                         <FieldLabel>Notes</FieldLabel>
-                        <SfTextBox @bind-Value="@Appointment.Notes" Multiline></SfTextBox>
+                        <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
                     </MudItem>
                 </MudStack>
             </Validations>
@@ -81,7 +81,7 @@
 
         @if (!_loadScreen)
         {
-            @if (Id != Guid.Empty)
+            @if (Id !=0)
             {
                 <DexLoadingButton Name="Cancel Appointment" Processing="_processing" Click="@CancelAppointment" Icon="fas fa-ban"></DexLoadingButton>
             }
@@ -94,13 +94,13 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public Guid Id { get; set; }
+    [Parameter] public int Id { get; set; }
     [Parameter] public string Action { get; set; }
     [Parameter] public DateTime StartDate { get; set; }
     [Parameter] public List<PatientListDto> PatientList { get; set; }
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
 
-    private UpsertAppointmentDto Appointment { get; set; } = new();
+    private AppointmentDto Appointment { get; set; } = new();
     private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
     PatientListDto _patient;
     Validations _validationsRef;
@@ -118,7 +118,7 @@
     {
         _loadScreen = true;
         //For New Appointment
-        if (Id == Guid.Empty)
+        if (Id == 0)
         {
             _title = "New Appointment";
             Appointment.StartTime = StartDate;
@@ -129,8 +129,8 @@
             var res = await UnitOfWork.Appointment.GetAppointment(Id);
             if (res.Succeeded)
             {
-                Appointment = Mapper.Map<UpsertAppointmentDto>(res.Data);
-                _patient = res.Data.Patient;
+                Appointment = Mapper.Map<AppointmentDto>(res.Data);
+               // _patient = res.Data.Patient;
             }
         }
 

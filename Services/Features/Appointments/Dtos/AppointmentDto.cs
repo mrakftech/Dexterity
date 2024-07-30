@@ -1,11 +1,14 @@
-﻿using Domain.Contracts;
+﻿using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings;
 using Domain.Entities.UserAccounts;
+using Heron.MudCalendar;
+using Services.Features.PatientManagement.Dtos;
+using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Appointments;
+namespace Services.Features.Appointments.Dtos;
 
-public class Appointment : IBaseActionBy, IBaseActionOn
+public class AppointmentDto 
 {
     public int Id { get; set; }
     public string Subject { get; set; }
@@ -18,28 +21,11 @@ public class Appointment : IBaseActionBy, IBaseActionOn
     public string RecurrenceException { get; set; }
     public Nullable<int> RecurrenceID { get; set; }
     public string Status { get; set; }
-
     public int Duration { get; set; }
-
-
     public int CancelReasonId { get; set; }
-
-    public AppointmentType AppointmentType { get; set; }
     public int AppointmentTypeId { get; set; }
-
-    public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
-
-    public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
-
-    public User Hcp { get; set; }
     public Guid HcpId { get; set; }
 
-
-    public Guid CreatedBy { get; set; }
-    public Guid? ModifiedBy { get; set; }
-    public DateTime CreatedDate { get; set; }
-    public DateTime? ModifiedDate { get; set; }
-    public bool IsDeleted { get; set; }
 }

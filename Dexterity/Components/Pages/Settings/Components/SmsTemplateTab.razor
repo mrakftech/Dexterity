@@ -9,7 +9,7 @@
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetTemplates" Variant="Variant.Filled">Load Sms Templates</MudButton>
         </MudStack>
     </MudItem>
-    <MudDataGrid Style="margin-top: 20px" Items="SmsTemplateList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
+    <MudDataGrid Loading="_processing" Style="margin-top: 20px" Items="SmsTemplateList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
         <ToolBarContent>
             <MudText Typo="Typo.h6">Sms Templates</MudText>
             <MudSpacer/>

@@ -6,9 +6,9 @@ namespace Services.Features.Appointments.Service;
 
 public interface IAppointmentService
 {
-    Task<List<GetAppointmentDto>> GetAppointments(string status = null);
-    Task<List<GetAppointmentDto>> GetAppointmentsByHcp(Guid hcpId);
-    Task<IResult<GetAppointmentDto>> GetAppointment(Guid id);
-    Task<IResult> SaveAppointment(Guid id, UpsertAppointmentDto appointment);
-    Task<IResult> CancelAppointment(Guid id, int cancelReasonId);
+    Task<List<AppointmentDto>> GetAppointments(string status = null);
+    Task<List<AppointmentDto>> GetAppointmentsByHcp(Guid hcpId);
+    Task<IResult<AppointmentDto>> GetAppointment(int id);
+    Task<IResult> SaveAppointment(int id, AppointmentDto appointment);
+    Task<IResult> CancelAppointment(int id, int cancelReasonId);
 }
