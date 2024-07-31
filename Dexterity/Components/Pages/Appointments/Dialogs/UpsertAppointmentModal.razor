@@ -7,80 +7,96 @@
 @using Syncfusion.Blazor.Schedule
 <MudDialog>
     <TitleContent>
-        <MudStack Row>
+        <MudStack>
             <MudItem>
-                <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
+                <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">Appointment Details</MudText>
             </MudItem>
+
         </MudStack>
     </TitleContent>
     <DialogContent>
         @if (!_loadScreen)
         {
-            <Validations @ref="_validationsRef" Mode="ValidationMode.Manual" Model="@Appointment">
-                <MudStack>
-                    @if (Id != 0)
-                    {
-                        <PatientAppointmentCard Patient="_patient" />
+            <MudStack>
+                <MudItem>
+                    <MudStack Row>
+                        @if (Id != 0)
+                        {
+                            <DexSimpleButton Name="Cancel Appointment" Click="@CancelAppointment" Icon="fas fa-ban" FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                            <DexSimpleButton Name="Delete Appointment" Click="()=>DeleteAppointment(Id)" Icon="fas fa-trash" FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                        }
+                    </MudStack>
+                </MudItem>
+                <MudItem>
+                    <Validations @ref="_validationsRef" Mode="ValidationMode.Manual" Model="@Appointment">
+                        <MudStack>
+                            @if (Id != 0)
+                            {
+                                <PatientAppointmentCard Patient="_patient" />
 
-                    }
-                    <MudItem>
-                        <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
-                    </MudItem>
-                    <MudItem>
-                        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-                    </MudItem>
+                            }
+                            <MudItem>
+                                <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
+                            </MudItem>
+                            <MudItem>
+                                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+                            </MudItem>
 
-                    <MudItem>
-                        <MudStack Row>
+                            <MudItem>
+                                <MudStack Row>
+                                    <MudItem md="12">
+                                        <Label>Start Time:</Label>
+                                        <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime"></SfDateTimePicker>
+                                    </MudItem>
+                                </MudStack>
+                            </MudItem>
                             <MudItem md="12">
-                                <Label>Start Time:</Label>
-                                <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime"></SfDateTimePicker>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem md="6">
-                                <Label>Appointment Type:</Label>
-                                <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                    <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
-                                </SfDropDownList>
-                            </MudItem>
-                            <MudItem md="6">
-                                <Label>Site:</Label>
-                                <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                    <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnClinicStieChanged"></DropDownListEvents>
+                                <MudStack Row>
+                                    <MudItem md="6">
+                                        <Label>Appointment Type:</Label>
+                                        <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+                                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                            <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
+                                        </SfDropDownList>
+                                    </MudItem>
+                                    <MudItem md="6">
+                                        <Label>Site:</Label>
+                                        <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+                                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                            <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnClinicStieChanged"></DropDownListEvents>
 
-                                </SfDropDownList>
+                                        </SfDropDownList>
+                                    </MudItem>
+                                </MudStack>
                             </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack Row>
-                            <MudItem md="6">
-                                <Label>HCP:</Label>
-                                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                </SfDropDownList>
-                            </MudItem>
-                            <MudItem md="6">
-                                <Label>Duration</Label>
-                                <SfNumericTextBox TValue="int" Value=@Appointment.Duration Min="15" Step="5" Max="60"></SfNumericTextBox>
-                            </MudItem>
+                            <MudItem>
+                                <MudStack Row>
+                                    <MudItem md="6">
+                                        <Label>HCP:</Label>
+                                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
+                                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                        </SfDropDownList>
+                                    </MudItem>
+                                    <MudItem md="6">
+                                        <Label>Duration</Label>
+                                        <SfNumericTextBox TValue="int" Value=@Appointment.Duration Min="5" Step="5" Max="60"></SfNumericTextBox>
+                                    </MudItem>
 
+                                </MudStack>
+                            </MudItem>
+                            <MudItem md="12">
+                                <SfRecurrenceEditor Value="@Appointment.RecurrenceRule" EndTypes="@Endtypes" ValueChanged="HandleRecurrenceEditorChange"></SfRecurrenceEditor>
+                            </MudItem>
+                            <MudItem>
+                                <FieldLabel>Notes</FieldLabel>
+                                <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
+                            </MudItem>
                         </MudStack>
-                    </MudItem>
-                    <MudItem md="12">
-                        <SfRecurrenceEditor Value="@Appointment.RecurrenceRule" EndTypes="@Endtypes" ValueChanged="HandleRecurrenceEditorChange"></SfRecurrenceEditor>
-                    </MudItem>
-                    <MudItem>
-                        <FieldLabel>Notes</FieldLabel>
-                        <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
-                    </MudItem>
-                </MudStack>
-            </Validations>
+                    </Validations>
+
+                </MudItem>
+            </MudStack>
+
         }
         else
         {
@@ -93,10 +109,7 @@
 
         @if (!_loadScreen)
         {
-            @if (Id != 0)
-            {
-                <DexLoadingButton Name="Cancel Appointment" Click="@CancelAppointment" Icon="fas fa-ban"></DexLoadingButton>
-            }
+
 
             <DexLoadingButton Name="Save Appointment" Click="@SaveAppointment" Processing="_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
         }
@@ -107,11 +120,10 @@
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
-    [Parameter] public string Action { get; set; }
+    [Parameter] public Guid HcpId { get; set; }
     [Parameter] public DateTime StartDate { get; set; }
     [Parameter] public List<PatientListDto> PatientList { get; set; }
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
-
     private AppointmentDto Appointment { get; set; } = new();
     private List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();
     private List<ClinicSiteDto> ClinicSites { get; set; } = new();
@@ -121,7 +133,8 @@
     private string _title;
     private bool _processing;
     private bool _loadScreen;
-
+    List<RepeatType> Repeats = new List<RepeatType>() { RepeatType.None, RepeatType.Daily, RepeatType.Weekly };
+    List<EndType> Endtypes = new List<EndType>() { EndType.Until, EndType.Count };
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
@@ -133,6 +146,7 @@
         {
             _title = "New Appointment";
             Appointment.StartTime = StartDate;
+            Appointment.HcpId = HcpId;
         }
         else
         {
@@ -140,6 +154,7 @@
             var res = await UnitOfWork.Appointment.GetAppointment(Id);
             if (res.Succeeded)
             {
+
                 Appointment = Mapper.Map<AppointmentDto>(res.Data);
                 _patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
                 Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId).Name;
@@ -166,6 +181,7 @@
     {
         AppointmentTypes = await UnitOfWork.Setting.GetAppointmentTypes();
     }
+
     private async Task GetClinicSites()
     {
         ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.CurrentUser.ClinicId);
@@ -199,7 +215,6 @@
             _processing = false;
             return;
         }
-
         if (await _validationsRef.ValidateAll())
         {
             await Task.Delay(2500);
@@ -214,7 +229,6 @@
 
         _processing = false;
     }
-
     Task OnClinicStieChanged(ChangeEventArgs<int, ClinicSiteDto> args)
     {
         var clinicSite = ClinicSites.FirstOrDefault(x => x.Id == args.Value);
@@ -222,7 +236,6 @@
         Appointment.Location = clinicSite.Name;
         return Task.CompletedTask;
     }
-
     Task OnAppointmentTypeChanged(ChangeEventArgs<int, AppointmentTypeDto> args)
     {
         var appointmentType = AppointmentTypes.FirstOrDefault(x => x.Id == args.Value);
@@ -231,7 +244,6 @@
         Appointment.Type = appointmentType.Name;
         return Task.CompletedTask;
     }
-
     private async Task CancelAppointment()
     {
         var parameters = new DialogParameters();
@@ -249,12 +261,24 @@
     {
         Appointment.RecurrenceRule = value;
     }
-    List<RepeatType> Repeats = new List<RepeatType>()
+
+
+    private async Task DeleteAppointment(int id)
     {
-       RepeatType.None, RepeatType.Daily, RepeatType.Weekly
-    };
-    List<EndType> Endtypes = new List<EndType>()
-    {
-       EndType.Until, EndType.Count
-    };
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var res = await UnitOfWork.Appointment.DeleteAppointment(id);
+            if (res.Succeeded)
+            {
+                MudDialog.Close();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
 }

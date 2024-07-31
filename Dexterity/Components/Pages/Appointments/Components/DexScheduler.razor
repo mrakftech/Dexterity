@@ -6,6 +6,7 @@
 @using Shared.Constants.Module
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
 @using Syncfusion.Blazor.Navigations
 @using Syncfusion.Blazor.Popups
 @using Syncfusion.Blazor.Schedule
@@ -14,51 +15,57 @@
 <MudStack>
     <MudItem Class="mt-3">
         <MudStack Row>
-            <MudItem>
-                <Field Horizontal>
-                    <FieldLabel ColumnSize="ColumnSize.Is2">View</FieldLabel>
-                    <FieldBody ColumnSize="ColumnSize.Is10">
-                        <Select TValue="string" SelectedValueChanged="@OnStatusSelectedValueChanged">
-                            <SelectItem Value="@(AppointmentConstants.Status.Active)">@AppointmentConstants.Status.Active</SelectItem>
-                            <SelectItem Value="@(AppointmentConstants.Status.Cancelled)">@AppointmentConstants.Status.Cancelled</SelectItem>
-                        </Select>
-                    </FieldBody>
-                </Field>
+            <MudItem md="3">
+                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@AppointmentStatusList" @bind-Value="@StatusValue">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem md="3">
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@HcpValue">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                </SfDropDownList>
             </MudItem>
             <MudItem>
-                <Field Horizontal>
-                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
-                    <FieldBody ColumnSize="ColumnSize.Is10">
-                        <Select TValue="Guid" SelectedValueChanged="@ChangeHcp">
-                            <SelectItem Value="@(Guid.Empty)">Filter By HCP</SelectItem>
-                            @foreach (var item in HealthCares)
-                            {
-                                <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
-                            }
-                        </Select>
-                    </FieldBody>
-                </Field>
+                <DexSimpleButton Click="OnSearchClick" Name="Search" />
+                <DexSimpleButton Click="OnClearClick" Name="Clear" />
             </MudItem>
             <MudItem>
-                <MudButton StartIcon="fa fa-refresh" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="RefreshAppointments">Refresh</MudButton>
+                <DexSimpleButton Click="RefreshAppointments" Name="Refresh" />
             </MudItem>
             <MudSpacer />
             <MudItem>
-                <MudIconButton Icon="fas fa-print" Color="MudColor.Primary"></MudIconButton>
+                <MudIconButton Icon="fas fa-print" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
             </MudItem>
         </MudStack>
     </MudItem>
-    <MudItem md="12">
-        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate" AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true">
+    <MudItem md="12" Style="@(ShowSchedule ? string.Empty : "display:none")">
+        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate" AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" AllowResizing=false>
+            <ScheduleGroup EnableCompactView="false" Resources="@groupData"></ScheduleGroup>
             <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting AllowAdding EnableTooltip>
-                <SfDataManager  AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
+                <SfDataManager AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
                 </SfDataManager>
             </ScheduleEventSettings>
-            <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="@PopupOpen" ></ScheduleEvents>
+            <ScheduleResources>
+                <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId" Title="Name" Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true"></ScheduleResource>
+            </ScheduleResources>
+            <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="@PopupOpen" OnActionBegin="OnActionBegin"></ScheduleEvents>
             <ScheduleViews>
-                <ScheduleView Option="View.Day"></ScheduleView>
-                <ScheduleView Option="View.WorkWeek"></ScheduleView>
+                <ScheduleView MaxEventsPerRow="1" Option="View.Day">
+                </ScheduleView>
+                <ScheduleView MaxEventsPerRow="1" Option="View.WorkWeek"></ScheduleView>
             </ScheduleViews>
+            <ScheduleTemplates>
+                <ResourceHeaderTemplate>
+                    @{
+                        var airlineData = (context as TemplateContext).ResourceData as HealthcareDto;
+                        <div class='template-wrap'>
+                            <div class="airline-details">
+                                <div class="airline-name">@(airlineData.Name)</div>
+                            </div>
+                        </div>
+                    }
+                </ResourceHeaderTemplate>
+            </ScheduleTemplates>
             <ScheduleQuickInfoTemplates TemplateType="TemplateType.Cell">
                 <HeaderTemplate>
                     <div class="quick-info-header">
@@ -101,6 +108,20 @@
             </ScheduleQuickInfoTemplates>
 
         </SfSchedule>
+
+    </MudItem>
+    <MudItem>
+        @if (!ShowSchedule)
+        {
+            <SfGrid DataSource="gridDataSource" Width="auto" Height="505px">
+                <GridColumns>
+                    <GridColumn Field="Subject" HeaderText="Subject" Width="120px"></GridColumn>
+                    <GridColumn Field="Location" HeaderText="Location" Width="120px"></GridColumn>
+                    <GridColumn Field="StartTime" HeaderText="StartTime" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+                    <GridColumn Field="EndTime" HeaderText="EndTime" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+                </GridColumns>
+            </SfGrid>
+        }
     </MudItem>
 </MudStack>
 
@@ -109,32 +130,56 @@
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     private List<AppointmentDto> DataSource = new();
+    private List<AppointmentDto> gridDataSource = new();
+    private string[] groupData = new string[] { "Healthcares" };
     SfSchedule<AppointmentDto> ScheduleRef;
-    private string Action;
     DateTime CurrentDate = DateTime.Now;
+    private bool ShowSchedule { get; set; } = true;
+    private string Action;
+    private string StatusValue;
+    private Guid HcpValue;
+
+    List<string> AppointmentStatusList = new List<string>
+    {
+        $"{@AppointmentConstants.Status.Active}",
+        $"{@AppointmentConstants.Status.Cancelled}",
+    };
+
 
     private string GetEventDetails(AppointmentDto data)
     {
         return data.StartTime.ToString("dddd dd, MMMM yyyy", CultureInfo.InvariantCulture) + " (" + data.StartTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "-" + data.EndTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + ")";
     }
+    public async Task OnActionBegin(Syncfusion.Blazor.Schedule.ActionEventArgs<AppointmentDto> args)
+    {
+        bool availability = true;
+        if (args.ActionType == ActionType.EventCreate || args.ActionType == ActionType.EventChange)
+        {
+            var records = args.AddedRecords ?? args.ChangedRecords;
+            if (records == null)
+            {
+                return;
+            }
+            availability = await ScheduleRef.IsSlotAvailableAsync(records.First());
+        }
+        args.Cancel = !availability;
+    }
     private async Task PopupOpen(PopupOpenEventArgs<AppointmentDto> args)
     {
-
         if (args.Type == PopupType.Editor)
         {
             args.Cancel = true; //to prevent the default editor window
             Action = args.Data.Id == 0 ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
-
             var parameters = new DialogParameters();
             parameters.Add("StartDate", args.Data.StartTime);
             parameters.Add("PatientList", PatientList);
             parameters.Add("HealthCares", HealthCares);
-            parameters.Add("Action", Action);
             var options = new MudBlazor.DialogOptions()
                 { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
 
             if (Action == "CellClick")
             {
+                parameters.Add("HcpId", args.Data.HcpId);
                 var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
                 var result = await dialogResult.Result;
                 if (!result.Canceled)
@@ -145,7 +190,6 @@
             else
             {
                 parameters.Add("Id", args.Data.Id);
-
                 var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
                 var result = await dialogResult.Result;
                 if (!result.Canceled)
@@ -163,18 +207,11 @@
     }
 
 
-    private async Task ChangeHcp(Guid hcpId)
-    {
-        DataSource = await UnitOfWork.Appointment.GetAppointmentsByHcp(hcpId);
-    }
     private async Task RefreshAppointments()
     {
         await ScheduleRef.RefreshAsync();
     }
-    private async Task OnStatusSelectedValueChanged(string status)
-    {
-        // await GetCalendarItems(status);
-    }
+
     private async Task CellClicked(DateTime dateTime)
     {
         var parameters = new DialogParameters();
@@ -190,9 +227,49 @@
         }
 
     }
+
     private async Task OnCloseClick(MouseEventArgs args, AppointmentDto data)
     {
         await ScheduleRef.CloseQuickInfoPopupAsync();
+    }
+
+    public async Task OnSearchClick()
+    {
+        var hcp = HcpValue.ToString();
+        DateTime? startDate = null;
+        DateTime? endDate = null;
+        List<WhereFilter> searchObj = new List<WhereFilter>();
+        if (!string.IsNullOrEmpty(StatusValue))
+        {
+            searchObj.Add(new WhereFilter() { Field = "Status", Operator = "equal", value = StatusValue, Condition = "or", IgnoreCase = true });
+        }
+        if (HcpValue != Guid.Empty)
+        {
+            searchObj.Add(new WhereFilter() { Field = "HcpId", Operator = "equal", value = HcpValue, Condition = "or", IgnoreCase = true });
+        }
+        if (searchObj.Count > 0)
+        {
+            Query query = new Query().Where(new WhereFilter() { Condition = "and", IsComplex = true, predicates = searchObj });
+            List<AppointmentDto> eventCollections = await ScheduleRef.GetEventsAsync(startDate, endDate, true);
+            object data = await new DataManager() { Json = eventCollections }.ExecuteQuery<AppointmentDto>(query);
+            List<AppointmentDto> resultData = (data as List<AppointmentDto>);
+            gridDataSource = resultData;
+            ShowSchedule = false;
+        }
+        else
+        {
+            ShowSchedule = true;
+        }
+    }
+    public void OnClearClick()
+    {
+        ShowSchedule = true;
+        StatusValue = string.Empty;
+    }
+
+    public async Task OnPrint()
+    {
+        await ScheduleRef.PrintAsync();
     }
 }
 <style>

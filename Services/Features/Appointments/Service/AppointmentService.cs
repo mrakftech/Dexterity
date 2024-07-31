@@ -13,39 +13,13 @@ namespace Services.Features.Appointments.Service;
 
 public class AppointmentService(ApplicationDbContext context, IMapper mapper) : IAppointmentService
 {
-    public async Task<List<AppointmentDto>> GetAppointments(string status = null)
-    {
-        if (string.IsNullOrWhiteSpace(status) || status == AppointmentConstants.Status.Active)
-        {
-            var appointments = await context.Appointments
-                .Where(x => x.Status == AppointmentConstants.Status.Active && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .ToListAsync();
-            var list = mapper.Map<List<AppointmentDto>>(appointments);
-            return list;
-        }
-        else
-        {
-            var appointments = await context.Appointments
-                .Where(x => x.Status == AppointmentConstants.Status.Cancelled && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .ToListAsync();
-            var list = mapper.Map<List<AppointmentDto>>(appointments);
-            return list;
-        }
-
-    }
-
-    public async Task<List<AppointmentDto>> GetAppointmentsByHcp(Guid hcpId)
-    {
-        var appointments = await context.Appointments
-            .Where(x => x.Status == AppointmentConstants.Status.Active && x.HcpId == hcpId && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-            .Include(x => x.Patient).ToListAsync();
-        var list = mapper.Map<List<AppointmentDto>>(appointments);
-        return list;
-    }
-
     public async Task<IResult<AppointmentDto>> GetAppointment(int id)
     {
-        var appointment = await context.Appointments.Include(x => x.Patient).FirstOrDefaultAsync(x => x.Id == id);
+        var appointment = await context.Appointments
+            .Include(x => x.Patient)
+            .Include(x => x.AppointmentType)
+            .Include(x => x.ClinicSite)
+            .FirstOrDefaultAsync(x => x.Id == id);
         if (appointment == null)
             return await Result<AppointmentDto>.FailAsync("Appointment not found");
         var data = mapper.Map<AppointmentDto>(appointment);
@@ -60,6 +34,8 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             if (id == 0)
             {
                 var appointment = mapper.Map<Appointment>(request);
+
+
                 appointment.Id = request.Id;
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
@@ -73,9 +49,10 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             else
             {
                 var appointment = await context.Appointments
-
                     .FirstOrDefaultAsync(x => x.Id == id);
+
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
+
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
@@ -124,11 +101,12 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     public async Task<List<AppointmentDto>> GetAllAppointments(DateTime StartDate, DateTime EndDate)
     {
         var data = await context.Appointments
-            
-             .Where(evt => evt.StartTime >= StartDate 
-             && evt.EndTime <= EndDate 
+            .Include(x => x.Patient)
+            .Include(x => x.AppointmentType)
+             .Where(evt => evt.StartTime >= StartDate
+             && evt.EndTime <= EndDate
              || evt.RecurrenceRule != null
-             && evt.Status == AppointmentConstants.Status.Active)
+             )
              .AsNoTracking()
              .ToListAsync();
         return mapper.Map<List<AppointmentDto>>(data);
@@ -174,7 +152,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         if (appointmentInDb == null)
             return await Result<AppointmentDto>.FailAsync("Appointment not found");
 
-        context.Appointments?.Remove(appointmentInDb);
+        context.Appointments.Remove(appointmentInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Appointment Deleted");
 

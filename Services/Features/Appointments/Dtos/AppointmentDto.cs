@@ -4,6 +4,7 @@ using Domain.Entities.Settings;
 using Domain.Entities.UserAccounts;
 using Heron.MudCalendar;
 using Services.Features.PatientManagement.Dtos;
+using Services.Features.Settings.Dtos;
 using System.ComponentModel.DataAnnotations;
 
 namespace Services.Features.Appointments.Dtos;
@@ -26,7 +27,6 @@ public class AppointmentDto
     public int AppointmentTypeId { get; set; }
     public int ClinicId { get; set; }
     public int ClinicSiteId { get; set; }
-
     public Guid PatientId { get; set; }
     public Guid HcpId { get; set; }
 

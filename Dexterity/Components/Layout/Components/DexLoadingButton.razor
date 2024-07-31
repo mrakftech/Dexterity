@@ -2,9 +2,9 @@
            Disabled="@Processing"
            OnClick="Click"
            Variant="Variant.Filled"
-           Color="MudColor.Primary"
+           Color=@Color
            ButtonType="@Type"
-           FullWidth="true">
+           FullWidth="@FullWidth">
     @if (Processing)
     {
         <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
@@ -24,7 +24,10 @@
 
     [Parameter]
     public bool Processing { get; set; }
-
+    [Parameter]
+    public bool FullWidth { get; set; } = true;
+    [Parameter]
+    public MudBlazor.Color Color { get; set; } = MudBlazor.Color.Primary;
     [Parameter] public MudButtonType Type { get; set; } = MudButtonType.Button;
 
     [Parameter]

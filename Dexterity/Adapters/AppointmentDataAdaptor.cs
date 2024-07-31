@@ -15,7 +15,7 @@ namespace Services.Features.Appointments.Service
             _unitOfWork = unitOfWork;
         }
 
-        List<AppointmentDto>? EventData;
+        List<AppointmentDto> EventData;
 
         //Performs Read operation
         public override async Task<object> ReadAsync(DataManagerRequest dataManagerRequest, string key = null)
@@ -52,7 +52,7 @@ namespace Services.Features.Appointments.Service
         public async override Task<object> BatchUpdateAsync(DataManager dataManager, object changedRecords, object addedRecords, object deletedRecords, string keyField, string key, int? dropIndex)
         {
             object records = deletedRecords;
-            List<AppointmentDto>? deleteData = deletedRecords as List<AppointmentDto>;
+            List<AppointmentDto> deleteData = deletedRecords as List<AppointmentDto>;
             if (deleteData != null)
             {
                 foreach (var data in deleteData)
@@ -60,7 +60,7 @@ namespace Services.Features.Appointments.Service
                     await _unitOfWork.Appointment.DeleteAppointment(data.Id);
                 }
             }
-            List<AppointmentDto>? addData = addedRecords as List<AppointmentDto>;
+            List<AppointmentDto> addData = addedRecords as List<AppointmentDto>;
             if (addData != null)
             {
                 foreach (var data in addData)
@@ -69,7 +69,7 @@ namespace Services.Features.Appointments.Service
                     records = addedRecords;
                 }
             }
-            List<AppointmentDto>? updateData = changedRecords as List<AppointmentDto>;
+            List<AppointmentDto> updateData = changedRecords as List<AppointmentDto>;
             if (updateData != null)
             {
                 foreach (var data in updateData)
