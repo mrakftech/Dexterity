@@ -39,16 +39,17 @@
     </MudItem>
     <MudItem md="12" Style="@(ShowSchedule ? string.Empty : "display:none")">
         <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@SelectedDate"
-                    AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" WorkDays="@workingDays">
+                    AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true"  ShowWeekend=false>
 
             <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting AllowAdding EnableTooltip>
                 <SfDataManager AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
                 </SfDataManager>
             </ScheduleEventSettings>
             <ScheduleResources>
-                <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId" Title="Name" Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true"></ScheduleResource>
+                <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId" Title="Name" 
+                Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true" 
+                WorkDaysField="WorkingDays" StartHourField="StartHour" EndHourField="EndHour"></ScheduleResource>
             </ScheduleResources>
-            <ScheduleWorkHours Highlight="true" Start="11:00" End="20:00"></ScheduleWorkHours>
             <ScheduleGroup EnableCompactView="false" Resources="@groupData"></ScheduleGroup>
             <ScheduleViews>
                 <ScheduleView Option="View.Day"></ScheduleView>
@@ -137,13 +138,6 @@
     private bool ShowSchedule { get; set; } = true;
 
     DateTime SelectedDate { get; set; } = DateTime.Now;
-
-    #region Working Hours
-    private int[] workingDays = ApplicationState.CurrentUser.WorkingDays.ToArray();
-    private string startWorkingHours = ApplicationState.CurrentUser.StartHour.ToString();
-    private string endWorkingHours = ApplicationState.CurrentUser.EndHour.ToString();
-    #endregion
-
 
 
     List<string> AppointmentStatusList = new List<string>
