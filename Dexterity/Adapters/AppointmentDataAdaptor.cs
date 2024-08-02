@@ -8,9 +8,9 @@ namespace Services.Features.Appointments.Service
 {
     public class AppointmentDataAdaptor : DataAdaptor
     {
-        private readonly IUnitOfWork _unitOfWork;
+        private readonly IAppointmentService _unitOfWork;
 
-        public AppointmentDataAdaptor(IUnitOfWork unitOfWork)
+        public AppointmentDataAdaptor(IAppointmentService unitOfWork)
         {
             _unitOfWork = unitOfWork;
         }
@@ -23,21 +23,21 @@ namespace Services.Features.Appointments.Service
             IDictionary<string, object> Params = dataManagerRequest.Params;
             DateTime start = DateTime.Parse((string)Params["StartDate"]);
             DateTime end = DateTime.Parse((string)Params["EndDate"]);
-            EventData = await _unitOfWork.Appointment.GetAllAppointments(start, end);
+            EventData = await _unitOfWork.GetAllAppointments(start, end);
             return dataManagerRequest.RequiresCounts ? new DataResult() { Result = EventData, Count = EventData.Count() } : EventData;
         }
 
         //Performs Insert operation
         public async override Task<object> InsertAsync(DataManager dataManager, object data, string key)
         {
-            await _unitOfWork.Appointment.CreateAppointment(data as AppointmentDto);
+            await _unitOfWork.CreateAppointment(data as AppointmentDto);
             return data;
         }
 
         //Performs Update operation
         public async override Task<object> UpdateAsync(DataManager dataManager, object data, string keyField, string key)
         {
-            await _unitOfWork.Appointment.UpdateAppointment(data as AppointmentDto);
+            await _unitOfWork.UpdateAppointment(data as AppointmentDto);
             return data;
         }
 
@@ -45,7 +45,7 @@ namespace Services.Features.Appointments.Service
         public async override Task<object> RemoveAsync(DataManager dataManager, object data, string keyField, string key)
         {
             int id = (int)data;
-            await _unitOfWork.Appointment.DeleteAppointment(id);
+            await _unitOfWork.DeleteAppointment(id);
             return data;
         }
         //Performs Batch update operations
@@ -57,7 +57,7 @@ namespace Services.Features.Appointments.Service
             {
                 foreach (var data in deleteData)
                 {
-                    await _unitOfWork.Appointment.DeleteAppointment(data.Id);
+                    await _unitOfWork.DeleteAppointment(data.Id);
                 }
             }
             List<AppointmentDto> addData = addedRecords as List<AppointmentDto>;
@@ -65,7 +65,7 @@ namespace Services.Features.Appointments.Service
             {
                 foreach (var data in addData)
                 {
-                    await _unitOfWork.Appointment.CreateAppointment(data as AppointmentDto);
+                    await _unitOfWork.CreateAppointment(data);
                     records = addedRecords;
                 }
             }
@@ -74,7 +74,7 @@ namespace Services.Features.Appointments.Service
             {
                 foreach (var data in updateData)
                 {
-                    await _unitOfWork.Appointment.UpdateAppointment(data as AppointmentDto);
+                    await _unitOfWork.UpdateAppointment(data);
                     records = changedRecords;
                 }
             }

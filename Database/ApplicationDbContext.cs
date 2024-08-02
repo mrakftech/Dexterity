@@ -5,7 +5,11 @@ using Domain.Entities.Settings.Practice;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
+using System.Reflection.Emit;
+using System.Xml;
 
 namespace Database;
 
@@ -79,13 +83,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.HealthCareProfessionalId)
                 .OnDelete(DeleteBehavior.NoAction);
         });
-        builder.Entity<Appointment>(entity =>
-        {
-            entity.HasOne(d => d.ClinicSite)
-                .WithMany(p => p.Appointments)
-                .HasForeignKey(d => d.ClinicSiteId)
-                .OnDelete(DeleteBehavior.NoAction);
-        });
+
+
+        builder.Entity<User>()
+            .Property(e => e.WorkingDays)
+            .HasConversion(
+                v => JsonConvert.SerializeObject(v),
+                v => JsonConvert.DeserializeObject<List<int>>(v),
+                  new ValueComparer<List<int>>(
+            (c1, c2) => c1.SequenceEqual(c2),
+            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
+            c => c.ToList()
+        )
+                );
+
 
     }
 }

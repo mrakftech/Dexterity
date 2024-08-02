@@ -1,0 +1,78 @@
+﻿@using Services.Features.Appointments.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+
+<TabTitle Title="Find Appointments"></TabTitle>
+
+<MudItem md="12">
+    <MudDataGrid RowsPerPage="8"
+                 Style="margin-top: 3%"
+                 Loading="_loading"
+                 LoadingProgressColor="MudColor.Secondary"
+                 FixedHeader="true" T="SearchAppointmentDto"
+                 Dense="true"
+                 Bordered="true"
+                 Hover="true"
+                 Items="@AppointmentList"
+                 SortMode="SortMode.Multiple"
+                 Filterable="true" QuickFilter="@QuickFilter"
+                 Hideable="true">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6" Class="text-bold">Appointments</MudText>
+            <DexSimpleButton Name="Load" FullWidth="false" Click="GetAppointments" ></DexSimpleButton>
+            <MudSpacer />
+            <MudItem md="3">
+                <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
+                              AdornmentIcon="@MudIcons.Material.Filled.Search"
+                              Variant="Variant.Outlined"
+                              IconSize="MudSize.Medium"
+                              Margin="MudMargin.Dense"
+                              Class="mt-0">
+                </MudTextField>
+            </MudItem>
+        </ToolBarContent>
+        <Columns>
+            <PropertyColumn Property="x => x.StartTime" Title="Date" Format="MM/dd/yyyy h:mm tt" Sortable="false" Filterable="false" />
+            <PropertyColumn Property="x => x.Patient.FullName" Title="Patient Name" Sortable="false" Filterable="false" />
+            <PropertyColumn Property="x => x.Patient.DateOfBirth" Title="DOB" Format="MM/dd/yyyy" Sortable="false" Filterable="false" />
+            <PropertyColumn Property="x => x.Status" Title="Status" Sortable="false" Filterable="false" />
+        </Columns>
+        <PagerContent>
+            <MudDataGridPager T="UserResponseDto" />
+        </PagerContent>
+        <NoRecordsContent>Appointment not found.</NoRecordsContent>
+    </MudDataGrid>
+
+</MudItem>
+@code {
+    private List<SearchAppointmentDto> AppointmentList { get; set; } = new();
+    private string _searchString;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetAppointments();
+        _loading = false;
+
+    }
+    private Func<SearchAppointmentDto, bool> QuickFilter => x =>
+       {
+           if (string.IsNullOrWhiteSpace(_searchString))
+               return true;
+
+           if (x.Patient.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+               return true;
+           if (x.Status.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+               return true;
+           if (x.StartTime.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+               return true;
+
+
+           return false;
+       };
+
+    private async Task GetAppointments()
+    {
+        AppointmentList = await UnitOfWork.Appointment.FindAppointments();
+    }
+}

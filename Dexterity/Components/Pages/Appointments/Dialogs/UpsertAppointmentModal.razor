@@ -10,6 +10,7 @@
         <MudStack>
             <MudItem>
                 <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">Appointment Details</MudText>
+                <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
             </MudItem>
 
         </MudStack>
@@ -46,7 +47,10 @@
                                 <MudStack Row>
                                     <MudItem md="12">
                                         <Label>Start Time:</Label>
-                                        <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime"></SfDateTimePicker>
+                                        <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime">
+                                            <DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
+                                            </DateTimePickerEvents>
+                                        </SfDateTimePicker>
                                     </MudItem>
                                 </MudStack>
                             </MudItem>
@@ -64,7 +68,6 @@
                                         <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
                                             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                                             <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnClinicStieChanged"></DropDownListEvents>
-
                                         </SfDropDownList>
                                     </MudItem>
                                 </MudStack>
@@ -83,9 +86,6 @@
                                     </MudItem>
 
                                 </MudStack>
-                            </MudItem>
-                            <MudItem md="12">
-                                <SfRecurrenceEditor Value="@Appointment.RecurrenceRule" EndTypes="@Endtypes" ValueChanged="HandleRecurrenceEditorChange"></SfRecurrenceEditor>
                             </MudItem>
                             <MudItem>
                                 <FieldLabel>Notes</FieldLabel>
@@ -133,8 +133,7 @@
     private string _title;
     private bool _processing;
     private bool _loadScreen;
-    List<RepeatType> Repeats = new List<RepeatType>() { RepeatType.None, RepeatType.Daily, RepeatType.Weekly };
-    List<EndType> Endtypes = new List<EndType>() { EndType.Until, EndType.Count };
+
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
@@ -157,9 +156,9 @@
 
                 Appointment = Mapper.Map<AppointmentDto>(res.Data);
                 _patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
-                Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId).Name;
-                Appointment.PatientName = _patient.FullName;
-                Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId).Name;
+                Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId)!.Name;
+                Appointment.PatientName = _patient!.FullName;
+                Appointment.Location = ClinicSites.FirstOrDefault(x => x.Id == Appointment.ClinicSiteId)!.Name;
             }
         }
 
@@ -167,15 +166,8 @@
 
     }
 
-    private void ChangePatient(PatientListDto patient)
-    {
-        if (patient != null)
-        {
-            Appointment.PatientId = patient.Id;
-            Appointment.PatientName = patient.FullName;
-        }
 
-    }
+
 
     private async Task GetAppointmentTypes()
     {
@@ -208,6 +200,13 @@
             return;
 
         }
+        if (Appointment.ClinicSiteId == 0)
+        {
+            _error = "Please select Site";
+            Snackbar.FailMessge("Please select site");
+            _processing = false;
+            return;
+        }
         if (Appointment.HcpId == Guid.Empty)
         {
             _error = "Please select Health care professional";
@@ -224,14 +223,29 @@
                 Snackbar.SuccessMessge(res.Messages.First());
                 MudDialog.Close();
             }
+            else
+            {
+                _error = res.Messages.First();
+                Snackbar.FailMessge(res.Messages.First());
+
+            }
             await _validationsRef.ClearAll();
         }
 
         _processing = false;
     }
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
+    {
+        var patient = args.ItemData;
+        if (patient != null)
+        {
+            Appointment.PatientId = patient.Id;
+            Appointment.PatientName = patient.FullName;
+        }
+    }
     Task OnClinicStieChanged(ChangeEventArgs<int, ClinicSiteDto> args)
     {
-        var clinicSite = ClinicSites.FirstOrDefault(x => x.Id == args.Value);
+        var clinicSite = args.ItemData;
         Appointment.ClinicSiteId = clinicSite.Id;
         Appointment.Location = clinicSite.Name;
         return Task.CompletedTask;
@@ -257,11 +271,6 @@
         }
 
     }
-    void HandleRecurrenceEditorChange(string value)
-    {
-        Appointment.RecurrenceRule = value;
-    }
-
 
     private async Task DeleteAppointment(int id)
     {
@@ -270,15 +279,13 @@
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
-            var res = await UnitOfWork.Appointment.DeleteAppointment(id);
-            if (res.Succeeded)
-            {
-                MudDialog.Close();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            await UnitOfWork.Appointment.DeleteAppointment(id);
+            MudDialog.Close();
         }
+    }
+    private void OnChange(ChangedEventArgs<DateTime> args)
+    {
+        Appointment.StartTime = args.Value;
+        StateHasChanged();
     }
 }

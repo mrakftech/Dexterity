@@ -3,6 +3,8 @@
 @using Services.Features.Settings.Dtos
 @using Services.State
 @using Shared.Helper
+@using Dexterity.Components.Pages.UserManager.Components
+@using Dexterity.Components.Pages.UserManager.Components.Form
 @if (!_loadScreen)
 {
     <MudDialog>
@@ -12,148 +14,36 @@
         <DialogContent>
             <EditForm Model="UserDto">
                 <Validations @ref="@ValidationsRef" Model="@UserDto" Mode="ValidationMode.Manual">
-                    <MudItem md="12">
-                        <MudStack Row="true" Justify="MudJustify.FlexStart">
-                            <MudItem md="4">
-                                <DexTextInputField Label="First Name" @bind-FieldDataSource="@UserDto.FirstName"/>
-                            </MudItem>
-                            <MudItem md="4">
-                                <DexTextInputField Label="Last Name" @bind-FieldDataSource="@UserDto.LastName"/>
-                            </MudItem>
-                            <MudItem md="4">
-                                <DexTextInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserDto.Email"/>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem Class="mt-3" md="12">
-                        <MudStack Row="true" Justify="MudJustify.FlexStart">
-                            <MudItem md="5">
-                                <DexTextInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserDto.Phone"/>
-                            </MudItem>
-                            <MudItem md="7">
-                                <DexTextInputField Label="MCN" @bind-FieldDataSource="@UserDto.Mcn"/>
-                            </MudItem>
+                    <Tabs SelectedTab="@selectedTab">
+                        <Items>
+                            <Tab Name="basic">Basic Information</Tab>
+                            <Tab Name="available">Availability</Tab>
+                            <Tab Name="clinic">Clinic</Tab>
+                        </Items>
+                        <Content>
+                            <TabPanel Name="basic">
+                                <BasicInfo UserId="UserId" UserDto="UserDto"></BasicInfo>
+                            </TabPanel>
+                            <TabPanel Name="available">
+                                <AvailabilityTab UserDto="UserDto"></AvailabilityTab>
+                            </TabPanel>
+                            <TabPanel Name="clinic">
+                                @if (UserId != Guid.Empty)
+                                {
+                                    <UserClinicTab UserId="UserId" />
+                                }
+                                else
+                                {
+                                    <MudText Color="MudColor.Dark">Please save the user first.</MudText>
+                                }
 
-                        </MudStack>
-                    </MudItem>
-                    <MudItem Class="mt-3">
-                        <MudStack Row="true">
-                            <MudItem md="5">
-                                <Field>
-                                    <FieldLabel>User type</FieldLabel>
-                                    <Select @bind-SelectedValue="@UserDto.UserType" TValue="string">
-                                        @foreach (var item in UserTypeConstants.UserTypes)
-                                        {
-                                            <SelectItem Value="@(item)">@item</SelectItem>
-                                        }
-                                    </Select>
-                                </Field>
+                            </TabPanel>
 
-                            </MudItem>
-                            <MudItem md="7">
-                                <Field>
-                                    <FieldLabel>Roles</FieldLabel>
-                                    <Select @bind-SelectedValue="@UserDto.RoleId" TValue="Guid">
-                                        <SelectItem Value="@(Guid.Empty)">Select Role</SelectItem>
-
-                                        @foreach (var item in Roles)
-                                        {
-                                            <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
-                                        }
-                                    </Select>
-                                </Field>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack>
-                            <MudItem md="12">
-                                <Field>
-                                    <FieldLabel>Reset Password</FieldLabel>
-                                    <Select @bind-SelectedValue="@UserDto.ResetPassword">
-                                        @foreach (var item in ResetPasswordDurations)
-                                        {
-                                            <SelectItem Value="@(item)">@item</SelectItem>
-                                        }
-                                    </Select>
-                                </Field>
-                            </MudItem>
-                            <MudItem>
-                                <MudStack Row="true">
-                                    <MudItem>
-                                        <MudStack Row>
-                                            <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserDto.IsActive"></MudCheckBox>
-                                            <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserDto.IsUpdatePassword"></MudCheckBox>
-                                            <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserDto.IsForceReset"></MudCheckBox>
-                                        </MudStack>
-                                    </MudItem>
-                                </MudStack>
-                            </MudItem>
-                            <MudText Typo="Typo.h6">Login Information:</MudText>
-                            <MudItem>
-                                <MudStack Row="true">
-                                    <MudItem>
-                                        <DexTextInputField Label="Username" @bind-FieldDataSource="@UserDto.Username"/>
-                                    </MudItem>
-                                    @if (UserId == Guid.Empty)
-                                    {
-                                        <MudItem>
-                                            <DexTextInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserDto.Password"/>
-                                        </MudItem>
-                                    }
-                                </MudStack>
-                            </MudItem>
-                            <MudItem>
-
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem>
-
-
-                    </MudItem>
+                        </Content>
+                    </Tabs>
                 </Validations>
             </EditForm>
-            <MudItem>
-                @if (UserId != Guid.Empty)
-                {
-                    <MudStack Row>
-                        <MudItem md="4">
-                            <MudStack>
-                                <MudItem>
-                                    <MudStack >
-                                        <Select TValue="int" @bind-SelectedValue="@_clinicId">
-                                            <SelectItem Value="0">Select Clinic</SelectItem>
-                                            @foreach (var item in ClinicList)
-                                            {
-                                                <SelectItem Value="@item.Id">@item.Name - @item.Address</SelectItem>
-                                            }
-                                        </Select>
-                                        <DexLoadingButton Name="Add Clinic" Processing="_processing" Click="AddUserClinic"></DexLoadingButton>
-                                    </MudStack>
-                                </MudItem>
-                            </MudStack>
-                        </MudItem>
-                        <MudItem md="8">
-                            <MudDataGrid Items="@UserClinicList" Dense="true" Bordered="true" T="UserClinic" Style="margin-bottom: 30px">
-                                <ToolBarContent>
-                                    <MudText Typo="Typo.h6" Class="text-bold">Clinics</MudText>
-                                </ToolBarContent>
-                                <Columns>
-                                    <PropertyColumn Property="x => x.Clinic.Name" Title="Name"/>
-                                    <PropertyColumn Property="x => x.Clinic.Address" Title="Branch"/>
-                                    <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
-                                        <CellTemplate>
-                                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(context.Item.Id)"/>
-                                        </CellTemplate>
-                                    </TemplateColumn>
-                                </Columns>
-                            </MudDataGrid>
-                        </MudItem>
-                    </MudStack>
-                }
 
-            </MudItem>
         </DialogContent>
         <DialogActions>
             <DexLoadingButton Name="Save User" Processing="_processing" Click="SaveUser" Icon="fas fa-floppy-disk"></DexLoadingButton>
@@ -162,66 +52,36 @@
 }
 else
 {
-    <CommonLoader/>
+    <CommonLoader />
 }
 
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid UserId { get; set; } = Guid.Empty;
-
-    private List<ClinicDto> ClinicList { get; set; } = new();
-    private List<UserClinic> UserClinicList { get; set; } = new();
-    private List<RoleResponseDto> Roles { get; set; } = new();
-    private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
     private CreateUserDto UserDto { get; set; } = new();
     Validations ValidationsRef { get; set; }
     private bool _processing;
     private bool _loadScreen;
     private string _title = "";
-    private int _clinicId = 0;
-
+    string selectedTab = "basic";
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
+        _title = UserId != Guid.Empty ? "Edit User" : "New User";
         await GetEditUser();
-        await GetRoles();
-        await GetClinics();
         _loadScreen = false;
     }
-
     private async Task GetEditUser()
     {
         if (UserId != Guid.Empty)
         {
-            _title = "Edit User";
             var user = await UnitOfWork.User.GetUser(UserId);
             var data = Mapper.Map<CreateUserDto>(user);
             data.ResetPassword = Method.GetPasswordResetIn(user.ResetPasswordAt);
             UserDto = data;
-            await GetUserClinics();
-        }
-        else
-        {
-            _title = "New User";
         }
     }
-
-    private async Task GetUserClinics()
-    {
-        UserClinicList = await UnitOfWork.User.GetUserClinics(UserId);
-    }
-
-    private async Task GetClinics()
-    {
-        ClinicList = await UnitOfWork.Setting.GetClinics();
-    }
-
-    private async Task GetRoles()
-    {
-        Roles = await UnitOfWork.User.GetRoles();
-    }
-
     private async Task SaveUser()
     {
         _processing = true;
@@ -242,6 +102,13 @@ else
 
                 return;
             }
+            if (UserDto.WorkingDays == null)
+            {
+                Snackbar.FailMessge("Please select Working days.");
+                _processing = false;
+                return;
+            }
+
 
             await Task.Delay(2000);
             var res = await UnitOfWork.User.SaveUser(UserId, UserDto);
@@ -259,50 +126,5 @@ else
         _processing = false;
     }
 
-    private async Task AddUserClinic()
-    {
-        _processing = true;
-
-        if (_clinicId > 0)
-        {
-            var clinic = new UserClinic()
-            {
-                ClinicId = _clinicId,
-                UserId = UserId
-            };
-            var res = await UnitOfWork.User.SaveUserClinic(0, clinic);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge("Clinic added.");
-                await GetUserClinics();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-                
-            }
-        }
-        else
-        {
-            Snackbar.FailMessge("Please clinic");
-        }
-
-        _processing = false;
-    }
-
-    private async Task DeleteUserClinic(int id)
-    {
-        var parameters = new DialogParameters();
-        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
-        var result = await dialogresult.Result;
-        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
-        {
-            var userRes = await UnitOfWork.User.DeleteClinic(id);
-            var user = UserClinicList.FirstOrDefault(x => x.Id == id);
-            UserClinicList.Remove(user);
-            StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
-        }
-    }
 
 }

@@ -8,5 +8,8 @@ public class LoginResponseDto
     public bool IsForceReset { get; set; }
 
     public int ClinicId { get; set; }
+    public List<int> WorkingDays { get; set; }
+    public TimeSpan StartHour { get; set; }
+    public TimeSpan EndHour { get; set; }
 
 }

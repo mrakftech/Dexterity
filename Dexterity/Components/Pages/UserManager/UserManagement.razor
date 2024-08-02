@@ -2,6 +2,11 @@
 @using Dexterity.Components.Pages.UserManager.Components
 @layout MainLayout
 
+<style>
+    .tab-content{
+        width:80%;
+    }
+</style>
 <TopTitleBar Title="User Management"
              Image="modules/users.svg">
 </TopTitleBar>
@@ -22,7 +27,7 @@
                 </MudNavMenu>
             </MudDrawer>
             <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab" Style="width: 100%">
+                <Tabs SelectedTab="@_selectedTab" >
                     <Content>
                         <TabPanel Name="users">
                             <UserList/>

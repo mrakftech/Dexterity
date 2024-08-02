@@ -10,5 +10,7 @@ public class AppointmentProfile : Profile
     {
         CreateMap<Appointment, AppointmentDto>()
             .ReverseMap();
+        CreateMap<Appointment, SearchAppointmentDto>()
+          .ReverseMap();
     }
 }

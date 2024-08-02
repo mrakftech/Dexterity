@@ -1,21 +1,14 @@
 ﻿@using global::Services.Features.PatientManagement.Dtos
 <MudItem xs="12" sm="6" md="12">
     <FieldLabel>Patients</FieldLabel>
-    <Autocomplete TItem="PatientListDto"
-                  TValue="PatientListDto"
-                  Data="@PatientList"
-                  TextField="@((item) => item.FullName)"
-                  ValueField="@((item) => item)"
-                  Placeholder="Search..."
-                  Filter="AutocompleteFilter.StartsWith"
-                  FreeTyping
-                  SelectedValueChanged="OnChangePatient"
-                  CustomFilter="@((item, searchValue) => item.FullName.IndexOf(searchValue, 0, StringComparison.CurrentCultureIgnoreCase) >= 0)">
-        <NotFoundContent> Sorry... @context was not found. </NotFoundContent>
-    </Autocomplete>
+    <SfAutoComplete TValue="Guid" TItem="PatientListDto" Placeholder="Select a pateint" DataSource="@PatientList">
+        <AutoCompleteFieldSettings Value="Id" Text="FullName"></AutoCompleteFieldSettings>
+        <AutoCompleteEvents TValue="Guid" TItem="PatientListDto" ValueChange="OnChangePatient"></AutoCompleteEvents>
+    </SfAutoComplete>
 </MudItem>
 
 @code {
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
-    [Parameter] public EventCallback<PatientListDto> OnChangePatient { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs<Guid, PatientListDto>> OnChangePatient { get; set; }
+
 }

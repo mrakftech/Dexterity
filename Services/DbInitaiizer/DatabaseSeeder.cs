@@ -108,7 +108,7 @@ public class DatabaseSeeder(
                 {
                     var userClinic = new UserClinic()
                     {
-                        ClinicId = 1,
+                        ClinicId = 10000,
                         UserId = item.Id
                     };
                     await context.UserClinics.AddAsync(userClinic);
@@ -138,6 +138,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.FirstName, x => x.Person.FirstName)
                     .RuleFor(x => x.LastName, x => x.Person.LastName)
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
+                    .RuleFor(x => x.DateOfBirth, x => x.Date.Between(new DateTime(1994, 1, 1), new DateTime(2025, 1, 1)))
                     .RuleFor(x => x.Gender, x => x.Person.Gender.ToString())
                     .RuleFor(x => x.AddressLine1, x => x.Address.FullAddress())
                     .RuleFor(x => x.Mobile, x => util.Format(num, PhoneNumberFormat.E164))
@@ -145,7 +146,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.ClinicId, clinicId)
                     .RuleFor(x => x.HealthCareProfessionalId, hcpId)
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
-                var patients = fakePatients.Generate(50);
+                var patients = fakePatients.Generate(100);
                 await context.Patients.AddRangeAsync(patients);
                 await context.SaveChangesAsync();
             }
@@ -246,7 +247,11 @@ public class DatabaseSeeder(
                     Ban = "00000000",
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
-                    RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id
+                    RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
+                    WorkingDays=new List<int>{1,2,3},
+                    StartHour=new TimeSpan(9, 0, 0),
+                    EndHour=new TimeSpan(17, 0, 0)
+
                 },
                 new()
                 {
@@ -260,6 +265,9 @@ public class DatabaseSeeder(
                     Ban = "00000000",
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
+                      WorkingDays=new List<int>{1,2,3},
+                    StartHour=new TimeSpan(9, 0, 0),
+                    EndHour=new TimeSpan(17, 0, 0),
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.UserRole)!.Id
                 },
             };

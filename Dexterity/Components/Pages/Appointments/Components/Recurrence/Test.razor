@@ -1,0 +1,88 @@
+﻿@using Services.Features.Appointments.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Schedule
+@using System.Globalization
+
+
+<MudStack>
+    <MudItem md="6">
+        <SfDatePicker TValue="DateTime" @bind-Value="@DateValue" Min="DateValue"></SfDatePicker>
+    </MudItem>
+    <MudItem md="6">
+        <Label>HCP:</Label>
+        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@HcpId">
+            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+        </SfDropDownList>
+    </MudItem>
+    <MudItem>
+        <DexSimpleButton Name="Find" Click="FindSlot" FullWidth="false"></DexSimpleButton>
+    </MudItem>
+</MudStack>
+
+<div class="recurrence-editor-wrap">
+    <div style="padding-bottom: 15px;">
+        <label id="rule-label">Date Collections</label>
+        <div class="rule-output-container">
+            <div id="rule-output">
+                @foreach (var item in _slots)
+                {
+                    <div>@item.StartTime.ToString("ddd MMM dd yyyy HH:mm:ss 'GMT'zzz ('India Standard Time')", CultureInfo.InvariantCulture)</div>
+                }
+            </div>
+
+        </div>
+    </div>
+    <div style="display:none">
+        <SfRecurrenceEditor @ref="RecurrenceEditorRef"></SfRecurrenceEditor>
+    </div>
+</div>
+
+@code {
+    private SfRecurrenceEditor RecurrenceEditorRef;
+    public List<DateTime> RecurrenceDates = new List<DateTime>();
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = [];
+    private Guid HcpId { get; set; }
+    private DateTime DateValue { get; set; } = DateTime.Now;
+    private List<AppointmentSlotDto> _slots = new();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await GetRecurrenceDates();
+        }
+    }
+
+    private async Task GetRecurrenceDates()
+    {
+        List<DateTime> dates = RecurrenceEditorRef.GetRecurrenceDates(new DateTime(2023, 7, 7, 10, 0, 0), "FREQ=DAILY;INTERVAL=1", "", 6);
+        RecurrenceDates = dates.ToList();
+        StateHasChanged();
+    }
+    private async Task FindSlot()
+    {
+        Snackbar.SuccessMessge("Testing");
+        _slots = await UnitOfWork.Appointment.GetFreeSlots(DateValue, DateValue.AddMinutes(15), HcpId);
+    }
+}
+
+<style>
+    .recurrence-editor-wrap {
+        margin: 0 25%;
+    }
+
+    .rule-output-container {
+        height: auto;
+        border: 1px solid #969696;
+    }
+
+    #rule-output {
+        padding: 8px 4px;
+        text-align: center;
+        min-height: 20px;
+        overflow: hidden;
+        overflow-wrap: break-word;
+    }
+</style>

@@ -13,16 +13,16 @@
                 <Editor></Editor>
                 <Toolbar>
                     <RichTextEditToolbarGroup>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold"/>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic"/>
+                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
+                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
                         <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
-                            <RichTextEditToolbarSelectItem Value="small"/>
-                            <RichTextEditToolbarSelectItem Selected/>
-                            <RichTextEditToolbarSelectItem Value="large"/>
+                            <RichTextEditToolbarSelectItem Value="small" />
+                            <RichTextEditToolbarSelectItem Selected />
+                            <RichTextEditToolbarSelectItem Value="large" />
                             <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
                         </RichTextEditToolbarSelect>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered"/>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet"/>
+                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
+                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
                     </RichTextEditToolbarGroup>
                 </Toolbar>
             </RichTextEdit>
@@ -37,7 +37,7 @@
             <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
                 @if (_processing)
                 {
-                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
                     <MudText Class="ms-2 white-color">Processing</MudText>
                 }
                 else
@@ -58,11 +58,12 @@
     private bool _processing;
     protected RichTextEdit richTextEditRef;
 
-    private void ChangePatient(PatientListDto obj)
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
-        if (obj.Id != Guid.Empty)
+        var patient = args.ItemData;
+        if (patient != null)
         {
-            _mailRequest.To = obj.EmailAddress;
+            _mailRequest.To = patient.EmailAddress;
         }
     }
 

@@ -1,5 +1,117 @@
-﻿<h3>BasicInfo</h3>
+﻿@using Shared.Helper
+@using Services.Features.UserAccounts.Dtos.User
+<MudItem md="12" Style="margin-top:5%">
+    <MudStack Row="true" Justify="MudJustify.FlexStart">
+        <MudItem md="4">
+            <DexTextInputField Label="First Name" @bind-FieldDataSource="@UserDto.FirstName"/>
+        </MudItem>
+        <MudItem md="4">
+            <DexTextInputField Label="Last Name" @bind-FieldDataSource="@UserDto.LastName"/>
+        </MudItem>
+        <MudItem md="4">
+            <DexTextInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserDto.Email"/>
+        </MudItem>
+    </MudStack>
+</MudItem>
+<MudItem Class="mt-3" md="12">
+    <MudStack Row="true" Justify="MudJustify.FlexStart">
+        <MudItem md="5">
+            <DexTextInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserDto.Phone"/>
+        </MudItem>
+        <MudItem md="7">
+            <DexTextInputField Label="MCN" @bind-FieldDataSource="@UserDto.Mcn"/>
+        </MudItem>
+
+    </MudStack>
+</MudItem>
+<MudItem Class="mt-3">
+    <MudStack Row="true">
+        <MudItem md="5">
+            <Field>
+                <FieldLabel>User type</FieldLabel>
+                <Select @bind-SelectedValue="@UserDto.UserType" TValue="string">
+                    @foreach (var item in UserTypeConstants.UserTypes)
+                    {
+                        <SelectItem Value="@(item)">@item</SelectItem>
+                    }
+                </Select>
+            </Field>
+
+        </MudItem>
+        <MudItem md="7">
+            <Field>
+                <FieldLabel>Roles</FieldLabel>
+                <Select @bind-SelectedValue="@UserDto.RoleId" TValue="Guid">
+                    <SelectItem Value="@(Guid.Empty)">Select Role</SelectItem>
+
+                    @foreach (var item in Roles)
+                    {
+                        <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
+                    }
+                </Select>
+            </Field>
+        </MudItem>
+    </MudStack>
+</MudItem>
+<MudItem>
+    <MudStack>
+        <MudItem md="12">
+            <Field>
+                <FieldLabel>Reset Password</FieldLabel>
+                <Select @bind-SelectedValue="@UserDto.ResetPassword">
+                    @foreach (var item in ResetPasswordDurations)
+                    {
+                        <SelectItem Value="@(item)">@item</SelectItem>
+                    }
+                </Select>
+            </Field>
+        </MudItem>
+        <MudItem>
+            <MudStack Row="true">
+                <MudItem>
+                    <MudStack Row>
+                        <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserDto.IsActive"></MudCheckBox>
+                        <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserDto.IsUpdatePassword"></MudCheckBox>
+                        <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserDto.IsForceReset"></MudCheckBox>
+                    </MudStack>
+                </MudItem>
+            </MudStack>
+        </MudItem>
+        <MudText Typo="Typo.h6">Login Information:</MudText>
+        <MudItem>
+            <MudStack Row="true">
+                <MudItem>
+                    <DexTextInputField Label="Username" @bind-FieldDataSource="@UserDto.Username"/>
+                </MudItem>
+                @if (UserId == Guid.Empty)
+                {
+                    <MudItem>
+                        <DexTextInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserDto.Password"/>
+                    </MudItem>
+                }
+            </MudStack>
+        </MudItem>
+        <MudItem>
+
+        </MudItem>
+    </MudStack>
+</MudItem>
 
 @code {
-    
+    [Parameter] public Guid UserId { get; set; } = Guid.Empty;
+    [Parameter] public CreateUserDto UserDto { get; set; } = new();
+    private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
+    private List<RoleResponseDto> Roles { get; set; } = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetRoles();
+    }
+
+  
+
+    private async Task GetRoles()
+    {
+        Roles = await UnitOfWork.User.GetRoles();
+    }
+
 }

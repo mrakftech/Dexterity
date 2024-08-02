@@ -52,6 +52,10 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public Role Role { get; set; }
     public Guid RoleId { get; set; }
 
+    public TimeSpan StartHour { get; set; }
+    public TimeSpan EndHour { get; set; }
+    public List<int> WorkingDays { get; set; }
+
 
     public virtual ICollection<UserClinic> UserClinics { get; set; }
     public virtual ICollection<Patient> Patients { get; set; }

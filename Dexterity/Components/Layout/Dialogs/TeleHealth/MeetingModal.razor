@@ -143,11 +143,12 @@
         PatientList = await UnitOfWork.Patient.GetPatients();
     }
 
-    private void ChangePatient(PatientListDto obj)
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
-        if (obj.Id != Guid.Empty)
+        var patient = args.ItemData;
+        if (patient != null)
         {
-            _mailRequest.To = obj.EmailAddress;
+            _mailRequest.To = patient.EmailAddress;
         }
     }
 

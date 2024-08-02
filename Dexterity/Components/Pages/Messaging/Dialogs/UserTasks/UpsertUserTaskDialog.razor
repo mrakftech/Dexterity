@@ -183,14 +183,17 @@
         _processing = false;
     }
 
-    private void ChangePatient(PatientListDto obj)
+  
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
-        if (obj.Id != Guid.Empty)
+        var patient = args.ItemData;
+        if (patient != null)
         {
-            _userTask.Subject = obj.FullName;
-            _userTask.PatientId = obj.Id;
+            _userTask.Subject = patient.FullName;
+            _userTask.PatientId = patient.Id;
         }
     }
+ 
 
     private async Task GetPatients()
     {

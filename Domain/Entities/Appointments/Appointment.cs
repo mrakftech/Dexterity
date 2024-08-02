@@ -16,7 +16,7 @@ public class Appointment : IBaseActionBy, IBaseActionOn
     public bool IsAllDay { get; set; }
     public string RecurrenceRule { get; set; }
     public string RecurrenceException { get; set; }
-    public Nullable<int> RecurrenceID { get; set; }
+    public int? RecurrenceID { get; set; }
     public string Status { get; set; }
 
     public int Duration { get; set; }

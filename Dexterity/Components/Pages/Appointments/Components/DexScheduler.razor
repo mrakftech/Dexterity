@@ -3,6 +3,7 @@
 @using Services.Features.Appointments.Service
 @using Services.Features.PatientManagement.Dtos
 @using Services.Features.UserAccounts.Dtos.User
+@using Services.State
 @using Shared.Constants.Module
 @using Syncfusion.Blazor.Calendars
 @using Syncfusion.Blazor.Data
@@ -16,31 +17,30 @@
     <MudItem Class="mt-3">
         <MudStack Row>
             <MudItem md="3">
-                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@AppointmentStatusList" @bind-Value="@StatusValue">
+                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@AppointmentStatusList" @bind-Value="@StatusSearchValue">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="3">
-                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@HcpValue">
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@HcpSearchValue">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </MudItem>
             <MudItem>
-                <DexSimpleButton Click="OnSearchClick" Name="Search" />
-                <DexSimpleButton Click="OnClearClick" Name="Clear" />
-            </MudItem>
-            <MudItem>
-                <DexSimpleButton Click="RefreshAppointments" Name="Refresh" />
+                <DexSimpleButton Click="OnSearchClick" Name="Search" FullWidth="false" />
+                <DexSimpleButton Click="OnClearClick" Name="Clear" FullWidth="false" />
             </MudItem>
             <MudSpacer />
             <MudItem>
+                <MudIconButton Icon="fas fa-refresh" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
                 <MudIconButton Icon="fas fa-print" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
             </MudItem>
         </MudStack>
     </MudItem>
     <MudItem md="12" Style="@(ShowSchedule ? string.Empty : "display:none")">
-        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@CurrentDate" AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" AllowResizing=false>
-            <ScheduleGroup EnableCompactView="false" Resources="@groupData"></ScheduleGroup>
+        <SfSchedule @ref="ScheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@SelectedDate"
+                    AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" WorkDays="@workingDays">
+
             <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting AllowAdding EnableTooltip>
                 <SfDataManager AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
                 </SfDataManager>
@@ -48,16 +48,16 @@
             <ScheduleResources>
                 <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId" Title="Name" Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true"></ScheduleResource>
             </ScheduleResources>
-            <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="@PopupOpen" OnActionBegin="OnActionBegin"></ScheduleEvents>
+            <ScheduleWorkHours Highlight="true" Start="11:00" End="20:00"></ScheduleWorkHours>
+            <ScheduleGroup EnableCompactView="false" Resources="@groupData"></ScheduleGroup>
             <ScheduleViews>
-                <ScheduleView MaxEventsPerRow="1" Option="View.Day">
-                </ScheduleView>
-                <ScheduleView MaxEventsPerRow="1" Option="View.WorkWeek"></ScheduleView>
+                <ScheduleView Option="View.Day"></ScheduleView>
+                <ScheduleView Option="View.WorkWeek"></ScheduleView>
             </ScheduleViews>
             <ScheduleTemplates>
                 <ResourceHeaderTemplate>
                     @{
-                        var airlineData = (context as TemplateContext).ResourceData as HealthcareDto;
+                        var airlineData = context.ResourceData as HealthcareDto;
                         <div class='template-wrap'>
                             <div class="airline-details">
                                 <div class="airline-name">@(airlineData.Name)</div>
@@ -106,7 +106,7 @@
                     </div>
                 </FooterTemplate>
             </ScheduleQuickInfoTemplates>
-
+            <ScheduleEvents TValue="AppointmentDto" OnPopupOpen="PopupOpen"></ScheduleEvents>
         </SfSchedule>
 
     </MudItem>
@@ -131,13 +131,20 @@
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     private List<AppointmentDto> DataSource = new();
     private List<AppointmentDto> gridDataSource = new();
-    private string[] groupData = new string[] { "Healthcares" };
     SfSchedule<AppointmentDto> ScheduleRef;
-    DateTime CurrentDate = DateTime.Now;
+
+    private string[] groupData = new string[] { "Healthcares" };
     private bool ShowSchedule { get; set; } = true;
-    private string Action;
-    private string StatusValue;
-    private Guid HcpValue;
+
+    DateTime SelectedDate { get; set; } = DateTime.Now;
+
+    #region Working Hours
+    private int[] workingDays = ApplicationState.CurrentUser.WorkingDays.ToArray();
+    private string startWorkingHours = ApplicationState.CurrentUser.StartHour.ToString();
+    private string endWorkingHours = ApplicationState.CurrentUser.EndHour.ToString();
+    #endregion
+
+
 
     List<string> AppointmentStatusList = new List<string>
     {
@@ -150,26 +157,13 @@
     {
         return data.StartTime.ToString("dddd dd, MMMM yyyy", CultureInfo.InvariantCulture) + " (" + data.StartTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "-" + data.EndTime.ToString("hh:mm tt", CultureInfo.InvariantCulture) + ")";
     }
-    public async Task OnActionBegin(Syncfusion.Blazor.Schedule.ActionEventArgs<AppointmentDto> args)
-    {
-        bool availability = true;
-        if (args.ActionType == ActionType.EventCreate || args.ActionType == ActionType.EventChange)
-        {
-            var records = args.AddedRecords ?? args.ChangedRecords;
-            if (records == null)
-            {
-                return;
-            }
-            availability = await ScheduleRef.IsSlotAvailableAsync(records.First());
-        }
-        args.Cancel = !availability;
-    }
+
     private async Task PopupOpen(PopupOpenEventArgs<AppointmentDto> args)
     {
         if (args.Type == PopupType.Editor)
         {
             args.Cancel = true; //to prevent the default editor window
-            Action = args.Data.Id == 0 ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
+            var action = args.Data.Id == 0 ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
             var parameters = new DialogParameters();
             parameters.Add("StartDate", args.Data.StartTime);
             parameters.Add("PatientList", PatientList);
@@ -177,7 +171,7 @@
             var options = new MudBlazor.DialogOptions()
                 { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
 
-            if (Action == "CellClick")
+            if (action == "CellClick")
             {
                 parameters.Add("HcpId", args.Data.HcpId);
                 var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
@@ -205,13 +199,10 @@
 
 
     }
-
-
     private async Task RefreshAppointments()
     {
         await ScheduleRef.RefreshAsync();
     }
-
     private async Task CellClicked(DateTime dateTime)
     {
         var parameters = new DialogParameters();
@@ -225,27 +216,28 @@
         {
             await ScheduleRef.RefreshAsync();
         }
-
     }
-
     private async Task OnCloseClick(MouseEventArgs args, AppointmentDto data)
     {
         await ScheduleRef.CloseQuickInfoPopupAsync();
     }
 
+    #region Search Appointments
+    private string StatusSearchValue;
+    private Guid HcpSearchValue;
     public async Task OnSearchClick()
     {
-        var hcp = HcpValue.ToString();
+        var hcp = HcpSearchValue.ToString();
         DateTime? startDate = null;
         DateTime? endDate = null;
         List<WhereFilter> searchObj = new List<WhereFilter>();
-        if (!string.IsNullOrEmpty(StatusValue))
+        if (!string.IsNullOrEmpty(StatusSearchValue))
         {
-            searchObj.Add(new WhereFilter() { Field = "Status", Operator = "equal", value = StatusValue, Condition = "or", IgnoreCase = true });
+            searchObj.Add(new WhereFilter() { Field = "Status", Operator = "equal", value = StatusSearchValue, Condition = "or", IgnoreCase = true });
         }
-        if (HcpValue != Guid.Empty)
+        if (HcpSearchValue != Guid.Empty)
         {
-            searchObj.Add(new WhereFilter() { Field = "HcpId", Operator = "equal", value = HcpValue, Condition = "or", IgnoreCase = true });
+            searchObj.Add(new WhereFilter() { Field = "HcpId", Operator = "equal", value = HcpSearchValue, Condition = "or", IgnoreCase = true });
         }
         if (searchObj.Count > 0)
         {
@@ -264,13 +256,13 @@
     public void OnClearClick()
     {
         ShowSchedule = true;
-        StatusValue = string.Empty;
+        StatusSearchValue = string.Empty;
     }
-
     public async Task OnPrint()
     {
         await ScheduleRef.PrintAsync();
     }
+    #endregion
 }
 <style>
     .custom-event-editor td {

@@ -2,6 +2,8 @@
 using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.UserAccounts;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Appointments.Dtos;
 using Services.State;
@@ -18,7 +20,6 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         var appointment = await context.Appointments
             .Include(x => x.Patient)
             .Include(x => x.AppointmentType)
-            .Include(x => x.ClinicSite)
             .FirstOrDefaultAsync(x => x.Id == id);
         if (appointment == null)
             return await Result<AppointmentDto>.FailAsync("Appointment not found");
@@ -26,16 +27,26 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         return await Result<AppointmentDto>.SuccessAsync(data);
 
     }
-
+    public async Task<List<SearchAppointmentDto>> FindAppointments()
+    {
+        var data = await context.Appointments
+             .Include(x => x.Patient)
+             .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+              .AsNoTracking()
+              .ToListAsync();
+        return mapper.Map<List<SearchAppointmentDto>>(data);
+    }
     public async Task<IResult> SaveAppointment(int id, AppointmentDto request)
     {
         try
         {
             if (id == 0)
             {
+                if (await IsSlotAvaiable(request.StartTime, request.HcpId))
+                {
+                    return await Result.FailAsync("Slot already booked.");
+                }
                 var appointment = mapper.Map<Appointment>(request);
-
-
                 appointment.Id = request.Id;
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
@@ -50,7 +61,10 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             {
                 var appointment = await context.Appointments
                     .FirstOrDefaultAsync(x => x.Id == id);
-
+                if (context.Appointments.Any(x => x.StartTime == request.StartTime && x.HcpId == request.HcpId && x.Id != appointment.Id))
+                {
+                    return await Result.FailAsync("Slot already booked.");
+                }
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
 
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
@@ -105,7 +119,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             .Include(x => x.AppointmentType)
              .Where(evt => evt.StartTime >= StartDate
              && evt.EndTime <= EndDate
-             || evt.RecurrenceRule != null
+             || evt.RecurrenceRule != null && evt.ClinicId == ApplicationState.CurrentUser.ClinicId
              )
              .AsNoTracking()
              .ToListAsync();
@@ -127,34 +141,129 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
     }
 
-    public async Task<IResult> UpdateAppointment(AppointmentDto request)
+    public async Task UpdateAppointment(AppointmentDto request)
     {
-        var appointmentInDb = await context.Appointments.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
+        var appointment = await context.Appointments
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
 
-        if (appointmentInDb == null)
-            return await Result<AppointmentDto>.FailAsync("Appointment not found");
-
-        var appointment = mapper.Map<Appointment>(request);
-        appointment.EndTime = request.StartTime.AddMinutes(request.Duration); ;
-        appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
-        appointment.ModifiedDate = DateTime.Now;
-        context.ChangeTracker.Clear();
-        context.Appointments?.Update(appointment);
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("Appointment Updated");
+        if (appointment != null)
+        {
+            appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            appointment.ModifiedDate = DateTime.Now;
+            appointment.StartTime = request.StartTime;
+            appointment.EndTime = request.EndTime;
+            appointment.HcpId = request.HcpId;
+            appointment.Duration = request.Duration;
+            appointment.RecurrenceRule = request.RecurrenceRule;
+            appointment.RecurrenceException = request.RecurrenceException;
+            appointment.RecurrenceID = request.RecurrenceID;
+            context.ChangeTracker.Clear();
+            context.Appointments.Update(appointment);
+            await context.SaveChangesAsync();
+        }
 
     }
 
-    public async Task<IResult> DeleteAppointment(int appointmentId)
+    public async Task DeleteAppointment(int appointmentId)
     {
-        var appointmentInDb = await context.Appointments.FirstOrDefaultAsync(x => x.Id == appointmentId);
+        var appointmentInDb = await context.Appointments
+            .FirstOrDefaultAsync(x => x.Id == appointmentId);
 
-        if (appointmentInDb == null)
-            return await Result<AppointmentDto>.FailAsync("Appointment not found");
+        if (appointmentInDb != null)
+        {
+            context.ChangeTracker.Clear();
+            context.Appointments.Remove(appointmentInDb);
+            await context.SaveChangesAsync();
+        }
 
-        context.Appointments.Remove(appointmentInDb);
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("Appointment Deleted");
+    }
+
+    public async Task<bool> IsSlotAvaiable(DateTime date, Guid hcpId)
+    {
+        return await context.Appointments.AnyAsync(x => x.StartTime == date && x.HcpId == hcpId);
+    }
+
+    public async Task<List<AppointmentSlotDto>> GetFreeSlots(DateTime startDate, DateTime endDate, Guid hcpId)
+    {
+        var hcp = await context.Users.FirstOrDefaultAsync(x => x.Id == hcpId);
+        // Get working days and hours for the doctor
+        var workingDays = GetWorkingDays(hcp.WorkingDays);
+
+        List<AppointmentSlotDto> freeSlots = new List<AppointmentSlotDto>();
+
+
+        // Get appointments for the doctor between start and end dates
+        var appointments = GetAppointments(hcpId, startDate, endDate);
+
+        // Loop through each day between start and end dates
+        for (DateTime date = startDate; date <= endDate; date = date.AddDays(1))
+        {
+            // Check if the day is a working day
+            if (workingDays.Contains(date.DayOfWeek))
+            {
+                // Get the start and end time for the hour
+                var startTime = date.AddHours(hcp.StartHour.Hours);
+                var endTime = date.AddHours(hcp.EndHour.Hours);
+
+                // Check if there are any appointments during this hour
+                var isFree = true;
+                foreach (var appointment in appointments)
+                {
+                    if (appointment.StartTime < endTime && appointment.EndTime > startTime)
+                    {
+                        isFree = false;
+                        break;
+                    }
+                }
+
+                // If the hour is free, add it to the list of free slots
+                if (isFree)
+                {
+                    freeSlots.Add(new AppointmentSlotDto() { StartTime = startDate, EndTime = endDate, IsAvailable = true });
+                }
+            }
+        }
+
+        return freeSlots;
+    }
+
+    private List<Appointment> GetAppointments(Guid hcpId, DateTime startDate, DateTime endDate)
+    {
+        var appts = context.Appointments
+          .Where(a => a.HcpId == hcpId
+              && a.StartTime >= startDate
+              && a.EndTime <= endDate).ToList();
+        return appts;
+    }
+
+    private List<DayOfWeek> GetWorkingDays(List<int> days)
+    {
+        List<DayOfWeek> workingDays = new List<DayOfWeek>();
+
+        foreach (var day in days)
+        {
+            var workingDay = (DayOfWeek)day;
+            workingDays.Add(workingDay);
+        }
+
+        return workingDays;
+    }
+
+    public async Task<IResult> SaveAppointmentList(Appointment appointment)
+    {
+        try
+        {
+            context.ChangeTracker.Clear();
+            await context.Appointments.AddAsync(appointment);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Appointment has been scheduled");
+        }
+        catch (Exception e)
+        {
+
+            return await Result.FailAsync(e.Message);
+
+        }
 
     }
 }

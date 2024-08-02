@@ -48,11 +48,12 @@
         _processing = false;
     }
 
-    private void ChangePatient(PatientListDto obj)
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
-        if (obj.Id != Guid.Empty)
+        var patient = args.ItemData;
+        if (patient != null)
         {
-            _mobile = obj.Mobile;
+            _mobile = patient.Mobile;
         }
     }
 

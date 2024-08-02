@@ -23,5 +23,7 @@ public class UserResponseDto
     public bool IsUpdatePassword { get; set; }
     public bool IsForceReset { get; set; }
     public RoleResponseDto Role { get; set; }
-
+    public List<int> WorkingDays { get; set; }
+    public TimeSpan StartHour { get; set; }
+    public TimeSpan EndHour { get; set; }
 }

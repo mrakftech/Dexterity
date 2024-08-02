@@ -17,13 +17,13 @@ public class CreateUserDto
     [Required(ErrorMessage = "Email is Required")]
     [EmailAddress]
     public string Email { get; set; }
-    
+
     [Required]
     public Guid RoleId { get; set; }
 
     [Required(ErrorMessage = "Username is Required")]
     public string Username { get; set; }
-    
+
     [Required(ErrorMessage = "Password is Required")]
     [MinLength(6)]
     public string Password { get; set; }
@@ -48,5 +48,7 @@ public class CreateUserDto
     public bool IsUpdatePassword { get; set; }
     public bool IsForceReset { get; set; }
     public bool IsActive { get; set; } = false;
-    
+    public TimeSpan StartHour { get; set; } = new TimeSpan(9, 0, 0);
+    public TimeSpan EndHour { get; set; } = new TimeSpan(17, 0, 0);
+    public List<int> WorkingDays { get; set; }
 }

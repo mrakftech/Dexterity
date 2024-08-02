@@ -42,7 +42,11 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             UserId = userInDb.Id,
             RoleName = userInDb.Role.Name,
             IsForceReset = userInDb.IsForceReset,
-            Name = userInDb.FullName
+            Name = userInDb.FullName,
+            WorkingDays=userInDb.WorkingDays,
+            StartHour=userInDb.StartHour,
+            EndHour=userInDb.EndHour,
+
         };
         ApplicationState.CurrentUser = response;
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
@@ -105,9 +109,10 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 request.RoleId = request.RoleId;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
                 request.CreatedBy = ApplicationState.CurrentUser.UserId;
-
+                
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
+                user.WorkingDays= request.WorkingDays;
                 user.PasswordHash = hashPassword;
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
@@ -126,6 +131,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 request.ModifiedDate = DateTime.Today;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
                 userInDb = mapper.Map(request, userInDb);
+                userInDb.WorkingDays = request.WorkingDays;
                 context.Users.Update(userInDb);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("User saved");
