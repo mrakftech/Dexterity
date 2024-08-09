@@ -1,5 +1,12 @@
-﻿<MudText Style="margin: 3%" Align="Align.Center" Typo="Typo.h4" Class="text-bold">@Title</MudText>
+﻿<SfAppBar S ColorMode="AppBarColor.Light">
+    <span class="regular text-bold"> @Title</span>
+    <AppBarSpacer></AppBarSpacer>
+    @ActionButtons
+</SfAppBar>
 
 @code {
     [Parameter] public string Title { get; set; }
+    [Parameter] public string MarginTop { get; set; } = "3%";
+    [Parameter] public RenderFragment ActionButtons { get; set; }
+
 }

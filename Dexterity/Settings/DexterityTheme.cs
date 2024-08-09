@@ -128,9 +128,6 @@ namespace Dexterity.Settings
                 TableLines = "#0077B5",
                 LinesInputs = "#0077B5",
                 LinesDefault = "#0077B5",
-                
-                
-                
             },
             PaletteDark = new PaletteDark()
             {
@@ -138,6 +135,7 @@ namespace Dexterity.Settings
                 TextPrimary = "#FFF",
                 PrimaryContrastText = "#FFF",
                 Info = "#FFF",
+                Background = "#000"
             },
             Typography = DefaultTypography,
             LayoutProperties = DefaultLayoutProperties

@@ -1,0 +1,147 @@
+﻿@using Services.Features.PatientManagement.Dtos.Upsert
+@using Services.Features.UserAccounts.Dtos.User
+
+<MudDialog>
+    <DialogContent>
+        <MudItem Class="mt-2" md="12">
+            <Validations @ref="_validationsRef" Model="_patient" Mode="ValidationMode.Manual">
+                <MudStack>
+                    <MudItem>
+                        <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="6">
+                                <DexTextInputField Label="Family Name" @bind-FieldDataSource="@_patient.FamilyName"></DexTextInputField>
+                            </MudItem>
+                            <MudItem md="6">
+                                <DexTextInputField Label="First Name" @bind-FieldDataSource="@_patient.FirstName"></DexTextInputField>
+                            </MudItem>
+                          
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="6">
+                                <DexTextInputField Label="Last Name" @bind-FieldDataSource="@_patient.LastName"></DexTextInputField>
+                            </MudItem>
+                            <MudItem md="6">
+                                <Field>
+                                    <FieldLabel>Date of Birth</FieldLabel>
+                                    <FieldBody>
+                                        <DateEdit TValue="DateTime" Date="@_patient.DateOfBirth" />
+                                    </FieldBody>
+                                </Field>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="3">
+                            <FieldLabel>Gender</FieldLabel>
+                                <SfDropDownList CssClass="" TValue="PatientConstants.Gender" TItem="string" Placeholder="Gender" DataSource="@Genders" @bind-Value="@_patient.Gender">
+                                    <DropDownListTemplates TItem="string">
+                                        <ItemTemplate Context="value">
+                                            <span>@value</span>
+                                        </ItemTemplate>
+                                    </DropDownListTemplates>
+
+                                </SfDropDownList>
+                            </MudItem>
+                            <MudItem md="9">
+                                <DexTextInputField Label="Address" @bind-FieldDataSource="@_patient.AddressLine1"></DexTextInputField>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            <MudItem md="4">
+                                <DexTextInputField Label="Mobile Number" @bind-FieldDataSource="@_patient.Mobile"></DexTextInputField>
+
+                            </MudItem>
+                            <MudItem md="4">
+                                <DexTextInputField Label="Email" @bind-FieldDataSource="@_patient.EmailAddress" FieldRole="TextRole.Email"></DexTextInputField>
+                            </MudItem>
+                            <MudItem md="4">
+                                <Field >
+                                    <FieldLabel ColumnSize="ColumnSize.Is2">HCP</FieldLabel>
+                                    <FieldBody ColumnSize="ColumnSize.Is10">
+                                        <Select TValue="Guid" @bind-SelectedValue="@_patient.HcpId">
+                                            <SelectItem Value="@(Guid.Empty)">Select Doctor</SelectItem>
+                                            @foreach (var item in HealthCares)
+                                            {
+                                                <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
+                                            }
+                                        </Select>
+                                    </FieldBody>
+                                </Field>
+                            </MudItem>
+                        </MudStack>
+                    </MudItem>
+                </MudStack>
+            </Validations>
+        </MudItem>
+    </DialogContent>
+    <DialogActions>
+        <DexLoadingButton Name="Create Patient" Processing="_processing" Click="CreatePatient"></DexLoadingButton>
+    </DialogActions>
+</MudDialog>
+
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    private QuickAddPatientDto _patient { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private bool _processing;
+    Validations _validationsRef;
+    private string _error;
+    public IEnumerable<string> Genders = Enum.GetNames(typeof(PatientConstants.Gender));
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+    }
+
+    private async Task CreatePatient()
+    {
+        _processing = true;
+        if (await _validationsRef.ValidateAll())
+        {
+
+            if (string.IsNullOrWhiteSpace(_patient.Gender.ToString()))
+            {
+                _error = "Please Select Gender";
+                Snackbar.FailMessge("Please Select Gender");
+                _processing = false;
+                return;
+            }
+            if (_patient.HcpId == Guid.Empty)
+            {
+                _error = "Please Select Doctor";
+                Snackbar.FailMessge("Please Select Doctor");
+                _processing = false;
+                return;
+            }
+
+            await Task.Delay(2500);
+            var res = await UnitOfWork.Patient.QuickCreatePatient(_patient, default);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                MudDialog.Close();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+
+        _processing = false;
+    }
+
+    private async Task GetHealthCares()
+    {
+        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        HealthCares = users.Where(x => x.UserType == UserTypeConstants.Doctor).ToList();
+    }
+
+}

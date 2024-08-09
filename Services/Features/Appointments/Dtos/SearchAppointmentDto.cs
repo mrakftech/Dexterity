@@ -1,4 +1,4 @@
-﻿using Services.Features.PatientManagement.Dtos;
+﻿using Services.Features.PatientManagement.Dtos.Get;
 using System;
 using System.Collections.Generic;
 using System.Linq;

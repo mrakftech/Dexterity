@@ -1,7 +1,8 @@
 ﻿@using ClickATell.Requests
 @using Domain.Entities.Settings.Templates
-@using global::Services.Features.Messaging.Dtos.Sms
-@using global::Services.Features.PatientManagement.Dtos
+@using Services.Features.Messaging.Dtos.Sms
+@using Services.Features.PatientManagement.Dtos.Get
+
 <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send SMS</MudText>
 <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
     <MudStack>

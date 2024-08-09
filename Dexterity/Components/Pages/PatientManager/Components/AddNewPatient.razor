@@ -1,0 +1,11 @@
+﻿@using Services.Features.PatientManagement.Dtos.Upsert
+@using Dexterity.Components.Pages.PatientManager.Components.Form
+
+<TabTitle Title="Add New Patient"></TabTitle>
+<MudItem md="12">
+    <PatientDetailForm Patient="Patient"/>
+</MudItem>
+
+@code {
+    AddPatientDto Patient { get; set; } = new();
+}

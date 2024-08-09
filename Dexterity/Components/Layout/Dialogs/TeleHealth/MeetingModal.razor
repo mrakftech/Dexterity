@@ -1,7 +1,5 @@
 ﻿@using global::Services.Features.Messaging.Dtos.Sms
-@using global::Services.Features.PatientManagement.Dtos
-@using global::Services.State
-@using Shared.Helper
+
 <MudDialog>
     <TitleContent>
         Meeting
@@ -9,7 +7,7 @@
     <DialogContent>
         @if (_processing)
         {
-            <CommonLoader/>
+            <CommonLoader />
         }
         else
         {
@@ -19,19 +17,19 @@
                 {
                     <MudGrid Justify="MudJustify.FlexEnd">
                         <MudItem>
-                            <MudTooltip  Text="Invite patients">
+                            <MudTooltip Text="Invite patients">
                                 <MudIconButton Icon="fas fa-paper-plane" Color="MudColor.Primary" OnClick="ToggleOpen"></MudIconButton>
                             </MudTooltip>
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
                                 <MudPaper Outlined="true" Class="px-4 py-8">
                                     <MudStack>
                                         <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
-                                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+                                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient" />
                                             <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexTextInputField>
                                             <MudButton Disabled="@_processing" OnClick="ShareLinkToPatient" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
                                                 @if (_processing)
                                                 {
-                                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
                                                     <MudText Class="ms-2 white-color">Processing</MudText>
                                                 }
                                                 else
@@ -47,7 +45,7 @@
                             </MudPopover>
                         </MudItem>
                         <MudItem>
-                            <MudTooltip  Text="Copy Meeting Link">
+                            <MudTooltip Text="Copy Meeting Link">
                                 <MudIconButton Icon=" fas fa-copy" Color="MudColor.Primary" OnClick="CopyMeetingLink"></MudIconButton>
                             </MudTooltip>
                         </MudItem>
@@ -126,11 +124,11 @@
         {
             await Task.Delay(2500);
             var mailRequest = new MailRequest()
-            {
-                Subject = "Meeting Link",
-                Body = _meetingLink,
-                To = _mailRequest.To
-            };
+                {
+                    Subject = "Meeting Link",
+                    Body = _meetingLink,
+                    To = _mailRequest.To
+                };
             await MailService.SendAsync(mailRequest, default);
             Snackbar.SuccessMessge("Email has been sent.");
         }
@@ -148,7 +146,7 @@
         var patient = args.ItemData;
         if (patient != null)
         {
-            _mailRequest.To = patient.EmailAddress;
+            _mailRequest.To = patient.Email;
         }
     }
 

@@ -1,7 +1,7 @@
 ﻿.sub-drawer {
     background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%) !important;
     color: #ffffff !important;
-    width:200px
+    width:600px;
 }
 .vertical-space {
     margin-top: 2%!important

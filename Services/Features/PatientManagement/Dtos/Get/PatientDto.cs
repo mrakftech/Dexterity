@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Services.Features.PatientManagement.Dtos;
+namespace Services.Features.PatientManagement.Dtos.Get;
 
 public class PatientDto
 {

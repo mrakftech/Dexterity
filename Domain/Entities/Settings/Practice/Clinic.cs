@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 
@@ -12,4 +12,5 @@ public class Clinic
 
     public virtual ICollection<User> Users { get; set; }
     public virtual ICollection<Patient> Patients { get; set; }
+    public virtual ICollection<Appointment> Appointments { get; set; }
 }

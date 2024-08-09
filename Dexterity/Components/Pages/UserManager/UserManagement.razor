@@ -2,54 +2,43 @@
 @using Dexterity.Components.Pages.UserManager.Components
 @layout MainLayout
 
-<style>
-    .tab-content{
-        width:80%;
-    }
-</style>
 <TopTitleBar Title="User Management"
              Image="modules/users.svg">
 </TopTitleBar>
-<div style="margin-top: 3%">
-    <MudPaper Height="600px" Style="overflow:hidden; position:relative;">
-        <MudDrawerContainer Class="mud-height-full">
-            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
-                       OpenMiniOnHover="true">
-                <MudNavMenu>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-users" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("users"))">
-                        User Manager
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-sliders" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("permissions"))">
-                        Permission
-                    </MudNavLink>
-                </MudNavMenu>
-            </MudDrawer>
-            <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab" >
-                    <Content>
-                        <TabPanel Name="users">
-                            <UserList/>
-
-                        </TabPanel>
-                        <TabPanel Name="permissions">
-                            <Permissions/>
-                        </TabPanel>
-                    </Content>
-                </Tabs>
+<MudItem md="12" Class="vertical-space">
+    <InnerLayout>
+        <NavigationItems>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-users" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(0))">
+                User Manager
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-sliders" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(1))">
+                Permission
+            </MudNavLink>
+        </NavigationItems>
+        
+        <DexContentTabs>
+            <div class="d-flex justify-center align-center mt-lg-5">
+                <MudTabs @ref="tabs" >
+                    <MudTabPanel Text="" >
+                        <UserList/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <Permissions/>
+                    </MudTabPanel>
+                </MudTabs>
             </div>
-        </MudDrawerContainer>
-    </MudPaper>
-</div>
-
+        </DexContentTabs>
+    </InnerLayout>
+</MudItem>
 @code {
-    string _selectedTab = "users";
     private bool _open = true;
-
-    private void ClickChanged(string tabName)
+    MudTabs tabs;
+    private void ClickChanged(int tabIndex)
     {
-        _selectedTab = tabName;
+        tabs.ActivatePanel(tabIndex);
     }
+    
 
 }

@@ -30,11 +30,24 @@
 @using Dexterity.UiServices
 @using Services.Contracts.Repositroy
 @using Services.Features.Messaging.Service
-@using Heron.MudCalendar
+@using Services.State
+@using Services.Features.PatientManagement.Dtos.Get
+@using Shared.Helper
+@using Dexterity.Components.Pages.PatientManager.Components.Common
+
 @using Syncfusion.Blazor
 @using Syncfusion.Blazor.Inputs
 @using Syncfusion.Blazor.DropDowns
 @using Syncfusion.Blazor.Schedule
+@using Shared.Constants.Module
+@using Syncfusion.Blazor.Buttons
+@using Syncfusion.Blazor.DataForm
+@using Syncfusion.Blazor.Data
+@using Syncfusion.Blazor.Grids
+@using Syncfusion.Blazor.Calendars
+@using Syncfusion.Blazor.Spinner
+@using Syncfusion.Blazor.Navigations
+
 
 @inject NavigationManager NavigationManager;
 @inject SnackbarNotificationService Snackbar;

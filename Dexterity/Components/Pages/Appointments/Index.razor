@@ -1,13 +1,13 @@
 ﻿@layout MainLayout
 @page "/appointments"
-
 @using Dexterity.Components.Pages.Appointments.Components
+@using Dexterity.Components.Pages.Appointments.Components.Recurrence
 @using Dexterity.Components.Pages.Appointments.Dialogs
-@using Services.Features.PatientManagement.Dtos
+@using Services.Features.PatientManagement.Dtos.Get
 @using Services.Features.UserAccounts.Dtos.User
 @using Services.State
-@using Width = Blazorise.Width
-@using Dexterity.Components.Pages.Appointments.Components.Recurrence
+
+
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
@@ -50,7 +50,7 @@
                     </MudNavMenu>
                 </MudDrawer>
                 <div class="d-flex justify-center align-center">
-                    <Tabs SelectedTab="@_selectedTab" Width="Width.Is100">
+                    <Tabs SelectedTab="@_selectedTab" >
                         <Content>
                             <TabPanel Name="appointments">
                                 <DexScheduler HealthCares="HealthCares" PatientList="PatientList" />

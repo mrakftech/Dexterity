@@ -1,0 +1,15 @@
+﻿<SfGrid DataSource="@DataSource" Width="auto" Height="500px" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
+    <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+    <GridColumns>
+        @DexGridColumns
+    </GridColumns>
+    <SfSpinner @bind-Visible="@Loading">
+    </SfSpinner>
+</SfGrid>
+
+@code {
+    [Parameter] public IEnumerable<object> DataSource { get; set; }
+    [Parameter] public bool Loading { get; set; }
+
+    [Parameter] public RenderFragment DexGridColumns { get; set; }
+}

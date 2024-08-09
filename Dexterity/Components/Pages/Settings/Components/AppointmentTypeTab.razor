@@ -1,52 +1,39 @@
 ﻿@using Dexterity.Components.Pages.Settings.Dialogs.AppointmentManager
 @using Services.Features.Settings.Dtos
 @using Domain.Entities.Appointments
-<MudItem Style="margin-top: 3%;width: 75%">
-    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Appointment Type</MudText>
-    <MudItem md="12">
-        <MudStack Row Style="margin-top: 20px">
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentTypeModal(0)" Variant="Variant.Filled">Add  Appointment Type</MudButton>
+<TabTitle Title="Appointment Type">
+    <ActionButtons>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentTypeModal(0)" Variant="Variant.Filled">Add Appointment Type</MudButton>
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAppointmentTypeList" Variant="Variant.Filled">Load Appointment Types</MudButton>
         </MudStack>
-    </MudItem>
-    <MudDataGrid Loading="_processing" Style="margin-top: 20px" Items="AppointmentTypeList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">Appointment Types</MudText>
-            <MudSpacer />
-            <MudItem md="4">
-                <MudTextField Variant="Variant.Outlined" Margin="MudMargin.Dense" @bind-Value="_searchString"
-                              Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                              AdornmentIcon="@MudIcons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
-                </MudTextField>
-
-            </MudItem>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="x => x.Name" />
-            <PropertyColumn Property="x => x.Duration" />
-            <TemplateColumn CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudStack Row>
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="AppointmentTypeList" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(AppointmentTypeDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(AppointmentTypeDto.Duration)" HeaderText="Content" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as AppointmentTypeDto);
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
                                        Color="MudColor.Primary"
-                                       OnClick="() => UpsertAppointmentTypeModal(context.Item.Id)" />
+                                       OnClick="() => UpsertAppointmentTypeModal(item.Id)"/>
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteAppointmentType(context.Item.Id)" />
-                    </MudStack>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <NoRecordsContent>
-            <MudText>No records found.</MudText>
-        </NoRecordsContent>
-    </MudDataGrid>
-
+                                       Color="MudColor.Error" OnClick="() => DeleteAppointmentType(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
 </MudItem>
 
 @code {
 
     private List<AppointmentTypeDto> AppointmentTypeList { get; set; } = new();
-    private string _searchString;
+    
     private bool _processing;
 
     protected override async Task OnInitializedAsync()
@@ -59,14 +46,13 @@
         _processing = true;
         AppointmentTypeList = await UnitOfWork.Setting.GetAppointmentTypes();
         _processing = false;
-
     }
 
     private async Task UpsertAppointmentTypeModal(int id)
     {
         var title = id == 0 ? "New Appointment Type" : "Edit Appointment Type";
-        var parameters = new DialogParameters { { "Id", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertAppointmentTypeModal>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)

@@ -1,55 +1,39 @@
 ﻿@using Dexterity.Components.Pages.Settings.Dialogs.SmsTemplate
 @using Domain.Entities.Settings.Templates
-
-<MudItem Style="margin-top: 3%;width: 75%">
-    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> SMS Template</MudText>
-    <MudItem md="12">
-        <MudStack Row Style="margin-top: 20px">
+<TabTitle Title="SMS Template">
+    <ActionButtons>
+        <MudStack Row >
             <MudButton Color="MudColor.Primary" Size="MudSize.Small"  OnClick="() => UpsertSmsTemplateModal(Guid.Empty)" Variant="Variant.Filled">Add Sms Template</MudButton>
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetTemplates" Variant="Variant.Filled">Load Sms Templates</MudButton>
         </MudStack>
-    </MudItem>
-    <MudDataGrid Loading="_processing" Style="margin-top: 20px" Items="SmsTemplateList" Filterable="false" SortMode="@SortMode.None" Groupable="false">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6">Sms Templates</MudText>
-            <MudSpacer/>
-            <MudItem md="4">
-                <MudTextField Variant="Variant.Outlined" Margin="MudMargin.Dense" @bind-Value="_searchString"
-                              Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                              AdornmentIcon="@MudIcons.Material.Filled.Search" IconSize="MudSize.Medium" Class="mt-0">
-                </MudTextField>
-
-            </MudItem>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="x => x.Name"/>
-            <PropertyColumn Property="x => x.Content"/>
-            <TemplateColumn CellClass="d-flex justify-end">
-                <CellTemplate>
-                    <MudStack Row>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary"
-                                       OnClick="() => UpsertSmsTemplateModal(context.Item.Id)"/>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteTemplate(context.Item.Id)"/>
-                    </MudStack>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <NoRecordsContent>
-            <MudText>No records found.</MudText>
-        </NoRecordsContent>
-    </MudDataGrid>
-
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="SmsTemplateList" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(SmsTemplate.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(SmsTemplate.Content)" HeaderText="Content" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                    var template = (context as SmsTemplate);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                   Color="MudColor.Primary"
+                                   OnClick="() => UpsertSmsTemplateModal(template.Id)"/>
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                   Color="MudColor.Error" OnClick="() => DeleteTemplate(template.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
 </MudItem>
 
 @code{
 
     private List<SmsTemplate> SmsTemplateList { get; set; } = new();
-    private string _searchString;
+    
     private bool _processing;
-
-
     private async Task GetTemplates()
     {
         _processing = true;

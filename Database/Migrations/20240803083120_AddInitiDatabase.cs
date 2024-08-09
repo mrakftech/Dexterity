@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class AddInitialDatabase : Migration
+    public partial class AddInitiDatabase : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -65,7 +65,7 @@ namespace Database.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Branch = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -88,7 +88,6 @@ namespace Database.Migrations
 
             migrationBuilder.CreateTable(
                 name: "Roles",
-                schema: "Identity",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -120,8 +119,29 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Permissions",
-                schema: "Identity",
+                name: "ClinicSites",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClinicId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ClinicSites", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ClinicSites_Clinics_ClinicId",
+                        column: x => x.ClinicId,
+                        principalSchema: "Setting",
+                        principalTable: "Clinics",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "PermissionClaims",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -132,18 +152,17 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Permissions", x => x.Id);
+                    table.PrimaryKey("PK_PermissionClaims", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Permissions_Roles_RoleId",
+                        name: "FK_PermissionClaims_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "Identity",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "Users",
+                name: "Permissions",
                 schema: "Identity",
                 columns: table => new
                 {
@@ -169,21 +188,23 @@ namespace Database.Migrations
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
                     IsBlocked = table.Column<bool>(type: "bit", nullable: false),
                     RoleId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartHour = table.Column<TimeSpan>(type: "time", nullable: false),
+                    EndHour = table.Column<TimeSpan>(type: "time", nullable: false),
+                    WorkingDays = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ClinicId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Users", x => x.Id);
+                    table.PrimaryKey("PK_Permissions", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Users_Clinics_ClinicId",
+                        name: "FK_Permissions_Clinics_ClinicId",
                         column: x => x.ClinicId,
                         principalSchema: "Setting",
                         principalTable: "Clinics",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Users_Roles_RoleId",
+                        name: "FK_Permissions_Roles_RoleId",
                         column: x => x.RoleId,
-                        principalSchema: "Identity",
                         principalTable: "Roles",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -204,13 +225,22 @@ namespace Database.Migrations
                     FirstName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     LastName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    FormerFamilyName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Alias = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BirthSurname = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MotherMaidenName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DateOfBirth = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Gender = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Address = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Photo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MedicalRecordNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GmsNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     AddressLine1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Mobile = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmailAddress = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Age = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    HealthCareProfessionalId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClinicId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -223,16 +253,15 @@ namespace Database.Migrations
                         principalTable: "Clinics",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_Patients_Users_HealthCareProfessionalId",
-                        column: x => x.HealthCareProfessionalId,
+                        name: "FK_Patients_Permissions_HcpId",
+                        column: x => x.HcpId,
                         principalSchema: "Identity",
-                        principalTable: "Users",
+                        principalTable: "Permissions",
                         principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "UsersClinics",
-                schema: "Identity",
+                name: "UserClinics",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -242,19 +271,19 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_UsersClinics", x => x.Id);
+                    table.PrimaryKey("PK_UserClinics", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_UsersClinics_Clinics_ClinicId",
+                        name: "FK_UserClinics_Clinics_ClinicId",
                         column: x => x.ClinicId,
                         principalSchema: "Setting",
                         principalTable: "Clinics",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UsersClinics_Users_UserId",
+                        name: "FK_UserClinics_Permissions_UserId",
                         column: x => x.UserId,
                         principalSchema: "Identity",
-                        principalTable: "Users",
+                        principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -280,6 +309,7 @@ namespace Database.Migrations
                     CancelReasonId = table.Column<int>(type: "int", nullable: false),
                     AppointmentTypeId = table.Column<int>(type: "int", nullable: false),
                     ClinicId = table.Column<int>(type: "int", nullable: false),
+                    ClinicSiteId = table.Column<int>(type: "int", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -299,12 +329,18 @@ namespace Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
+                        name: "FK_Appointments_ClinicSites_ClinicSiteId",
+                        column: x => x.ClinicSiteId,
+                        principalSchema: "Setting",
+                        principalTable: "ClinicSites",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
                         name: "FK_Appointments_Clinics_ClinicId",
                         column: x => x.ClinicId,
                         principalSchema: "Setting",
                         principalTable: "Clinics",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Appointments_Patients_PatientId",
                         column: x => x.PatientId,
@@ -313,10 +349,10 @@ namespace Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_Appointments_Users_HcpId",
+                        name: "FK_Appointments_Permissions_HcpId",
                         column: x => x.HcpId,
                         principalSchema: "Identity",
-                        principalTable: "Users",
+                        principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -362,16 +398,16 @@ namespace Database.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserTasks_Users_AssignedById",
+                        name: "FK_UserTasks_Permissions_AssignedById",
                         column: x => x.AssignedById,
                         principalSchema: "Identity",
-                        principalTable: "Users",
+                        principalTable: "Permissions",
                         principalColumn: "Id");
                     table.ForeignKey(
-                        name: "FK_UserTasks_Users_UserId",
+                        name: "FK_UserTasks_Permissions_UserId",
                         column: x => x.UserId,
                         principalSchema: "Identity",
-                        principalTable: "Users",
+                        principalTable: "Permissions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -389,6 +425,12 @@ namespace Database.Migrations
                 column: "ClinicId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Appointments_ClinicSiteId",
+                schema: "Scheduler",
+                table: "Appointments",
+                column: "ClinicSiteId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_HcpId",
                 schema: "Scheduler",
                 table: "Appointments",
@@ -401,16 +443,33 @@ namespace Database.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ClinicSites_ClinicId",
+                schema: "Setting",
+                table: "ClinicSites",
+                column: "ClinicId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Patients_ClinicId",
                 schema: "PatientManagement",
                 table: "Patients",
                 column: "ClinicId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Patients_HealthCareProfessionalId",
+                name: "IX_Patients_HcpId",
                 schema: "PatientManagement",
                 table: "Patients",
-                column: "HealthCareProfessionalId");
+                column: "HcpId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_PermissionClaims_RoleId",
+                table: "PermissionClaims",
+                column: "RoleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Permissions_ClinicId",
+                schema: "Identity",
+                table: "Permissions",
+                column: "ClinicId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Permissions_RoleId",
@@ -419,27 +478,13 @@ namespace Database.Migrations
                 column: "RoleId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_ClinicId",
-                schema: "Identity",
-                table: "Users",
+                name: "IX_UserClinics_ClinicId",
+                table: "UserClinics",
                 column: "ClinicId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Users_RoleId",
-                schema: "Identity",
-                table: "Users",
-                column: "RoleId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersClinics_ClinicId",
-                schema: "Identity",
-                table: "UsersClinics",
-                column: "ClinicId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_UsersClinics_UserId",
-                schema: "Identity",
-                table: "UsersClinics",
+                name: "IX_UserClinics_UserId",
+                table: "UserClinics",
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
@@ -483,16 +528,14 @@ namespace Database.Migrations
                 schema: "Setting");
 
             migrationBuilder.DropTable(
-                name: "Permissions",
-                schema: "Identity");
+                name: "PermissionClaims");
 
             migrationBuilder.DropTable(
                 name: "SmsTemplates",
                 schema: "Setting");
 
             migrationBuilder.DropTable(
-                name: "UsersClinics",
-                schema: "Identity");
+                name: "UserClinics");
 
             migrationBuilder.DropTable(
                 name: "UserTasks",
@@ -503,11 +546,15 @@ namespace Database.Migrations
                 schema: "Scheduler");
 
             migrationBuilder.DropTable(
+                name: "ClinicSites",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
                 name: "Patients",
                 schema: "PatientManagement");
 
             migrationBuilder.DropTable(
-                name: "Users",
+                name: "Permissions",
                 schema: "Identity");
 
             migrationBuilder.DropTable(
@@ -515,8 +562,7 @@ namespace Database.Migrations
                 schema: "Setting");
 
             migrationBuilder.DropTable(
-                name: "Roles",
-                schema: "Identity");
+                name: "Roles");
         }
     }
 }

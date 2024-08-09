@@ -86,3 +86,12 @@
 .mud-tabs-panels {
     background-color: white !important;
 }
+
+.mud-tabs-tabbar .mud-tabs-tabbar-inner {
+    display: none !important;
+}
+
+.mud-tabs {
+    width: 90% !important;
+    margin-left: 2% !important;
+}

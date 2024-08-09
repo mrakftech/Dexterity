@@ -10,74 +10,70 @@
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
-<MudPaper Height="650px" Style="overflow:hidden; position:relative;" Class="vertical-space">
-    <MudDrawerContainer Class="mud-height-full">
-        <MudDrawer Class="sub-drawer" Style="width:230px" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
-                   OpenMiniOnHover="true">
-            <MudNavMenu>
-                <MudNavGroup Title="  Categories & Templates" Expanded="true">
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-comment-sms" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("sms-templates"))">
-                        Sms Templates
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope-open-text" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("email-templates"))">
-                        Email Templates
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-house-chimney-medical" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("clinics"))">
-                        Clinics
-                    </MudNavLink>
-                  
-                </MudNavGroup>
-                <MudNavGroup Title="Appointments">
-                    <MudItem>
-                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
-                                    @onclick="@(() => ClickChanged("appointments-types"))">
-                            Appointment Types
-                        </MudNavLink>
-                    </MudItem>
-                    <MudItem>
-                        <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-ban" IconColor="MudColor.Info"
-                                    @onclick="@(() => ClickChanged("appointments-cancellation-reason"))">
-                            Appointment Cancellation Reason
-                        </MudNavLink>
-                    </MudItem>
-                </MudNavGroup>
-            </MudNavMenu>
-        </MudDrawer>
-        <div class="d-flex justify-center align-center">
-            <Tabs SelectedTab="@_selectedTab" >
-                <Content>
-                    <TabPanel Name="sms-templates">
-                        <SmsTemplateTab/>
-                    </TabPanel>
-                    <TabPanel Name="email-templates">
-                        <EmailTemplateTab/>
-                    </TabPanel>
-                    <TabPanel Name="clinics">
-                        <ClinicTab/>
-                    </TabPanel>
-                    <TabPanel Name="appointments-types">
-                        <AppointmentTypeTab/>
-                    </TabPanel>
-                    <TabPanel Name="appointments-cancellation-reason">
-                        <AppointmentCancelReasonTab/>
-                    </TabPanel>
-                </Content>
-            </Tabs>
-        </div>
-    </MudDrawerContainer>
-</MudPaper>
+<MudItem md="12" Class="vertical-space">
+    <InnerLayout>
+        <NavigationItems>
+            <MudNavGroup Title="  Categories & Templates" Expanded="true">
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-comment-sms" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(0))">
+                    Sms Templates
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope-open-text" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(1))">
+                    Email Templates
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-house-chimney-medical" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(2))">
+                    Clinics
+                </MudNavLink>
 
+            </MudNavGroup>
+            <MudNavGroup Title="Appointments">
+                <MudItem>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged(3))">
+                        Appointment Types
+                    </MudNavLink>
+                </MudItem>
+                <MudItem>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-ban" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged(4))">
+                        Appointment Cancellation Reason
+                    </MudNavLink>
+                </MudItem>
+            </MudNavGroup>
+        </NavigationItems>
+
+        <DexContentTabs>
+                <div class="d-flex justify-center align-center mt-lg-5">
+                    <MudTabs @ref="tabs" >
+                        <MudTabPanel >
+                            <SmsTemplateTab/>
+                        </MudTabPanel>
+                        <MudTabPanel >
+                            <EmailTemplateTab/>
+                        </MudTabPanel>
+                        <MudTabPanel >
+                            <ClinicTab/>
+                        </MudTabPanel>
+                        <MudTabPanel >
+                            <AppointmentTypeTab/>
+                        </MudTabPanel>
+                        <MudTabPanel >
+                            <AppointmentCancelReasonTab/>
+                        </MudTabPanel>
+                    </MudTabs>
+                </div>
+        </DexContentTabs>
+    </InnerLayout>
+</MudItem>
 
 @code {
     private bool _open = true;
-    string _selectedTab = "sms-templates";
-
-    private void ClickChanged(string tabName)
+    MudTabs tabs;
+    private void ClickChanged(int tabIndex)
     {
-        _selectedTab = tabName;
+        tabs.ActivatePanel(tabIndex);
     }
 
 }

@@ -2,6 +2,7 @@ using Bogus;
 using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Practice;
 using Domain.Entities.UserAccounts;
@@ -30,8 +31,8 @@ public class DatabaseSeeder(
         SeedAppointmentTypes();
         SeedAppointmentCancelReasons();
 
-        SeedFakePatientData();
-        SeedFakeUserData();
+        //  SeedFakePatientData();
+        //  SeedFakeUserData();
     }
 
     private void SeedAppointmentCancelReasons()
@@ -49,10 +50,9 @@ public class DatabaseSeeder(
             };
             context.AppointmentCancellationReasons.Add(c);
             await context.SaveChangesAsync();
-
-
         }).GetAwaiter().GetResult();
     }
+
     private void SeedAppointmentTypes()
     {
         Task.Run(async () =>
@@ -69,10 +69,9 @@ public class DatabaseSeeder(
             };
             context.AppointmentTypes.Add(c);
             await context.SaveChangesAsync();
-
-
         }).GetAwaiter().GetResult();
     }
+
     private void SeedFakeUserData()
     {
         Task.Run(async () =>
@@ -113,6 +112,7 @@ public class DatabaseSeeder(
                     };
                     await context.UserClinics.AddAsync(userClinic);
                 }
+
                 await context.SaveChangesAsync();
             }
         }).GetAwaiter().GetResult();
@@ -129,22 +129,23 @@ public class DatabaseSeeder(
 
             if (!context.Patients.Any())
             {
+                var address = new PatientAddress() {AddressLine1 = "Testing London"};
                 var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic").Id;
                 var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "Admin").Id;
                 var util = PhoneNumberUtil.GetInstance();
                 var num = util.GetExampleNumber("US");
-                var types = PatientConstants.PatientTypes;
                 var fakePatients = new Faker<Patient>()
                     .RuleFor(x => x.FirstName, x => x.Person.FirstName)
                     .RuleFor(x => x.LastName, x => x.Person.LastName)
                     .RuleFor(x => x.FullName, x => x.Person.FullName)
-                    .RuleFor(x => x.DateOfBirth, x => x.Date.Between(new DateTime(1994, 1, 1), new DateTime(2025, 1, 1)))
+                    .RuleFor(x => x.DateOfBirth,
+                        x => x.Date.Between(new DateTime(1994, 1, 1), new DateTime(2025, 1, 1)))
                     .RuleFor(x => x.Gender, x => x.Person.Gender.ToString())
-                    .RuleFor(x => x.AddressLine1, x => x.Address.FullAddress())
-                    .RuleFor(x => x.Mobile, x => util.Format(num, PhoneNumberFormat.E164))
-                    .RuleFor(x => x.EmailAddress, x => x.Person.Email)
+                    .RuleFor(x => x.Address, x => address)
+                    .RuleFor(x => x.MobilePhone, x => util.Format(num, PhoneNumberFormat.E164))
+                    .RuleFor(x => x.Email, x => x.Person.Email)
                     .RuleFor(x => x.ClinicId, clinicId)
-                    .RuleFor(x => x.HealthCareProfessionalId, hcpId)
+                    .RuleFor(x => x.HcpId, hcpId)
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
                 var patients = fakePatients.Generate(100);
                 await context.Patients.AddRangeAsync(patients);
@@ -248,10 +249,9 @@ public class DatabaseSeeder(
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
-                    WorkingDays=new List<int>{1,2,3},
-                    StartHour=new TimeSpan(9, 0, 0),
-                    EndHour=new TimeSpan(17, 0, 0)
-
+                    WorkingDays = new List<int> {1, 2, 3},
+                    StartHour = new TimeSpan(9, 0, 0),
+                    EndHour = new TimeSpan(17, 0, 0)
                 },
                 new()
                 {
@@ -265,9 +265,9 @@ public class DatabaseSeeder(
                     Ban = "00000000",
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
-                      WorkingDays=new List<int>{1,2,3},
-                    StartHour=new TimeSpan(9, 0, 0),
-                    EndHour=new TimeSpan(17, 0, 0),
+                    WorkingDays = new List<int> {1, 2, 3},
+                    StartHour = new TimeSpan(9, 0, 0),
+                    EndHour = new TimeSpan(17, 0, 0),
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.UserRole)!.Id
                 },
             };

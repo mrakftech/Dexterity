@@ -1,68 +1,36 @@
-﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
-@using global::Services.Features.PatientManagement.Dtos
-<MudItem Class="mt-8">
-    <MudDataGrid RowsPerPage="8" Loading="_patientLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="PatientListDto" Dense="true" Bordered="true" Hover="true" Items="@Patients" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
-                 Hideable="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6" Class="text-bold">Patients</MudText>
-            <MudFab Color="MudColor.Primary" StartIcon="fa fa-arrows-rotate" Size="MudSize.Small" Label="Load Patients" Class="ml-5" OnClick="GetPatients"/>
-            <MudSpacer/>
-            <MudItem md="3">
-                <MudTextField @bind-Value="_searchString"
-                              Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                              AdornmentIcon="@MudIcons.Material.Filled.Search"
-                              Variant="Variant.Outlined"
-                              IconSize="MudSize.Medium"
-                              Margin="MudMargin.Dense"
-                              Class="mt-0">
-                </MudTextField>
-            </MudItem>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="x => x.CreatedDate" Title="Created At" Format="MM/dd/yyyy h:mm tt" Sortable="false" Filterable="false"/>
-            <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false"/>
-            <PropertyColumn Property="x => x.Gender" Title="Gender" Sortable="false" Filterable="false"/>
-            <PropertyColumn Property="x => x.DateOfBirth" Title="Date of Birth" Sortable="false" Filterable="false" Format="dd/MM/yyyy"/>
-            <PropertyColumn Property="x => x.EmailAddress" Title="Email" Sortable="false" Filterable="false"/>
-            <PropertyColumn Property="x => x.AddressLine1" Title="Address" Sortable="false" Filterable="false"/>
-            <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
-                <CellTemplate>
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary"/>
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(context.Item.Id)"/>
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="PatientListDto" RowsPerPageString="8"/>
-        </PagerContent>
-        <NoRecordsContent>Patients are not found.</NoRecordsContent>
-    </MudDataGrid>
-
+﻿@using Syncfusion.Blazor.Spinner
+<MudItem Class="mb-2">
+    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Patients</MudText>
+    <DexSimpleButton Name="Load Patients" Click="GetPatients" Color="MudColor.Primary" FullWidth="false"/>
+</MudItem>
+<MudItem md="12">
+    <SfGrid DataSource="Patients" Width="auto" Height="500px" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
+        <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+        <GridColumns>
+            <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+            <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+            <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var patient = (context as PatientListDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditPatient(patient.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(patient.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+        <SfSpinner @bind-Visible="@_patientLoading">
+        </SfSpinner>
+    </SfGrid>
 </MudItem>
 
 @code {
     private List<PatientListDto> Patients { get; set; } = new();
-    private string _searchString;
     private bool _patientLoading;
-
-
-    protected override async Task OnInitializedAsync()
-    {
-         await GetPatients();
-    }
-
-  
-    private Func<PatientListDto, bool> QuickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return false;
-    };
 
     private async Task GetPatients()
     {
@@ -72,19 +40,20 @@
         _patientLoading = false;
     }
 
+    private async Task EditPatient(Guid id)
+    {
+        await Task.CompletedTask;
+    }
+
     private async Task DeletePatient(Guid id)
     {
         var parameters = new DialogParameters();
-        //parameters.Add("ContentText", "Do you want to confirm?");
-        //parameters.Add("ButtonText", "Yes");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
-        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        if (!result.Canceled )
         {
             var patientRes = await UnitOfWork.Patient.DeletePatient(id);
-            var patient = Patients.FirstOrDefault(x => x.Id == id);
-            Patients.Remove(patient);
-            StateHasChanged();
+            await GetPatients();
             Snackbar.SuccessMessge(patientRes.Messages.First());
         }
     }

@@ -1,62 +1,55 @@
 ﻿@using Dexterity.Components.Pages.UserManager.Modals.User
 @using Syncfusion.Blazor.Grids
 @using global::Services.Features.UserAccounts.Dtos.User
-<TabTitle Title="Users"></TabTitle>
-<MudItem md="12">
-    <MudDataGrid RowsPerPage="8" Style="margin-top: 3%" Loading="_userLoading" LoadingProgressColor="MudColor.Secondary" FixedHeader="true" T="UserResponseDto" Dense="true" Bordered="true" Hover="true" Items="@UsersList" SortMode="SortMode.Multiple" Filterable="true" QuickFilter="@QuickFilter"
-                 Hideable="true">
-        <ToolBarContent>
-            <MudText Typo="Typo.h6" Class="text-bold">Users</MudText>
-            <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)" />
-            <MudSpacer />
-            <MudItem md="3">
-                <MudTextField @bind-Value="_searchString" Placeholder="Search" Adornment="Adornment.Start" Immediate="true"
-                              AdornmentIcon="@MudIcons.Material.Filled.Search"
-                              Variant="Variant.Outlined"
-                              IconSize="MudSize.Medium"
-                              Margin="MudMargin.Dense"
-                              Class="mt-0">
-                </MudTextField>
-            </MudItem>
-        </ToolBarContent>
-        <Columns>
-            <PropertyColumn Property="x => x.CreatedDate" Title="Created At" Format="MM/dd/yyyy h:mm tt" Sortable="false" Filterable="false" />
-            <PropertyColumn Property="x => x.FullName" Title="Name" Sortable="false" Filterable="false" />
-            <PropertyColumn Property="x => x.Username" Title="Username" Sortable="false" Filterable="false" />
-            <PropertyColumn Property="x => x.Email" Title="Email" Sortable="false" Filterable="false" />
-            <PropertyColumn Property="x => x.UserType" Title="User Type" Sortable="false" Filterable="false" />
-            <TemplateColumn CellClass="" Title="Active">
-                <CellTemplate>
-                    @if (context.Item.IsActive)
-                    {
-                        <MudText Color="MudColor.Primary"> Yes</MudText>
-                    }
-                    else
-                    {
-                        <MudText Color="MudColor.Error"> No</MudText>
-                    }
-                </CellTemplate>
-            </TemplateColumn>
-            <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
-                <CellTemplate>
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserModal(context.Item.Id)" />
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUser(context.Item.Id)" />
-                </CellTemplate>
-            </TemplateColumn>
-        </Columns>
-        <PagerContent>
-            <MudDataGridPager T="UserResponseDto" />
-        </PagerContent>
-        <NoRecordsContent>Users not found.</NoRecordsContent>
-    </MudDataGrid>
+<TabTitle Title="Users">
+    <ActionButtons>
+        <MudStack Row>
+            <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small" Label="Add New User" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
 
+
+<MudItem >
+    <DexGrid DataSource="UsersList" Loading="@_userLoading">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(UserResponseDto.CreatedDate)" Format="g" Type="ColumnType.DateTime" HeaderText="Created Date" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.Username)" HeaderText="Username" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.UserType)" HeaderText="User Type" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.IsActive)" HeaderText="Status" Width="120px">
+                <Template>
+                    @{
+                        var item = (context as UserResponseDto);
+                        @if (item.IsActive)
+                        {
+                            <MudText Color="MudColor.Primary"> Yes</MudText>
+                        }
+                        else
+                        {
+                            <MudText Color="MudColor.Error"> No</MudText>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as UserResponseDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserModal(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUser(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
 </MudItem>
-
 
 
 @code {
     private List<UserResponseDto> UsersList { get; set; } = new();
-    private string _searchString;
+    
     private bool _userLoading;
 
     protected override async Task OnInitializedAsync()
@@ -71,22 +64,6 @@
         UsersList = await UnitOfWork.User.GetUsers();
         _userLoading = false;
     }
-
-    private Func<UserResponseDto, bool> QuickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.Email.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (x.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (x.Username.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return false;
-    };
 
     private async Task DeleteUser(Guid id)
     {
@@ -105,8 +82,8 @@
 
     private async Task UpsertUserModal(Guid id)
     {
-        var parameters = new DialogParameters { { "UserId", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"UserId", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertUserModal>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)

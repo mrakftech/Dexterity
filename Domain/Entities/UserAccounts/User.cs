@@ -1,6 +1,5 @@
 using Domain.Contracts;
 using Domain.Entities.PatientManagement;
-using Domain.Entities.Settings;
 
 namespace Domain.Entities.UserAccounts;
 
