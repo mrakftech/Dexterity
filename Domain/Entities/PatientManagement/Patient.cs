@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.PatientManagement.BasicDetails;
+using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.Settings.Practice;
 using Domain.Entities.UserAccounts;
 
@@ -57,9 +58,11 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
+    public OtherDetail OtherDetails { get; set; }
+    public MaritalDetail MaritalDetails { get; set; }
     public DrugPaymentSchemeDetail DrugPaymentSchemeDetails { get; set; } = new();
     public PrivateHealthInsuranceDetail PrivateHealthInsuranceDetails { get; set; } = new();
-
+    
     public string Ppsn { get; set; }
     public string IhiNumber { get; set; }
     

@@ -1,14 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.BasicDetails;
+using Domain.Entities.PatientManagement.Extra;
 
 namespace Database.Configurations
 {
@@ -43,7 +38,21 @@ namespace Database.Configurations
                     v => JsonConvert.SerializeObject(v),
                     v => JsonConvert.DeserializeObject<MedicalCardDetail>(v)
                 );
+            
+            builder
+                .Property(e => e.OtherDetails)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v),
+                    v => JsonConvert.DeserializeObject<OtherDetail>(v)
+                );
 
+            builder
+                .Property(e => e.MaritalDetails)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v),
+                    v => JsonConvert.DeserializeObject<MaritalDetail>(v)
+                );
+            
             builder
                 .Property(e => e.DrugPaymentSchemeDetails)
                 .HasConversion(

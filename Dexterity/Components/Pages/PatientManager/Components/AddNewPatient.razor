@@ -1,11 +1,51 @@
-﻿@using Services.Features.PatientManagement.Dtos.Upsert
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Dialog
+@using Services.Features.PatientManagement.Dtos.Upsert
 @using Dexterity.Components.Pages.PatientManager.Components.Form
 
 <TabTitle Title="Add New Patient"></TabTitle>
 <MudItem md="12">
-    <PatientDetailForm Patient="Patient"/>
+    <SfDataForm Model="@Patient"
+                ColumnCount="3"
+                Width="100%"
+                ColumnSpacing="20px"
+                ButtonsAlignment="FormButtonsAlignment.Left" OnValidSubmit="ValidSubmitHandler">
+        <FormValidator>
+            <ObjectGraphDataAnnotationsValidator></ObjectGraphDataAnnotationsValidator>
+        </FormValidator>
+        <PatientDetailForm Patient="Patient"/>
+        <FormButtons>
+            <DexLoadingButton Name="Save Patient" Processing="_processing" Type="MudButtonType.Submit" FullWidth="false"></DexLoadingButton>
+        </FormButtons>
+    </SfDataForm>
 </MudItem>
 
 @code {
-    AddPatientDto Patient { get; set; } = new();
+    UpsertPatientDto Patient { get; set; } = new();
+    private bool _processing;
+
+    public async Task ValidSubmitHandler()
+    {
+        _processing = true;
+        var res = await UnitOfWork.Patient.CreatePatient(Patient);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            Patient = new();
+            await OpenEditPaitentModal();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    private async Task OpenEditPaitentModal()
+    {
+        var parameters = new DialogParameters { };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<EditPatientModal>("", parameters, options);
+    }
+
 }

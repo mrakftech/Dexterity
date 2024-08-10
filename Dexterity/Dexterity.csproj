@@ -66,8 +66,8 @@
 
     <ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.DataAnnotations.Validation" Version="3.2.0-rc1.20223.4" />
-		<PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
-		<PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.5" />
+        <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
+        <PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.5" />
 		<PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
         <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
         <PackageReference Include="Blazorise.Bootstrap5" Version="1.5.3" />

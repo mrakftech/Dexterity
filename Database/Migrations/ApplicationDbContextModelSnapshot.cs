@@ -286,7 +286,7 @@ namespace Database.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("NextKins", (string)null);
+                    b.ToTable("NextKins");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Family.PatientCarer", b =>
@@ -328,7 +328,7 @@ namespace Database.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("PatientCarers", (string)null);
+                    b.ToTable("PatientCarers");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Patient", b =>
@@ -418,6 +418,9 @@ namespace Database.Migrations
                     b.Property<string>("LastName")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MaritalDetails")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("MedicalCardDetails")
                         .HasColumnType("nvarchar(max)");
 
@@ -434,6 +437,9 @@ namespace Database.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("MotherMaidenName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("OtherDetails")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PatientType")
@@ -566,7 +572,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("PermissionClaims", (string)null);
+                    b.ToTable("Permissions", "Identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.Role", b =>
@@ -598,7 +604,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Roles", (string)null);
+                    b.ToTable("Roles", "Identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
@@ -688,7 +694,7 @@ namespace Database.Migrations
 
                     b.HasIndex("RoleId");
 
-                    b.ToTable("Permissions", "Identity");
+                    b.ToTable("Users", "Identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.UserClinic", b =>
@@ -711,7 +717,7 @@ namespace Database.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("UserClinics", (string)null);
+                    b.ToTable("UserClinics", "Identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.Appointments.Appointment", b =>

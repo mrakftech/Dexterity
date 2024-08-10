@@ -13,7 +13,7 @@ public class QuickAddPatientDto
     [Required] public string AddressLine1 { get; set; }
     [Required] public string Mobile { get; set; }
 
-    [Required] public string EmailAddress { get; set; }
+    [Required] public string Email { get; set; }
 
     public Guid HcpId { get; set; }
 

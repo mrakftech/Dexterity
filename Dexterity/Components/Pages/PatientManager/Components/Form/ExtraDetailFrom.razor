@@ -1,5 +1,93 @@
-﻿<h3>ExtraDetailFrom</h3>
+﻿@using Services.Features.PatientManagement.Dtos.Upsert
+<SfDataForm Model="@PatientExtraDetail"
+            ColumnCount="3"
+            Width="100%"
+            ColumnSpacing="20px"
+            ButtonsAlignment="FormButtonsAlignment.Left"
+            OnValidSubmit="SaveExtraInfo">
+    <FormValidator>
+        <ObjectGraphDataAnnotationsValidator/>
+    </FormValidator>
+    <FormItems>
+        <FormGroup LabelText="Other Details" ColumnCount="1">
+            <FormItem Field="@nameof(PatientExtraDetail.Ethnicity)" ColumnSpan="1">
+                <Template>
+                    <label class="e-form-label">Ethnicity:</label>
+                    <SfDropDownList TValue="string" Placeholder="e.g. Black Or White" TItem="Ethnicity" @bind-Value="@PatientExtraDetail.Ethnicity" DataSource="@PatientConstants.Ethnicities">
+                        <DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.Religion)" LabelText="Religion" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientExtraDetail.PreferredLanguage)" LabelText="Preferred Language" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientExtraDetail.InterpreterRequired)" ColumnSpan="2">
+                <Template>
+                    <label class="e-form-label">Interpreter Required:</label>
+                    <MudStack Row>
+                        <SfRadioButton Label="Yes" Name="options" Value="Active" @bind-Checked="PatientExtraDetail.InterpreterRequired" @onchange="OnInterpreterChange"></SfRadioButton>
+                        <SfRadioButton Label="No" Name="options" Value="Inactive" @bind-Checked="PatientExtraDetail.InterpreterRequired" @onchange="OnInterpreterChange"></SfRadioButton>
+
+                    </MudStack>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.AdvocacyNeeds)" ColumnSpan="2">
+                <Template>
+                    <label class="e-form-label">Advocacy Needs:</label>
+                    <SfTextBox @bind-Value="@PatientExtraDetail.AdvocacyNeeds" Multiline></SfTextBox>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.TransportNeeds)" ColumnSpan="2">
+                <Template>
+                    <label class="e-form-label">Transport Needs:</label>
+                    <SfTextBox @bind-Value="@PatientExtraDetail.TransportNeeds" Multiline></SfTextBox>
+                </Template>
+            </FormItem>
+        </FormGroup>
+        <FormGroup LabelText="Marital Status" ColumnCount="1">
+            <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
+                <Template>
+                    <label class="e-form-label">Marital Status:</label>
+                    <SfDropDownList TValue="string" Placeholder="e.g. Married Or Single" TItem="MaritalStatus" @bind-Value="@PatientExtraDetail.Status" DataSource="@PatientConstants.MaritalStatusList">
+                        <DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.StartDate)"   EditorType="FormEditorType.DatePicker" LabelText="Start Date" ColumnSpan="1"  />
+            <FormItem Field="@nameof(PatientExtraDetail.EndDate)" EditorType="FormEditorType.DatePicker" LabelText="End Start" ColumnSpan="1"/>
+
+        </FormGroup>
+        <FormGroup LabelText="Hospital Details" ColumnCount="1">
+        </FormGroup>
+    </FormItems>
+    <FormButtons>
+        <DexLoadingButton Name="Save" Processing="_processing" Type="MudButtonType.Submit"
+                          FullWidth="false">
+        </DexLoadingButton>
+    </FormButtons>
+</SfDataForm>
 
 @code {
-    
+    [Parameter] public PatientExtraDetailDto PatientExtraDetail { get; set; } = new();
+    private bool _processing;
+
+    public async Task SaveExtraInfo()
+    {
+        _processing = true;
+        PatientExtraDetail.PatientId = PatientExtraDetail.PatientId;
+        var res = await UnitOfWork.Patient.SaveExtraDetails(PatientExtraDetail);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+            
+        }
+        _processing = false;
+    }
+    private void OnInterpreterChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+    {
+        PatientExtraDetail.InterpreterRequired = args.Value!.ToString();
+    }
 }

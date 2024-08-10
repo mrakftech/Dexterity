@@ -30,6 +30,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
+
     public DbSet<Patient> Patients { get; set; }
     public DbSet<DoctorVisitCard> DoctorVisitCards { get; set; }
     public DbSet<NextKin> NextKins { get; set; }
@@ -57,6 +58,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.ApplyConfiguration(new UserConfiguration());
         builder.ApplyConfiguration(new AppointmentConfiguration());
 
+        builder.Entity<User>(entity => { entity.ToTable(name: "Users", "Identity"); });
+        builder.Entity<Role>(entity => { entity.ToTable(name: "Roles", "Identity"); });
+        builder.Entity<PermissionClaim>(entity => { entity.ToTable(name: "Permissions", "Identity"); });
+        builder.Entity<UserClinic>(entity => { entity.ToTable(name: "UserClinics", "Identity"); });
+
+
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
 
 
@@ -67,8 +74,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
         builder.Entity<AppointmentCancellationReason>(entity => { entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler"); });
-        
-        
+
+
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
     }
 }

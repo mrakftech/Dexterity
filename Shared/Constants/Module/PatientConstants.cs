@@ -59,31 +59,39 @@ public static class PatientConstants
         Others
     }
 
-    public static List<Ethnicity> Ethnicities { get; set; } = new List<Ethnicity>()
-    {
-        new(1,"White Irish"),
-        new (2,"Irish Travelers"),
-        new (3,"Other White"),
-        new (4,"Black Irish or African"),
-        new (5,"Other Black"),
-        new (6,"Chinese"),
-        new (7,"Other Asian"),
-        new (8,"Other"),
-        new (9,"Not stated"),
-    };
+    public static List<Ethnicity> Ethnicities { get; set; } =
+    [
+        new Ethnicity(1, "White Irish"),
+        new Ethnicity(2, "Irish Travelers"),
+        new Ethnicity(3, "Other White"),
+        new Ethnicity(4, "Black Irish or African"),
+        new Ethnicity(5, "Other Black"),
+        new Ethnicity(6, "Chinese"),
+        new Ethnicity(7, "Other Asian"),
+        new Ethnicity(8, "Other"),
+        new Ethnicity(9, "Not stated")
+    ];
+    public static List<MaritalStatus> MaritalStatusList { get; set; } =
+    [
+        new MaritalStatus(1, "Married"),
+        new MaritalStatus(2, "Divorced"),
+        new MaritalStatus(3, "Seprated"),
+        new MaritalStatus(4, "Widowed"),
+        new MaritalStatus(5, "Single"),
+    ];
 
 
 }
 
 
-public class Ethnicity
+public class Ethnicity(int id, string name)
 {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
+}
 
-    public Ethnicity(int id, string name)
-    {
-        Id = id;
-        Name = name;
-    }
+public class MaritalStatus(int id, string name)
+{
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
 }

@@ -8,7 +8,7 @@ using static Shared.Constants.Module.PatientConstants.Status;
 
 namespace Services.Features.PatientManagement.Dtos.Upsert
 {
-    public class AddPatientDto
+    public class UpsertPatientDto
     {
         public Guid Id { get; set; }
         [Required(ErrorMessage = "Required")] public string FamilyName { get; set; }
@@ -49,11 +49,13 @@ namespace Services.Features.PatientManagement.Dtos.Upsert
 
         #region Medical Card Detail
 
+        public bool IsGmsActive { get; set; }
+
         public string GmsStatus { get; set; } = "Inactive";
         public string GmsDoctor { get; set; }
 
         [GmsNumber(ErrorMessage = "Invalid GMS number e.g: M567890A or 3130132D")]
-        public string GmsPatientNumber { get; set; } = "A000000B";
+        public string GmsPatientNumber { get; set; } = "A123456B";
 
         public DateTime GmsReviewDate { get; set; } = DateTime.Now;
         public string GmsDoctorNumber { get; set; }

@@ -1,13 +1,7 @@
-﻿@using Services.Features.UserAccounts.Dtos.User
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Dialog
+@using Services.Features.UserAccounts.Dtos.User
 @using Services.Features.PatientManagement.Dtos.Upsert
-<SfDataForm Model="@Patient"
-            ColumnCount="3"
-            Width="100%"
-            ColumnSpacing="20px"
-            ButtonsAlignment="FormButtonsAlignment.Left" OnValidSubmit="ValidSubmitHandler">
-    <FormValidator>
-        <ObjectGraphDataAnnotationsValidator></ObjectGraphDataAnnotationsValidator>
-    </FormValidator>
+
 
     <FormItems>
         <FormGroup LabelText="Patient Details" ColumnCount="2" ColumnSpacing="5px">
@@ -113,46 +107,42 @@
                 <FormItem Field="@nameof(Patient.GmsDoctor)" ColumnSpan="2">
                     <Template>
                         <label class="e-form-label">GMS Doctor:</label>
-                        <SfTextBox @bind-Value="Patient.GmsDoctor"  Enabled="@_isGmsStatus"></SfTextBox>
+                        <SfTextBox @bind-Value="Patient.GmsDoctor"  Enabled="@Patient.IsGmsActive"></SfTextBox>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(Patient.GmsDoctorNumber)" ColumnSpan="2">
                     <Template>
                         <label class="e-form-label">GMS Doctor No:</label>
-                        <SfTextBox @bind-Value="Patient.GmsDoctorNumber" Enabled="@_isGmsStatus"></SfTextBox>
+                        <SfTextBox @bind-Value="Patient.GmsDoctorNumber" Enabled="@Patient.IsGmsActive"></SfTextBox>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(Patient.GmsPatientNumber)" ColumnSpan="2" >
                     <Template>
                         <label class="e-form-label">Patient GMS No:</label>
-                        <SfTextBox @bind-Value="Patient.GmsPatientNumber" Enabled="@_isGmsStatus"></SfTextBox>
+                        <SfTextBox @bind-Value="Patient.GmsPatientNumber" Enabled="@Patient.IsGmsActive"></SfTextBox>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(Patient.GmsReviewDate)" ColumnSpan="1">
                     <Template>
                         <label class="e-form-label">GMS Review Date:</label>
-                        <SfDatePicker TValue="DateTime" Placeholder="Choose a Date" FullScreen="true" ShowClearButton="true" @bind-Value="@Patient.GmsReviewDate" Enabled="@_isGmsStatus"></SfDatePicker>
+                        <SfDatePicker TValue="DateTime" Placeholder="Choose a Date" FullScreen="true" ShowClearButton="true" @bind-Value="@Patient.GmsReviewDate" Enabled="@Patient.IsGmsActive"></SfDatePicker>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(Patient.GmsDistanceCode)" ColumnSpan="1">
                     <Template>
                         <label class="e-form-label">Distance Code:</label>
-                        <SfTextBox @bind-Value="Patient.GmsDistanceCode" Enabled="@_isGmsStatus"></SfTextBox>
+                        <SfTextBox @bind-Value="Patient.GmsDistanceCode" Enabled="@Patient.IsGmsActive"></SfTextBox>
                     </Template>
                 </FormItem>
 
         </FormGroup>
     </FormItems>
-    <FormButtons>
-        <DexLoadingButton Name="Save Patient" Processing="_processing" Type="MudButtonType.Submit" FullWidth="false"></DexLoadingButton>
-    </FormButtons>
-</SfDataForm>
+
 
 @code {
-    [Parameter] public AddPatientDto Patient { get; set; }
+    [Parameter] public UpsertPatientDto Patient { get; set; }= new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
-    private bool _processing;
-    private bool _isGmsStatus;
+  
 
     protected override async Task OnInitializedAsync()
     {
@@ -167,24 +157,10 @@
 
     private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
     {
-        _isGmsStatus = Patient.GmsStatus == "Active";
+        Patient.IsGmsActive = Patient.GmsStatus == "Active";
     }
 
-    public async Task ValidSubmitHandler()
-    {
-        _processing = true;
-        var res = await UnitOfWork.Patient.CreatePatient(Patient);
-        if (res.Succeeded)
-        {
-            Snackbar.SuccessMessge(res.Messages.First());
-            Patient = new();
-        }
-        else
-        {
-            Snackbar.FailMessge(res.Messages.First());
-        }
+ 
 
-        _processing = false;
-    }
-
+    
 }

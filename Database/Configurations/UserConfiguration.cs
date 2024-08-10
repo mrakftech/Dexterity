@@ -16,10 +16,6 @@ namespace Database.Configurations
     {
         public void Configure(EntityTypeBuilder<User> builder)
         {
-            builder.ToTable(name: "Users", "Identity");
-            builder.ToTable(name: "UsersClinics", "Identity");
-            builder.ToTable(name: "Roles", "Identity");
-            builder.ToTable(name: "Permissions", "Identity");
 
             builder
                 .Property(e => e.WorkingDays)
