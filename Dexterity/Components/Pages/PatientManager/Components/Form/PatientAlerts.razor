@@ -1,0 +1,203 @@
+﻿@using Domain.Entities.PatientManagement.Alert
+@using Services.Features.PatientManagement.Dtos
+<TabTitle Title="Patient Alerts"></TabTitle>
+<MudStack Row>
+    <MudItem md="4">
+        <SfDataForm Model="@_patientAlert"
+                    ColumnCount="1"
+                    Width="100%"
+                    ColumnSpacing="20px"
+                    ButtonsAlignment="FormButtonsAlignment.Left"
+                    OnValidSubmit="AddPatientAlert">
+            <FormValidator>
+                <ObjectGraphDataAnnotationsValidator/>
+            </FormValidator>
+            <FormItems>
+                <FormGroup LabelText="">
+                    <FormItem Field="@nameof(_patientAlert.AlertType)" LabelText="Type" ColumnSpan="1"></FormItem>
+                    <FormItem Field="@nameof(_patientAlert.CreatedDate)" LabelText="Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(_patientAlert.AlertCategoryId)" ColumnSpan="2">
+                        <Template>
+                            <MudStack Row Spacing="1">
+                                <SfDropDownList TValue="int" TItem="AlertCategory" Placeholder="Category" DataSource="@AlertCategoryList" @bind-Value="@_patientAlert.AlertCategoryId">
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                    <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                                </SfDropDownList>
+                                <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
+                                <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
+                                <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
+                                    <MudPaper Outlined="true" Class="px-4 py-8">
+                                        <MudStack>
+                                            <SfTextBox @bind-Value="_categoryName" Placeholder="Category Name"></SfTextBox>
+                                            <DexLoadingButton Name="Add" Click="AddCategory"></DexLoadingButton>
+                                            <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                        </MudStack>
+                                    </MudPaper>
+                                </MudPopover>
+                                </MudStack>
+
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(_patientAlert.Severity)" LabelText="Severity" ColumnSpan="1"></FormItem>
+
+                    <FormItem Field="@nameof(_patientAlert.Details)" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Detail:</label>
+                            <SfTextBox @bind-Value="@_patientAlert.Details" Multiline></SfTextBox>
+                        </Template>
+                    </FormItem>
+                </FormGroup>
+
+            </FormItems>
+        </SfDataForm>
+    </MudItem>
+
+</MudStack>
+<MudItem md="12" Class="mt-5">
+    <DexGrid DataSource="PatientAlertList" Loading="@_loading" Height="300px">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(PatientAlertDto.CreatedDate)" Format="g" Type="ColumnType.DateTime" HeaderText="Created Date"></GridColumn>
+            <GridColumn Field="@nameof(PatientAlertDto.CategoryName)" HeaderText="Category"></GridColumn>
+            <GridColumn Field="@nameof(PatientAlertDto.Severity)" HeaderText="Severity"></GridColumn>
+            <GridColumn Field="@nameof(PatientAlertDto.Details)" HeaderText=""></GridColumn>
+            <GridColumn HeaderText="Actions">
+                <Template>
+                    @{
+                        var item = (context as PatientAlertDto);
+                        <MudStack Row>
+                            <DexSimpleButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexSimpleButton>
+                            <DexSimpleButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexSimpleButton>
+                        </MudStack>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private PatientAlertDto _patientAlert = new();
+    private List<PatientAlertDto> PatientAlertList { get; set; } = new();
+    private List<AlertCategory> AlertCategoryList { get; set; } = new();
+    private bool _open = false;
+    private bool _loading;
+    private bool _processing;
+    private Guid _patientId;
+
+    private string _categoryName;
+
+    private bool _disableButtons = true;
+    private void ToggleOpen() => _open = !_open;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPatientAlerts(Id);
+        await GetAlertCategory();
+    }
+
+    private async Task AddPatientAlert()
+    {
+        _processing = true;
+        _patientAlert.PatientId = Id;
+        var res = await UnitOfWork.Patient.SavePatientAlert(Id, _patientAlert);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            await GetPatientAlerts(Id);
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    private async Task GetPatientAlerts(Guid id)
+    {
+        PatientAlertList = await UnitOfWork.Patient.GetPatientAlerts(Id);
+    }
+    private async Task ResolvePatientAlert(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText","Are you sure you want to resolve this alert?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.ResolvePatientAlert(id);
+            await GetPatientAlerts(Id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+    private async Task DeletePatientAlert(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeletePatientAlert(id);
+            await GetPatientAlerts(Id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
+    #region Category
+
+    private async Task GetAlertCategory()
+    {
+        AlertCategoryList = await UnitOfWork.Patient.GetAlertCategories();
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, AlertCategory> obj)
+    {
+        _patientAlert.AlertCategoryId = obj.Value;
+        if (_patientAlert.AlertCategoryId > 0)
+        {
+            _disableButtons = false;
+        }
+    }
+
+    private async Task AddCategory()
+    {
+        if (!string.IsNullOrWhiteSpace(_categoryName))
+        {
+            var res = await UnitOfWork.Patient.AddAlertCategories(_categoryName);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                _categoryName = "";
+                await GetAlertCategory();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+        else
+        {
+            Snackbar.FailMessge("name is required.");
+        }
+    }
+
+    private async Task DeleteCategory()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeleteAlertCategory(_patientAlert.AlertCategoryId);
+            await GetAlertCategory();
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
+    #endregion
+
+}

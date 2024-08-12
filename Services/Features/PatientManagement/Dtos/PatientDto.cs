@@ -1,7 +1,7 @@
 using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.PatientManagement.Extra;
 
-namespace Services.Features.PatientManagement.Dtos.Get;
+namespace Services.Features.PatientManagement.Dtos;
 
 public class PatientDto
 {

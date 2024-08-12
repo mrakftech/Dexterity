@@ -1,4 +1,4 @@
-namespace Services.Features.PatientManagement.Dtos.Get;
+namespace Services.Features.PatientManagement.Dtos;
 
 public class PatientListDto
 {

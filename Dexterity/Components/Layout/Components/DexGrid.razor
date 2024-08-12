@@ -1,4 +1,4 @@
-﻿<SfGrid DataSource="@DataSource" Width="auto" Height="500px" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
+﻿<SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
     <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
     <GridColumns>
         @DexGridColumns
@@ -10,6 +10,6 @@
 @code {
     [Parameter] public IEnumerable<object> DataSource { get; set; }
     [Parameter] public bool Loading { get; set; }
-
+    [Parameter] public string Height { get; set; } = "500px";
     [Parameter] public RenderFragment DexGridColumns { get; set; }
 }

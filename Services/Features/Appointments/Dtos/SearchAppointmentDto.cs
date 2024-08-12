@@ -1,9 +1,9 @@
-﻿using Services.Features.PatientManagement.Dtos.Get;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.Features.PatientManagement.Dtos;
 
 namespace Services.Features.Appointments.Dtos
 {

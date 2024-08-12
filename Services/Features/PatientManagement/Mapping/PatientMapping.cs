@@ -1,8 +1,9 @@
 using AutoMapper;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.PatientManagement.Extra;
-using Services.Features.PatientManagement.Dtos.Get;
+using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Upsert;
 
 namespace Services.Features.PatientManagement.Mapping;
@@ -12,12 +13,14 @@ public class PatientMapping : Profile
     public PatientMapping()
     {
         #region Patients
+
         CreateMap<Patient, PatientListDto>()
             .ForMember(x => x.AddressLine1, c => c.MapFrom(m => m.Address.AddressLine1))
             .ReverseMap();
         CreateMap<Patient, PatientDto>().ReverseMap();
         CreateMap<Patient, UpsertPatientDto>().ReverseMap();
         CreateMap<Patient, QuickAddPatientDto>().ReverseMap();
+
         CreateMap<PatientDto, UpsertPatientDto>()
             .ForMember(x => x.AddressLine1, c => c.MapFrom(m => m.Address.AddressLine1))
             .ForMember(x => x.AddressLine2, c => c.MapFrom(m => m.Address.AddressLine2))
@@ -34,16 +37,24 @@ public class PatientMapping : Profile
             .ForMember(x => x.GmsReviewDate, c => c.MapFrom(m => m.MedicalCardDetails.GmsReviewDate))
             .ForMember(x => x.GmsDistanceCode, c => c.MapFrom(m => m.MedicalCardDetails.GmsDistanceCode))
             .ReverseMap();
-        
 
         #endregion
 
         #region Extra Details
 
-        CreateMap<PatientExtraDetailDto, OtherDetail>().ReverseMap();;
-        CreateMap<PatientExtraDetailDto, MaritalDetail>().ReverseMap();;
+        CreateMap<PatientExtraDetailDto, OtherDetail>().ReverseMap();
+        CreateMap<PatientExtraDetailDto, MaritalDetail>().ReverseMap();
+        CreateMap<PatientContact, PatientContactDto>().ReverseMap();
+        CreateMap<PatientOccupation, PatientOccupationDto>().ReverseMap();
 
         #endregion
 
+        #region Alert
+
+        CreateMap<PatientAlert, PatientAlertDto>()
+            .ForMember(x => x.CategoryName, c => c.MapFrom(m => m.AlertCategory.Name))
+            .ReverseMap();
+
+        #endregion
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Services.Configurations.Attributes;
-using Services.Features.PatientManagement.Dtos.Get;
 using Syncfusion.Blazor.TreeGrid.Internal;
 using static Shared.Constants.Module.PatientConstants;
 using static Shared.Constants.Module.PatientConstants.PatientType;

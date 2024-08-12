@@ -1,9 +1,115 @@
-﻿
-<TabTitle Title="Contacts"></TabTitle>
-@* <DexGrid> *@
-@*     <DexGridColumns></DexGridColumns> *@
-@* </DexGrid> *@
+﻿@using Services.Features.PatientManagement.Dtos
+<label class="e-form-label">@($"Patient Contacts (Available {PatientContactList.Count})"):</label>
+<MudItem md="4">
+    <MudStack Row>
+        <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientContactDto"
+                        @bind-Value="_contactId" DataSource="@PatientContactList">
+            <DropDownListFieldSettings Value="Id" Text="FirstName"></DropDownListFieldSettings>
+            <DropDownListEvents TItem="PatientContactDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+        </SfDropDownList>
+        <DexSimpleButton FullWidth="false" Name="Edit" Click="EditContact" Disabled="_disableButtons"></DexSimpleButton>
+        <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteContact" Disabled="_disableButtons"></DexSimpleButton>
+    </MudStack>
+</MudItem>
+
+<SfDataForm Model="@PatientContact"
+            ColumnCount="3"
+            Width="100%"
+            ColumnSpacing="20px"
+            ButtonsAlignment="FormButtonsAlignment.Left"
+            OnValidSubmit="AddContact">
+    <FormValidator>
+        <ObjectGraphDataAnnotationsValidator/>
+    </FormValidator>
+    <FormItems>
+        <FormGroup LabelText="Contact Details">
+            <FormItem Field="@nameof(PatientContact.Surname)" LabelText="Surname" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientContact.FirstName)" LabelText="First Name" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientContact.DateOfBirth)" LabelText="Date Of Birth" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientContact.Address)" ColumnSpan="2">
+                <Template>
+                    <label class="e-form-label">Address:</label>
+                    <SfTextBox @bind-Value="@PatientContact.Address" Multiline></SfTextBox>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientContact.Phone)" LabelText="Phone" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientContact.Gender)" ColumnSpan="2">
+                <Template>
+                    <label class="e-form-label">Gender:</label>
+                    <MudStack Row>
+                        <SfRadioButton Label="Male" Name="options" Value="Male" @bind-Checked="PatientContact.Gender"></SfRadioButton>
+                        <SfRadioButton Label="Female" Name="options" Value="Female" @bind-Checked="PatientContact.Gender"></SfRadioButton>
+                    </MudStack>
+                </Template>
+            </FormItem>
+        </FormGroup>
+    </FormItems>
+</SfDataForm>
 
 @code {
     [Parameter] public Guid Id { get; set; }
+    private bool _loading;
+    private bool _processing;
+    private int _contactId;
+    private bool _disableButtons = true;
+    private PatientContactDto PatientContact = new();
+    private List<PatientContactDto> PatientContactList { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetContacts(Id);
+    }
+
+    private async Task GetContacts(Guid id)
+    {
+        PatientContactList = await UnitOfWork.Patient.GetPatientContacts(Id);
+    }
+
+    private async Task AddContact(EditContext obj)
+    {
+        _processing = true;
+        PatientContact.PatientId = Id;
+        var res = await UnitOfWork.Patient.AddPatientContact(PatientContact);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            await GetContacts(Id);
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, PatientContactDto> obj)
+    {
+        _contactId = obj.Value;
+        if (_contactId > 0)
+        {
+            _disableButtons = false;
+        }
+    }
+
+    private async Task EditContact()
+    {
+        var res = await UnitOfWork.Patient.GetPatientContact(_contactId);
+        PatientContact = res;
+    }
+
+    private async Task DeleteContact()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeletePatientContact(_contactId);
+            await GetContacts(Id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
 }

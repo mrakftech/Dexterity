@@ -1,4 +1,5 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Components.Form
+@using Services.Features.PatientManagement.Dtos
 @using Services.Features.PatientManagement.Dtos.Upsert
 
 @if (_loading)
@@ -57,7 +58,15 @@ else
                                 <TabHeader Text="Patient Occupations"></TabHeader>
                             </ChildContent>
                             <ContentTemplate>
-                                <PatientContacts Id="Id"/>
+                                <PatientOccupations Id="Id"/>
+                            </ContentTemplate>
+                        </TabItem>
+                        <TabItem >
+                            <ChildContent>
+                                <TabHeader Text="Patient Alerts"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <PatientAlerts Id="Id"/>
                             </ContentTemplate>
                         </TabItem>
                     </TabItems>

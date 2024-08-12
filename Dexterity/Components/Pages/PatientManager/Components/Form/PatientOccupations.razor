@@ -1,5 +1,98 @@
-﻿<TabTitle Title="Contacts"></TabTitle>
+﻿@using Services.Features.PatientManagement.Dtos
+<label class="e-form-label">Patient Occupation:</label>
+<MudItem md="4">
+    <MudStack Row>
+        <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientOccupationDto"
+                        @bind-Value="_occupationId" DataSource="@PatientOccupationList">
+            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            <DropDownListEvents TItem="PatientOccupationDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+        </SfDropDownList>
+        <DexSimpleButton FullWidth="false" Name="Edit" Click="EditOccupation" Disabled="_disableButtons"></DexSimpleButton>
+        <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteOccupation" Disabled="_disableButtons"></DexSimpleButton>
+    </MudStack>
+</MudItem>
+
+<SfDataForm Model="@_patientOccupation"
+            ColumnCount="3"
+            Width="100%"
+            ColumnSpacing="20px"
+            ButtonsAlignment="FormButtonsAlignment.Left"
+            OnValidSubmit="AddOccupation">
+    <FormValidator>
+        <ObjectGraphDataAnnotationsValidator/>
+    </FormValidator>
+    <FormItems>
+        <FormGroup LabelText="Occupation Details">
+            <FormItem Field="@nameof(_patientOccupation.Name)" LabelText="Name" ColumnSpan="1"/>
+            <FormItem Field="@nameof(_patientOccupation.StartDate)" LabelText="Start Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+            <FormItem Field="@nameof(_patientOccupation.EndDate)" LabelText="End Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+        </FormGroup>
+    </FormItems>
+</SfDataForm>
 
 @code {
     [Parameter] public Guid Id { get; set; }
+    private bool _processing;
+    private int _occupationId;
+    private bool _disableButtons = true;
+    private PatientOccupationDto _patientOccupation = new();
+    private List<PatientOccupationDto> PatientOccupationList { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetOccupations(Id);
+    }
+
+    private async Task GetOccupations(Guid id)
+    {
+        PatientOccupationList = await UnitOfWork.Patient.GetPatientOccupations(Id);
+    }
+
+    private async Task AddOccupation(EditContext obj)
+    {
+        _processing = true;
+        _patientOccupation.PatientId = Id;
+        var res = await UnitOfWork.Patient.AddPatientOccupation(_patientOccupation);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            await GetOccupations(Id);
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, PatientOccupationDto> obj)
+    {
+        _occupationId = obj.Value;
+        if (_occupationId > 0)
+        {
+            _disableButtons = false;
+        }
+    }
+
+    private async Task EditOccupation()
+    {
+        var res = await UnitOfWork.Patient.GetPatientOccupation(_occupationId);
+        _patientOccupation = res;
+    }
+
+    private async Task DeleteOccupation()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeletePatientContact(_occupationId);
+            await GetOccupations(Id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
 }

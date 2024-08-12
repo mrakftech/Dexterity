@@ -2,20 +2,22 @@ using AutoMapper;
 using Database;
 using Domain.Entities.PatientManagement;
 using Microsoft.EntityFrameworkCore;
-using Services.Features.PatientManagement.Dtos.Get;
 using Services.Features.PatientManagement.Dtos.Upsert;
 using Services.State;
 using Shared.Helper;
 using Shared.Wrapper;
 using System.Threading;
+using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Extra;
+using Services.Features.PatientManagement.Dtos;
+using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
 public class PatientService(ApplicationDbContext context, IMapper mapper)
     : IPatientService
 {
-    private IPatientService _patientServiceImplementation;
+    #region Patient
 
     public async Task<List<PatientListDto>> GetPatients()
     {
@@ -55,7 +57,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             return await Result.FailAsync(e.Message);
         }
     }
-
 
     public async Task<IResult> DeletePatient(Guid id)
     {
@@ -185,4 +186,195 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             return await Result.FailAsync(e.Message);
         }
     }
+
+    #endregion
+
+    #region Contact
+
+    public async Task<List<PatientContactDto>> GetPatientContacts(Guid id)
+    {
+        var list = await context.PatientContacts.Where(x => x.PatientId == id).ToListAsync();
+        var data = mapper.Map<List<PatientContactDto>>(list);
+        return data;
+    }
+
+    public async Task<PatientContactDto> GetPatientContact(int id)
+    {
+        var contact = await context.PatientContacts.FirstOrDefaultAsync(x => x.Id == id);
+        if (contact is null)
+        {
+            return new PatientContactDto();
+        }
+
+        return mapper.Map<PatientContactDto>(contact);
+    }
+
+    public async Task<IResult> DeletePatientContact(int id)
+    {
+        var contact = await context.PatientContacts.FirstOrDefaultAsync(x => x.Id == id);
+        if (contact is null)
+        {
+            return await Result.FailAsync("Contact not found");
+        }
+
+        context.PatientContacts.Remove(contact);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Contact has been removed");
+    }
+
+    public async Task<IResult> AddPatientContact(PatientContactDto request)
+    {
+        var contact = mapper.Map<PatientContact>(request);
+        await context.PatientContacts.AddAsync(contact);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Contact added.");
+    }
+
+    #endregion
+
+    #region Patient Occupation
+
+    public async Task<List<PatientOccupationDto>> GetPatientOccupations(Guid id)
+    {
+        var list = await context.PatientOccupations.Where(x => x.PatientId == id).ToListAsync();
+        var data = mapper.Map<List<PatientOccupationDto>>(list);
+        return data;
+    }
+
+    public async Task<PatientOccupationDto> GetPatientOccupation(int id)
+    {
+        var occupation = await context.PatientOccupations.FirstOrDefaultAsync(x => x.Id == id);
+        if (occupation is null)
+        {
+            return new PatientOccupationDto();
+        }
+
+        return mapper.Map<PatientOccupationDto>(occupation);
+    }
+
+    public async Task<IResult> DeletePatientOccupation(int id)
+    {
+        var occupation = await context.PatientOccupations.FirstOrDefaultAsync(x => x.Id == id);
+        if (occupation is null)
+        {
+            return await Result.FailAsync("Occupation not found");
+        }
+
+        context.PatientOccupations.Remove(occupation);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Occupation has been removed");
+    }
+
+    public async Task<IResult> AddPatientOccupation(PatientOccupationDto request)
+    {
+        var occupation = mapper.Map<PatientOccupation>(request);
+        await context.PatientOccupations.AddAsync(occupation);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Occupation has been added.");
+    }
+
+    #endregion
+
+    #region Patient Alerts
+
+    public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
+    {
+        var list = await context.PatientAlerts.Where(x => x.PatientId == patientId && x.IsResolved == false)
+            .ToListAsync();
+        var mappedData = mapper.Map<List<PatientAlertDto>>(list);
+        return mappedData;
+    }
+
+    public async Task<PatientAlertDto> GetPatientAlert(Guid id)
+    {
+        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        var mappedData = mapper.Map<PatientAlertDto>(alert);
+        return mappedData;
+    }
+
+    public async Task<IResult> SavePatientAlert(Guid id, PatientAlertDto request)
+    {
+        if (id == Guid.Empty)
+        {
+            var alert = mapper.Map<PatientAlert>(request);
+            alert.CreatedBy = ApplicationState.CurrentUser.UserId;
+            alert.CreatedDate = DateTime.Now;
+            alert.Type = request.AlertType.ToString();
+            await context.PatientAlerts.AddAsync(alert);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Alert has been saved.");
+        }
+        else
+        {
+            var alert = mapper.Map<PatientAlert>(request);
+            alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            alert.ModifiedDate = DateTime.Now;
+            alert.Type = request.AlertType.ToString();
+            context.PatientAlerts.Update(alert);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Alert has been saved.");
+        }
+    }
+
+    public async Task<IResult> DeletePatientAlert(Guid id)
+    {
+        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        if (alert is null)
+        {
+            return await Result.FailAsync("Alert not found");
+        }
+
+        context.PatientAlerts.Remove(alert);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Alert has been removed");
+    }
+
+    public async Task<IResult> ResolvePatientAlert(Guid id)
+    {
+        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        if (alert is null)
+        {
+            return await Result.FailAsync("Alert not found");
+        }
+
+        alert.IsResolved = true;
+        context.PatientAlerts.Update(alert);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Alert has been resolved.");
+    }
+
+    #region Alert Categories
+
+    public async Task<List<AlertCategory>> GetAlertCategories()
+    {
+        return await context.AlertCategories.ToListAsync();
+    }
+
+    public async Task<IResult> AddAlertCategories(string name)
+    {
+        var alertCategory = new AlertCategory()
+        {
+            Name = name
+        };
+        await context.AlertCategories.AddAsync(alertCategory);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Category has been added");
+    }
+
+    public async Task<IResult> DeleteAlertCategory(int id)
+    {
+        var category = await context.AlertCategories.FirstOrDefaultAsync(x => x.Id == id);
+        if (category is null)
+        {
+            return await Result.FailAsync("Alert Category not found");
+        }
+
+        context.AlertCategories.Remove(category);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Alert Category has been removed");
+    }
+
+    #endregion
+
+    #endregion
 }

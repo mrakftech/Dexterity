@@ -13,6 +13,7 @@ using Database.Configurations;
 using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.PatientManagement.Alert;
 
 namespace Database;
 
@@ -32,6 +33,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
 
     public DbSet<Patient> Patients { get; set; }
+    public DbSet<PatientContact> PatientContacts { get; set; }
+    public DbSet<PatientAlert> PatientAlerts { get; set; }
+    public DbSet<AlertCategory> AlertCategories { get; set; }
+    public DbSet<PatientOccupation> PatientOccupations { get; set; }
     public DbSet<DoctorVisitCard> DoctorVisitCards { get; set; }
     public DbSet<NextKin> NextKins { get; set; }
     public DbSet<PatientCarer> PatientCarers { get; set; }
@@ -73,9 +78,16 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
 
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
-        builder.Entity<AppointmentCancellationReason>(entity => { entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler"); });
+        builder.Entity<AppointmentCancellationReason>(entity =>
+        {
+            entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler");
+        });
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
+        builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PatientManagement"); });
+        builder.Entity<PatientOccupation>(entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
+        builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
+        builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
     }
 }

@@ -2,6 +2,7 @@ using Bogus;
 using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Practice;
@@ -30,9 +31,26 @@ public class DatabaseSeeder(
         SeedUserPermissions();
         SeedAppointmentTypes();
         SeedAppointmentCancelReasons();
-
+        SeedAlertCategory();
         //  SeedFakePatientData();
         //  SeedFakeUserData();
+    }
+
+    private void SeedAlertCategory()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.AlertCategories.Any())
+                return;
+            var c = new AlertCategory()
+            {
+                Name = "General"
+            };
+            context.AlertCategories.Add(c);
+            await context.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
     }
 
     private void SeedAppointmentCancelReasons()

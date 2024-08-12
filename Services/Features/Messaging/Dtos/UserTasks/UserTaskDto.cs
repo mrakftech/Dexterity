@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Services.Features.PatientManagement.Dtos.Get;
+using Services.Features.PatientManagement.Dtos;
 using Services.Features.UserAccounts.Dtos.User;
 using Shared.Constants.Module;
 
