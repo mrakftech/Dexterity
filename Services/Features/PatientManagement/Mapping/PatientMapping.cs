@@ -4,6 +4,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.PatientManagement.Extra;
 using Services.Features.PatientManagement.Dtos;
+using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Upsert;
 
 namespace Services.Features.PatientManagement.Mapping;
@@ -52,7 +53,8 @@ public class PatientMapping : Profile
         #region Alert
 
         CreateMap<PatientAlert, PatientAlertDto>()
-            .ForMember(x => x.CategoryName, c => c.MapFrom(m => m.AlertCategory.Name))
+            .ForMember(x => x.Category, c => c.MapFrom(m => m.AlertCategory.Name))
+            .ForMember(x => x.Status, c => c.MapFrom(m => m.IsResolved == true ? "Resolved" : "Pending"))
             .ReverseMap();
 
         #endregion

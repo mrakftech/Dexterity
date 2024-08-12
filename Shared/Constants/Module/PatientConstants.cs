@@ -82,8 +82,6 @@ public static class PatientConstants
         public string Appointment = AlertTypes.Appointment.ToString();
         public string Account = AlertTypes.Account.ToString();
         public string Consultation = AlertTypes.Consultation.ToString();
-
-      
     }
 }
 

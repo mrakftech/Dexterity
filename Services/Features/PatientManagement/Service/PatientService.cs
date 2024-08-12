@@ -6,11 +6,10 @@ using Services.Features.PatientManagement.Dtos.Upsert;
 using Services.State;
 using Shared.Helper;
 using Shared.Wrapper;
-using System.Threading;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Extra;
 using Services.Features.PatientManagement.Dtos;
-using Shared.Constants.Module;
+using Services.Features.PatientManagement.Dtos.Alerts;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -279,65 +278,74 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
     {
-        var list = await context.PatientAlerts.Where(x => x.PatientId == patientId && x.IsResolved == false)
+        var list = await context.PatientAlerts
+            .Include(x=>x.AlertCategory)
+            .Where(x=>x.IsDeleted==false)
+            .AsNoTracking().Where(x => x.PatientId == patientId)
             .ToListAsync();
+        context.ChangeTracker.Clear();
         var mappedData = mapper.Map<List<PatientAlertDto>>(list);
         return mappedData;
     }
 
     public async Task<PatientAlertDto> GetPatientAlert(Guid id)
     {
-        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        var alert = await context.PatientAlerts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        context.ChangeTracker.Clear();
         var mappedData = mapper.Map<PatientAlertDto>(alert);
         return mappedData;
     }
 
-    public async Task<IResult> SavePatientAlert(Guid id, PatientAlertDto request)
+    public async Task<IResult> SavePatientAlert(Guid id, PatientAlertCreateDto request)
     {
-        if (id == Guid.Empty)
+        var alert = new PatientAlert
         {
-            var alert = mapper.Map<PatientAlert>(request);
-            alert.CreatedBy = ApplicationState.CurrentUser.UserId;
-            alert.CreatedDate = DateTime.Now;
-            alert.Type = request.AlertType.ToString();
-            await context.PatientAlerts.AddAsync(alert);
-            await context.SaveChangesAsync();
-            return await Result.SuccessAsync("Alert has been saved.");
-        }
-        else
-        {
-            var alert = mapper.Map<PatientAlert>(request);
-            alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
-            alert.ModifiedDate = DateTime.Now;
-            alert.Type = request.AlertType.ToString();
-            context.PatientAlerts.Update(alert);
-            await context.SaveChangesAsync();
-            return await Result.SuccessAsync("Alert has been saved.");
-        }
+            Details = request.Details,
+            Type = request.AlertType.ToString(),
+            Severity = request.Severity.ToString(),
+            AlertCategoryId = request.AlertCategoryId,
+            CreatedBy = ApplicationState.CurrentUser.UserId,
+            CreatedDate = DateTime.Now,
+            PatientId = request.PatientId
+        };
+        await context.PatientAlerts.AddAsync(alert);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Alert has been saved.");
     }
 
     public async Task<IResult> DeletePatientAlert(Guid id)
     {
-        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        var alert = await context.PatientAlerts
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
         if (alert is null)
         {
             return await Result.FailAsync("Alert not found");
         }
 
-        context.PatientAlerts.Remove(alert);
+        alert.IsDeleted = true;
+        alert.ModifiedDate = DateTime.Now;
+        alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
+        context.ChangeTracker.Clear();
+        context.PatientAlerts.Update(alert);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Alert has been removed");
     }
 
     public async Task<IResult> ResolvePatientAlert(Guid id)
     {
-        var alert = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == id);
+        var alert = await context.PatientAlerts
+            .AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (alert is null)
         {
             return await Result.FailAsync("Alert not found");
         }
 
         alert.IsResolved = true;
+        alert.ModifiedDate = DateTime.Now;
+        alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
+        context.ChangeTracker.Clear();
         context.PatientAlerts.Update(alert);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Alert has been resolved.");

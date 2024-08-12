@@ -1,5 +1,6 @@
 using Domain.Entities.PatientManagement.Alert;
 using Services.Features.PatientManagement.Dtos;
+using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Upsert;
 using Shared.Wrapper;
 
@@ -39,7 +40,7 @@ public interface IPatientService
 
     public Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId);
     public Task<PatientAlertDto> GetPatientAlert(Guid id);
-    public Task<IResult> SavePatientAlert(Guid id, PatientAlertDto request);
+    public Task<IResult> SavePatientAlert(Guid id, PatientAlertCreateDto request);
     public Task<IResult> DeletePatientAlert(Guid id);
     public Task<IResult> ResolvePatientAlert(Guid id);
 
