@@ -10,13 +10,15 @@ else
 {
     <MudDialog>
         <TitleContent>
-            Edit Patient - @Patient.FirstName @Patient.LastName
+            <MudText Typo="Typo.h4" Class="text-bold">
+                Edit Patient - @Patient.FirstName @Patient.LastName
+            </MudText>
         </TitleContent>
         <DialogContent>
             <MudItem Class="mt-5">
                 <SfTab>
                     <TabItems>
-                        <TabItem >
+                        <TabItem>
                             <ChildContent>
                                 <TabHeader Text="Patient Details"></TabHeader>
                             </ChildContent>
@@ -67,6 +69,14 @@ else
                             </ChildContent>
                             <ContentTemplate>
                                 <PatientAlerts Id="Id"/>
+                            </ContentTemplate>
+                        </TabItem>
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="Related Healthcare Professional"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                                <RelatedHcp Id="Id"/>
                             </ContentTemplate>
                         </TabItem>
                     </TabItems>

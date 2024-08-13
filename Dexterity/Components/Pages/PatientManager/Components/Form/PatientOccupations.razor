@@ -28,6 +28,9 @@
             <FormItem Field="@nameof(_patientOccupation.EndDate)" LabelText="End Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
         </FormGroup>
     </FormItems>
+    <FormButtons>
+        <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false" />
+    </FormButtons>
 </SfDataForm>
 
 @code {

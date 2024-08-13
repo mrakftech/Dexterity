@@ -37,6 +37,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PatientAlert> PatientAlerts { get; set; }
     public DbSet<AlertCategory> AlertCategories { get; set; }
     public DbSet<PatientOccupation> PatientOccupations { get; set; }
+    public DbSet<RelatedHcp> RelatedHcps { get; set; }
+    public DbSet<PatientHospital> PatientHospitals { get; set; }
+
     public DbSet<DoctorVisitCard> DoctorVisitCards { get; set; }
     public DbSet<NextKin> NextKins { get; set; }
     public DbSet<PatientCarer> PatientCarers { get; set; }
@@ -74,7 +77,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
-        builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinics", "Setting"); });
+        builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinic", "Setting"); });
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
 
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
@@ -89,5 +92,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<PatientOccupation>(entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
         builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
         builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
+        builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PatientManagement"); });
+        builder.Entity<PatientHospital>(entity => { entity.ToTable(name: "PatientHospitals", "PatientManagement"); });
     }
 }

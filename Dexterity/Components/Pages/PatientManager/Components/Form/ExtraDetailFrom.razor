@@ -1,4 +1,5 @@
-﻿@using Services.Features.PatientManagement.Dtos.Upsert
+﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
+@using Services.Features.PatientManagement.Dtos.Upsert
 <SfDataForm Model="@PatientExtraDetail"
             ColumnCount="3"
             Width="100%"
@@ -57,6 +58,8 @@
 
         </FormGroup>
         <FormGroup LabelText="Hospital Details" ColumnCount="1">
+            <DexSimpleButton Name="Add Hospital" FullWidth="false" Click="AddHospital"></DexSimpleButton>
+
         </FormGroup>
     </FormItems>
     <FormButtons>
@@ -86,8 +89,16 @@
         }
         _processing = false;
     }
+    
     private void OnInterpreterChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
     {
         PatientExtraDetail.InterpreterRequired = args.Value!.ToString();
+    }
+
+    private async Task AddHospital()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        await DialogService.ShowAsync<QuickAddPatientModal>("Add Hospital", parameters, options);
     }
 }

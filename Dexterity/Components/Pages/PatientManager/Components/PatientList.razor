@@ -1,14 +1,14 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Components.Dialog
 @using Services.Features.PatientManagement.Dtos
 @using Syncfusion.Blazor.Spinner
-<MudItem Class="mb-2">
-    <MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold"> Patients</MudText>
-    <DexSimpleButton Name="Load Patients" Click="GetPatients" Color="MudColor.Primary" FullWidth="false"/>
-</MudItem>
+<TabTitle Title="Patients">
+    <ActionButtons>
+        <DexSimpleButton Name="Load Patients" Click="GetPatients" Color="MudColor.Primary" FullWidth="false" />
+    </ActionButtons>
+</TabTitle>
 <MudItem md="12">
-    <SfGrid DataSource="Patients" Width="auto" Height="500px" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
-        <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
-        <GridColumns>
+    <DexGrid DataSource="Patients">
+        <DexGridColumns>
             <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
             <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
             <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"></GridColumn>
@@ -19,15 +19,13 @@
                 <Template>
                     @{
                         var patient = (context as PatientListDto);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditPatient(patient.Id)"/>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(patient.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditPatient(patient.Id)" />
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(patient.Id)" />
                     }
                 </Template>
             </GridColumn>
-        </GridColumns>
-        <SfSpinner @bind-Visible="@_patientLoading">
-        </SfSpinner>
-    </SfGrid>
+        </DexGridColumns>
+    </DexGrid>
 </MudItem>
 
 @code {
@@ -44,8 +42,8 @@
 
     private async Task EditPatient(Guid id)
     {
-        var parameters = new DialogParameters {{"Id", id}};
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.Center,FullScreen = true};
+        var parameters = new DialogParameters { { "Id", id } };
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.Center, FullScreen = true };
         await DialogService.ShowAsync<EditPatientModal>("", parameters, options);
     }
 

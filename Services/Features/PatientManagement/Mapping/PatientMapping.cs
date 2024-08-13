@@ -5,6 +5,7 @@ using Domain.Entities.PatientManagement.BasicDetails;
 using Domain.Entities.PatientManagement.Extra;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Services.Features.PatientManagement.Dtos.Upsert;
 
 namespace Services.Features.PatientManagement.Mapping;
@@ -47,6 +48,7 @@ public class PatientMapping : Profile
         CreateMap<PatientExtraDetailDto, MaritalDetail>().ReverseMap();
         CreateMap<PatientContact, PatientContactDto>().ReverseMap();
         CreateMap<PatientOccupation, PatientOccupationDto>().ReverseMap();
+        CreateMap<RelatedHcp, RelatedHcpDto>().ReverseMap();
 
         #endregion
 
@@ -56,7 +58,7 @@ public class PatientMapping : Profile
             .ForMember(x => x.Category, c => c.MapFrom(m => m.AlertCategory.Name))
             .ForMember(x => x.Status, c => c.MapFrom(m => m.IsResolved == true ? "Resolved" : "Pending"))
             .ReverseMap();
-
+        
         #endregion
     }
 }

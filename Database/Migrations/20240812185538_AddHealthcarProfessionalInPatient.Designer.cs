@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240812185538_AddHealthcarProfessionalInPatient")]
+    partial class AddHealthcarProfessionalInPatient
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -572,27 +575,6 @@ namespace Database.Migrations
                     b.ToTable("PatientContacts", "PatientManagement");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.PatientHospital", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ClinicId");
-
-                    b.ToTable("PatientHospitals", "PatientManagement");
-                });
-
             modelBuilder.Entity("Domain.Entities.PatientManagement.PatientOccupation", b =>
                 {
                     b.Property<int>("Id")
@@ -640,9 +622,6 @@ namespace Database.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("Telephone")
                         .HasColumnType("nvarchar(max)");
 
@@ -653,8 +632,6 @@ namespace Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
 
                     b.ToTable("RelatedHcps", "PatientManagement");
                 });
@@ -675,7 +652,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Clinic", "Setting");
+                    b.ToTable("Clinics", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Practice.ClinicSite", b =>
@@ -1065,29 +1042,7 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.PatientHospital", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Practice.Clinic", "Clinic")
-                        .WithMany()
-                        .HasForeignKey("ClinicId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Clinic");
-                });
-
             modelBuilder.Entity("Domain.Entities.PatientManagement.PatientOccupation", b =>
-                {
-                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Domain.Entities.PatientManagement.RelatedHcp", b =>
                 {
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
                         .WithMany()

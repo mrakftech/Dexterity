@@ -1,5 +1,106 @@
-﻿<h3>RelatedHcp</h3>
+﻿@using Services.Features.PatientManagement.Dtos.RelatedHcp
+<label class="e-form-label">@($"HCP({@HcpList.Count})")</label>
+<MudItem md="4">
+    <MudStack Row>
+        <SfDropDownList TValue="int" Placeholder="e.g. select hcp" TItem="RelatedHcpDto"
+                        @bind-Value="_hcpId" DataSource="@HcpList">
+            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            <DropDownListEvents TItem="RelatedHcpDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+        </SfDropDownList>
+        <DexSimpleButton FullWidth="false" Name="Edit" Click="EditHcp" Disabled="_disableButtons"></DexSimpleButton>
+        <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteHcp" Disabled="_disableButtons"></DexSimpleButton>
+    </MudStack>
+</MudItem>
+
+<SfDataForm Model="@_patientHcp"
+            ColumnCount="3"
+            Width="100%"
+            ColumnSpacing="20px"
+            OnValidSubmit="AddHcp"
+            ButtonsAlignment="FormButtonsAlignment.Left">
+    <FormValidator>
+        <ObjectGraphDataAnnotationsValidator />
+    </FormValidator>
+    <FormItems>
+        <FormGroup LabelText="HCP Details">
+            <FormItem Field="@nameof(_patientHcp.Type)" LabelText="Type" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Name)" LabelText="Name" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Address)" LabelText="Address" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Telephone)" LabelText="Telephone" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Fax)" LabelText="Fax" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Email)" LabelText="Email" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Website)" LabelText="Website" ColumnSpan="1" />
+        </FormGroup>
+    </FormItems>
+    <FormButtons>
+        <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false" />
+    </FormButtons>
+</SfDataForm>
 
 @code {
-    
+    [Parameter] public Guid Id { get; set; }
+    private bool _processing;
+    private int _hcpId;
+    private bool _disableButtons = true;
+    private RelatedHcpDto _patientHcp = new();
+    private List<RelatedHcpDto> HcpList { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHcps(Id);
+    }
+
+    private async Task GetHcps(Guid id)
+    {
+        HcpList = await UnitOfWork.Patient.GetRealtedHcps(Id);
+    }
+
+    private async Task AddHcp()
+    {
+        _processing = true;
+        _patientHcp.PatientId = Id;
+        var res = await UnitOfWork.Patient.SaveRelatedHcp(_patientHcp);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            await GetHcps(Id);
+            _patientHcp = new();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, RelatedHcpDto> obj)
+    {
+        _hcpId = obj.Value;
+        if (_hcpId > 0)
+        {
+            _disableButtons = false;
+        }
+    }
+
+    private async Task EditHcp()
+    {
+        var res = await UnitOfWork.Patient.GetRealtedHcp(_hcpId);
+        _patientHcp = res;
+    }
+
+    private async Task DeleteHcp()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeleteRelatedHcp(_hcpId);
+            await GetHcps(Id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
 }

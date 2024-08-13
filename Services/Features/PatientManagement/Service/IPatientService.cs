@@ -1,6 +1,7 @@
 using Domain.Entities.PatientManagement.Alert;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Services.Features.PatientManagement.Dtos.Upsert;
 using Shared.Wrapper;
 
@@ -43,13 +44,19 @@ public interface IPatientService
     public Task<IResult> SavePatientAlert(Guid id, PatientAlertCreateDto request);
     public Task<IResult> DeletePatientAlert(Guid id);
     public Task<IResult> ResolvePatientAlert(Guid id);
-
-
+    
     #region Alert Category
     public Task<List<AlertCategory>> GetAlertCategories();
     public Task<IResult> AddAlertCategories(string name);
     public Task<IResult> DeleteAlertCategory(int id);
     #endregion
-    
+
+    #endregion
+    #region Related HCPs
+    public Task<List<RelatedHcpDto>> GetRealtedHcps(Guid patientId);
+    public Task<RelatedHcpDto> GetRealtedHcp(int id);
+    public Task<IResult> SaveRelatedHcp(RelatedHcpDto request);
+    public Task<IResult> DeleteRelatedHcp(int id);
+
     #endregion
 }

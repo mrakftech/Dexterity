@@ -18,7 +18,7 @@ public interface ISettingService
 
     #endregion
 
-    #region Clinic
+    #region Hospital
 
     public Task<List<ClinicDto>> GetClinics();
     public Task<IResult<ClinicDto>> GetClinic(int id);

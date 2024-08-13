@@ -10,6 +10,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Extra;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.RelatedHcp;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -279,8 +280,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
     {
         var list = await context.PatientAlerts
-            .Include(x=>x.AlertCategory)
-            .Where(x=>x.IsDeleted==false)
+            .Include(x => x.AlertCategory)
+            .Where(x => x.IsDeleted == false)
             .AsNoTracking().Where(x => x.PatientId == patientId)
             .ToListAsync();
         context.ChangeTracker.Clear();
@@ -351,6 +352,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Alert has been resolved.");
     }
 
+
+
     #region Alert Categories
 
     public async Task<List<AlertCategory>> GetAlertCategories()
@@ -383,6 +386,78 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    #endregion
+
+    #region Health care professional
+
+    public async Task<List<RelatedHcpDto>> GetRealtedHcps(Guid patientId)
+    {
+        var list = await context.RelatedHcps
+            .Where(x => x.PatientId == patientId)
+            .ToListAsync();
+
+        var mappedData = mapper.Map<List<RelatedHcpDto>>(list);
+        return mappedData;
+    }
+
+    public async Task<RelatedHcpDto> GetRealtedHcp(int id)
+    {
+        var hcp = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == id);
+        var mappedData = mapper.Map<RelatedHcpDto>(hcp);
+        return mappedData;
+    }
+
+    public async Task<IResult> SaveRelatedHcp(RelatedHcpDto request)
+    {
+        try
+        {
+            if (request.Id == 0)
+            {
+                var hcp = new RelatedHcp()
+                {
+                    Name = request.Name,
+                    Type = request.Type,
+                    Address = request.Address,
+                    Telephone = request.Telephone,
+                    Fax = request.Fax,
+                    Email = request.Email,
+                    Website = request.Website,
+                    PatientId = request.PatientId
+                };
+                await context.RelatedHcps.AddAsync(hcp);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("HealthCare professional added.");
+
+            }
+            else
+            {
+                var hcpInDb = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == request.Id);
+                if (hcpInDb == null) return await Result.FailAsync("HCP not found.");
+
+                var data = mapper.Map(request, hcpInDb);
+                context.RelatedHcps.Update(hcpInDb);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("HealthCare professional Saved.");
+
+            }
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+
+    }
+
+    public async Task<IResult> DeleteRelatedHcp(int id)
+    {
+        var hcpInDb = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == id);
+        if (hcpInDb == null) return await Result.FailAsync("HCP not found.");
+
+        context.RelatedHcps.Remove(hcpInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("HCP deleted");
+    }
 
     #endregion
 }
