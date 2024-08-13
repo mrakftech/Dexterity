@@ -1,0 +1,21 @@
+﻿<SfDataForm ColumnCount="@ColumnCount" Model="@Model" OnValidSubmit="OnValidSubmit">
+    <FormValidator>
+        <ObjectGraphDataAnnotationsValidator/>
+    </FormValidator>
+    <FormItems>
+        @Fields
+    </FormItems>
+    <FormButtons>
+        @Buttons
+    </FormButtons>
+</SfDataForm>
+
+@code {
+    [Parameter] public object Model { get; set; }
+    [Parameter] public int ColumnCount { get; set; } = 1;
+    [Parameter] public EventCallback<EditContext> OnValidSubmit { get; set; }
+    [Parameter] public RenderFragment Fields { get; set; }
+    [Parameter] public RenderFragment Buttons { get; set; }
+    [Parameter] public RenderFragment Group { get; set; }
+
+}

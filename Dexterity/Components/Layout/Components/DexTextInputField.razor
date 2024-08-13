@@ -1,31 +1,13 @@
-﻿@using System.Linq.Expressions
-<Validation>
-    <Field Horizontal="@Horizontal">
-        <FieldLabel>@Label:</FieldLabel>
-        <TextEdit Placeholder="@Placeholder"
-                  Text="@FieldDataSource"
-                  TextChanged="@FieldDataSourceChanged"
-                  TextExpression="@FieldDataSourceExpression"
-                  ReadOnly="@IsFieldReadOnly"
-                  InputMode="@FieldType"
-                  Disabled="@IsFieldDisabled"
-                  Role="@FieldRole">
-            <Feedback>
-                <FieldHelp>@HelpText</FieldHelp>
-                <ValidationError/>
-            </Feedback>
-        </TextEdit>
-    </Field>
-</Validation>
-
+﻿ @using System.Linq.Expressions
+ <label>@Label</label>
+<SfTextBox @bind-Value="@FieldDataSource" Placeholder="@Label" Type="@FieldRole" Readonly="IsFieldReadOnly" Enabled="!IsFieldDisabled"></SfTextBox>
 @code {
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string Placeholder { get; set; } = "";
     [Parameter] public string HelpText { get; set; } = "";
     [Parameter] public bool IsFieldReadOnly { get; set; } = false;
     [Parameter] public bool IsFieldDisabled { get; set; } = false;
-    [Parameter] public TextInputMode FieldType { get; set; } = TextInputMode.Text;
-    [Parameter] public TextRole FieldRole { get; set; } = TextRole.Text;
+    [Parameter] public SfInputType FieldRole { get; set; } = SfInputType.Text;
     [Parameter] public bool Horizontal { get; set; } = false;
 
     protected string _fieldDataSource;

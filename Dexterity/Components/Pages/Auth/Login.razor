@@ -15,7 +15,7 @@
         <div class="container">
             <div class="row align-items-center justify-content-center">
                 <div class="col-md-7">
-                    <img src="assets/images/large_logo.png" alt="logo" class="img-fluid logo" />
+                    <img src="assets/images/large_logo.png" alt="logo" class="img-fluid logo"/>
                     <h1 style="color: crimson;font-size: 28px">
                         <strong>General Practice</strong>
                     </h1>
@@ -24,11 +24,25 @@
                     </h3>
                     <div class="mt-5">
                         <MudItem Style="@($"display:{LoginBoxDisplay}")">
-                            <Validations @ref="@ValidationsRef" Model="@_loginDto" Mode="ValidationMode.Manual">
-                                <DexTextInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username" />
-                                <DexTextInputField Label="Password" @bind-FieldDataSource="@_loginDto.Password" FieldRole="TextRole.Password" />
-                                <DexLoadingButton Name="Login" Processing="_processing" Click="LoginUser" Icon="fas fa-sign-in"></DexLoadingButton>
-                            </Validations>
+                            <DexForm Model="@_loginDto" OnValidSubmit="LoginUser">
+                                <Fields>
+                                    <FormItem Field="@nameof(_loginDto.Username)">
+                                        <Template>
+                                            <DexTextInputField Label="Username" @bind-FieldDataSource="@_loginDto.Username"/>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(_loginDto.Password)">
+                                        <Template>
+                                            <DexTextInputField Label="Password"
+                                                               @bind-FieldDataSource="@_loginDto.Password"
+                                                               FieldRole="SfInputType.Password"/>
+                                        </Template>
+                                    </FormItem>
+                                </Fields>
+                                <Buttons>
+                                    <DexLoadingButton Name="Login" Processing="_processing" Type="MudButtonType.Submit" Icon="fas fa-sign-in"></DexLoadingButton>
+                                </Buttons>
+                            </DexForm>
 
                         </MudItem>
                         <MudItem Style="@($"display:{ClinicBoxDisplay}")">
@@ -41,7 +55,7 @@
                                     <SelectItem Value="@item.ClinicId">@item.Clinic.Name - @item.Clinic.Address</SelectItem>
                                 }
                             </Select>
-                         
+
                             <DexLoadingButton Name="Proceed" Processing="_processing" Click="NavigateToDashboard"></DexLoadingButton>
                         </MudItem>
                     </div>
@@ -56,42 +70,35 @@
 @code {
     private LoginDto _loginDto = new();
     private bool _processing;
-    Validations ValidationsRef { get; set; }
     private string LoginBoxDisplay { get; set; } = "";
     private string ClinicBoxDisplay { get; set; } = "none";
     int _clinicId = 0;
     private List<UserClinic> _clinics { get; set; } = new();
 
-   
 
     private async Task LoginUser()
     {
         _processing = true;
-        if (await ValidationsRef.ValidateAll())
+        var res = await UnitOfWork.User.LoginAsync(_loginDto);
+        if (res.Succeeded)
         {
-            var res = await UnitOfWork.User.LoginAsync(_loginDto);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge(res.Messages.First());
-                await Task.Delay(1500);
-                LoginBoxDisplay = "none";
-                ClinicBoxDisplay = "";
-                _clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
-
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-
-                foreach (var item in res.Messages)
-                {
-                    Console.WriteLine(item);
-                }
-            }
-
-            await Task.Delay(2500);
-            await ValidationsRef.ClearAll();
+            Snackbar.SuccessMessge(res.Messages.First());
+            await Task.Delay(1500);
+            LoginBoxDisplay = "none";
+            ClinicBoxDisplay = "";
+            _clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
         }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+
+            foreach (var item in res.Messages)
+            {
+                Console.WriteLine(item);
+            }
+        }
+
+        await Task.Delay(2500);
 
         _processing = false;
     }

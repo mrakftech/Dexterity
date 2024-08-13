@@ -32,7 +32,7 @@
             <DexTextInputField Label="Subject" @bind-FieldDataSource="_mailRequest.Subject"></DexTextInputField>
         </MudItem>
         <MudItem>
-            <DexTextInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexTextInputField>
+            <DexTextInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="SfInputType.Email"></DexTextInputField>
         </MudItem>
         <MudItem>
             <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">

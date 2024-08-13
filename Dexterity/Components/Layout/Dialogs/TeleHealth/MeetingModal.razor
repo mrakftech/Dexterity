@@ -26,7 +26,7 @@
                                     <MudStack>
                                         <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
                                             <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient" />
-                                            <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexTextInputField>
+                                            <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="SfInputType.Email"></DexTextInputField>
                                             <MudButton Disabled="@_processing" OnClick="ShareLinkToPatient" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
                                                 @if (_processing)
                                                 {
