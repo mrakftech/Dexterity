@@ -49,6 +49,7 @@ public class PatientMapping : Profile
         CreateMap<PatientContact, PatientContactDto>().ReverseMap();
         CreateMap<PatientOccupation, PatientOccupationDto>().ReverseMap();
         CreateMap<RelatedHcp, RelatedHcpDto>().ReverseMap();
+        CreateMap<PatientHospital, PatientHospitalDto>().ReverseMap();
 
         #endregion
 

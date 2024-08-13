@@ -11,6 +11,7 @@ using Domain.Entities.PatientManagement.Extra;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
+using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -280,14 +281,30 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
     {
         var list = await context.PatientAlerts
-            .Include(x => x.AlertCategory)
-            .Where(x => x.IsDeleted == false)
-            .AsNoTracking().Where(x => x.PatientId == patientId)
-            .ToListAsync();
+           .Include(x => x.AlertCategory)
+           .Where(x => x.IsDeleted == false)
+           .AsNoTracking().Where(x => x.PatientId == patientId)
+           .ToListAsync();
         context.ChangeTracker.Clear();
         var mappedData = mapper.Map<List<PatientAlertDto>>(list);
         return mappedData;
     }
+    public async Task<List<PatientAlertDto>> GetPatientAlertByModule(Guid patientId, string alertType)
+    {
+        var list = await context.PatientAlerts
+       .Include(x => x.AlertCategory)
+       .AsNoTracking()
+       .Where(x => x.PatientId == patientId
+       && x.Type == alertType
+       && x.IsDeleted == false
+       && x.IsResolved == false)
+       .ToListAsync();
+
+        context.ChangeTracker.Clear();
+        var mappedData = mapper.Map<List<PatientAlertDto>>(list);
+        return mappedData;
+    }
+
 
     public async Task<PatientAlertDto> GetPatientAlert(Guid id)
     {

@@ -1,0 +1,74 @@
+﻿@using Domain.Entities.PatientManagement
+@using Services.Features.PatientManagement.Dtos
+@using Services.Features.Settings.Dtos
+<MudDialog>
+    <TitleContent></TitleContent>
+    <DialogContent>
+        <MudStack>
+            <MudItem>
+                <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="ClinicDto"
+                                @bind-Value="_patientHospital.ClinicId" DataSource="@clinics">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TItem="ClinicDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem>
+                <SfTextBox Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
+            </MudItem>
+            <MudItem>
+                <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
+            </MudItem>
+        </MudStack>
+
+
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private List<ClinicDto> clinics = new();
+    private PatientHospitalDto _patientHospital = new();
+    private bool _processing;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetClinics();
+        _loading = false;
+    }
+
+    private async Task GetClinics()
+    {
+        clinics = await UnitOfWork.Setting.GetClinics();
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, ClinicDto> obj)
+    {
+        var clinic = obj.ItemData;
+        _patientHospital.ClinicId = clinic.Id;
+        if (clinic.Id > 0)
+        {
+            _patientHospital.Name = clinic.Name;
+            _patientHospital.Address = clinic.Address;
+        }
+    }
+
+    public async Task SaveHospital()
+    {
+        _processing = true;
+        // PatientExtraDetail.PatientId = PatientExtraDetail.PatientId;
+        // var res = await UnitOfWork.Patient.SaveExtraDetails(PatientExtraDetail);
+        // if (res.Succeeded)
+        // {
+        //     Snackbar.SuccessMessge(res.Messages.First());
+        // }
+        // else
+        // {
+        //     Snackbar.FailMessge(res.Messages.First());
+
+        // }
+        _processing = false;
+    }
+
+}

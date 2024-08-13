@@ -101,7 +101,7 @@ else
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await Task.Delay(3000);
+        await Task.Delay(500);
         await GetPatient(Id);
         _loading = false;
     }

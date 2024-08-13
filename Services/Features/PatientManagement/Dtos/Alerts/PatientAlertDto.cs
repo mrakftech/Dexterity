@@ -18,6 +18,6 @@ public class PatientAlertDto
     public string Status { get; set; }
     public string Details { get; set; }
     public bool IsResolved { get; set; }
-    public Guid PatientId { get; set; }
+    public Guid PatientId { get; set; } = Guid.Empty;
     public int AlertCategoryId { get; set; }
 }

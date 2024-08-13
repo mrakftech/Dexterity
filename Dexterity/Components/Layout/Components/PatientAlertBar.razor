@@ -1,0 +1,52 @@
+﻿@using System.ComponentModel.DataAnnotations
+@using Services.Features.PatientManagement.Dtos.Alerts
+<MudExpansionPanels>
+<MudExpansionPanel HideIcon="true">
+    <TitleContent>
+        <div class="d-flex">
+            <MudText Class="mt-1">Inbox</MudText>
+            <MudBadge Content="@_lowSeverityCount" Color="MudColor.Default" Overlap="true" Class="d-flex ml-auto">
+                <MudIcon Icon="@MudIcons.Material.Filled.Notifications" Color="MudColor.Default" />
+            </MudBadge>
+        </div>
+    </TitleContent>
+    <ChildContent>
+        <MudExpansionPanels Outlined="false" Elevation="0">
+            <MudExpansionPanel Text="Panel One">
+                Panel One Content
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Panel Two">
+                Panel Two Content
+            </MudExpansionPanel>
+            <MudExpansionPanel Text="Panel Three">
+                Panel Three Content
+            </MudExpansionPanel>
+        </MudExpansionPanels>
+    </ChildContent>
+</MudExpansionPanel>
+</MudExpansionPanels>
+
+
+
+@code {
+
+    [Required] [Parameter] public Guid PatientId { get; set; } = Guid.Empty;
+    private List<PatientAlertDto> PatientAlerts { get; set; } = new();
+    private int _lowSeverityCount = 0;
+    private int _medSeverityCount = 0;
+    private int _highSeverityCount = 0;
+  
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (PatientId != Guid.Empty)
+        {
+            _lowSeverityCount = 62;
+            // PatientAlerts = await UnitOfWork.Patient.GetPatientAlertByModule(PatientId, AlertTypes.Appointment.ToString());
+            // _lowSeverityCount = PatientAlerts.Count(x => x.Severity == AlertSeverity.Low.ToString());
+            // _medSeverityCount = PatientAlerts.Count(x => x.Severity == AlertSeverity.Medium.ToString());
+            // _highSeverityCount = PatientAlerts.Count(x => x.Severity == AlertSeverity.High.ToString());
+        }
+        await Task.CompletedTask;
+    }
+}

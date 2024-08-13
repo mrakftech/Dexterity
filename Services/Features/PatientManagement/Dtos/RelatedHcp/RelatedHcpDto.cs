@@ -4,7 +4,6 @@ namespace Services.Features.PatientManagement.Dtos.RelatedHcp;
 
 public class RelatedHcpDto
 {
-
     public int Id { get; set; }
     [Required] public string Type { get; set; }
     [Required] public string Name { get; set; }

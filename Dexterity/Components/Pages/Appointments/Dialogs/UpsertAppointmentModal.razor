@@ -1,5 +1,6 @@
 ﻿@using Services.Features.Appointments.Dtos
 @using Services.Features.PatientManagement.Dtos
+@using Services.Features.PatientManagement.Dtos.Alerts
 @using Services.Features.Settings.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 @using Syncfusion.Blazor.Calendars
@@ -11,7 +12,9 @@
                 <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">Appointment Details</MudText>
                 <MudText Color="MudColor.Primary" Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
             </MudItem>
-
+            <MudItem>
+                <PatientAlertBar PatientId="Appointment.PatientId"/>
+            </MudItem>
         </MudStack>
     </TitleContent>
     <DialogContent>
@@ -23,7 +26,7 @@
                         @if (Id != 0)
                         {
                             <DexSimpleButton Name="Cancel Appointment" Click="@CancelAppointment" Icon="fas fa-ban" FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
-                            <DexSimpleButton Name="Delete Appointment" Click="()=>DeleteAppointment(Id)" Icon="fas fa-trash" FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                            <DexSimpleButton Name="Delete Appointment" Click="() => DeleteAppointment(Id)" Icon="fas fa-trash" FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
                         }
                     </MudStack>
                 </MudItem>
@@ -32,8 +35,7 @@
                         <MudStack>
                             @if (Id != 0)
                             {
-                                <PatientAppointmentCard Patient="_patient" />
-
+                                <PatientAppointmentCard Patient="_patient"/>
                             }
                             <MudItem>
                                 <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
@@ -95,11 +97,10 @@
 
                 </MudItem>
             </MudStack>
-
         }
         else
         {
-            <CommonLoader />
+            <CommonLoader/>
         }
 
 
@@ -108,8 +109,6 @@
 
         @if (!_loadScreen)
         {
-
-
             <DexLoadingButton Name="Save Appointment" Click="@SaveAppointment" Processing="_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
         }
 
@@ -152,7 +151,6 @@
             var res = await UnitOfWork.Appointment.GetAppointment(Id);
             if (res.Succeeded)
             {
-
                 Appointment = Mapper.Map<AppointmentDto>(res.Data);
                 _patient = PatientList.FirstOrDefault(x => x.Id == Appointment.PatientId);
                 Appointment.Type = AppointmentTypes.FirstOrDefault(x => x.Id == Appointment.AppointmentTypeId)!.Name;
@@ -162,10 +160,8 @@
         }
 
         _loadScreen = false;
-
+        StateHasChanged();
     }
-
-
 
 
     private async Task GetAppointmentTypes()
@@ -180,7 +176,6 @@
 
     private async Task SaveAppointment()
     {
-
         _processing = true;
         _error = "";
         if (Appointment.PatientId == Guid.Empty)
@@ -189,16 +184,16 @@
             Snackbar.FailMessge("Please select patient");
             _processing = false;
             return;
-
         }
+
         if (Appointment.AppointmentTypeId == 0)
         {
             _error = "Please select appointment type";
             Snackbar.FailMessge("Please select appointment type");
             _processing = false;
             return;
-
         }
+
         if (Appointment.ClinicSiteId == 0)
         {
             _error = "Please select Site";
@@ -206,6 +201,7 @@
             _processing = false;
             return;
         }
+
         if (Appointment.HcpId == Guid.Empty)
         {
             _error = "Please select Health care professional";
@@ -213,6 +209,7 @@
             _processing = false;
             return;
         }
+
         if (await _validationsRef.ValidateAll())
         {
             await Task.Delay(2500);
@@ -226,13 +223,14 @@
             {
                 _error = res.Messages.First();
                 Snackbar.FailMessge(res.Messages.First());
-
             }
+
             await _validationsRef.ClearAll();
         }
 
         _processing = false;
     }
+
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
         var patient = args.ItemData;
@@ -240,8 +238,10 @@
         {
             Appointment.PatientId = patient.Id;
             Appointment.PatientName = patient.FullName;
+            StateHasChanged();
         }
     }
+
     Task OnClinicStieChanged(ChangeEventArgs<int, ClinicSiteDto> args)
     {
         var clinicSite = args.ItemData;
@@ -249,6 +249,7 @@
         Appointment.Location = clinicSite.Name;
         return Task.CompletedTask;
     }
+
     Task OnAppointmentTypeChanged(ChangeEventArgs<int, AppointmentTypeDto> args)
     {
         var appointmentType = AppointmentTypes.FirstOrDefault(x => x.Id == args.Value);
@@ -257,18 +258,18 @@
         Appointment.Type = appointmentType.Name;
         return Task.CompletedTask;
     }
+
     private async Task CancelAppointment()
     {
         var parameters = new DialogParameters();
         parameters.Add("AppointmentId", Id);
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<CancelAppointment>("", parameters, options);
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
             MudDialog.Close();
         }
-
     }
 
     private async Task DeleteAppointment(int id)
@@ -282,9 +283,11 @@
             MudDialog.Close();
         }
     }
+
     private void OnChange(ChangedEventArgs<DateTime> args)
     {
         Appointment.StartTime = args.Value;
         StateHasChanged();
     }
+
 }

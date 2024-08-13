@@ -40,6 +40,7 @@ public interface IPatientService
     #region Alerts
 
     public Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId);
+    Task<List<PatientAlertDto>> GetPatientAlertByModule(Guid patientId, string alertType);
     public Task<PatientAlertDto> GetPatientAlert(Guid id);
     public Task<IResult> SavePatientAlert(Guid id, PatientAlertCreateDto request);
     public Task<IResult> DeletePatientAlert(Guid id);

@@ -1,4 +1,7 @@
 ﻿
+using System.ComponentModel.DataAnnotations;
+using Services.Configurations.Attributes;
+
 namespace Services.Features.Appointments.Dtos;
 
 public class AppointmentDto 
@@ -16,10 +19,19 @@ public class AppointmentDto
     public string Status { get; set; }
     public int Duration { get; set; }
     public int CancelReasonId { get; set; }
+    
+    [Range(1, int.MaxValue, ErrorMessage = "Please select type")]
     public int AppointmentTypeId { get; set; }
+    
     public int ClinicId { get; set; }
+    
+    [Range(1, int.MaxValue, ErrorMessage = "Please select site")]
     public int ClinicSiteId { get; set; }
+    
+    [NotEmpty]
     public Guid PatientId { get; set; }
+    
+    [NotEmpty]
     public Guid HcpId { get; set; }
 
     public string Type { get; set; }
