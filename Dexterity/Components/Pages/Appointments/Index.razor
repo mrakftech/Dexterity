@@ -5,78 +5,65 @@
 @using Dexterity.Components.Pages.Appointments.Dialogs
 @using Services.Features.PatientManagement.Dtos
 @using Services.Features.UserAccounts.Dtos.User
-@using Services.State
-
 
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
 </TopTitleBar>
-<style>
-    .tab-content {
-        width: 75% !important;
-    }
-</style>
+
 <div class="vertical-space">
     @if (_loading)
     {
-        <CommonLoader />
+        <CommonLoader/>
     }
     else
     {
-        <MudPaper Height="800px" Style="overflow:hidden; position:relative;">
-            <MudDrawerContainer Class="mud-height-full">
-                <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
-                           OpenMiniOnHover="true">
-                    <MudNavMenu>
-                        <MudItem>
-                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
-                                        @onclick="@(() => ClickChangedTab("appointments"))">
-                                Appointments
-                            </MudNavLink>
-                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
-                                        @onclick="@(() => NewAppointment(DateTime.Now))">
-                                New Appointment
-                            </MudNavLink>
-                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
-                                        @onclick="@(() => ClickChangedTab("recurring-appointments"))">
-                                Recurring Appointments
-                            </MudNavLink>
-                            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-magnifying-glass" IconColor="MudColor.Info"
-                                        @onclick="@(() => ClickChangedTab("find-appointments"))">
-                                Find Appointments
-                            </MudNavLink>
-                        </MudItem>
-                        <MudSpacer />
-                    </MudNavMenu>
-                </MudDrawer>
-                <div class="d-flex justify-center align-center">
-                    <Tabs SelectedTab="@_selectedTab" >
-                        <Content>
-                            <TabPanel Name="appointments">
-                                <DexScheduler HealthCares="HealthCares" PatientList="PatientList" />
-                            </TabPanel>
-                            <TabPanel Name="recurring-appointments">
-                                <RecurringAppointments HealthCares="HealthCares" PatientList="PatientList"/>
-                            </TabPanel>
-                            <TabPanel Name="find-appointments">
-                                <FindAppointments/>
-                            </TabPanel>
-                        </Content>
-                    </Tabs>
+        <InnerLayout>
+            <NavigationItems>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(0))">
+                    Appointments
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
+                            @onclick="@(() => NewAppointment(DateTime.Now))">
+                    New Appointment
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(1))">
+                    Recurring Appointments
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-magnifying-glass" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChanged(2))">
+                    Find Appointments
+                </MudNavLink>
+            </NavigationItems>
+
+            <DexContentTabs>
+                <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+                    <MudTabs @ref="_tabs">
+                        <MudTabPanel Text="">
+                            <DexScheduler HealthCares="HealthCares" PatientList="PatientList"/>
+                        </MudTabPanel>
+                        <MudTabPanel Text="">
+                            <RecurringAppointments HealthCares="HealthCares" PatientList="PatientList"/>
+                        </MudTabPanel>
+                        <MudTabPanel Text="">
+                            <FindAppointments/>
+                        </MudTabPanel>
+                    </MudTabs>
                 </div>
-            </MudDrawerContainer>
-        </MudPaper>
+
+            </DexContentTabs>
+        </InnerLayout>
     }
+
 </div>
 
 @code {
-
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private List<PatientListDto> PatientList { get; set; }
+    MudTabs _tabs;
 
-    private bool _open = false;
     private bool _loading = false;
-    string _selectedTab = "appointments";
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,32 +71,34 @@
         await GetHealthCares();
         await GetPatients();
         _loading = false;
-
     }
+
+    private void ClickChanged(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
+
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-        .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
     }
+
     private async Task GetPatients()
     {
         PatientList = await UnitOfWork.Patient.GetPatients();
     }
-    private void ClickChangedTab(string tabName)
-    {
-        _selectedTab = tabName;
-    }
+
     private async Task NewAppointment(DateTime dateTime)
     {
-
         var parameters = new DialogParameters();
         parameters.Add("StartDate", dateTime);
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
         }
-
     }
+
 }

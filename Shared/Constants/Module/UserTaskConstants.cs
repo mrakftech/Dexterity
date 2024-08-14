@@ -8,7 +8,7 @@ public static class UserTaskConstants
     public const string MonthView = "Month";
 
 
-    public static class TaskStatus
+    public static class TaskStatusConstant
     {
         public const string Active = "Active";
         public const string Inactive = "Inactive";
@@ -17,6 +17,20 @@ public static class UserTaskConstants
         public const string Complete = "Complete";
         public const string Cancelled = "Cancelled";
 
+    }
+    public static List<TaskStatus> TaskStatusList { get; set; } =
+    [
+        new TaskStatus(1, "Active"),
+        new TaskStatus(2, "Inactive"),
+        new TaskStatus(3, "In Progress"),
+        new TaskStatus(4, "Complete"),
+        new TaskStatus(5, "Cancelled"),
+    ];
+
+    public class TaskStatus(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
     }
 }
 

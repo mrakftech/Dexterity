@@ -1,37 +1,39 @@
 ﻿@using Services.Features.PatientManagement.Dtos
 @using Shared.Helper
+<TabTitle Title="WhatsApp"></TabTitle>
+<div class="vertical-space">
+    <MudStack>
+        <MudItem>
+            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
 
-<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">WhatsApp</MudText>
-<MudStack>
-    <MudItem>
-        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-        
-    </MudItem>
-    @if (!string.IsNullOrWhiteSpace(_waLink))
-    {
-        <MudItem md="6">
-            
-        <MudButton FullWidth="false" Size="MudSize.Medium" Href="@_waLink" Color="MudColor.Primary" Variant="Variant.Filled"  StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
         </MudItem>
-    }
-    <MudItem>
-        @if (!string.IsNullOrWhiteSpace(_mobile))
+        @if (!string.IsNullOrWhiteSpace(_waLink))
         {
-            <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                @if (_processing)
-                {
-                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2 white-color">Processing</MudText>
-                }
-                else
-                {
-                    <MudText><i class="fas fa-paper-plane"></i> Generate Link</MudText>
-                }
-            </MudButton>
-        }
+            <MudItem md="6">
 
-    </MudItem>
-</MudStack>
+                <MudButton FullWidth="false" Size="MudSize.Medium" Href="@_waLink" Color="MudColor.Primary" Variant="Variant.Filled" StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
+            </MudItem>
+        }
+        <MudItem>
+            @if (!string.IsNullOrWhiteSpace(_mobile))
+            {
+                <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                    @if (_processing)
+                    {
+                        <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
+                        <MudText Class="ms-2 white-color">Processing</MudText>
+                    }
+                    else
+                    {
+                        <MudText><i class="fas fa-paper-plane"></i> Generate Link</MudText>
+                    }
+                </MudButton>
+            }
+
+        </MudItem>
+    </MudStack>
+</div>
+
 
 @code {
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();

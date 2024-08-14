@@ -1,4 +1,10 @@
-﻿.sub-drawer {
+﻿label{
+    font-weight: bolder;
+}
+.e-data-form .e-form-label {
+    font-weight: bolder!important;
+}
+.sub-drawer {
     background-image: linear-gradient(to top, #30cfd0 0%, #330867 100%) !important;
     color: #ffffff !important;
     width:600px;

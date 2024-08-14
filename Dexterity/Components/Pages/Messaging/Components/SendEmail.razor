@@ -1,63 +1,63 @@
-﻿@using Services.Features.Messaging.Dtos.Sms
+﻿@using Domain.Entities.Settings.Templates
+@using Services.Features.Messaging.Dtos.Sms
 @using Services.Features.PatientManagement.Dtos
-
-<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send Email</MudText>
-<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
-    <MudStack>
-        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-        <MudItem>
-            <RichTextEdit @ref="richTextEditRef"
-                          Theme="RichTextEditTheme.Snow"
-                          ContentChanged="@OnContentChanged"
-                          PlaceHolder="Type your post here..."
-                          SubmitOnEnter="false">
-                <Editor></Editor>
-                <Toolbar>
-                    <RichTextEditToolbarGroup>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.Bold" />
-                        <RichTextEditToolbarButton Action="RichTextEditAction.Italic" />
-                        <RichTextEditToolbarSelect Action="RichTextEditAction.Size">
-                            <RichTextEditToolbarSelectItem Value="small" />
-                            <RichTextEditToolbarSelectItem Selected />
-                            <RichTextEditToolbarSelectItem Value="large" />
-                            <RichTextEditToolbarSelectItem Value="huge">Very Big</RichTextEditToolbarSelectItem>
-                        </RichTextEditToolbarSelect>
-                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="ordered" />
-                        <RichTextEditToolbarButton Action="RichTextEditAction.List" Value="bullet" />
-                    </RichTextEditToolbarGroup>
-                </Toolbar>
-            </RichTextEdit>
-        </MudItem>
-        <MudItem>
-            <DexTextInputField Label="Subject" @bind-FieldDataSource="_mailRequest.Subject"></DexTextInputField>
-        </MudItem>
-        <MudItem>
-            <DexTextInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="SfInputType.Email"></DexTextInputField>
-        </MudItem>
-        <MudItem>
-            <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                @if (_processing)
-                {
-                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
+@using Syncfusion.Blazor.RichTextEditor
+<TabTitle Title="Send Email"></TabTitle>
+<div class="vertical-space">
+    <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
+        <MudStack>
+            <MudItem>
+                <FieldLabel>Email Template</FieldLabel>
+                <SfDropDownList TValue="Guid" TItem="EmailTemplate" Placeholder="Select a template" DataSource="@EmailTemplates">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="Guid" TItem="EmailTemplate" ValueChange="OnValueChange"></DropDownListEvents>
+                </SfDropDownList>
+            </MudItem>
+            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+            <MudItem>
+                <SfRichTextEditor @bind-Value="@_mailRequest.Body" Width="520px"/>
+            </MudItem>
+            <MudItem>
+                <DexTextInputField Label="Subject" @bind-FieldDataSource="_mailRequest.Subject"></DexTextInputField>
+            </MudItem>
+            <MudItem>
+                <DexTextInputField Label="Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"></DexTextInputField>
+            </MudItem>
+            <MudItem>
+                <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                    @if (_processing)
+                    {
+                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
                     <MudText Class="ms-2 white-color">Processing</MudText>
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     <MudText><i class="fas fa-paper-plane"></i> Send Mail</MudText>
-                }
-            </MudButton>
-        </MudItem>
-    </MudStack>
-</Validations>
-
+                    }
+                </MudButton>
+            </MudItem>
+        </MudStack>
+    </Validations>
+    
+</div>
 
 @code {
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
     private MailRequest _mailRequest = new();
     Validations _validationsRef;
-    private string _body;
     private bool _processing;
-    protected RichTextEdit richTextEditRef;
+    private List<EmailTemplate> EmailTemplates { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSmsTemplates();
+    }
+
+
+    private async Task GetSmsTemplates()
+    {
+        EmailTemplates = await UnitOfWork.Setting.GetEmailTemplates();
+    }
 
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
@@ -78,13 +78,14 @@
             Snackbar.SuccessMessge("Email has been sent.");
             await _validationsRef.ClearAll();
         }
+
         _processing = false;
     }
 
-    private async Task OnContentChanged()
+
+    public void OnValueChange(ChangeEventArgs<Guid, EmailTemplate> args)
     {
-        _body = await richTextEditRef.GetHtmlAsync();
-        _mailRequest.Body = _body;
+        _mailRequest.Body = args.ItemData.Content;
     }
 
 }

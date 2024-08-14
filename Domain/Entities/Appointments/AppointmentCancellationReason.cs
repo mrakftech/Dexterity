@@ -5,7 +5,7 @@ namespace Domain.Entities.Appointments
     public class AppointmentCancellationReason
     {
         public int Id { get; set; }
-       [Required] public string Reason { get; set; }
+       [Required(ErrorMessage = "Required")] public string Reason { get; set; }
        public bool IsDefault { get; set; }
     }
 }

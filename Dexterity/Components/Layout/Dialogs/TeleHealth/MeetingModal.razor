@@ -8,7 +8,7 @@
     <DialogContent>
         @if (_processing)
         {
-            <CommonLoader />
+            <CommonLoader/>
         }
         else
         {
@@ -24,22 +24,25 @@
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
                                 <MudPaper Outlined="true" Class="px-4 py-8">
                                     <MudStack>
-                                        <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_mailRequest">
-                                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient" />
-                                            <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="SfInputType.Email"></DexTextInputField>
-                                            <MudButton Disabled="@_processing" OnClick="ShareLinkToPatient" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                                                @if (_processing)
-                                                {
-                                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true" />
-                                                    <MudText Class="ms-2 white-color">Processing</MudText>
-                                                }
-                                                else
-                                                {
-                                                    <MudText><i class="fas fa-paper-plane"></i> Send Mail</MudText>
-                                                }
-                                            </MudButton>
-                                            <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
-                                        </Validations>
+                                        <DexForm Model="_mailRequest" ColumnCount="1" OnValidSubmit="ShareLinkToPatient">
+                                            <Fields>
+                                                <FormItem Field="@nameof(_mailRequest.To)">
+                                                    <Template>
+                                                        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+                                                    </Template>
+                                                </FormItem>
+                                                <FormItem Field="@nameof(_mailRequest.To)">
+                                                    <Template>
+                                                        <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email" />
+                                                    </Template>
+                                                </FormItem>
+                                            </Fields>
+                                            <Buttons>
+                                                <DexLoadingButton Processing="_processing" Type="MudButtonType.Submit" Name="Send Mail"></DexLoadingButton>
+                                                <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                            </Buttons>
+                                        </DexForm>
+
 
                                     </MudStack>
                                 </MudPaper>
@@ -73,7 +76,6 @@
     private MailRequest _mailRequest = new();
 
     private string _messageFrameLoading = "Loading video call components....";
-    Validations _validationsRef;
 
     private bool _open;
     private void ToggleOpen() => _open = !_open;
@@ -121,19 +123,16 @@
         }
 
         _processing = true;
-        if (await _validationsRef.ValidateAll())
-        {
-            await Task.Delay(2500);
-            var mailRequest = new MailRequest()
-                {
-                    Subject = "Meeting Link",
-                    Body = _meetingLink,
-                    To = _mailRequest.To
-                };
-            await MailService.SendAsync(mailRequest, default);
-            Snackbar.SuccessMessge("Email has been sent.");
-        }
 
+        await Task.Delay(2500);
+        var mailRequest = new MailRequest()
+        {
+            Subject = "Meeting Link",
+            Body = _meetingLink,
+            To = _mailRequest.To
+        };
+        await MailService.SendAsync(mailRequest, default);
+        Snackbar.SuccessMessge("Email has been sent.");
         _processing = false;
     }
 

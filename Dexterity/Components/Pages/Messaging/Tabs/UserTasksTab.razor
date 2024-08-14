@@ -1,35 +1,25 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs.UserTasks
 @using Domain.Entities.Messaging.UserTasks
-@using Size = MudBlazor.Size
 @using ChangeEventArgs = Microsoft.AspNetCore.Components.ChangeEventArgs
-@using Shared.Constants.Module
 @if (_comLoading)
 {
-    <CommonLoader />
+    <CommonLoader/>
 }
 else
 {
-    <MudText Style="margin: 3%" Align="Align.Center" Typo="Typo.h4" Class="text-bold">User Tasks</MudText>
-
-    <MudStack >
-        <MudItem>
-            <MudStack Row Spacing="2">
-                <MudItem md="3">
-                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-list-check" Size="MudSize.Small" Label="All Tasks" Class="" OnClick="AllTasks" />
-                </MudItem>
-                <MudItem md="3">
-                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-day" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks" />
-                </MudItem>
-                <MudItem md="3">
-                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-week" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks" />
-                </MudItem>
-                <MudItem md="3">
-                    <MudFab IconSize="Size.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-days" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks" />
-                </MudItem>
-
-            </MudStack>
-        </MudItem>
-        <MudItem Style="margin-top: 2%">
+    <div>
+        <TabTitle Title="User Tasks">
+            <ActionButtons>
+                <DexSimpleButton Name="Add New Task" Click="() => UpsertUserTaskModal(Guid.Empty)"></DexSimpleButton>
+            </ActionButtons>
+        </TabTitle>
+        <MudStack Row Spacing="2" Class="mt-2">
+            <MudFab IconSize="MudSize.Small" Color="MudColor.Primary" StartIcon="" Size="MudSize.Small" Label="All Tasks" Class="" OnClick="AllTasks"/>
+            <MudFab IconSize="MudSize.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-day" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks"/>
+            <MudFab IconSize="MudSize.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-week" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
+            <MudFab IconSize="MudSize.Small" Color="MudColor.Primary" StartIcon="fas fa-calendar-days" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks"/>
+        </MudStack>
+        <MudStack >
             <MudDataGrid RowsPerPage="8" Loading="_userTaskLoading"
                          LoadingProgressColor="MudColor.Primary"
                          FixedHeader="true" T="UserTask"
@@ -38,32 +28,29 @@ else
                          Hideable="true">
                 <ToolBarContent>
                     <MudText Typo="Typo.h6" Class="text-bold">My Tasks</MudText>
-
-                    <MudFab Color="MudColor.Primary" StartIcon="fa fa-plus" Size="MudSize.Small" Label="Add New Task" Class="ml-5" OnClick="() => UpsertUserTaskModal(Guid.Empty)" />
-                    <MudSpacer />
+                    <MudSpacer/>
                     <MudItem md="4">
                         <MudStack Row>
                             <FieldLabel Class="mt-3">Status:</FieldLabel>
                             <MudSelect Dense="true" Margin="MudMargin.Dense" T="string" Variant="Variant.Outlined" ValueChanged="Callback">
-                                <MudSelectItem Value="@("All")" />
-                                <MudSelectItem Value="@("Active")" />
-                                <MudSelectItem Value="@("Inactive")" />
+                                <MudSelectItem Value="@("All")"/>
+                                <MudSelectItem Value="@("Active")"/>
+                                <MudSelectItem Value="@("Inactive")"/>
                             </MudSelect>
                         </MudStack>
-                      
+
                     </MudItem>
                 </ToolBarContent>
                 <Columns>
-                    <PropertyColumn Property="x => x.TaskDate" Title="Task Date" Format="MM/dd/yyyy" Sortable="false" Filterable="false" />
-                    <PropertyColumn Property="x => x.Subject" Title="Subject" Sortable="false" Filterable="false" />
-                    <PropertyColumn Property="x => x.Description" Title="Description" Sortable="false" Filterable="false" />
+                    <PropertyColumn Property="x => x.TaskDate" Title="Task Date" Format="MM/dd/yyyy" Sortable="false" Filterable="false"/>
+                    <PropertyColumn Property="x => x.Subject" Title="Subject" Sortable="false" Filterable="false"/>
+                    <PropertyColumn Property="x => x.Description" Title="Description" Sortable="false" Filterable="false"/>
                     <TemplateColumn CellClass="" Title="Assigned By">
                         <CellTemplate>
                             @if (@context.Item.AssignedBy != null)
                             {
                                 <MudText Color="MudColor.Primary">
                                     @context.Item.AssignedBy.FullName
-
                                 </MudText>
                             }
                             else
@@ -84,30 +71,29 @@ else
                         <CellTemplate>
                             @if (context.Item.AssignedById == null)
                             {
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(context.Item.Id)" />
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserTask(context.Item.Id)" />
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(context.Item.Id)"/>
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserTask(context.Item.Id)"/>
                             }
                             else
                             {
                                 <Select TValue="string" @onchange="(ChangeEventArgs e) => ChangeStatus(e, context.Item.Id)">
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Active">@UserTaskConstants.TaskStatus.Active</SelectItem>
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Complete">@UserTaskConstants.TaskStatus.Complete</SelectItem>
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.InProgress">@UserTaskConstants.TaskStatus.InProgress</SelectItem>
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Postponed">@UserTaskConstants.TaskStatus.Postponed</SelectItem>
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Cancelled">@UserTaskConstants.TaskStatus.Cancelled</SelectItem>
-                                    <SelectItem Value="@UserTaskConstants.TaskStatus.Inactive">@UserTaskConstants.TaskStatus.Inactive</SelectItem>
+
+                                    @foreach (var item in UserTaskConstants.TaskStatusList)
+                                    {
+                                        <SelectItem Value="@item.Name">@item.Name</SelectItem>
+                                    }
                                 </Select>
                             }
                         </CellTemplate>
                     </TemplateColumn>
                 </Columns>
                 <PagerContent>
-                    <MudDataGridPager T="UserTask" RowsPerPageString="8" />
+                    <MudDataGridPager T="UserTask" RowsPerPageString="8"/>
                 </PagerContent>
                 <NoRecordsContent>Tasks are not found.</NoRecordsContent>
             </MudDataGrid>
-        </MudItem>
-    </MudStack>
+        </MudStack>
+    </div>
 }
 
 @code {
@@ -136,7 +122,7 @@ else
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertUserTaskDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
@@ -191,10 +177,10 @@ else
         switch (status)
         {
             case "Active":
-                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatus.Active).ToList();
+                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatusConstant.Active).ToList();
                 break;
             case "Inactive":
-                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatus.Inactive).ToList();
+                UserTaskList = taskList.Where(x => x.Status == UserTaskConstants.TaskStatusConstant.Inactive).ToList();
                 break;
             default:
                 UserTaskList = taskList;

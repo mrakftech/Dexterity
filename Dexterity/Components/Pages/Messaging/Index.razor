@@ -4,68 +4,68 @@
 <TopTitleBar Title="Messaging"
              Image="modules/messaging/communication1.svg">
 </TopTitleBar>
-<style>
-    
-</style>
-<div  class="vertical-space">
-    <MudPaper Height="650px" Style="overflow:hidden; position:relative;">
-        <MudDrawerContainer Class="mud-height-full">
-            <MudDrawer Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini"
-                       OpenMiniOnHover="true">
-                <MudNavMenu>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-bars-progress" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("user-tasks-tab"))">
-                        User Tasks
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-address-book" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("contracts"))">
-                        Contacts
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-inbox" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("sms-tab"))">
-                        SMS Messaging
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("instant-messaging"))">
-                        Instant Messaging
-                    </MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-phone-rotary" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged("phone-directory"))">
-                        Phone Directory
-                    </MudNavLink>
-                </MudNavMenu>
-            </MudDrawer>
-            <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab" Style="width: 100%">
-                    <Content>
-                        <TabPanel Name="user-tasks-tab">
-                            <UserTasksTab/>
-                        </TabPanel>
-                        <TabPanel Name="contacts">
-                        </TabPanel>
-                        <TabPanel Name="sms-tab">
-                            <SmsTab/>
-                        </TabPanel>
-                        <TabPanel Name="instant-messaging">
-                        </TabPanel>
-                        <TabPanel Name="lab-messaging">
-                        </TabPanel>
-                        <TabPanel Name="phone-directory">
-                        </TabPanel>
-                    </Content>
-                </Tabs>
+
+<div class="vertical-space">
+    <InnerLayout>
+        <NavigationItems>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-bars-progress" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(0))">
+                User Tasks
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-address-book" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(1))">
+                Contacts
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-inbox" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(2))">
+                SMS Messaging
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(3))">
+                Instant Messaging
+            </MudNavLink>
+            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-phone-rotary" IconColor="MudColor.Info"
+                        @onclick="@(() => ClickChanged(4))">
+                Phone Directory
+            </MudNavLink>
+        </NavigationItems>
+
+        <DexContentTabs >
+            <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+                <MudTabs @ref="_tabs">
+                    <MudTabPanel Text="" Style="background-color: transparent">
+                        <UserTasksTab/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <SmsTab/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+
+                    </MudTabPanel>
+
+                </MudTabs>
             </div>
-        </MudDrawerContainer>
-    </MudPaper>
+
+        </DexContentTabs>
+    </InnerLayout>
 </div>
 
 @code {
-    private bool _open = true;
-    string _selectedTab = "user-tasks-tab";
+    MudTabs _tabs;
 
-    private void ClickChanged(string tabName)
+    private void ClickChanged(int tabIndex)
     {
-        _selectedTab = tabName;
+        _tabs.ActivatePanel(tabIndex);
     }
+
 
 }

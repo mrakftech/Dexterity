@@ -1,19 +1,21 @@
 ﻿@using Domain.Entities.Settings.Templates
+@using Syncfusion.Blazor.RichTextEditor
 <MudDialog>
     <DialogContent>
-        <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="EmailTemplateRequest">
-                <MudStack Class="mt-2">
-                    <DexTextInputField Label="Template" @bind-FieldDataSource="@EmailTemplateRequest.Name"></DexTextInputField>
-                    <MudItem>
-                        <FieldLabel>Content</FieldLabel>
-                        <MemoEdit Rows="5" ReplaceTab TabSize="4" @bind-Text="@EmailTemplateRequest.Content" />
-                    </MudItem>
-                    <DexLoadingButton Name="Save" Click="SaveEmailTemplate" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
-
-                </MudStack>
-            </EditForm>
-        </Validations>
+        <DexForm Model="EmailTemplateRequest" OnValidSubmit="SaveEmailTemplate">
+            <Fields>
+                <FormItem Field="@nameof(EmailTemplate.Name)" LabelText="Template Name"> </FormItem>
+                <FormItem Field="@nameof(EmailTemplate.Content)">
+                    <Template>
+                        <label>Content</label>
+                        <SfRichTextEditor @bind-Value="@EmailTemplateRequest.Content" Width="520px" />
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
 
     </DialogContent>
     <DialogActions>
@@ -25,7 +27,6 @@
     [Parameter] public Guid Id { get; set; }
     private EmailTemplate EmailTemplateRequest { get; set; } = new();
     private bool _processing;
-    Validations validations;
 
     protected override async Task OnInitializedAsync()
     {
@@ -39,18 +40,15 @@
     private async Task SaveEmailTemplate()
     {
         _processing = true;
-        if (await validations.ValidateAll())
+        var res = await UnitOfWork.Setting.SaveEmailTemplate(Id, EmailTemplateRequest);
+        if (res.Succeeded)
         {
-            var res = await UnitOfWork.Setting.SaveEmailTemplate(Id, EmailTemplateRequest);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge(res.Messages.First());
-                MudDialog.Close();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
         }
 
         await Task.Delay(1000);

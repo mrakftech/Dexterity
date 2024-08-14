@@ -9,14 +9,14 @@
             <DexTextInputField Label="Last Name" @bind-FieldDataSource="@UserDto.LastName"/>
         </MudItem>
         <MudItem md="4">
-            <DexTextInputField Label="Email" FieldRole="SfInputType.Email" @bind-FieldDataSource="@UserDto.Email"/>
+            <DexTextInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserDto.Email" />
         </MudItem>
     </MudStack>
 </MudItem>
 <MudItem Class="mt-3" md="12">
     <MudStack Row="true" Justify="MudJustify.FlexStart">
         <MudItem md="5">
-            <DexTextInputField Label="Mobile" FieldRole="SfInputType.Tel" @bind-FieldDataSource="@UserDto.Phone"/>
+            <DexTextInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserDto.Phone" />
         </MudItem>
         <MudItem md="7">
             <DexTextInputField Label="MCN" @bind-FieldDataSource="@UserDto.Mcn"/>
@@ -86,7 +86,7 @@
                 @if (UserId == Guid.Empty)
                 {
                     <MudItem>
-                        <DexTextInputField Label="Password" FieldRole="SfInputType.Password" @bind-FieldDataSource="@UserDto.Password"/>
+                        <DexTextInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserDto.Password" />
                     </MudItem>
                 }
             </MudStack>

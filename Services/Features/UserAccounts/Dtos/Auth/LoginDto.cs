@@ -4,7 +4,7 @@ namespace Services.Features.UserAccounts.Dtos.Auth;
 
 public class LoginDto
 {
-    [Required] public string Username { get; set; } = "admin@dexterity";
+    [Required(ErrorMessage = "Required")] public string Username { get; set; } = "admin@dexterity";
 
-    [Required] public string Password { get; set; } = "Dexterity123@";
+    [Required(ErrorMessage = "Required")] public string Password { get; set; } = "Dexterity123@";
 }

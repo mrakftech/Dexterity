@@ -5,6 +5,6 @@ namespace Domain.Entities.Settings.Templates;
 public class EmailTemplate
 {
     public Guid Id { get; set; }
-    [Required] public string Name { get; set; }
-    [Required] public string Content { get; set; }
+    [Required(ErrorMessage = "Required")] public string Name { get; set; }
+    [Required(ErrorMessage = "Required")] public string Content { get; set; }
 }

@@ -3,8 +3,8 @@
 
 <TabTitle Title="Email Template">
     <ActionButtons>
-        <MudStack Row >
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small"  OnClick="() => UpsertSmsTemplateModal(Guid.Empty)" Variant="Variant.Filled">Add Email Template</MudButton>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertSmsTemplateModal(Guid.Empty)" Variant="Variant.Filled">Add Email Template</MudButton>
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetTemplates" Variant="Variant.Filled">Load Email Templates</MudButton>
         </MudStack>
     </ActionButtons>
@@ -13,36 +13,34 @@
     <DexGrid DataSource="EmailTemplateList" Loading="@_processing">
         <DexGridColumns>
             <GridColumn Field="@nameof(SmsTemplate.Name)" HeaderText="Name" Width="120px"></GridColumn>
-            <GridColumn Field="@nameof(SmsTemplate.Content)" HeaderText="Content" Width="120px"></GridColumn>
             <GridColumn HeaderText="Actions" Width="120">
                 <Template>
                     @{
-                    var template = (context as EmailTemplate);
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                   Color="MudColor.Primary"
-                                   OnClick="() => UpsertSmsTemplateModal(template.Id)"/>
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                   Color="MudColor.Error" OnClick="() => DeleteTemplate(template.Id)"/>
+                        var template = (context as EmailTemplate);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => UpsertSmsTemplateModal(template.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteTemplate(template.Id)"/>
                     }
                 </Template>
             </GridColumn>
         </DexGridColumns>
     </DexGrid>
 </MudItem>
+
 @code{
 
     private List<EmailTemplate> EmailTemplateList { get; set; } = new();
-    
+
     private bool _processing;
 
-  
 
     private async Task GetTemplates()
     {
         _processing = true;
         EmailTemplateList = await UnitOfWork.Setting.GetEmailTemplates();
         _processing = false;
-
     }
 
     private async Task UpsertSmsTemplateModal(Guid id)

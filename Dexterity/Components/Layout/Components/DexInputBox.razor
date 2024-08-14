@@ -1,0 +1,29 @@
+﻿@using System.Linq.Expressions
+<label>@Label</label>
+<SfTextBox @bind-Value="@FieldDataSource" Placeholder="@Label" Type="@FieldRole" Readonly="IsFieldReadOnly" Enabled="!IsFieldDisabled" Multiline="IsMultiLine"></SfTextBox>
+@code {
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Placeholder { get; set; } = "";
+    [Parameter] public string HelpText { get; set; } = "";
+    [Parameter] public bool IsFieldReadOnly { get; set; } = false;
+    [Parameter] public bool IsFieldDisabled { get; set; } = false;
+    [Parameter] public SfInputType FieldRole { get; set; } = SfInputType.Text;
+    [Parameter] public bool IsMultiLine { get; set; } = false;
+
+    protected string _fieldDataSource;
+
+    [Parameter]
+    public string FieldDataSource
+    {
+        get => _fieldDataSource;
+        set
+        {
+            if (_fieldDataSource == value) return;
+            _fieldDataSource = value;
+            FieldDataSourceChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<string> FieldDataSourceChanged { get; set; }
+    [Parameter] public Expression<Func<string>> FieldDataSourceExpression { get; set; }
+}

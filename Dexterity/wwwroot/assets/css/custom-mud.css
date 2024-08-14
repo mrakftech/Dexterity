@@ -43,7 +43,6 @@
     transition: .5s;
     background-size: 200% auto;
     color: #fff !important;
-    box-shadow: 0 0 20px #eee;
     border-radius: 10px;
     display: block;
 }
@@ -70,7 +69,7 @@
 }
 
 .mud-tab:hover {
-    color: white !important;
+    color: transparent!important;
 }
 
 .mud-list .mud-selected-item {
@@ -84,7 +83,7 @@
 }
 
 .mud-tabs-panels {
-    background-color: white !important;
+    background-color: transparent!important;
 }
 
 .mud-tabs-tabbar .mud-tabs-tabbar-inner {

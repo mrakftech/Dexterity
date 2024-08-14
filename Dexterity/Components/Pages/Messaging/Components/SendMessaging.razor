@@ -2,50 +2,48 @@
 @using Domain.Entities.Settings.Templates
 @using Services.Features.Messaging.Dtos.Sms
 @using Services.Features.PatientManagement.Dtos
+<TabTitle Title="Send SMS"></TabTitle>
 
-<MudText Align="Align.Center" Typo="Typo.h4" Class="text-bold">Send SMS</MudText>
-<Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
-    <MudStack>
-        <MudItem>
-            <FieldLabel>Sms Template</FieldLabel>
-            <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
-                <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
-                @foreach (var item in SmsTemplates)
-                {
-                    <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
-                }
-            </MudSelect>
-        </MudItem>
-        <MudItem>
-            <Validation>
-                <FieldLabel>Content</FieldLabel>
-                <MemoEdit @bind-Text="@_messageDto.Content">
-                    <Feedback>
-                        <ValidationError/>
-                    </Feedback>
-                </MemoEdit>
-            </Validation>
-        </MudItem>
-        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
-        <MudItem>
-            <DexTextInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexTextInputField>
-        </MudItem>
-        <MudItem>
-            <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                @if (_processing)
-                {
+<div class="vertical-space">
+    <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
+        <MudStack>
+            <MudItem>
+                <FieldLabel>Sms Template</FieldLabel>
+                <SfDropDownList TValue="Guid" TItem="SmsTemplate" Placeholder="Select a template" DataSource="@SmsTemplates">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="Guid" TItem="SmsTemplate" ValueChange="OnValueChange"></DropDownListEvents>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem>
+                <Validation>
+                    <FieldLabel>Content</FieldLabel>
+                    <MemoEdit @bind-Text="@_messageDto.Content">
+                        <Feedback>
+                            <ValidationError/>
+                        </Feedback>
+                    </MemoEdit>
+                </Validation>
+            </MudItem>
+            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+            <MudItem>
+                <DexTextInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexTextInputField>
+            </MudItem>
+            <MudItem>
+                <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
+                    @if (_processing)
+                    {
                     <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
                     <MudText Class="ms-2 white-color">Processing</MudText>
-                }
-                else
-                {
+                    }
+                    else
+                    {
                     <MudText><i class="fas fa-paper-plane"></i> Send SMS</MudText>
-                }
-            </MudButton>
-        </MudItem>
-    </MudStack>
-</Validations>
-
+                    }
+                </MudButton>
+            </MudItem>
+        </MudStack>
+    </Validations>
+</div>
 
 @code{
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
@@ -98,18 +96,9 @@
         _processing = false;
     }
 
-
-    private async Task ChangeSmsTemplate(Guid id)
+    public void OnValueChange(ChangeEventArgs<Guid, SmsTemplate> args)
     {
-        if (id == Guid.Empty)
-        {
-            _messageDto.Content = "";
-        }
-        else
-        {
-            var res = await UnitOfWork.Setting.GetSmsTemplate(id);
-            _messageDto.Content = res.Data.Content;
-        }
+        _messageDto.Content = args.ItemData.Content;
     }
 
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)

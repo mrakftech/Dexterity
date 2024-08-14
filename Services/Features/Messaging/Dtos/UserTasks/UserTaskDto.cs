@@ -17,7 +17,7 @@ public class UserTaskDto
     public string Description { get; set; }
     public string Location { get; set; }
     public bool IsActive { get; set; }
-    public string Status { get; set; } = UserTaskConstants.TaskStatus.Active;
+    public string Status { get; set; } = UserTaskConstants.TaskStatusConstant.Active;
     public string Color { get; set; } 
     public bool IsPrivate { get; set; }
 

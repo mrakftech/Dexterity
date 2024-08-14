@@ -1,12 +1,6 @@
 ﻿@layout MainLayout
 @page "/settings"
 @using Dexterity.Components.Pages.Settings.Components
-<style>
-    .tab-content{
-        width: 100%!important;
-        margin-left: 20% !important;
-    }
-</style>
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
@@ -69,7 +63,6 @@
 </MudItem>
 
 @code {
-    private bool _open = true;
     MudTabs tabs;
     private void ClickChanged(int tabIndex)
     {
