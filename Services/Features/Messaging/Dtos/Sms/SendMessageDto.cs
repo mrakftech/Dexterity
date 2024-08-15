@@ -4,6 +4,6 @@ namespace Services.Features.Messaging.Dtos.Sms;
 
 public class SendMessageDto
 {
-    [Required] public string Content { get; set; }
-    [Required] public string Mobile { get; set; }
+    [Required(ErrorMessage = "Required")] public string Content { get; set; }
+    [Required(ErrorMessage = "Required")] public string Mobile { get; set; }
 }

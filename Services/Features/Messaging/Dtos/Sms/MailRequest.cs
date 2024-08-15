@@ -1,9 +1,10 @@
-﻿namespace Services.Features.Messaging.Dtos.Sms;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Services.Features.Messaging.Dtos.Sms;
 
 public class MailRequest
 {
-    public string To { get; set; }
-    public string Subject { get; set; }
-    public string Body { get; set; }
-    public string From { get; set; }
+    [Required(ErrorMessage = "Required")] public string To { get; set; }
+    [Required(ErrorMessage = "Required")] public string Subject { get; set; }
+    [Required(ErrorMessage = "Required")] public string Body { get; set; }
 }

@@ -5,49 +5,36 @@
 <TabTitle Title="Send SMS"></TabTitle>
 
 <div class="vertical-space">
-    <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
-        <MudStack>
-            <MudItem>
-                <FieldLabel>Sms Template</FieldLabel>
-                <SfDropDownList TValue="Guid" TItem="SmsTemplate" Placeholder="Select a template" DataSource="@SmsTemplates">
-                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="Guid" TItem="SmsTemplate" ValueChange="OnValueChange"></DropDownListEvents>
-                </SfDropDownList>
-            </MudItem>
-            <MudItem>
-                <Validation>
-                    <FieldLabel>Content</FieldLabel>
-                    <MemoEdit @bind-Text="@_messageDto.Content">
-                        <Feedback>
-                            <ValidationError/>
-                        </Feedback>
-                    </MemoEdit>
-                </Validation>
-            </MudItem>
-            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
-            <MudItem>
-                <DexTextInputField Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"></DexTextInputField>
-            </MudItem>
-            <MudItem>
-                <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                    @if (_processing)
-                    {
-                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
-                    <MudText Class="ms-2 white-color">Processing</MudText>
-                    }
-                    else
-                    {
-                    <MudText><i class="fas fa-paper-plane"></i> Send SMS</MudText>
-                    }
-                </MudButton>
-            </MudItem>
-        </MudStack>
-    </Validations>
+    <DexForm Model="@_messageDto" OnValidSubmit="SendSmsClick">
+        <Fields>
+            <FormItem Field="@nameof(SendMessageDto.Content)">
+                <Template>
+                    <label class="e-form-label">Template</label>
+                    <SfDropDownList TValue="Guid" TItem="SmsTemplate" Placeholder="Select a template" DataSource="@SmsTemplates">
+                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        <DropDownListEvents TValue="Guid" TItem="SmsTemplate" ValueChange="OnValueChange"></DropDownListEvents>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(SendMessageDto.Content)">
+                <Template>
+                    <DexInputBox Label="Content" @bind-FieldDataSource="@_messageDto.Content" IsMultiLine="true"/>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(SendMessageDto.Mobile)">
+                <Template>
+                    <DexInputBox Label="Mobile" @bind-FieldDataSource="@_messageDto.Mobile"/>
+                </Template>
+            </FormItem>
+        </Fields>
+        <Buttons>
+            <DexLoadingButton Name="Send Sms" Processing="_processing" Type="MudButtonType.Submit"></DexLoadingButton>
+        </Buttons>
+    </DexForm>
 </div>
 
 @code{
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
-    Validations _validationsRef;
     private SendMessageDto _messageDto = new();
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
     private bool _processing;
@@ -66,31 +53,27 @@
     private async Task SendSmsClick()
     {
         _processing = true;
-        if (await _validationsRef.ValidateAll())
-        {
-            var util = PhoneNumberUtil.GetInstance();
-            var s = util.Parse(_messageDto.Mobile, ApplicationConstants.AppRegion);
-            var n = util.Format(s, PhoneNumberFormat.E164);
-            await Task.Delay(2500);
-            var request = new SmsRequest()
-            {
-                Content = _messageDto.Content,
-                To = [n]
-            };
-            var res = await SmsEndpoints.SendMessage(request);
-            if (res.ResponseCode == 202)
-            {
-                Snackbar.SuccessMessge("Message has been sent.");
-            }
-            else
-            {
-                foreach (var item in res.Messages)
-                {
-                    Console.WriteLine(item.ErrorDescription);
-                }
-            }
 
-            await _validationsRef.ClearAll();
+        var util = PhoneNumberUtil.GetInstance();
+        var s = util.Parse(_messageDto.Mobile, ApplicationConstants.AppRegion);
+        var n = util.Format(s, PhoneNumberFormat.E164);
+        await Task.Delay(2500);
+        var request = new SmsRequest()
+        {
+            Content = _messageDto.Content,
+            To = [n]
+        };
+        var res = await SmsEndpoints.SendMessage(request);
+        if (res.ResponseCode == 202)
+        {
+            Snackbar.SuccessMessge("Message has been sent.");
+        }
+        else
+        {
+            foreach (var item in res.Messages)
+            {
+                Console.WriteLine(item.ErrorDescription);
+            }
         }
 
         _processing = false;

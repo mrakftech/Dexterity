@@ -25,9 +25,9 @@
                     </MudItem>
                     @if (ValidPatients is {Count: > 0})
                     {
-                    <MudItem>
-                        <MudButton Color="MudColor.Primary" Variant="Variant.Filled" OnClick="SendBulkSms">Send Bulk Sms</MudButton>
-                    </MudItem>
+                        <MudItem>
+                            <MudButton Color="MudColor.Primary" Variant="Variant.Filled" OnClick="SendBulkSms">Send Bulk Sms</MudButton>
+                        </MudItem>
                     }
 
                 </MudStack>
@@ -90,8 +90,7 @@
         return false;
     };
 
-    private void LoadPatents(
-        )
+    private void LoadPatents()
     {
         _patientLoading = true;
         foreach (var item in PatientList)

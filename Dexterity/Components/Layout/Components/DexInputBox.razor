@@ -1,5 +1,5 @@
 ﻿@using System.Linq.Expressions
-<label>@Label</label>
+<label class="e-form-label">@Label</label>
 <SfTextBox @bind-Value="@FieldDataSource" Placeholder="@Label" Type="@FieldRole" Readonly="IsFieldReadOnly" Enabled="!IsFieldDisabled" Multiline="IsMultiLine"></SfTextBox>
 @code {
     [Parameter] public string Label { get; set; } = "";

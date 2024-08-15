@@ -9,6 +9,7 @@ namespace Services.Features.PatientManagement.Service;
 
 public interface IPatientService
 {
+    #region Patient
     public Task<List<PatientListDto>> GetPatients();
 
     public Task<PatientDto> GetPatient(Guid id);
@@ -17,6 +18,7 @@ public interface IPatientService
     public Task<IResult> UpdatePatient(Guid id, UpsertPatientDto request);
     public Task<IResult> SaveExtraDetails(PatientExtraDetailDto request);
     public Task<IResult> DeletePatient(Guid id);
+    #endregion
 
 
     #region Contact
