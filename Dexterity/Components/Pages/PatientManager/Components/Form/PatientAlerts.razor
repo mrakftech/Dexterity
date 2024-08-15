@@ -1,10 +1,6 @@
 ﻿@using Domain.Entities.PatientManagement.Alert
 @using Services.Features.PatientManagement.Dtos.Alerts
-<TabTitle Title="Patient Alerts">
-    <ActionButtons>
-        <DexSimpleButton Name="Refresh" FullWidth="false" Click="()=>GetPatientAlerts(Id)"></DexSimpleButton>
-    </ActionButtons>
-</TabTitle>
+
 <MudStack Row>
     <MudItem md="4">
         <SfDataForm Model="@_patientAlert"
@@ -53,13 +49,18 @@
 
             </FormItems>
             <FormButtons>
-                <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false" />
+                <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false"/>
             </FormButtons>
         </SfDataForm>
     </MudItem>
 
 </MudStack>
 <MudItem md="12" Class="mt-5">
+    <TabTitle Title="Alerts">
+        <ActionButtons>
+            <DexSimpleButton Name="Refresh" FullWidth="false" Click="() => GetPatientAlerts(Id)"></DexSimpleButton>
+        </ActionButtons>
+    </TabTitle>
     <DexGrid DataSource="PatientAlertList" Loading="@_loading" Height="300px">
         <DexGridColumns>
             <GridColumn Field="@nameof(PatientAlertDto.CreatedDate)" Format="g" Type="ColumnType.DateTime" HeaderText="Created Date" Width="150px"></GridColumn>
@@ -72,7 +73,7 @@
                 <Template>
                     @{
                         var item = (context as PatientAlertDto);
-                        <MudStack Row >
+                        <MudStack Row>
                             <DexSimpleButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexSimpleButton>
                             <DexSimpleButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexSimpleButton>
                         </MudStack>
@@ -210,5 +211,5 @@
     }
 
     #endregion
-   
+
 }

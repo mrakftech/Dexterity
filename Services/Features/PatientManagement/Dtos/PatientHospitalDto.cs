@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Services.Features.Settings.Dtos;
 
 namespace Services.Features.PatientManagement.Dtos
 {
@@ -15,5 +16,7 @@ namespace Services.Features.PatientManagement.Dtos
         public string Name { get; set; }
         public string Address { get; set; }
         public int ClinicId { get; set; }
+        public ClinicDto Clinic { get; set; }
+        public Guid PatientId { get; set; }
     }
 }

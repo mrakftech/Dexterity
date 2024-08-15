@@ -1,24 +1,25 @@
 ﻿@using Services.Features.Settings.Dtos
-<MudStack Row>
-    <MudItem md="12">
-        <MudDataGrid Items="@ClinicSites" Dense="true" Bordered="true" T="ClinicSiteDto" Style="margin-bottom: 30px">
-            <ToolBarContent>
-                <MudText Typo="Typo.caption" Class="text-bold">Clinic Sites</MudText>
-                <MudSpacer />
-                <DexSimpleButton FullWidth="false"  Name="Add Clinic Site" Click="()=>OpenUpsertClinicSiteModal(0)"></DexSimpleButton>
-            </ToolBarContent>
-            <Columns>
-                <PropertyColumn Property="x => x.Name" Title="Name" />
-                <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
-                    <CellTemplate>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenUpsertClinicSiteModal(context.Item.Id)" />
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteClinicSite(context.Item.Id)" />
-                    </CellTemplate>
-                </TemplateColumn>
-            </Columns>
-        </MudDataGrid>
-    </MudItem>
-</MudStack>
+<TabTitle Title="Clinic Sites">
+    <ActionButtons>
+        <DexSimpleButton FullWidth="false"  Name="Add Clinic Site" Click="()=>OpenUpsertClinicSiteModal(0)"></DexSimpleButton>
+    </ActionButtons>
+</TabTitle>
+<DexGrid DataSource="ClinicSites" Height="300px">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(ClinicSiteDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                var clinic = (context as ClinicSiteDto);
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenUpsertClinicSiteModal(clinic.Id)" />
+                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteClinicSite(clinic.Id)" />
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+
 @code {
 
     [Parameter] public int ClinicId { get; set; }

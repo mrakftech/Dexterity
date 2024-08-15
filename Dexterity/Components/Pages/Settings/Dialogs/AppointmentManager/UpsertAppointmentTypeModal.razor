@@ -1,32 +1,26 @@
 ﻿@using Services.Features.Settings.Dtos
 @using Domain.Entities.Appointments
-<MudDialog>
-    <DialogContent>
-        <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="AppointmentTypeDto" >
-                <MudStack Class="mt-2">
-                    <DexTextInputField Label="Name" @bind-FieldDataSource="@AppointmentTypeDto.Name"></DexTextInputField>
-                    <Field>
-                        <FieldLabel ColumnSize="ColumnSize.Is2">Duration</FieldLabel>
-                        <FieldBody ColumnSize="ColumnSize.Is10">
-                            <NumericEdit Label="Duration" TValue="int" @bind-Value="@AppointmentTypeDto.Duration" Min="15" Step="5" />
-                        </FieldBody>
-                    </Field>
-                    <DexLoadingButton Name="Save" Click="SaveAppointmentType" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
-                </MudStack>
-            </EditForm>
-        </Validations>
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="AppointmentTypeDto" OnValidSubmit="SaveAppointmentType">
+            <Fields>
+                <FormItem Field="@nameof(@AppointmentTypeDto.Name)" LabelText="Name"></FormItem>
+                <FormItem Field="@nameof(@AppointmentTypeDto.Duration)" LabelText="Duration"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
 
-    </DialogContent>
-    <DialogActions>
-    </DialogActions>
-</MudDialog>
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
     private AppointmentTypeDto AppointmentTypeDto { get; set; } = new();
     private bool _processing;
-    Validations validations;
+    private string _title;
 
     protected override async Task OnInitializedAsync()
     {
@@ -34,26 +28,31 @@
         {
             var s = await UnitOfWork.Setting.GetAppointmentType(Id);
             AppointmentTypeDto = s.Data;
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
         }
     }
+
     private async Task SaveAppointmentType()
     {
         _processing = true;
-        if (await validations.ValidateAll())
+
+        var res = await UnitOfWork.Setting.SaveAppointmentType(Id, AppointmentTypeDto);
+        if (res.Succeeded)
         {
-            var res = await UnitOfWork.Setting.SaveAppointmentType(Id, AppointmentTypeDto);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge(res.Messages.First());
-                MudDialog.Close();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
         }
 
         await Task.Delay(1000);
         _processing = false;
     }
+
 }

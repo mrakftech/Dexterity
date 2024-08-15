@@ -1,25 +1,24 @@
 ﻿@using Domain.Entities.Appointments
-<MudDialog>
-    <DialogContent>
-        <Validations @ref="validations" Mode="ValidationMode.Manual">
-            <EditForm Model="@CancellationReason" >
-                <MudStack Class="mt-2">
-                    <DexTextInputField Label="Name" @bind-FieldDataSource="@CancellationReason.Reason"></DexTextInputField>
-                    <DexLoadingButton Name="Save" Click="SaveAppointmentReason" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
-                </MudStack>
-            </EditForm>
-        </Validations>
 
-    </DialogContent>
-    <DialogActions>
-    </DialogActions>
-</MudDialog>
+<DexDialog>
+    <DialogTitle></DialogTitle>
+    <Content>
+        <DexForm Model="CancellationReason" OnValidSubmit="SaveAppointmentReason">
+            <Fields>
+                <FormItem Field="@nameof(AppointmentCancellationReason.Reason)" LabelText="Name"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
     private AppointmentCancellationReason CancellationReason { get; set; } = new();
     private bool _processing;
-    Validations validations;
 
     protected override async Task OnInitializedAsync()
     {
@@ -29,24 +28,23 @@
             CancellationReason = s.Data;
         }
     }
+
     private async Task SaveAppointmentReason()
     {
         _processing = true;
-        if (await validations.ValidateAll())
+        var res = await UnitOfWork.Setting.SaveAppointmentCancelReason(Id, CancellationReason);
+        if (res.Succeeded)
         {
-            var res = await UnitOfWork.Setting.SaveAppointmentCancelReason(Id, CancellationReason);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge(res.Messages.First());
-                MudDialog.Close();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
         }
 
         await Task.Delay(1000);
         _processing = false;
     }
+
 }

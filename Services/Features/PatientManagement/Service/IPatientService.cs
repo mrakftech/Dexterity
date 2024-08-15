@@ -53,11 +53,21 @@ public interface IPatientService
     #endregion
 
     #endregion
+    
     #region Related HCPs
     public Task<List<RelatedHcpDto>> GetRealtedHcps(Guid patientId);
     public Task<RelatedHcpDto> GetRealtedHcp(int id);
     public Task<IResult> SaveRelatedHcp(RelatedHcpDto request);
     public Task<IResult> DeleteRelatedHcp(int id);
+
+    #endregion
+
+    #region Add Hospital
+
+    public Task<List<PatientHospitalDto>> GetHospitals(Guid patientId);
+    public Task<IResult> AddHospital(PatientHospitalDto request);
+    public Task<IResult> DeleteHospital(int id);
+
 
     #endregion
 }

@@ -281,24 +281,25 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
     {
         var list = await context.PatientAlerts
-           .Include(x => x.AlertCategory)
-           .Where(x => x.IsDeleted == false)
-           .AsNoTracking().Where(x => x.PatientId == patientId)
-           .ToListAsync();
+            .Include(x => x.AlertCategory)
+            .Where(x => x.IsDeleted == false)
+            .AsNoTracking().Where(x => x.PatientId == patientId)
+            .ToListAsync();
         context.ChangeTracker.Clear();
         var mappedData = mapper.Map<List<PatientAlertDto>>(list);
         return mappedData;
     }
+
     public async Task<List<PatientAlertDto>> GetPatientAlertByModule(Guid patientId, string alertType)
     {
         var list = await context.PatientAlerts
-       .Include(x => x.AlertCategory)
-       .AsNoTracking()
-       .Where(x => x.PatientId == patientId
-       && x.Type == alertType
-       && x.IsDeleted == false
-       && x.IsResolved == false)
-       .ToListAsync();
+            .Include(x => x.AlertCategory)
+            .AsNoTracking()
+            .Where(x => x.PatientId == patientId
+                        && x.Type == alertType
+                        && x.IsDeleted == false
+                        && x.IsResolved == false)
+            .ToListAsync();
 
         context.ChangeTracker.Clear();
         var mappedData = mapper.Map<List<PatientAlertDto>>(list);
@@ -368,7 +369,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Alert has been resolved.");
     }
-
 
 
     #region Alert Categories
@@ -445,7 +445,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                 await context.RelatedHcps.AddAsync(hcp);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("HealthCare professional added.");
-
             }
             else
             {
@@ -456,14 +455,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                 context.RelatedHcps.Update(hcpInDb);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("HealthCare professional Saved.");
-
             }
         }
         catch (Exception e)
         {
             return await Result.FailAsync(e.Message);
         }
-
     }
 
     public async Task<IResult> DeleteRelatedHcp(int id)
@@ -474,6 +471,45 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         context.RelatedHcps.Remove(hcpInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("HCP deleted");
+    }
+
+    #endregion
+
+    #region Hospital
+
+    public async Task<List<PatientHospitalDto>> GetHospitals(Guid patientId)
+    {
+        var data = await context.PatientHospitals
+            .Include(x => x.Clinic)
+            .Where(x => x.PatientId == patientId).ToListAsync();
+        var mappedData = mapper.Map<List<PatientHospitalDto>>(data);
+        return mappedData;
+    }
+
+    public async Task<IResult> AddHospital(PatientHospitalDto request)
+    {
+        if (await context.PatientHospitals.AnyAsync(x => x.ClinicId == request.ClinicId))
+        {
+            return await Result.FailAsync("Hospital already exists");
+        }
+
+        var hospital = mapper.Map<PatientHospital>(request);
+        await context.PatientHospitals.AddAsync(hospital);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Hospital added");
+    }
+
+    public async Task<IResult> DeleteHospital(int id)
+    {
+        var hospitalInDb = await context.PatientHospitals.FirstOrDefaultAsync(x => x.Id == id);
+        if (hospitalInDb == null)
+        {
+            return await Result.FailAsync("Hospital not found");
+        }
+
+        context.PatientHospitals.Remove(hospitalInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Hospital delete");
     }
 
     #endregion

@@ -107,6 +107,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="wwwroot\assets\css\syncfusion\" />
       <Folder Include="wwwroot\assets\fonts\" />
     </ItemGroup>
 

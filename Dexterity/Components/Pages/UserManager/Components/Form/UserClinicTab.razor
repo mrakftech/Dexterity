@@ -19,25 +19,39 @@
             </MudStack>
         </MudItem>
         <MudItem md="8">
-            <MudDataGrid Items="@UserClinicList" Dense="true" Bordered="true" T="UserClinic" Style="margin-bottom: 30px">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6" Class="text-bold">Clinics</MudText>
-                </ToolBarContent>
-                <Columns>
-                    <PropertyColumn Property="x => x.Clinic.Name" Title="Name"/>
-                    <PropertyColumn Property="x => x.Clinic.Address" Title="Address"/>
-                    <TemplateColumn CellClass="d-flex justify-end" Title="Actions">
-                        <CellTemplate>
-                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(context.Item.Id)"/>
-                        </CellTemplate>
-                    </TemplateColumn>
-                </Columns>
-            </MudDataGrid>
+            <DexGrid DataSource="UserClinicList">
+                <DexGridColumns>
+                    <GridColumn Field="@nameof(UserClinic.Clinic.Name)" HeaderText="Name" Width="120px">
+                        <Template>
+                            @{
+                                var item = (context as UserClinic);
+                                @item.Clinic.Name
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(UserClinic.Clinic.Address)" HeaderText="Address" Width="120px">
+                        <Template>
+                            @{
+                                var item = (context as UserClinic);
+                                @item.Clinic.Address
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn HeaderText="Actions" Width="120">
+                        <Template>
+                            @{
+                                var item = (context as UserClinic);
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(item.Id)" />
+                            }
+                        </Template>
+                    </GridColumn>
+                </DexGridColumns>
+            </DexGrid>
         </MudItem>
     </MudStack>
 </MudItem>
 
-@code{
+@code {
     [Parameter] public Guid UserId { get; set; } = Guid.Empty;
     private bool _processing;
     private List<ClinicDto> ClinicList { get; set; } = new();
@@ -59,7 +73,7 @@
     {
         ClinicList = await UnitOfWork.Setting.GetClinics();
     }
-    
+
     private async Task AddUserClinic()
     {
         _processing = true;
@@ -67,10 +81,10 @@
         if (_clinicId > 0)
         {
             var clinic = new UserClinic()
-            {
-                ClinicId = _clinicId,
-                UserId = UserId
-            };
+                {
+                    ClinicId = _clinicId,
+                    UserId = UserId
+                };
             var res = await UnitOfWork.User.SaveUserClinic(0, clinic);
             if (res.Succeeded)
             {
@@ -98,8 +112,7 @@
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
             var userRes = await UnitOfWork.User.DeleteClinic(id);
-            var user = UserClinicList.FirstOrDefault(x => x.Id == id);
-            UserClinicList.Remove(user);
+            await GetUserClinics();
             StateHasChanged();
             Snackbar.SuccessMessge(userRes.Messages.First());
         }

@@ -1,58 +1,47 @@
-﻿@using Domain.Entities.UserAccounts
-@using global::Services.Features.UserAccounts.Dtos.User
-@using Services.Features.Settings.Dtos
-@using Services.State
-@using Shared.Helper
-@using Dexterity.Components.Pages.UserManager.Components
+﻿@using global::Services.Features.UserAccounts.Dtos.User
 @using Dexterity.Components.Pages.UserManager.Components.Form
 @if (!_loadScreen)
 {
-    <MudDialog>
-        <TitleContent>
-            <MudText Typo="Typo.h4" Class="text-bold">@_title</MudText>
-        </TitleContent>
-        <DialogContent>
-            <EditForm Model="UserDto">
-                <Validations @ref="@ValidationsRef" Model="@UserDto" Mode="ValidationMode.Manual">
-                    <Tabs SelectedTab="@selectedTab">
-                        <Items>
-                            <Tab Name="basic">Basic Information</Tab>
-                            <Tab Name="available">Availability</Tab>
-                            <Tab Name="clinic">Clinic</Tab>
-                        </Items>
-                        <Content>
-                            <TabPanel Name="basic">
-                                <BasicInfo UserId="UserId" UserDto="UserDto"></BasicInfo>
-                            </TabPanel>
-                            <TabPanel Name="available">
-                                <AvailabilityTab UserDto="UserDto"></AvailabilityTab>
-                            </TabPanel>
-                            <TabPanel Name="clinic">
-                                @if (UserId != Guid.Empty)
-                                {
-                                    <UserClinicTab UserId="UserId" />
-                                }
-                                else
-                                {
-                                    <MudText Color="MudColor.Dark">Please save the user first.</MudText>
-                                }
-
-                            </TabPanel>
-
-                        </Content>
-                    </Tabs>
-                </Validations>
-            </EditForm>
-
-        </DialogContent>
-        <DialogActions>
-            <DexLoadingButton Name="Save User" Processing="_processing" Click="SaveUser" Icon="fas fa-floppy-disk"></DexLoadingButton>
-        </DialogActions>
-    </MudDialog>
+    <DexDialog>
+        <DialogTitle>@_title</DialogTitle>
+        <Content>
+            <SfTab>
+                <TabItems>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Basic Information"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <DexForm Model="UserDto" OnValidSubmit="SaveUser" ColumnCount="3">
+                                <Fields>
+                                    <BasicInfo UserId="UserId" UserDto="UserDto"></BasicInfo>
+                                </Fields>
+                                <Buttons>
+                                    <DexLoadingButton Name="Save User" Processing="_processing" Type="MudButtonType.Submit" Icon="fas fa-floppy-disk"></DexLoadingButton>
+                                </Buttons>
+                            </DexForm>
+                        </ContentTemplate>
+                    </TabItem>
+                    @if (UserId != Guid.Empty)
+                    {
+                        <TabItem>
+                            <ChildContent>
+                                <TabHeader Text="Clinic"></TabHeader>
+                            </ChildContent>
+                            <ContentTemplate>
+                           
+                                <UserClinicTab UserId="UserId"/>
+                            </ContentTemplate>
+                        </TabItem>
+                    }
+                </TabItems>
+            </SfTab>
+        </Content>
+    </DexDialog>
 }
 else
 {
-    <CommonLoader />
+    <CommonLoader/>
 }
 
 
@@ -60,11 +49,10 @@ else
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid UserId { get; set; } = Guid.Empty;
     private CreateUserDto UserDto { get; set; } = new();
-    Validations ValidationsRef { get; set; }
     private bool _processing;
     private bool _loadScreen;
     private string _title = "";
-    string selectedTab = "basic";
+
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
@@ -72,6 +60,7 @@ else
         await GetEditUser();
         _loadScreen = false;
     }
+
     private async Task GetEditUser()
     {
         if (UserId != Guid.Empty)
@@ -82,45 +71,22 @@ else
             UserDto = data;
         }
     }
+
     private async Task SaveUser()
     {
         _processing = true;
 
-        if (await ValidationsRef.ValidateAll())
+
+        await Task.Delay(2000);
+        var res = await UnitOfWork.User.SaveUser(UserId, UserDto);
+        if (res.Succeeded)
         {
-            if (string.IsNullOrWhiteSpace(UserDto.UserType))
-            {
-                Snackbar.FailMessge("Please select user type.");
-                _processing = false;
-                return;
-            }
-
-            if (UserDto.RoleId == Guid.Empty)
-            {
-                Snackbar.FailMessge("Please select role.");
-                _processing = false;
-
-                return;
-            }
-            if (UserDto.WorkingDays == null)
-            {
-                Snackbar.FailMessge("Please select Working days.");
-                _processing = false;
-                return;
-            }
-
-
-            await Task.Delay(2000);
-            var res = await UnitOfWork.User.SaveUser(UserId, UserDto);
-            if (res.Succeeded)
-            {
-                MudDialog.Close();
-                Snackbar.SuccessMessge(res.Messages.First());
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            MudDialog.Close();
+            Snackbar.SuccessMessge(res.Messages.First());
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
         }
 
         _processing = false;

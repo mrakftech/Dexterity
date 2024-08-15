@@ -14,5 +14,8 @@ namespace Domain.Entities.PatientManagement
 
         public Clinic Clinic { get; set; }
         public int ClinicId { get; set; }
+
+        public Patient Patient { get; set; }
+        public Guid PatientId { get; set; }
     }
 }

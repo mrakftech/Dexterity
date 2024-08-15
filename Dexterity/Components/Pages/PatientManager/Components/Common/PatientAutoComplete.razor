@@ -1,9 +1,9 @@
 ﻿@using Services.Features.PatientManagement.Dtos
 <MudItem xs="12" sm="6" md="12">
-    <FieldLabel>Patients</FieldLabel>
-    <SfAutoComplete TValue="Guid" TItem="PatientListDto" Placeholder="Select a patient" DataSource="@PatientList">
-        <AutoCompleteFieldSettings Value="Id" Text="FullName"></AutoCompleteFieldSettings>
-        <AutoCompleteEvents TValue="Guid" TItem="PatientListDto" ValueChange="OnChangePatient"></AutoCompleteEvents>
+    <label class="e-form-label">Patients</label>
+    <SfAutoComplete TValue="Guid" TItem="PatientListDto" Placeholder="Select a patient" DataSource="@PatientList" >
+        <AutoCompleteFieldSettings Value="Id" Text="FullName"  />
+        <AutoCompleteEvents TValue="Guid" TItem="PatientListDto" ValueChange="OnChangePatient"  ></AutoCompleteEvents>
     </SfAutoComplete>
 </MudItem>
 

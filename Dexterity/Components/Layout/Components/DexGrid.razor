@@ -1,6 +1,7 @@
 ﻿<SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})"
         AllowPaging="true">
     <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+    
     @DexGridSettings
     <GridColumns>
         @DexGridColumns

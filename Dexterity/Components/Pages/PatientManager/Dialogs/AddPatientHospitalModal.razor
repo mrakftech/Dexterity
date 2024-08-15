@@ -1,0 +1,94 @@
+﻿@using Services.Features.PatientManagement.Dtos
+@using Services.Features.Settings.Dtos
+<DexDialog>
+    <DialogTitle>Hospital Detail</DialogTitle>
+    <Content>
+        <DexForm Model="_patientHospital" OnValidSubmit="SaveHospital">
+            <Fields>
+                <FormItem Field="@nameof(_patientHospital.ClinicId)">
+                    <Template>
+                        <label class="e-form-label">Hospital</label>
+                        @if (!_loading)
+                        {
+                            <SfDropDownList TValue="int" Placeholder="e.g. select hospital" TItem="ClinicDto"
+                                            @bind-Value="_patientHospital.ClinicId" DataSource="@_clinics">
+                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                <DropDownListEvents TItem="ClinicDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                            </SfDropDownList>
+                        }
+                        else
+                        {
+                            <p>Getting data...</p>
+                        }
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(_patientHospital.Name)">
+                    <Template>
+                        <label class="e-form-label">Name</label>
+                        <SfTextBox Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(_patientHospital.Address)">
+                    <Template>
+                        <label class="e-form-label">Address</label>
+                        <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="_processing"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private List<ClinicDto> _clinics = new();
+    private readonly PatientHospitalDto _patientHospital = new();
+    private bool _processing;
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClinics();
+    }
+
+    private async Task GetClinics()
+    {
+        _loading = true;
+        _clinics = await UnitOfWork.Setting.GetClinics();
+        _loading = false;
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, ClinicDto> obj)
+    {
+        var clinic = obj.ItemData;
+        _patientHospital.ClinicId = clinic.Id;
+        if (clinic.Id > 0)
+        {
+            _patientHospital.Name = clinic.Name;
+            _patientHospital.Address = clinic.Address;
+        }
+    }
+
+    public async Task SaveHospital()
+    {
+        _processing = true;
+        _patientHospital.PatientId = Id;
+        var res = await UnitOfWork.Patient.AddHospital(_patientHospital);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+}

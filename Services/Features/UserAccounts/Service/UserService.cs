@@ -287,7 +287,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserClinic>> GetUserClinics(Guid userId)
     {
-        return await context.UserClinics
+        return await context.UserClinics.Include(x=>x.Clinic)
             .Where(x => x.UserId == userId)
             .Include(x => x.Clinic).ToListAsync();
     }

@@ -1,117 +1,108 @@
-﻿@using Shared.Helper
-@using Services.Features.UserAccounts.Dtos.User
-<MudItem md="12" Style="margin-top:5%">
-    <MudStack Row="true" Justify="MudJustify.FlexStart">
-        <MudItem md="4">
-            <DexTextInputField Label="First Name" @bind-FieldDataSource="@UserDto.FirstName"/>
-        </MudItem>
-        <MudItem md="4">
-            <DexTextInputField Label="Last Name" @bind-FieldDataSource="@UserDto.LastName"/>
-        </MudItem>
-        <MudItem md="4">
-            <DexTextInputField Label="Email" FieldRole="TextRole.Email" @bind-FieldDataSource="@UserDto.Email" />
-        </MudItem>
-    </MudStack>
-</MudItem>
-<MudItem Class="mt-3" md="12">
-    <MudStack Row="true" Justify="MudJustify.FlexStart">
-        <MudItem md="5">
-            <DexTextInputField Label="Mobile" FieldRole="TextRole.Telephone" @bind-FieldDataSource="@UserDto.Phone" />
-        </MudItem>
-        <MudItem md="7">
-            <DexTextInputField Label="MCN" @bind-FieldDataSource="@UserDto.Mcn"/>
-        </MudItem>
-
-    </MudStack>
-</MudItem>
-<MudItem Class="mt-3">
-    <MudStack Row="true">
-        <MudItem md="5">
-            <Field>
-                <FieldLabel>User type</FieldLabel>
-                <Select @bind-SelectedValue="@UserDto.UserType" TValue="string">
-                    @foreach (var item in UserTypeConstants.UserTypes)
-                    {
-                        <SelectItem Value="@(item)">@item</SelectItem>
-                    }
-                </Select>
-            </Field>
-
-        </MudItem>
-        <MudItem md="7">
-            <Field>
-                <FieldLabel>Roles</FieldLabel>
-                <Select @bind-SelectedValue="@UserDto.RoleId" TValue="Guid">
-                    <SelectItem Value="@(Guid.Empty)">Select Role</SelectItem>
-
-                    @foreach (var item in Roles)
-                    {
-                        <SelectItem Value="@(item.Id)">@item.Name</SelectItem>
-                    }
-                </Select>
-            </Field>
-        </MudItem>
-    </MudStack>
-</MudItem>
-<MudItem>
-    <MudStack>
-        <MudItem md="12">
-            <Field>
-                <FieldLabel>Reset Password</FieldLabel>
-                <Select @bind-SelectedValue="@UserDto.ResetPassword">
-                    @foreach (var item in ResetPasswordDurations)
-                    {
-                        <SelectItem Value="@(item)">@item</SelectItem>
-                    }
-                </Select>
-            </Field>
-        </MudItem>
-        <MudItem>
-            <MudStack Row="true">
-                <MudItem>
-                    <MudStack Row>
-                        <MudCheckBox Size="MudSize.Small" Label="Active" T="bool" @bind-Value="UserDto.IsActive"></MudCheckBox>
-                        <MudCheckBox Size="MudSize.Small" Label="Update Password" T="bool" @bind-Value="UserDto.IsUpdatePassword"></MudCheckBox>
-                        <MudCheckBox Size="MudSize.Small" Label="Force Reset" T="bool" @bind-Value="UserDto.IsForceReset"></MudCheckBox>
-                    </MudStack>
-                </MudItem>
-            </MudStack>
-        </MudItem>
-        <MudText Typo="Typo.h6">Login Information:</MudText>
-        <MudItem>
-            <MudStack Row="true">
-                <MudItem>
-                    <DexTextInputField Label="Username" @bind-FieldDataSource="@UserDto.Username"/>
-                </MudItem>
-                @if (UserId == Guid.Empty)
-                {
-                    <MudItem>
-                        <DexTextInputField Label="Password" FieldRole="TextRole.Password" @bind-FieldDataSource="@UserDto.Password" />
-                    </MudItem>
-                }
-            </MudStack>
-        </MudItem>
-        <MudItem>
-
-        </MudItem>
-    </MudStack>
-</MudItem>
+﻿@using Services.Features.UserAccounts.Dtos.User
+<FormGroup LabelText="Basic Information" ColumnCount="2" ColumnSpacing="20px">
+    <FormItem Field="@nameof(CreateUserDto.FirstName)" LabelText="First Name" ColumnSpan="1"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.LastName)" LabelText="Last Name" ColumnSpan="1"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.Email)" LabelText="Email" ColumnSpan="1"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.Phone)" LabelText="Phone" ColumnSpan="1"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.Mcn)" LabelText="MCN" ColumnSpan="2"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.UserType)" ColumnSpan="1" EditorType="FormEditorType.DropDownList">
+        <Template>
+            <label class="e-form-label">User Type</label>
+          
+            <SfDropDownList TValue="string" TItem="UserTypeConstants.UserType" 
+                            Placeholder="Select role" 
+                            DataSource="@UserTypeConstants.UserTypeList" 
+                            @bind-Value="@UserDto.UserType">
+                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </Template>
+    </FormItem>
+    <FormItem Field="@nameof(CreateUserDto.OtherField)" ColumnSpan="1">
+        <Template>
+            <label class="e-form-label">Roles</label>
+            <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role" DataSource="@Roles" @bind-Value="@UserDto.RoleId">
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </Template>
+    </FormItem>
+    <FormItem Field="@nameof(CreateUserDto.ResetPassword)" ColumnSpan="1">
+        <Template>
+            <label class="e-form-label">Reset Password</label>
+            <SfDropDownList TValue="string" TItem="ApplicationConstants.ResetDuration" @bind-Value="@UserDto.ResetPassword"
+                            Placeholder="Select reset password" DataSource="@ResetPasswordDurations">
+                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+            </SfDropDownList>
+        </Template>
+    </FormItem>
+</FormGroup>
+<FormGroup LabelText="Login Information" ColumnCount="1">
+    <FormItem Field="@nameof(CreateUserDto.Username)" LabelText="Username" ColumnSpan="2"/>
+    @if (UserId == Guid.Empty)
+    {
+        <FormItem Field="@nameof(CreateUserDto.Password)" LabelText="Password" ColumnSpan="2" EditorType="FormEditorType.Checkbox"></FormItem>
+    }
+    <FormItem Field="@nameof(CreateUserDto.IsActive)" LabelText="Active" ColumnSpan="1" EditorType="FormEditorType.Checkbox"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.IsUpdatePassword)" LabelText="Update Password" ColumnSpan="1" EditorType="FormEditorType.Checkbox"></FormItem>
+    <FormItem Field="@nameof(CreateUserDto.IsForceReset)" LabelText="Force Reset" ColumnSpan="2" EditorType="FormEditorType.Checkbox"></FormItem>
+</FormGroup >
+<FormGroup LabelText="Availability" ColumnCount="1">
+    <FormItem Field="@nameof(CreateUserDto.StartHour)"  ColumnSpan="2" >
+        <Template>
+            <label class="e-form-label">Start Hour</label>
+            <SfTimePicker TValue="TimeSpan" @bind-Value="@UserDto.StartHour"></SfTimePicker>
+        </Template>
+    </FormItem>
+    <FormItem Field="@nameof(CreateUserDto.EndHour)" ColumnSpan="2" >
+        <Template>
+            <label class="e-form-label">End Hour</label>
+            <SfTimePicker TValue="TimeSpan" @bind-Value="@UserDto.EndHour"></SfTimePicker>
+        </Template>
+    </FormItem>
+    <FormItem Field="@nameof(CreateUserDto.WorkingDays)" ColumnSpan="2">
+        <Template>
+            <label class="e-form-label">Week Days</label>
+            <SfMultiSelect TValue="List<int>" TItem="WeekDay" Placeholder="Working Days" DataSource="@WeekDays" @bind-Value="@UserDto.WorkingDays">
+                <MultiSelectFieldSettings Text="Name" Value="Id"></MultiSelectFieldSettings>
+            </SfMultiSelect>
+        </Template>
+    </FormItem>
+</FormGroup>
 
 @code {
     [Parameter] public Guid UserId { get; set; } = Guid.Empty;
     [Parameter] public CreateUserDto UserDto { get; set; } = new();
-    private List<string> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
+    private List<WeekDay> WeekDays { get; set; } = new List<WeekDay>();
+    private List<ApplicationConstants.ResetDuration> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
     private List<RoleResponseDto> Roles { get; set; } = new();
+
     protected override async Task OnInitializedAsync()
     {
         await GetRoles();
+        GetWeekDays();
     }
 
-  
+    private void GetWeekDays()
+    {
+        foreach (var day in Enum.GetValues(typeof(DayOfWeek)))
+        {
+            WeekDays.Add(new WeekDay()
+            {
+                Id = Convert.ToInt32(day),
+                Name = @day.ToString()
+            });
+        }
+    }
+
 
     private async Task GetRoles()
     {
         Roles = await UnitOfWork.User.GetRoles();
+    }
+
+    public class WeekDay
+    {
+        public int Id { get; set; }
+        public string Name { get; set; }
     }
 
 }

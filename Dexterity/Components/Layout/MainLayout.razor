@@ -11,7 +11,6 @@
     }
 </style>
 <link href="@_sfTheme" rel="stylesheet"/>
-@* <link href="assets/css/fluent2-dark.min.css" rel="stylesheet" /> *@
 <MudLayout>
     <MudAppBar Elevation="1" Dense="false">
         <MudImage Src="favicon.png" Fluid="true" Width="32" Class="mr-3" Style="margin-left: -16px;"
@@ -58,7 +57,7 @@
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
     private bool _open = false;
     private bool _isDarkMode;
-    private string _sfTheme = "_content/Syncfusion.Blazor.Themes/fluent.css";
+    private string _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap.css";
 
     protected override async Task OnInitializedAsync()
     {
@@ -91,12 +90,12 @@
         if (obj)
         {
             _isDarkMode = obj;
-            _sfTheme = "assets/css/fluent2-dark.min.css";
+            _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap-dark.css";
         }
         else
         {
             _isDarkMode = obj;
-            _sfTheme = "_content/Syncfusion.Blazor.Themes/fluent.css";
+            _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap.css";
         }
     }
 

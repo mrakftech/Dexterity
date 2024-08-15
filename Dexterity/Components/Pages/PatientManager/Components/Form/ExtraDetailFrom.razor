@@ -1,16 +1,11 @@
-﻿@using Dexterity.Components.Pages.PatientManager.Components.Dialog
-@using Dexterity.Components.Pages.PatientManager.Dialogs
+﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
+@using Services.Features.PatientManagement.Dtos
 @using Services.Features.PatientManagement.Dtos.Upsert
-<SfDataForm Model="@PatientExtraDetail"
-            ColumnCount="3"
-            Width="100%"
-            ColumnSpacing="20px"
-            ButtonsAlignment="FormButtonsAlignment.Left"
-            OnValidSubmit="SaveExtraInfo">
-    <FormValidator>
-        <ObjectGraphDataAnnotationsValidator/>
-    </FormValidator>
-    <FormItems>
+<DexForm Model="@PatientExtraDetail"
+         ColumnCount="3"
+         OnValidSubmit="SaveExtraInfo">
+
+    <Fields>
         <FormGroup LabelText="Other Details" ColumnCount="1">
             <FormItem Field="@nameof(PatientExtraDetail.Ethnicity)" ColumnSpan="1">
                 <Template>
@@ -54,30 +49,71 @@
                     </SfDropDownList>
                 </Template>
             </FormItem>
-            <FormItem Field="@nameof(PatientExtraDetail.StartDate)"   EditorType="FormEditorType.DatePicker" LabelText="Start Date" ColumnSpan="1"  />
+            <FormItem Field="@nameof(PatientExtraDetail.StartDate)" EditorType="FormEditorType.DatePicker" LabelText="Start Date" ColumnSpan="1"/>
             <FormItem Field="@nameof(PatientExtraDetail.EndDate)" EditorType="FormEditorType.DatePicker" LabelText="End Start" ColumnSpan="1"/>
 
         </FormGroup>
         <FormGroup LabelText="Hospital Details" ColumnCount="1">
-            @* <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1"> *@
-            @*     <Template> *@
-            @*         <label class="e-form-label">Marital Status:</label> *@
-            @*         <DexSimpleButton Name="Add Hospital" FullWidth="false" Click="AddHospital"></DexSimpleButton> *@
-            @*     </Template> *@
-            @* </FormItem> *@
+            <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
+                <Template>
+                    <DexSimpleButton Name="Add Hospital" Click="AddHospital"/>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.Status)">
+                <Template>
+                    <SfDropDownList TValue="int" Placeholder="e.g. hospital" TItem="PatientHospitalDto"
+                                    @bind-Value="clinicId" DataSource="@clinics">
+                        <DropDownListFieldSettings Value="Id" Text="Clinic.Name"></DropDownListFieldSettings>
+                        <DropDownListEvents TItem="PatientHospitalDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.Status)">
+                <Template>
+                    <label class="e-form-label">Name</label>
+                    <SfTextBox Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(PatientExtraDetail.Status)">
+                <Template>
+                    <label class="e-form-label">Address</label>
+                    <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
+                </Template>
+            </FormItem>
+            @if (clinicId > 0)
+            {
+                <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
+                    <Template>
+                        <DexSimpleButton Name="Delete" Click="DeleteHospital"/>
+                    </Template>
+                </FormItem>
+            }
 
         </FormGroup>
-    </FormItems>
-    <FormButtons>
+    </Fields>
+    <Buttons>
         <DexLoadingButton Name="Save" Processing="_processing" Type="MudButtonType.Submit"
                           FullWidth="false">
         </DexLoadingButton>
-    </FormButtons>
-</SfDataForm>
+    </Buttons>
+</DexForm>
 
 @code {
     [Parameter] public PatientExtraDetailDto PatientExtraDetail { get; set; } = new();
+    private List<PatientHospitalDto> clinics = new();
+    private PatientHospitalDto _patientHospital = new();
     private bool _processing;
+    private int clinicId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClinics();
+    }
+
+    private async Task GetClinics()
+    {
+        clinics = await UnitOfWork.Patient.GetHospitals(PatientExtraDetail.PatientId);
+    }
 
     public async Task SaveExtraInfo()
     {
@@ -91,11 +127,11 @@
         else
         {
             Snackbar.FailMessge(res.Messages.First());
-            
         }
+
         _processing = false;
     }
-    
+
     private void OnInterpreterChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
     {
         PatientExtraDetail.InterpreterRequired = args.Value!.ToString();
@@ -104,7 +140,40 @@
     private async Task AddHospital()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
-        await DialogService.ShowAsync<AddPatientHospitalModal>("Add Hospital", parameters, options);
+        parameters.Add("Id", PatientExtraDetail.PatientId);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AddPatientHospitalModal>("Add Hospital", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetClinics();
+        }
     }
+
+    private async Task DeleteHospital()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var hospital = await UnitOfWork.Patient.DeleteHospital(clinicId);
+            _patientHospital = new();
+            clinicId = 0;
+            await GetClinics();
+            Snackbar.SuccessMessge(hospital.Messages.First());
+        }
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, PatientHospitalDto> obj)
+    {
+        var clinic = obj.ItemData;
+        _patientHospital.ClinicId = clinic.Id;
+        if (clinic.Id > 0)
+        {
+            _patientHospital.Name = clinic.Clinic.Name;
+            _patientHospital.Address = clinic.Clinic.Address;
+        }
+    }
+
 }

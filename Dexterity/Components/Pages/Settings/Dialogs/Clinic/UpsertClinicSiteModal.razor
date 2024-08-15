@@ -1,17 +1,18 @@
 ﻿@using Services.Features.Settings.Dtos
-<MudDialog>
-    <DialogContent>
-        <Validations @ref="validations" Mode="ValidationMode.Manual" Model="@ClinicSite">
-            <MudStack Class="mt-2">
-                <DexTextInputField Label="Name" @bind-FieldDataSource="@ClinicSite.Name"></DexTextInputField>
-                <DexLoadingButton Name="Save" Click="SaveClinicSite" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
-            </MudStack>
-        </Validations>
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="ClinicSite" OnValidSubmit="SaveClinicSite">
+            <Fields>
+                <FormItem Field="@nameof(ClinicDto.Name)" LabelText="Name"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
 
-    </DialogContent>
-    <DialogActions>
-    </DialogActions>
-</MudDialog>
 @code {
 
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
@@ -19,7 +20,7 @@
     [Parameter] public int ClinicId { get; set; }
     private ClinicSiteDto ClinicSite { get; set; } = new();
     private bool _processing;
-    Validations validations;
+    private string _title;
 
     protected override async Task OnInitializedAsync()
     {
@@ -27,25 +28,28 @@
         {
             var s = await UnitOfWork.Setting.GetClinicSite(Id);
             ClinicSite = s.Data;
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
         }
     }
 
     private async Task SaveClinicSite()
     {
         _processing = true;
-        if (await validations.ValidateAll())
+
+        ClinicSite.ClinicId = ClinicId;
+        var res = await UnitOfWork.Setting.SaveClinicSite(Id, ClinicSite);
+        if (res.Succeeded)
         {
-            ClinicSite.ClinicId = ClinicId;
-            var res = await UnitOfWork.Setting.SaveClinicSite(Id, ClinicSite);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessge(res.Messages.First());
-                MudDialog.Close();
-            }
-            else
-            {
-                Snackbar.FailMessge(res.Messages.First());
-            }
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
         }
 
         await Task.Delay(1000);

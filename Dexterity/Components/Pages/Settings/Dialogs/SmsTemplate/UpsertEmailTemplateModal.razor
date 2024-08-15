@@ -5,10 +5,10 @@
         <DexForm Model="EmailTemplateRequest" OnValidSubmit="SaveEmailTemplate">
             <Fields>
                 <FormItem Field="@nameof(EmailTemplate.Name)" LabelText="Template Name"> </FormItem>
-                <FormItem Field="@nameof(EmailTemplate.Content)">
+                <FormItem Field="@nameof(EmailTemplate.Content)" >
                     <Template>
-                        <label>Content</label>
-                        <SfRichTextEditor @bind-Value="@EmailTemplateRequest.Content" Width="520px" />
+                        <label class="e-form-label">Content</label>
+                        <SfRichTextEditor @bind-Value="@EmailTemplateRequest.Content" Width="550px"/>
                     </Template>
                 </FormItem>
             </Fields>
