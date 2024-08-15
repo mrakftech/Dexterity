@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
+using Radzen;
 using Services.DbInitaiizer;
 using Services.State;
 using Syncfusion.Blazor;
@@ -37,8 +38,8 @@ namespace Dexterity
             builder.Services
                 .AddBlazoriseRichTextEdit();
             builder.Services.AddSyncfusionBlazor();
+            builder.Services.AddRadzenComponents();
             SyncfusionLicenseProvider.RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
-
             builder.Services.AddBlazorContextMenu(options =>
             {
                 options.ConfigureTemplate("myTemplate", template =>
