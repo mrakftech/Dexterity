@@ -1,6 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.PatientManagement;
-using Domain.Entities.Settings.Practice;
+using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Appointments;

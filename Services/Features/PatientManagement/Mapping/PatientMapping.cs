@@ -1,12 +1,14 @@
 using AutoMapper;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
-using Domain.Entities.PatientManagement.BasicDetails;
+using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Group;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.Details;
+using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
-using Services.Features.PatientManagement.Dtos.Upsert;
 
 namespace Services.Features.PatientManagement.Mapping;
 
@@ -59,7 +61,16 @@ public class PatientMapping : Profile
             .ForMember(x => x.Category, c => c.MapFrom(m => m.AlertCategory.Name))
             .ForMember(x => x.Status, c => c.MapFrom(m => m.IsResolved == true ? "Resolved" : "Pending"))
             .ReverseMap();
-        
+
+        #endregion
+
+        #region Group
+
+        CreateMap<Group, GroupDto>()
+            .ForMember(x => x.RegisteredPatientsCount, c => c.MapFrom(m => m.RegisteredPatients.Count))
+            .ReverseMap();
+        CreateMap<Group, UpsertGroupDto>().ReverseMap();
+        CreateMap<GroupPatient, GroupPatientDto>().ReverseMap();
         #endregion
     }
 }

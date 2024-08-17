@@ -1,6 +1,5 @@
 ﻿@using Domain.Entities.PatientManagement.Alert
 @using Services.Features.PatientManagement.Dtos.Alerts
-
 <MudStack Row>
     <MudItem md="4">
         <SfDataForm Model="@_patientAlert"
@@ -13,47 +12,43 @@
                 <ObjectGraphDataAnnotationsValidator/>
             </FormValidator>
             <FormItems>
-                <FormGroup LabelText="">
-                    <FormItem Field="@nameof(_patientAlert.AlertType)" LabelText="Type" ColumnSpan="1"></FormItem>
-                    <FormItem Field="@nameof(_patientAlert.CreatedDate)" LabelText="Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(_patientAlert.AlertCategoryId)" ColumnSpan="2">
-                        <Template>
-                            <MudStack Row Spacing="1">
-                                <SfDropDownList TValue="int" TItem="AlertCategory" Placeholder="Category" DataSource="@AlertCategoryList" @bind-Value="@_patientAlert.AlertCategoryId">
-                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                    <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
-                                </SfDropDownList>
-                                <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
-                                <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
-                                <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
-                                    <MudPaper Outlined="true" Class="px-4 py-8">
-                                        <MudStack>
-                                            <SfTextBox @bind-Value="_categoryName" Placeholder="Category Name"></SfTextBox>
-                                            <DexLoadingButton Name="Add Category" Click="AddCategory"></DexLoadingButton>
-                                            <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
-                                        </MudStack>
-                                    </MudPaper>
-                                </MudPopover>
-                            </MudStack>
+                <FormItem Field="@nameof(_patientAlert.AlertType)" LabelText="Type" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(_patientAlert.CreatedDate)" LabelText="Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                <FormItem Field="@nameof(_patientAlert.AlertCategoryId)" ColumnSpan="2">
+                    <Template>
+                        <MudStack Row Spacing="1">
+                            <SfDropDownList TValue="int" TItem="AlertCategory" Placeholder="Category" DataSource="@AlertCategoryList" @bind-Value="@_patientAlert.AlertCategoryId">
+                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                            </SfDropDownList>
+                            <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
+                            <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
+                            <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
+                                <MudPaper Outlined="true" Class="px-4 py-8">
+                                    <MudStack>
+                                        <SfTextBox @bind-Value="_categoryName" Placeholder="Category Name"></SfTextBox>
+                                        <DexLoadingButton Name="Add Category" Click="AddCategory"></DexLoadingButton>
+                                        <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudPopover>
+                        </MudStack>
 
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(_patientAlert.Severity)" LabelText="Severity" ColumnSpan="1"></FormItem>
-                    <FormItem Field="@nameof(_patientAlert.Details)" ColumnSpan="2">
-                        <Template>
-                            <label class="e-form-label">Detail:</label>
-                            <SfTextBox @bind-Value="@_patientAlert.Details" Multiline></SfTextBox>
-                        </Template>
-                    </FormItem>
-                </FormGroup>
-
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(_patientAlert.Severity)" LabelText="Severity" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(_patientAlert.Details)" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">Detail:</label>
+                        <SfTextBox @bind-Value="@_patientAlert.Details" Multiline></SfTextBox>
+                    </Template>
+                </FormItem>
             </FormItems>
             <FormButtons>
                 <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false"/>
             </FormButtons>
         </SfDataForm>
     </MudItem>
-
 </MudStack>
 <MudItem md="12" Class="mt-5">
     <TabTitle Title="Alerts">
@@ -61,7 +56,7 @@
             <DexSimpleButton Name="Refresh" FullWidth="false" Click="() => GetPatientAlerts(Id)"></DexSimpleButton>
         </ActionButtons>
     </TabTitle>
-    <DexGrid DataSource="PatientAlertList" Loading="@_loading" Height="300px">
+    <DexGrid DataSource="PatientAlertList" Loading="@_loading" Height="200px">
         <DexGridColumns>
             <GridColumn Field="@nameof(PatientAlertDto.CreatedDate)" Format="g" Type="ColumnType.DateTime" HeaderText="Created Date" Width="150px"></GridColumn>
             <GridColumn Field="@nameof(PatientAlertDto.Category)" HeaderText="Category" Width="80px"></GridColumn>
@@ -72,11 +67,11 @@
             <GridColumn HeaderText="Actions" Width="150px">
                 <Template>
                     @{
-                        var item = (context as PatientAlertDto);
-                        <MudStack Row>
-                            <DexSimpleButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexSimpleButton>
-                            <DexSimpleButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexSimpleButton>
-                        </MudStack>
+                    var item = (context as PatientAlertDto);
+                    <MudStack Row>
+                        <DexSimpleButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexSimpleButton>
+                        <DexSimpleButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexSimpleButton>
+                    </MudStack>
                     }
                 </Template>
             </GridColumn>

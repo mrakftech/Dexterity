@@ -1,0 +1,63 @@
+﻿@using Services.Features.PatientManagement.Dtos.Grouping
+<DexDialog>
+    <DialogTitle></DialogTitle>
+    <Content>
+        <DexForm Model="_upsertGroupDto" OnValidSubmit="SaveGroup">
+            <Fields>
+                <FormItem Field="@nameof(UpsertGroupDto.Name)" />
+                <FormItem Field="@nameof(UpsertGroupDto.GroupHead)" />
+                <FormItem Field="@nameof(UpsertGroupDto.Balance)">
+                    <Template>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="_upsertGroupDto.Balance" />
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Processing="_loading" Name="Save" Type="MudButtonType.Submit" />
+            </Buttons>
+        </DexForm>
+
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private readonly UpsertGroupDto _upsertGroupDto = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+
+            await GetGroup(Id);
+        }
+    }
+
+    private async Task GetGroup(int id)
+    {
+        var res = await UnitOfWork.Patient.GetGroup(id);
+        _upsertGroupDto.Name = res.Name;
+        _upsertGroupDto.GroupHead = res.GroupHead;
+        _upsertGroupDto.Balance = res.Balance;
+    }
+
+    private async Task SaveGroup()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Patient.SaveGroup(Id, _upsertGroupDto);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _loading = false;
+    }
+
+}

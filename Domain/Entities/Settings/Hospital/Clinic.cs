@@ -2,7 +2,7 @@
 using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Settings.Practice;
+namespace Domain.Entities.Settings.Hospital;
 
 public class Clinic
 {

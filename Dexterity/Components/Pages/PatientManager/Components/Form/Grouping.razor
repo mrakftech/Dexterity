@@ -1,0 +1,67 @@
+﻿@using Services.Features.PatientManagement.Dtos.Grouping
+<TabTitle Title="Register Patient To Group"></TabTitle>
+<RadzenFieldset Text="Group Details">
+    <MudStack>
+        <MudItem xs="12" sm="6" md="12">
+            <label class="e-form-label">Groups:</label>
+            <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="GroupDto"
+                            DataSource="@Groups" Width="400px">
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                <DropDownListEvents TItem="GroupDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+            </SfDropDownList>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="12">
+            <DexInputBox Label="Group Head" @bind-FieldDataSource="GroupDto.GroupHead" IsFieldReadOnly/>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="12">
+            <label class="e-form-label">Balance:</label>
+            <SfNumericTextBox TValue="decimal" Value=@GroupDto.Balance Readonly></SfNumericTextBox>
+        </MudItem>
+        @if (GroupDto.Id > 0)
+        {
+            <DexLoadingButton Name="Save" Click="@RegisterToGroup"/>
+        }
+    </MudStack>
+</RadzenFieldset>
+
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+
+    private List<GroupDto> Groups { get; set; } = new();
+    private GroupDto GroupDto { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetGroups();
+    }
+
+    private async Task GetGroups()
+    {
+        Groups = await UnitOfWork.Patient.GetGroups();
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, GroupDto> obj)
+    {
+        GroupDto = obj.ItemData;
+    }
+
+    private async Task RegisterToGroup()
+    {
+        var req = new GroupPatientDto()
+        {
+            GroupId = GroupDto.Id,
+            PatientId = Id
+        };
+        var res = await UnitOfWork.Patient.RegisterPatientToGroup(req);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

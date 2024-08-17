@@ -1,6 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
-using Domain.Entities.Settings.Practice;
+using Domain.Entities.Settings.Hospital;
 using Services.Features.Settings.Dtos;
 
 namespace Services.Features.Settings.Mapping;

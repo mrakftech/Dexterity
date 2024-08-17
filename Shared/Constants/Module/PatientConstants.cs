@@ -83,6 +83,16 @@ public static class PatientConstants
         public string Account = AlertTypes.Account.ToString();
         public string Consultation = AlertTypes.Consultation.ToString();
     }
+    
+    public static int GetAge(DateTime dateOfBirth)
+    {
+        var today = DateTime.Today;
+
+        var a = (today.Year * 100 + today.Month) * 100 + today.Day;
+        var b = (dateOfBirth.Year * 100 + dateOfBirth.Month) * 100 + dateOfBirth.Day;
+
+        return (a - b) / 10000;
+    }
 }
 
 public class Ethnicity(int id, string name)

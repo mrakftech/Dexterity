@@ -1,17 +1,16 @@
 ﻿@using Services.Features.PatientManagement.Dtos.RelatedHcp
-<label class="e-form-label">@($"HCP({@HcpList.Count})")</label>
-<MudItem md="4">
-    <MudStack Row>
-        <SfDropDownList TValue="int" Placeholder="e.g. select hcp" TItem="RelatedHcpDto"
-                        @bind-Value="_hcpId" DataSource="@HcpList">
-            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-            <DropDownListEvents TItem="RelatedHcpDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
-        </SfDropDownList>
-        <DexSimpleButton FullWidth="false" Name="Edit" Click="EditHcp" Disabled="_disableButtons"></DexSimpleButton>
-        <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteHcp" Disabled="_disableButtons"></DexSimpleButton>
-    </MudStack>
-</MudItem>
 
+<SfAppBar ColorMode="AppBarColor.Light" CssClass="mt-5">
+    <label class="e-form-label">@($"HCP({@HcpList.Count})")</label>
+    <SfDropDownList TValue="int" Placeholder="e.g. select hcp" TItem="RelatedHcpDto"
+                    @bind-Value="_hcpId" DataSource="@HcpList" Width="350px">
+        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+        <DropDownListEvents TItem="RelatedHcpDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+    </SfDropDownList>
+    <DexSimpleButton FullWidth="false" Name="Edit" Click="EditHcp" Disabled="_disableButtons"></DexSimpleButton>
+    <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteHcp" Disabled="_disableButtons"></DexSimpleButton>
+    
+</SfAppBar>
 <SfDataForm Model="@_patientHcp"
             ColumnCount="3"
             Width="100%"
@@ -22,10 +21,10 @@
         <ObjectGraphDataAnnotationsValidator />
     </FormValidator>
     <FormItems>
-        <FormGroup LabelText="HCP Details">
+        <FormGroup LabelText="HCP Details" ColumnCount="2" ColumnSpacing="20px">
             <FormItem Field="@nameof(_patientHcp.Type)" LabelText="Type" ColumnSpan="1" />
             <FormItem Field="@nameof(_patientHcp.Name)" LabelText="Name" ColumnSpan="1" />
-            <FormItem Field="@nameof(_patientHcp.Address)" LabelText="Address" ColumnSpan="1" />
+            <FormItem Field="@nameof(_patientHcp.Address)" LabelText="Address" ColumnSpan="2" />
             <FormItem Field="@nameof(_patientHcp.Telephone)" LabelText="Telephone" ColumnSpan="1" />
             <FormItem Field="@nameof(_patientHcp.Fax)" LabelText="Fax" ColumnSpan="1" />
             <FormItem Field="@nameof(_patientHcp.Email)" LabelText="Email" ColumnSpan="1" />

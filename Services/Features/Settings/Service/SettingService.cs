@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
-using Domain.Entities.Settings.Practice;
+using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;

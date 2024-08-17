@@ -1,4 +1,5 @@
-﻿@using Services.Features.PatientManagement.Dtos
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.PatientManagement.Dtos
 <MudItem Class="m-2">
     <MudSimpleTable Dense="true"
                     Hover="false"
@@ -24,13 +25,13 @@
             </td>
             <td>
                 <MudText Color="MudColor.Warning" Align="Align.Right">
-                    <MudLink OnClick="Count" Color="MudColor.Warning" Underline="Underline.Always">GMS:0178523 (04/20)</MudLink>
+                    <MudLink Color="MudColor.Warning" Underline="Underline.Always">GMS:0178523 (04/20)</MudLink>
                 </MudText>
             </td>
         </tr>
         <tr>
             <td>
-                <MudText Color="MudColor.Info">DOB: @Patient.DateOfBirth.ToString("d") / Age: @GetAge(Patient.DateOfBirth) Yr(s)</MudText>
+                <MudText Color="MudColor.Info">DOB: @Patient.DateOfBirth.ToString("d") / Age: @PatientConstants.GetAge(Patient.DateOfBirth) Yr(s)</MudText>
             </td>
             <td>
                 <MudText Color="MudColor.Info" Align="Align.Right">
@@ -61,16 +62,6 @@
 
 @code {
     [Parameter] public PatientListDto Patient { get; set; } = new();
-    private int counter = 0;
-    private void Count() => counter++;
 
-    public int GetAge(DateTime dateOfBirth)
-    {
-        var today = DateTime.Today;
-
-        var a = (today.Year * 100 + today.Month) * 100 + today.Day;
-        var b = (dateOfBirth.Year * 100 + dateOfBirth.Month) * 100 + dateOfBirth.Day;
-
-        return (a - b) / 10000;
-    }
+    
 }

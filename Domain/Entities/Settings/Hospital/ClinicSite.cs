@@ -1,6 +1,6 @@
 ﻿using Domain.Entities.Appointments;
 
-namespace Domain.Entities.Settings.Practice
+namespace Domain.Entities.Settings.Hospital
 {
     public class ClinicSite
     {

@@ -1,7 +1,6 @@
 ﻿using Domain.Contracts;
-using Domain.Entities.PatientManagement.BasicDetails;
-using Domain.Entities.PatientManagement.Extra;
-using Domain.Entities.Settings.Practice;
+using Domain.Entities.PatientManagement.Details;
+using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.PatientManagement;
@@ -49,6 +48,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public DateTime DateOfBirth { get; set; }
     public string Gender { get; set; }
     public string MedicalRecordNumber { get; set; }
+    public string UniqueNumber { get; set; }
     public string HomePhone { get; set; }
     public string MobilePhone { get; set; }
     public string Email { get; set; }
@@ -58,8 +58,8 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
-    public OtherDetail OtherDetails { get; set; }
-    public MaritalDetail MaritalDetails { get; set; }
+    public OtherDetail OtherDetails { get; set; }= new();
+    public MaritalDetail MaritalDetails { get; set; }= new();
     public DrugPaymentSchemeDetail DrugPaymentSchemeDetails { get; set; } = new();
     public PrivateHealthInsuranceDetail PrivateHealthInsuranceDetails { get; set; } = new();
     

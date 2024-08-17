@@ -1,0 +1,11 @@
+﻿<MudIconButton
+    Size="@MudSize.Small"
+    Icon="@Icon"
+    Color="@Color" 
+    OnClick="OnClick"/>
+
+@code {
+    [Parameter] public MudColor Color { get; set; } = MudColor.Primary;
+    [Parameter] public string Icon { get; set; } = @MudIcons.Material.Outlined.Edit;
+    [Parameter] public EventCallback OnClick { get; set; }
+}

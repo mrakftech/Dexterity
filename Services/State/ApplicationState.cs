@@ -7,4 +7,5 @@ public static class ApplicationState
     public static LoginResponseDto CurrentUser { get; set; }
     public static bool IsLoggedIn { get; set; }
     public static string MeetingName { get; set; }
+    public static Guid SelectedPatientId { get; set; }
 }

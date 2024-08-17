@@ -1,0 +1,76 @@
+﻿@using Dexterity.Components.Pages.PatientManager.Dialogs.Grouping
+@using Services.Features.PatientManagement.Dtos.Grouping
+<TabTitle Title="Patient Groups Centre">
+    <ActionButtons>
+        <DexSimpleButton Name="Add New Group" Click="() => OpenGroupFormModal(0)"/>
+    </ActionButtons>
+</TabTitle>
+<DexGrid DataSource="Groups">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(GroupDto.Name)" HeaderText="Name" Width="80px"></GridColumn>
+        <GridColumn Field="@nameof(GroupDto.GroupHead)" HeaderText="Group Head" Width="80px"></GridColumn>
+        <GridColumn Field="@nameof(GroupDto.Balance)" HeaderText="Balance" Format="C0" Width="80px"></GridColumn>
+        <GridColumn Field="@nameof(GroupDto.RegisteredPatientsCount)" HeaderText="Total Patient Registered" Width="150px">
+            <Template>
+                @{
+                    var item = (context as GroupDto);
+                    <MudText>@item.RegisteredPatientsCount</MudText>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="Actions" HeaderText="Actions" Width="300px">
+            <Template>
+                @{
+                    var item = (context as GroupDto);
+
+                    <DexIconButton Icon="@MudIcons.Material.Filled.Edit" OnClick="() => OpenGroupFormModal(item.Id)"/>
+                    <DexIconButton Color="MudColor.Error" Icon="@MudIcons.Material.Filled.Delete" OnClick="() => Callback(item.Id)"/>
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+
+    public List<GroupDto> Groups { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetGroups();
+    }
+
+    private async Task GetGroups()
+    {
+        Groups = await UnitOfWork.Patient.GetGroups();
+    }
+
+    private async Task Callback(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var deleteGroup = await UnitOfWork.Patient.DeleteGroup(id);
+            StateHasChanged();
+            Snackbar.SuccessMessge(deleteGroup.Messages.First());
+            await GetGroups();
+        }
+    }
+
+    private async Task OpenGroupFormModal(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions()
+            {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AddNewGroupModal>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetGroups();
+        }
+    }
+
+}

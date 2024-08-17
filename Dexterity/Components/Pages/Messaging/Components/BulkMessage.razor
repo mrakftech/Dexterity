@@ -1,5 +1,6 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs
 @using Services.Features.PatientManagement.Dtos
+@using Services.Features.PatientManagement.Dtos.Details
 @using Shared.Helper
 
 <TabTitle Title="Bulk SMS"></TabTitle>
@@ -10,15 +11,13 @@
             <MudItem>
                 <MudStack Row>
                     <MudItem>
-                        <div class="rz-p-sm-12">
-                            <RadzenMenu>
-                                <RadzenMenuItem Text="Load Group" Icon="home">
-                                    <RadzenMenuItem Text="Patients">
-                                        <RadzenMenuItem Text="All Patients" Click="LoadPatents"></RadzenMenuItem>
-                                    </RadzenMenuItem>
+                        <RadzenMenu>
+                            <RadzenMenuItem Text="Load Group" Icon="home">
+                                <RadzenMenuItem Text="Patients">
+                                    <RadzenMenuItem Text="All Patients" Click="LoadPatents"></RadzenMenuItem>
                                 </RadzenMenuItem>
-                            </RadzenMenu>
-                        </div>
+                            </RadzenMenuItem>
+                        </RadzenMenu>
                     </MudItem>
                     @if (ValidPatients is { Count: > 0 })
                     {

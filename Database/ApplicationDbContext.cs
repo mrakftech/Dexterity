@@ -1,6 +1,5 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Messaging.UserTasks;
-using Domain.Entities.Settings.Practice;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +13,9 @@ using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Group;
+using Domain.Entities.Settings.Hospital;
 
 namespace Database;
 
@@ -39,10 +41,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PatientOccupation> PatientOccupations { get; set; }
     public DbSet<RelatedHcp> RelatedHcps { get; set; }
     public DbSet<PatientHospital> PatientHospitals { get; set; }
-
     public DbSet<DoctorVisitCard> DoctorVisitCards { get; set; }
     public DbSet<NextKin> NextKins { get; set; }
     public DbSet<PatientCarer> PatientCarers { get; set; }
+    public DbSet<Group> Groups { get; set; }
+    public DbSet<GroupPatient> GroupPatients { get; set; }
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -89,10 +92,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PatientManagement"); });
-        builder.Entity<PatientOccupation>(entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
+        builder.Entity<PatientOccupation>(
+            entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
         builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
         builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
         builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PatientManagement"); });
         builder.Entity<PatientHospital>(entity => { entity.ToTable(name: "PatientHospitals", "PatientManagement"); });
+        builder.Entity<Group>(entity => { entity.ToTable(name: "Groups", "PatientManagement"); });
+        builder.Entity<GroupPatient>(entity => { entity.ToTable(name: "GroupPatients", "PatientManagement"); });
     }
 }

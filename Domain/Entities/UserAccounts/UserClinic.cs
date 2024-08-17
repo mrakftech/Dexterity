@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Settings.Practice;
+﻿using Domain.Entities.Settings.Hospital;
 
 namespace Domain.Entities.UserAccounts;
 

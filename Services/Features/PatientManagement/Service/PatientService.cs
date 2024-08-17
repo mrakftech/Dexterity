@@ -2,16 +2,17 @@ using AutoMapper;
 using Database;
 using Domain.Entities.PatientManagement;
 using Microsoft.EntityFrameworkCore;
-using Services.Features.PatientManagement.Dtos.Upsert;
 using Services.State;
 using Shared.Helper;
 using Shared.Wrapper;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
-using Services.Features.PatientManagement.Dtos;
+using Domain.Entities.PatientManagement.Group;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.Details;
+using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
-using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -38,6 +39,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         try
         {
             var patient = mapper.Map<Patient>(request);
+            patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
+            patient.UniqueNumber = CryptographyHelper.GetUniqueKey(8);
             patient.MobilePhone = Method.GetMobileFormat(request.Mobile);
             patient.Address.AddressLine1 = request.AddressLine1;
             patient.CreatedBy = ApplicationState.CurrentUser.UserId;
@@ -78,6 +81,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         try
         {
             var patient = mapper.Map<Patient>(request);
+            patient.Id = Guid.NewGuid();
+            patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
             patient.ClinicId = ApplicationState.CurrentUser.ClinicId;
             patient.CreatedBy = ApplicationState.CurrentUser.UserId;
             patient.CreatedDate = DateTime.Now;
@@ -95,7 +100,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsDoctor = request.GmsDoctor;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDoctorNumber;
             patient.MedicalCardDetails.GmsPatientNumber =
-                request.GmsPatientNumber == "A000000B" ? "" : request.GmsPatientNumber;
+                request.GmsPatientNumber == "A123456B" ? "" : request.GmsPatientNumber;
             patient.MedicalCardDetails.GmsReviewDate = request.GmsReviewDate;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
@@ -148,6 +153,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
 
+            context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             var rowsUpdated = await context.SaveChangesAsync();
             if (rowsUpdated > 0)
@@ -511,6 +517,90 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Hospital delete");
     }
+
+    #endregion
+
+    #region Group
+
+    public async Task<List<GroupDto>> GetGroups()
+    {
+        var list = await context.Groups.ToListAsync();
+        var data = mapper.Map<List<GroupDto>>(list);
+        return data;
+    }
+
+    public async Task<GroupDto> GetGroup(int id)
+    {
+        var group = await context.Groups.Include(x=>x.RegisteredPatients)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        var data = mapper.Map<GroupDto>(group);
+        return data;
+    }
+
+    public async Task<IResult> SaveGroup(int id, UpsertGroupDto request)
+    {
+        if (id == 0)
+        {
+            if (await context.Groups.AnyAsync(x => x.Name == request.Name))
+            {
+                return await Result.FailAsync("Group name already exists.");
+            }
+
+            var group = mapper.Map<Group>(request);
+            await context.Groups.AddAsync(group);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Group added");
+        }
+        else
+        {
+            var groupInDb = await context.Groups.FirstOrDefaultAsync(x => x.Id == id);
+            if (groupInDb == null)
+            {
+                return await Result.FailAsync("group not found");
+            }
+
+            groupInDb = mapper.Map(request, groupInDb);
+            context.Groups.Update(groupInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Group updated");
+        }
+    }
+
+    public async Task<IResult> DeleteGroup(int id)
+    {
+        var groupInDb = await context.Groups.FirstOrDefaultAsync(x => x.Id == id);
+        if (groupInDb == null)
+        {
+            return await Result.FailAsync("group not found");
+        }
+
+        context.Groups.Remove(groupInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Group delete");
+    }
+
+
+    #region Group Patients
+
+    public async Task<List<GroupPatientDto>> GetPatientsByGroup(int groupId)
+    {
+        var list = await context.GroupPatients
+            .Include(x => x.Patient)
+            .Where(x => x.GroupId == groupId)
+            .ToListAsync();
+        var data = mapper.Map<List<GroupPatientDto>>(list);
+        return data;
+    }
+
+    public async Task<IResult> RegisterPatientToGroup(GroupPatientDto request)
+    {
+        var register = mapper.Map<GroupPatient>(request);
+        await context.GroupPatients.AddAsync(register);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Patient register to group");
+    }
+
+    #endregion
 
     #endregion
 }

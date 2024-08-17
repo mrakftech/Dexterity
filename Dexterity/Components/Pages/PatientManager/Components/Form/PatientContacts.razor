@@ -1,17 +1,17 @@
-﻿@using Services.Features.PatientManagement.Dtos
-<label class="e-form-label">@($"Patient Contacts (Available {PatientContactList.Count})"):</label>
-<MudItem md="4">
-    <MudStack Row>
-        <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientContactDto"
-                        @bind-Value="_contactId" DataSource="@PatientContactList">
-            <DropDownListFieldSettings Value="Id" Text="FirstName"></DropDownListFieldSettings>
-            <DropDownListEvents TItem="PatientContactDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
-        </SfDropDownList>
-        <DexSimpleButton FullWidth="false" Name="Edit" Click="EditContact" Disabled="_disableButtons"></DexSimpleButton>
-        <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteContact" Disabled="_disableButtons"></DexSimpleButton>
-    </MudStack>
-</MudItem>
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.PatientManagement.Dtos
 
+<SfAppBar ColorMode="AppBarColor.Light" CssClass="mt-5">
+    <label class="e-form-label">@($"Patient Contacts (Available {PatientContactList.Count})"):</label>
+    <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientContactDto"
+                    @bind-Value="_contactId" DataSource="@PatientContactList" Width="400px">
+        <DropDownListFieldSettings Value="Id" Text="FirstName"></DropDownListFieldSettings>
+        <DropDownListEvents TItem="PatientContactDto" TValue="int" ValueChange="@ValueChangeHandler"/>
+    </SfDropDownList>
+    <DexSimpleButton FullWidth="false" Name="Edit" Click="EditContact" Disabled="_disableButtons"/>
+    <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteContact" Disabled="_disableButtons"/>
+
+</SfAppBar>
 <SfDataForm Model="@PatientContact"
             ColumnCount="3"
             Width="100%"

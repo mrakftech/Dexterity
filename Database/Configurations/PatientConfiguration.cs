@@ -2,8 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Domain.Entities.PatientManagement;
-using Domain.Entities.PatientManagement.BasicDetails;
-using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Details;
 
 namespace Database.Configurations
 {

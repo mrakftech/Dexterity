@@ -13,35 +13,31 @@
 
 <TopTitleBar Title="Patient Management" Image="modules/patients.svg"/>
 <MudItem md="12" Class="vertical-space">
-    <InnerLayout>
+    <InnerLayout AllHeight="850px">
         <NavigationItems>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-magnifying-glass" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(0))">
-                Search Patient
-            </MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-person-circle-plus" IconColor="MudColor.Info"
                         @onclick="@(AddNewPatient)">
                 Quick Patient
             </MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(1))">
+                        @onclick="@(() => ClickChangedTab(1))">
                 Add Patient
             </MudNavLink>
 
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-pen" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(2))">
+                        @onclick="@(() => ClickChangedTab(0))">
                 Open Patient
             </MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-family" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(3))">
-                Patient Families
+                        @onclick="@(() => ClickChangedTab(2))">
+                Patient Group Centre
             </MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-rectangle-list" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(4))">
+                        @onclick="@(() => ClickChangedTab(3))">
                 Open Patient Summary
             </MudNavLink>
             <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-solid fa-file-user" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(5))">
+                        @onclick="@(() => ClickChangedTab(5))">
                 Patients Accounts
             </MudNavLink>
         </NavigationItems>
@@ -50,10 +46,16 @@
             <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
                 <MudTabs @ref="_tabs">
                     <MudTabPanel Text="">
-                        <PatientList/>
+                        <OpenPatient TabChangeClick="ClickChangedTab" />
                     </MudTabPanel>
                     <MudTabPanel Text="">
                         <AddNewPatient/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <PatientGroup/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <PatientSummary TabChangeClick="ClickChangedTab" />
                     </MudTabPanel>
                 </MudTabs>
             </div>
@@ -63,11 +65,15 @@
 </MudItem>
 
 @code {
-    private bool _open = true;
     MudTabs _tabs;
 
-    private void ClickChanged(int tabIndex)
+    private void ClickChangedTab(int tabIndex)
     {
+        if (tabIndex == 0)
+        {
+            ApplicationState.SelectedPatientId = Guid.Empty;
+        }
+
         _tabs.ActivatePanel(tabIndex);
     }
 

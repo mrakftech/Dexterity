@@ -1,5 +1,5 @@
-﻿@using Services.Features.PatientManagement.Dtos.Upsert
-@using Dexterity.Components.Pages.PatientManager.Components.Form
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Form
+@using Services.Features.PatientManagement.Dtos.Details
 @using Dexterity.Components.Pages.PatientManager.Dialogs
 
 <TabTitle Title="Add New Patient"></TabTitle>
@@ -31,7 +31,6 @@
         {
             Snackbar.SuccessMessge(res.Messages.First());
             Patient = new();
-            await OpenEditPaitentModal();
         }
         else
         {
@@ -39,13 +38,6 @@
         }
 
         _processing = false;
-    }
-
-    private async Task OpenEditPaitentModal()
-    {
-        var parameters = new DialogParameters { };
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<EditPatientModal>("", parameters, options);
     }
 
 }
