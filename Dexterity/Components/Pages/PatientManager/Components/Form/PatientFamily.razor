@@ -1,0 +1,105 @@
+﻿@using Services.Features.PatientManagement.Dtos.Family
+@using Dexterity.Components.Pages.PatientManager.Dialogs.Family
+<MudStack Row Class="mt-5">
+    <MudItem md="6">
+        <TabTitle Title="Next Of Kin">
+            <ActionButtons>
+                <DexSimpleButton Name="Add Next of Kin" Click="@(() => OpenUpsertNextOfKinModal(0,"NextOfKin"))"/>
+            </ActionButtons>
+        </TabTitle>
+        <DexGrid DataSource="NextOfKins" Loading="_processing" Height="250px">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(FamilyMemeberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                        var item = (context as FamilyMemeberDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="@(() => OpenUpsertNextOfKinModal(item.Id,"PatientCarer"))"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUMember(item.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </MudItem>
+    <MudItem md="6">
+        <TabTitle Title="Patient Carer">
+            <ActionButtons>
+                <DexSimpleButton Name="Add Patient Carer" Click="@(() => OpenUpsertNextOfKinModal(0,"PatientCarer"))"/>
+            </ActionButtons>
+        </TabTitle>
+        <DexGrid DataSource="PatientCarers" Loading="_processing" Height="250px">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(FamilyMemeberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemeberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                        var item = (context as FamilyMemeberDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="@(() => OpenUpsertNextOfKinModal(item.Id,"PatientCarer"))"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUMember(item.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </MudItem>
+</MudStack>
+
+@code {
+    public List<FamilyMemeberDto> NextOfKins { get; set; } = new();
+    public List<FamilyMemeberDto> PatientCarers { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFamilyMembers();
+    }
+
+    private async Task GetFamilyMembers()
+    {
+        _processing = true;
+
+        var members= await UnitOfWork.Patient.GetFamilyMembers(ApplicationState.SelectedPatientId);
+        NextOfKins = members.Where(x => x.IsCarer == false).ToList();
+        PatientCarers = members.Where(x => x.IsCarer == true).ToList();
+        _processing = false;
+
+    }
+
+    private async Task OpenUpsertNextOfKinModal(int id,string actionName)
+    {
+        var title = id == 0 ? "New " : "Edit ";
+        var parameters = new DialogParameters
+        {
+            {"Id", id},
+            {"ActionName", actionName}
+        };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertFamilyMemberModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetFamilyMembers();
+        }
+    }
+    private async Task DeleteUMember(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Patient.DeleteFamilyMember(id);
+            StateHasChanged();
+            await GetFamilyMembers();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
+}

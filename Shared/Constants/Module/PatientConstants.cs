@@ -19,6 +19,7 @@ public static class PatientConstants
             Obsolete,
         }
     }
+
     public class PatientType
     {
         public static string Private = PatientTypes.Private.ToString();
@@ -34,6 +35,7 @@ public static class PatientConstants
             Other
         }
     }
+
     public class CompanyMedicalScheme
     {
         public const string AnPost = "An Post";
@@ -76,14 +78,23 @@ public static class PatientConstants
         new MaritalStatus(4, "Widowed"),
         new MaritalStatus(5, "Single"),
     ];
-    
+
+    public static List<Relationship> RelationshipList { get; set; } =
+    [
+        new Relationship(1, "Aunt"),
+        new Relationship(1, "Uncle"),
+        new Relationship(2, "Spouse"),
+        new Relationship(3, "Siblings"),
+        new Relationship(4, "Cousin"),
+    ];
+
     public class AlertType
     {
         public string Appointment = AlertTypes.Appointment.ToString();
         public string Account = AlertTypes.Account.ToString();
         public string Consultation = AlertTypes.Consultation.ToString();
     }
-    
+
     public static int GetAge(DateTime dateOfBirth)
     {
         var today = DateTime.Today;
@@ -102,6 +113,12 @@ public class Ethnicity(int id, string name)
 }
 
 public class MaritalStatus(int id, string name)
+{
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
+}
+
+public class Relationship(int id, string name)
 {
     public int Id { get; set; } = id;
     public string Name { get; set; } = name;

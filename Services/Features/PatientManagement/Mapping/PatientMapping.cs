@@ -3,10 +3,12 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
+using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 
@@ -71,6 +73,13 @@ public class PatientMapping : Profile
             .ReverseMap();
         CreateMap<Group, UpsertGroupDto>().ReverseMap();
         CreateMap<GroupPatient, GroupPatientDto>().ReverseMap();
+
+        #endregion
+
+        #region Patient Family
+
+        CreateMap<FamilyMember, FamilyMemeberDto>().ReverseMap();
+
         #endregion
     }
 }

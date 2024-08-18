@@ -7,6 +7,14 @@
         <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d" Type="ColumnType.DateTime"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as PatientListDto);
+                    <DexSimpleButton Name="Select Patient" Click="()=>SelectPatient(item.Id)" />
+                }
+            </Template>
+        </GridColumn>
     </DexGridColumns>
 </DexGrid>
 
@@ -25,6 +33,12 @@
         await Task.Delay(1000);
         Patients = await UnitOfWork.Patient.GetPatients();
         _patientLoading = false;
+    }
+
+    private void SelectPatient(Guid patientId)
+    {
+        ApplicationState.SelectedPatientId = patientId;
+        StateHasChanged();
     }
 
 }

@@ -8,9 +8,11 @@ using Shared.Wrapper;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
+using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 
@@ -531,7 +533,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<GroupDto> GetGroup(int id)
     {
-        var group = await context.Groups.Include(x=>x.RegisteredPatients)
+        var group = await context.Groups.Include(x => x.RegisteredPatients)
             .FirstOrDefaultAsync(x => x.Id == id);
         var data = mapper.Map<GroupDto>(group);
         return data;
@@ -592,6 +594,14 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
+    public async Task<GroupDto> GetSelectedGroup(Guid patientId)
+    {
+        var patientGroup = await context.GroupPatients
+            .Include(x => x.Group).FirstOrDefaultAsync(x => x.PatientId == patientId);
+        var mappedData = mapper.Map<GroupDto>(patientGroup.Group);
+        return patientGroup != null ? mappedData : new GroupDto();
+    }
+
     public async Task<IResult> RegisterPatientToGroup(GroupPatientDto request)
     {
         var register = mapper.Map<GroupPatient>(request);
@@ -601,6 +611,59 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    #endregion
+
+    #region Family
+
+    public async Task<List<FamilyMemeberDto>> GetFamilyMembers(Guid patientId)
+    {
+        var list = await context.FamilyMembers.Where(x => x.PatientId == patientId).ToListAsync();
+        var mapped = mapper.Map<List<FamilyMemeberDto>>(list);
+        return mapped;
+    }
+    public async Task<FamilyMemeberDto> GetFamilyMember(int id)
+    {
+        var data = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
+        var mapped = mapper.Map<FamilyMemeberDto>(data);
+        return mapped;
+    }
+    public async Task<IResult> SaveFamilyMember(int id, FamilyMemeberDto request)
+    {
+        if (id == 0)
+        {
+            var nextOfKin = mapper.Map<FamilyMember>(request);
+            await context.FamilyMembers.AddAsync(nextOfKin);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            var nextOfKinInDb = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
+            if (nextOfKinInDb == null)
+            {
+                return await Result.FailAsync("member not found");
+            }
+
+            nextOfKinInDb = mapper.Map(request, nextOfKinInDb);
+            context.FamilyMembers.Update(nextOfKinInDb);
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("Member has been saved.");
+    }
+
+    public async Task<IResult> DeleteFamilyMember(int id)
+    {
+        var nextKin = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
+        if (nextKin == null)
+        {
+            return await Result.FailAsync("record not found");
+        }
+
+        context.FamilyMembers.Remove(nextKin);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Member removed");
+    }
 
     #endregion
 }

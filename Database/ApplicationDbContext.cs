@@ -42,8 +42,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<RelatedHcp> RelatedHcps { get; set; }
     public DbSet<PatientHospital> PatientHospitals { get; set; }
     public DbSet<DoctorVisitCard> DoctorVisitCards { get; set; }
-    public DbSet<NextKin> NextKins { get; set; }
-    public DbSet<PatientCarer> PatientCarers { get; set; }
+    public DbSet<FamilyMember> FamilyMembers { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupPatient> GroupPatients { get; set; }
 
@@ -77,12 +76,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
 
-
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinic", "Setting"); });
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
-
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
         builder.Entity<AppointmentCancellationReason>(entity =>
         {
@@ -92,13 +89,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PatientManagement"); });
-        builder.Entity<PatientOccupation>(
-            entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
+        builder.Entity<PatientOccupation>(entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
         builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
         builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
         builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PatientManagement"); });
         builder.Entity<PatientHospital>(entity => { entity.ToTable(name: "PatientHospitals", "PatientManagement"); });
         builder.Entity<Group>(entity => { entity.ToTable(name: "Groups", "PatientManagement"); });
         builder.Entity<GroupPatient>(entity => { entity.ToTable(name: "GroupPatients", "PatientManagement"); });
+        builder.Entity<FamilyMember>(entity => { entity.ToTable(name: "FamilyMembers", "PatientManagement"); });
     }
 }

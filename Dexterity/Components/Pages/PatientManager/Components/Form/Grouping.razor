@@ -5,7 +5,7 @@
         <MudItem xs="12" sm="6" md="12">
             <label class="e-form-label">Groups:</label>
             <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="GroupDto"
-                            DataSource="@Groups" Width="400px">
+                            DataSource="@Groups" Width="400px" @bind-Value="GroupDto.Id">
                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 <DropDownListEvents TItem="GroupDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
             </SfDropDownList>
@@ -33,7 +33,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await GetSelectedGroup();
         await GetGroups();
+    }
+
+    private async Task GetSelectedGroup()
+    {
+        GroupDto = await UnitOfWork.Patient.GetSelectedGroup(Id);
     }
 
     private async Task GetGroups()

@@ -2,6 +2,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
+using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Wrapper;
@@ -88,9 +89,18 @@ public interface IPatientService
     #region Group Patients
 
     public Task<List<GroupPatientDto>> GetPatientsByGroup(int groupId);
+    public Task<GroupDto> GetSelectedGroup(Guid patientId);
     public Task<IResult> RegisterPatientToGroup(GroupPatientDto request);
 
     #endregion
+
+    #endregion
+    #region Family
+
+    public Task<List<FamilyMemeberDto>> GetFamilyMembers(Guid patientId);
+    public Task<FamilyMemeberDto> GetFamilyMember(int id);
+    public Task<IResult> SaveFamilyMember(int id,FamilyMemeberDto request);
+    public Task<IResult> DeleteFamilyMember(int id);
 
     #endregion
 }
