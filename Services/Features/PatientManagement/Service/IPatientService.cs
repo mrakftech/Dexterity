@@ -21,6 +21,7 @@ public interface IPatientService
     public Task<IResult> UpdatePatient(Guid id, UpsertPatientDto request);
     public Task<IResult> SaveExtraDetails(PatientExtraDetailDto request);
     public Task<IResult> DeletePatient(Guid id);
+    public Task<PatientSummaryDto> GetPatientSummary(Guid patientId);
 
     #endregion
 

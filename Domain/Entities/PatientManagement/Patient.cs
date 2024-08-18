@@ -1,5 +1,7 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.PatientManagement.Details;
+using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 
@@ -78,4 +80,9 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public Guid HcpId { get; set; }
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
+    
+    
+    public virtual ICollection<PatientHospital> Hospitals { get; set; }
+    public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
+
 }

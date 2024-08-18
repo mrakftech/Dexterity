@@ -62,6 +62,9 @@
 
     <ItemGroup>
       <Content Remove="Components\Pages\Appointments\Components\RecurringAppointment.razor" />
+      <Content Update="wwwroot\assets\images\patient.png">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>

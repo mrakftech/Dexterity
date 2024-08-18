@@ -78,6 +78,45 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Patient has been deleted");
     }
 
+    public async Task<PatientSummaryDto> GetPatientSummary(Guid patientId)
+    {
+        var patient = await context.Patients
+            .Include(patient => patient.Hcp)
+            .Include(x => x.Hospitals)
+            .Include(x => x.FamilyMembers)
+            .FirstOrDefaultAsync(x => x.Id == patientId);
+
+        if (patient == null)
+            return new PatientSummaryDto();
+
+        var hospitals = mapper.Map<List<PatientHospitalDto>>(patient.Hospitals);
+        var families = mapper.Map<List<FamilyMemeberDto>>(patient.FamilyMembers.Where(x => x.IsCarer == false));
+        var summary = new PatientSummaryDto()
+        {
+            UniqueNumber = patient.UniqueNumber,
+            Name = patient.FullName,
+            DateOfBirth = patient.DateOfBirth.ToString("d"),
+            Address = patient.Address.AddressLine1,
+            Nationality = patient.Address.Country,
+            Status = patient.Status,
+            Type = patient.PatientType,
+            Ppsn = patient.Ppsn,
+            Mobile = patient.MobilePhone,
+            DefualtHcp = patient.Hcp.FullName,
+            RegistrationDate = patient.RegistrationDate.ToString("d"),
+            GmsStatus = patient.MedicalCardDetails.GmsStatus,
+            GmsDoctor = patient.MedicalCardDetails.GmsDoctor,
+            GmsNumber = patient.MedicalCardDetails.GmsPatientNumber,
+            GmsReviewDate = patient.MedicalCardDetails.GmsReviewDate.ToString("d"),
+            GmsDistance = patient.MedicalCardDetails.GmsDistanceCode,
+            Hospitals = hospitals,
+            FamilyMembers = families
+        };
+
+
+        return summary;
+    }
+
     public async Task<IResult> CreatePatient(UpsertPatientDto request)
     {
         try
@@ -622,12 +661,14 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         var mapped = mapper.Map<List<FamilyMemeberDto>>(list);
         return mapped;
     }
+
     public async Task<FamilyMemeberDto> GetFamilyMember(int id)
     {
         var data = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
         var mapped = mapper.Map<FamilyMemeberDto>(data);
         return mapped;
     }
+
     public async Task<IResult> SaveFamilyMember(int id, FamilyMemeberDto request)
     {
         if (id == 0)

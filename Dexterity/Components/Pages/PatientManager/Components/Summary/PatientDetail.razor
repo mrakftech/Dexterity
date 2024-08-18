@@ -1,0 +1,101 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@if (ApplicationState.SelectedPatientId != Guid.Empty)
+{
+    if (!_loading)
+    {
+        <RadzenRow >
+            <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
+                <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem" class="rz-p-4">
+                    <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@Patient.Name</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Date Of Birth</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@Patient.DateOfBirth</b>
+                        </RadzenText>
+                    </RadzenStack>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Nationality</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(Patient.Nationality == null ? "Not set" : Patient.Nationality)</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">PPSN</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(Patient.Ppsn == null ? "Not set" : Patient.Ppsn)</b>
+                        </RadzenText>
+                    </RadzenStack>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Patient Status</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(Patient.Status == null ? "Not set" : Patient.Status)</b>
+
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Patient Type</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(Patient.Type == null ? "Not set" : Patient.Type)</b>
+                        </RadzenText>
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenRow>
+        <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenStack>
+                    <RadzenFieldset Text="Patient Details">
+                        <RadzenStack Gap="1rem">
+
+                        </RadzenStack>
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="GMS Details">
+                        <RadzenStack Gap="1rem">
+
+                        </RadzenStack>
+                    </RadzenFieldset>
+
+                </RadzenStack>
+            </RadzenColumn>
+            <RadzenColumn Size="12" SizeMD="6">
+                <RadzenStack>
+                    <RadzenFieldset Text="Family Details">
+                        <RadzenStack Gap="1rem">
+
+                        </RadzenStack>
+                    </RadzenFieldset>
+                    <RadzenFieldset Text="Hospital Details">
+                        <RadzenStack Gap="1rem">
+
+                        </RadzenStack>
+                    </RadzenFieldset>
+
+                </RadzenStack>
+            </RadzenColumn>
+        </RadzenRow>
+    }
+    else
+    {
+        <CommonLoader/>
+    }
+}
+
+
+@code {
+    private PatientSummaryDto Patient { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPateintSummary();
+    }
+
+    private async Task GetPateintSummary()
+    {
+        _loading = true;
+        var summary = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
+        Patient = summary;
+        _loading = false;
+    }
+
+}

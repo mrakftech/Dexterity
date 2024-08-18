@@ -1,4 +1,5 @@
-﻿<style>
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Summary
+<style>
     .sub-drawer {
         color: #ffffff !important;
     }
@@ -7,83 +8,87 @@
     <ActionButtons>
         @if (ApplicationState.SelectedPatientId != Guid.Empty)
         {
-        <DexSimpleButton Name="Go Back" Click="() => ChangeTab(0)" Color="MudColor.Primary" FullWidth="false"/>
+            <DexSimpleButton Name="Go Back" Click="() => ChangeTab(0)" Color="MudColor.Primary" FullWidth="false"/>
         }
     </ActionButtons>
 </TabTitle>
 
 @if (ApplicationState.SelectedPatientId != Guid.Empty)
 {
-<MudItem md="12" Class="vertical-space">
-    <InnerLayout AllHeight="500px">
-        <NavigationItems>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(0))">
-                Details
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(1))">
-                Contacts
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(2))">
-                Medical Summary
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(3))">
-                Medical History
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(4))">
-                Baseline Details
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(5))">
-                Visit History
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(6))">
-                SMS History
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-user-plus" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChangedTab(7))">
-                Patient Tasks
-            </MudNavLink>
-        </NavigationItems>
-        <DexContentTabs>
-            <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
-                <MudTabs @ref="_tabs">
-                    <MudTabPanel Text="">
-
-
-                    </MudTabPanel>
-                </MudTabs>
-            </div>
-        </DexContentTabs>
-    </InnerLayout>
-</MudItem>
+    <MudItem md="12" Class="vertical-space">
+        <InnerLayout AllHeight="500px">
+            <NavigationItems>
+                <MudNavLink Class="active" Match="NavLinkMatch.All" Icon="fas fa-memo-circle-info" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(0))">
+                    Details
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-address-book" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(1))">
+                    Contacts
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-receipt" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(2))">
+                    Medical Summary
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-files-medical" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(3))">
+                    Medical History
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-shield-heart" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(4))">
+                    Baseline Details
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-rectangle-history" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(5))">
+                    Visit History
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(6))">
+                    SMS History
+                </MudNavLink>
+                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-bars-progress" IconColor="MudColor.Info"
+                            @onclick="@(() => ClickChangedTab(7))">
+                    Patient Tasks
+                </MudNavLink>
+            </NavigationItems>
+            <DexContentTabs>
+                <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+                    <MudTabs @ref="_tabs">
+                        <MudTabPanel Text="">
+                            <PatientDetail/>
+                        </MudTabPanel>
+                    </MudTabs>
+                </div>
+            </DexContentTabs>
+        </InnerLayout>
+    </MudItem>
 }
 else
 {
-<PatientList/>
+    <PatientList/>
 }
 
 
 @code {
-[Parameter] public EventCallback<int> TabChangeClick { get; set; }
-MudTabs _tabs;
+    [Parameter] public EventCallback<int> TabChangeClick { get; set; }
+    MudTabs _tabs = new();
+    int _tabIndex = 0;
+    private string _title = ApplicationState.SelectedPatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
+    protected override void OnInitialized()
+    {
+        
+        _tabs.ActivatePanel(_tabIndex);
+    }
 
-private string _title = ApplicationState.SelectedPatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
-
-private void ClickChangedTab(int tabIndex)
-{
-_tabs.ActivatePanel(tabIndex);
-}
+    private void ClickChangedTab(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
 
 
-protected async Task ChangeTab(int e)
-{
-await TabChangeClick.InvokeAsync(e);
-}
+    protected async Task ChangeTab(int e)
+    {
+        await TabChangeClick.InvokeAsync(e);
+    }
 
 }
