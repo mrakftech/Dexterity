@@ -4,58 +4,6 @@ namespace Shared.Constants.Module;
 
 public static class PatientConstants
 {
-    public class Status
-    {
-        public string Active = PatientStatus.Active.ToString();
-        public string InActive = PatientStatus.Inactive.ToString();
-        public string Nullified = PatientStatus.Nullified.ToString();
-        public string Obsolete = PatientStatus.Obsolete.ToString();
-
-        public enum PatientStatus
-        {
-            Active,
-            Inactive,
-            Nullified,
-            Obsolete,
-        }
-    }
-
-    public class PatientType
-    {
-        public static string Private = PatientTypes.Private.ToString();
-        public static string Gms = PatientTypes.GMS.ToString();
-        public static string VisitCard = PatientTypes.DoctorVisitCard.ToString();
-        public static string Other = PatientTypes.Other.ToString();
-
-        public enum PatientTypes
-        {
-            Private,
-            DoctorVisitCard,
-            GMS,
-            Other
-        }
-    }
-
-    public class CompanyMedicalScheme
-    {
-        public const string AnPost = "An Post";
-        public const string Garda = "Garda";
-        public const string Others = "Others";
-
-        public static List<string> CompanyMedicalSchemes { get; set; } =
-        [
-            AnPost,
-            Garda,
-            Others,
-        ];
-    }
-
-    public enum Gender
-    {
-        [Display(Name = "Male")] Male,
-        [Display(Name = "Female")] Female,
-        [Display(Name = "Others")] Others
-    }
 
     public static List<Ethnicity> Ethnicities { get; set; } =
     [
@@ -88,21 +36,26 @@ public static class PatientConstants
         new Relationship(4, "Cousin"),
     ];
 
-    public class AlertType
+    public static string CalculateAge(DateTime dateOfBirth)
     {
-        public string Appointment = AlertTypes.Appointment.ToString();
-        public string Account = AlertTypes.Account.ToString();
-        public string Consultation = AlertTypes.Consultation.ToString();
-    }
+        DateTime today = DateTime.Today;
+        int years = today.Year - dateOfBirth.Year;
+        int months = today.Month - dateOfBirth.Month;
+        if (today.Month < dateOfBirth.Month)
+        {
+            years--;
+            months = 12 - dateOfBirth.Month + today.Month;
+        }
+        else if (today.Month == dateOfBirth.Month)
+        {
+            if (today.Day < dateOfBirth.Day)
+            {
+                years--;
+                months = 11;
+            }
+        }
 
-    public static int GetAge(DateTime dateOfBirth)
-    {
-        var today = DateTime.Today;
-
-        var a = (today.Year * 100 + today.Month) * 100 + today.Day;
-        var b = (dateOfBirth.Year * 100 + dateOfBirth.Month) * 100 + dateOfBirth.Day;
-
-        return (a - b) / 10000;
+        return $"{years} Yrs {months}m";
     }
 }
 
@@ -124,11 +77,47 @@ public class Relationship(int id, string name)
     public string Name { get; set; } = name;
 }
 
-public enum AlertTypes
+
+public enum PatientStatus
+{
+    Active,
+    Inactive,
+    Nullified,
+    Obsolete,
+}
+
+public enum PatientType
+{
+    Private,
+    DoctorVisitCard,
+    GMS,
+    Other
+}
+
+public enum CompanyMedicalScheme
+{
+    AnPost,
+    Garda,
+    Others,
+}
+
+public enum Gender
+{
+    Male,
+    Female,
+    Others
+}
+public enum AlertType
 {
     Appointment,
     Account,
     Consultation
+}
+
+public enum AccountType
+{
+    Personal,
+    Group,
 }
 
 public enum AlertSeverity
@@ -136,4 +125,10 @@ public enum AlertSeverity
     Low,
     Medium,
     High
+}
+
+public enum TransactionType
+{
+    Charge,
+    Payment
 }

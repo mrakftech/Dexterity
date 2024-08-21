@@ -1,0 +1,24 @@
+﻿@using Services.Features.Appointments.Dtos
+<TabTitle Title="Visit History"></TabTitle>
+<DexGrid DataSource="Appointments" Loading="_loading" Height="400px">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(AppointmentHistoryDto.StartTime)" Format="g" Type="ColumnType.DateTime" HeaderText="Appointment Date" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(AppointmentHistoryDto.Type)" HeaderText="Type" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(AppointmentHistoryDto.PatientName)" HeaderText="Patient Name" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(AppointmentHistoryDto.Duration)" HeaderText="Duration" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(AppointmentHistoryDto.Hcp)" HeaderText="HCP" Width="120px"></GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<AppointmentHistoryDto> Appointments { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        Appointments = await UnitOfWork.Appointment.GetAppointmentHistory(ApplicationState.SelectedPatientId);
+        _loading = false;
+    }
+
+}

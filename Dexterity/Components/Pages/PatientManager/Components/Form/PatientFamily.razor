@@ -9,14 +9,14 @@
         </TabTitle>
         <DexGrid DataSource="NextOfKins" Loading="_processing" Height="250px">
             <DexGridColumns>
-                <GridColumn Field="@nameof(FamilyMemeberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
                 <GridColumn HeaderText="Actions" Width="120">
                     <Template>
                         @{
-                        var item = (context as FamilyMemeberDto);
+                        var item = (context as FamilyMemberDto);
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="@(() => OpenUpsertNextOfKinModal(item.Id,"PatientCarer"))"/>
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUMember(item.Id)"/>
                         }
@@ -33,14 +33,14 @@
         </TabTitle>
         <DexGrid DataSource="PatientCarers" Loading="_processing" Height="250px">
             <DexGridColumns>
-                <GridColumn Field="@nameof(FamilyMemeberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(FamilyMemeberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.Title)" HeaderText="Title" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.FirstName)" HeaderText="Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.RelationshipToPatient)" HeaderText="Relationship" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(FamilyMemberDto.ContactDetail)" HeaderText="Contact" Width="120px"></GridColumn>
                 <GridColumn HeaderText="Actions" Width="120">
                     <Template>
                         @{
-                        var item = (context as FamilyMemeberDto);
+                        var item = (context as FamilyMemberDto);
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="@(() => OpenUpsertNextOfKinModal(item.Id,"PatientCarer"))"/>
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUMember(item.Id)"/>
                         }
@@ -52,8 +52,8 @@
 </MudStack>
 
 @code {
-    public List<FamilyMemeberDto> NextOfKins { get; set; } = new();
-    public List<FamilyMemeberDto> PatientCarers { get; set; } = new();
+    public List<FamilyMemberDto> NextOfKins { get; set; } = new();
+    public List<FamilyMemberDto> PatientCarers { get; set; } = new();
     private bool _processing;
 
     protected override async Task OnInitializedAsync()

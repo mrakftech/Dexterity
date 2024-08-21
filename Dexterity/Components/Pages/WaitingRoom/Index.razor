@@ -1,0 +1,33 @@
+﻿@page "/waiting-room"
+@using Dexterity.Components.Pages.WaitingRoom.PartialViews
+@layout MainLayout
+<TopTitleBar Title="Waiting Room" Image="modules/patient-waiting.svg"/>
+<InnerLayout AllHeight="700px">
+    <NavigationItems>
+        <MudList T="string" Style="width: 200px">
+            <MudListItem T="string" Text="Patients Expected" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
+            <MudListItem T="string" Text="Patients Present" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
+            <MudListItem T="string" Text="In Consultation" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
+            <MudListItem T="string" Text="Visit History" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
+        </MudList>
+    </NavigationItems>
+    <DexContentTabs>
+        <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+            <MudTabs @ref="_tabs">
+                <MudTabPanel Text="">
+                    <PatientsExpected/>
+                </MudTabPanel>
+            </MudTabs>
+        </div>
+    </DexContentTabs>
+</InnerLayout>
+
+@code {
+    MudTabs _tabs = new();
+
+    private void ClickChangedTab(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
+
+}

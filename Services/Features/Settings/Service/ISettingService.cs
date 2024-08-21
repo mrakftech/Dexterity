@@ -61,4 +61,12 @@ public interface ISettingService
     public Task<IResult> DeleteAppointmentCancelReason(int id);
 
     #endregion
+
+    #region Account Types
+    public Task<AccountTypeDto> GetAccountType(int id);
+    public Task<List<AccountTypeDto>> GetAccountTypes();
+    public Task<IResult> SaveAccountType(int id, AccountTypeDto request);
+    public Task<IResult> DeleteAccountType(int id);
+
+    #endregion
 }

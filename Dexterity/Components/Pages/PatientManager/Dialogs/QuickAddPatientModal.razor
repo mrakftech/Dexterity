@@ -12,7 +12,7 @@
                 <FormItem Field="@nameof(QuickAddPatientDto.Gender)">
                     <Template>
                         <label class="e-form-label">Gender</label>
-                        <SfDropDownList CssClass="" TValue="PatientConstants.Gender" TItem="string" Placeholder="Gender" DataSource="@Genders" @bind-Value="@_patient.Gender">
+                        <SfDropDownList CssClass="" TValue="Gender" TItem="string" Placeholder="Gender" DataSource="@Genders" @bind-Value="@_patient.Gender">
                             <DropDownListTemplates TItem="string">
                                 <ItemTemplate Context="value">
                                     <span>@value</span>
@@ -48,7 +48,7 @@
     private QuickAddPatientDto _patient { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private bool _processing;
-    public IEnumerable<string> Genders = Enum.GetNames(typeof(PatientConstants.Gender));
+    public IEnumerable<string> Genders = Enum.GetNames(typeof(Gender));
 
     protected override async Task OnInitializedAsync()
     {

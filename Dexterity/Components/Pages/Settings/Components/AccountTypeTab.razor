@@ -1,0 +1,91 @@
+﻿@using Dexterity.Components.Pages.Settings.Dialogs.Account
+@using Services.Features.Settings.Dtos
+<TabTitle Title="Account Types">
+    <ActionButtons>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => OpenUpsertClinicModal(0)">Add New Account Type</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAccountTypes" Variant="Variant.Filled">Load Account Types</MudButton>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="AccountTypes" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(AccountTypeDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(AccountTypeDto.Amount)" HeaderText="Amount" Format="C" Width="120px" Type="ColumnType.Decimal"></GridColumn>
+            <GridColumn Field="@nameof(AccountTypeDto.Type)" HeaderText="Type" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(AccountTypeDto.IsActive)" HeaderText="Status" Width="120px">
+                <Template>
+                    @{
+                        var item = (context as AccountTypeDto);
+                        @if (item.IsActive)
+                        {
+                            <MudText Color="MudColor.Primary"> Yes</MudText>
+                        }
+                        else
+                        {
+                            <MudText Color="MudColor.Error"> No</MudText>
+                        }
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Actions" Width="80">
+                <Template>
+                    @{
+                        var item = (context as AccountTypeDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => OpenUpsertClinicModal(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteAccountType(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+
+@code {
+    private List<AccountTypeDto> AccountTypes { get; set; } = new();
+    private bool _processing;
+
+    private async Task GetAccountTypes()
+    {
+        _processing = true;
+        AccountTypes = await UnitOfWork.Setting.GetAccountTypes();
+        _processing = false;
+    }
+
+    private async Task DeleteAccountType(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteAccountType(id);
+            if (res.Succeeded)
+            {
+                await GetAccountTypes();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+    private async Task OpenUpsertClinicModal(int id)
+    {
+        var title = id == 0 ? "New Account Type" : "Edit Account Type";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertAccountTypeModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetAccountTypes();
+        }
+    }
+
+}

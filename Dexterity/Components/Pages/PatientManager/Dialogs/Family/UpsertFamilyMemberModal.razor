@@ -4,13 +4,13 @@
     <Content>
         <DexForm Model="FamilyMember" OnValidSubmit="SaveNextOfKin">
             <Fields>
-                <FormItem Field="@nameof(FamilyMemeberDto.FamilyName)" LabelText="Family Name"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.FirstName)" LabelText="First Name"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.Title)" LabelText="Title"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.Gender)"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.ContactDetail)" LabelText="Contact Detail"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.Address)" EditorType="FormEditorType.TextArea"/>
-                <FormItem Field="@nameof(FamilyMemeberDto.RelationshipToPatient)" LabelText="Relationship To Patient">
+                <FormItem Field="@nameof(FamilyMemberDto.FamilyName)" LabelText="Family Name"/>
+                <FormItem Field="@nameof(FamilyMemberDto.FirstName)" LabelText="First Name"/>
+                <FormItem Field="@nameof(FamilyMemberDto.Title)" LabelText="Title"/>
+                <FormItem Field="@nameof(FamilyMemberDto.Gender)"/>
+                <FormItem Field="@nameof(FamilyMemberDto.ContactDetail)" LabelText="Contact Detail"/>
+                <FormItem Field="@nameof(FamilyMemberDto.Address)" EditorType="FormEditorType.TextArea"/>
+                <FormItem Field="@nameof(FamilyMemberDto.RelationshipToPatient)" LabelText="Relationship To Patient">
                     <Template>
                         <SfDropDownList TValue="string" Placeholder="e.g. Spouse Or Uncle" TItem="Relationship" @bind-Value="@FamilyMember.RelationshipToPatient" DataSource="@PatientConstants.RelationshipList">
                             <DropDownListFieldSettings Value="Name"></DropDownListFieldSettings>
@@ -29,7 +29,7 @@
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
     [Parameter] public string ActionName { get; set; }
-    private FamilyMemeberDto FamilyMember { get; set; } = new();
+    private FamilyMemberDto FamilyMember { get; set; } = new();
     private bool _processing;
 
     protected override async Task OnInitializedAsync()

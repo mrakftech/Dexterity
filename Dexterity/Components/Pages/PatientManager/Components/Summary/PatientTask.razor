@@ -1,0 +1,25 @@
+﻿@using Domain.Entities.Messaging.UserTasks
+@using Services.Features.UserAccounts.Dtos.User
+<TabTitle Title="Patient Tasks"></TabTitle>
+<DexGrid DataSource="UserTasks" Loading="_loading" Height="400px">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(UserTask.TaskDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Created Date" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(UserTask.Subject)"  HeaderText="Subject" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(UserTask.Description)"  HeaderText="Description" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(UserTask.Status)"  HeaderText="Status" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(UserTask.AssignedBy)"  HeaderText="Assigned By" Width="120px"></GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<UserTask> UserTasks { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        UserTasks = await UnitOfWork.Messaging.GetUserTasksByPatient(ApplicationState.SelectedPatientId);
+        _loading = false;
+    }
+
+}

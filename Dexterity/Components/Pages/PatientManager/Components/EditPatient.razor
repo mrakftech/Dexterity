@@ -21,7 +21,7 @@
 else
 {
     <SfAppBar ColorMode="AppBarColor.Primary">
-        <span class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.GetAge(Patient.DateOfBirth)} Yr(s), {Patient.Gender}")</span>
+        <span class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.CalculateAge(Patient.DateOfBirth)} , {Patient.Gender}")</span>
     </SfAppBar>
     <SfTab CssClass="mt-5" >
         <TabItems>
@@ -31,7 +31,7 @@ else
                 </ChildContent>
                 <ContentTemplate>
                     <SfDataForm Model="@Patient"
-                                ColumnCount="3"
+                                ColumnCount="4"
                                 Width="100%"
                                 ColumnSpacing="20px"
                                 ButtonsAlignment="FormButtonsAlignment.Left"
@@ -41,7 +41,10 @@ else
                         </FormValidator>
                         <PatientDetailForm Patient="Patient"/>
                         <FormButtons>
+                            <div class="mb-3">
                             <DexLoadingButton Name="Save Patient" Processing="_processing" Type="MudButtonType.Submit" FullWidth="false"></DexLoadingButton>
+                                
+                            </div>
                         </FormButtons>
                     </SfDataForm>
                 </ContentTemplate>
@@ -143,6 +146,7 @@ else
         ExtraDetail.Status = response.MaritalDetails.Status;
         ExtraDetail.StartDate = response.MaritalDetails.StartDate;
         ExtraDetail.EndDate = response.MaritalDetails.EndDate;
+//Account
 
 
         ExtraDetail.PatientId = response.Id;

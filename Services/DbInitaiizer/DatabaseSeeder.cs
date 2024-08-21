@@ -32,7 +32,7 @@ public class DatabaseSeeder(
         SeedAppointmentTypes();
         SeedAppointmentCancelReasons();
         SeedAlertCategory();
-          SeedFakePatientData();
+        SeedFakePatientData();
         //  SeedFakeUserData();
     }
 
@@ -149,7 +149,7 @@ public class DatabaseSeeder(
             if (!context.Patients.Any())
             {
                 var address = new PatientAddress() {AddressLine1 = "Testing London"};
-                var medical = new MedicalCardDetail() {GmsStatus = "Active",GmsPatientNumber = "M567890A"};
+                var medical = new MedicalCardDetail() {GmsStatus = "Active", GmsPatientNumber = "M567890A"};
                 var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic").Id;
                 var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "User").Id;
                 var util = PhoneNumberUtil.GetInstance();
@@ -167,7 +167,12 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.Email, x => x.Person.Email)
                     .RuleFor(x => x.ClinicId, clinicId)
                     .RuleFor(x => x.HcpId, hcpId)
-                    .RuleFor(x=>x.MedicalCardDetails,medical)
+                    .RuleFor(x => x.MedicalCardDetails, medical)
+                    .RuleFor(x => x.UniqueNumber, CryptographyHelper.GetUniqueKey(8))
+                    .RuleFor(x => x.MedicalRecordNumber, CryptographyHelper.GenerateMrNumber())
+                    .RuleFor(x => x.Status, PatientStatus.Active.ToString())
+                    .RuleFor(x => x.PatientType, PatientType.Private.ToString())
+                    .RuleFor(x => x.IhiNumber, CryptographyHelper.GetUniqueKey(17))
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
                 var patients = fakePatients.Generate(20);
                 await context.Patients.AddRangeAsync(patients);
@@ -235,8 +240,7 @@ public class DatabaseSeeder(
         Task.Run(async () =>
         {
             await using var context = await contextFactory.CreateDbContextAsync();
-            if (context.Clinics.Any())
-                return;
+            return;
             var c = new Clinic()
             {
                 Address = "Not set",

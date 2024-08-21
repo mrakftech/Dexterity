@@ -3,7 +3,7 @@ using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Dtos.Family;
 
-public class FamilyMemeberDto
+public class FamilyMemberDto
 {
     public int Id { get; set; }
 
@@ -17,7 +17,7 @@ public class FamilyMemeberDto
     
     [Required(ErrorMessage = "Required")] 
     public string Title { get; set; }
-    public PatientConstants.Gender Gender { get; set; }
+    public Gender Gender { get; set; }
     [Required(ErrorMessage = "Required")] public string Address { get; set; }
     
     [Required(ErrorMessage = "Required")]

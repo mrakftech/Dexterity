@@ -16,7 +16,8 @@
         <FormItem Field="@nameof(Patient.Ppsn)" LabelText="PPSN" ColumnSpan="1"/>
         <FormItem Field="@nameof(Patient.BirthSurname)" LabelText="Surname" ColumnSpan="1"/>
         <FormItem Field="@nameof(Patient.Title)" LabelText="Title" ColumnSpan="1" Placeholder="e.g. Miss Mr Dr."/>
-        <FormItem Field="@nameof(Patient.DateOfBirth)" EditorType="FormEditorType.DatePicker" LabelText="DOB" ColumnSpan="1"/>
+        <FormItem Field="@nameof(Patient.DateOfBirth)" EditorType="FormEditorType.DatePicker" LabelText="DOB"
+                  ColumnSpan="1"/>
         <FormItem Field="@nameof(Patient.Gender)" LabelText="Gender" ColumnSpan="1"></FormItem>
         <FormItem Field="@nameof(Patient.HomePhone)" ColumnSpan="1">
             <Template>
@@ -41,7 +42,6 @@
                 <SfCheckBox Label="Dispensing Status" @bind-Checked="Patient.DispensingStatus"></SfCheckBox>
             </Template>
         </FormItem>
-
     </FormGroup>
     <FormGroup LabelText="Address Details" ColumnCount="2" ColumnSpacing="5px">
         <FormItem Field="@nameof(Patient.AddressLine1)" ColumnSpan="2">
@@ -83,7 +83,8 @@
         <FormItem Field="@nameof(Patient.HcpId)" ColumnSpan="2">
             <Template>
                 <label class="e-form-label">HCP:</label>
-                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@Patient.HcpId">
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares"
+                                @bind-Value="@Patient.HcpId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </Template>
@@ -96,8 +97,10 @@
             <Template>
                 <label class="e-form-label">GMS Status:</label>
                 <MudStack Row>
-                    <SfRadioButton Label="Yes" Name="options" Value="Active" @bind-Checked="Patient.GmsStatus" @onchange="OnGMSStatusChange"></SfRadioButton>
-                    <SfRadioButton Label="No" Name="options" Value="Inactive" @bind-Checked="Patient.GmsStatus" @onchange="OnGMSStatusChange"></SfRadioButton>
+                    <SfRadioButton Label="Yes" Name="options" Value="Active" @bind-Checked="Patient.GmsStatus"
+                                   @onchange="OnGMSStatusChange"></SfRadioButton>
+                    <SfRadioButton Label="No" Name="options" Value="Inactive" @bind-Checked="Patient.GmsStatus"
+                                   @onchange="OnGMSStatusChange"></SfRadioButton>
 
                 </MudStack>
             </Template>
@@ -124,7 +127,8 @@
         <FormItem Field="@nameof(Patient.GmsReviewDate)" ColumnSpan="1">
             <Template>
                 <label class="e-form-label">GMS Review Date:</label>
-                <SfDatePicker TValue="DateTime" Placeholder="Choose a Date" FullScreen="true" ShowClearButton="true" @bind-Value="@Patient.GmsReviewDate" Enabled="@Patient.IsGmsActive"></SfDatePicker>
+                <SfDatePicker TValue="DateTime" Placeholder="Choose a Date" FullScreen="true" ShowClearButton="true"
+                              @bind-Value="@Patient.GmsReviewDate" Enabled="@Patient.IsGmsActive"></SfDatePicker>
             </Template>
         </FormItem>
         <FormItem Field="@nameof(Patient.GmsDistanceCode)" ColumnSpan="1">
@@ -135,29 +139,37 @@
         </FormItem>
 
     </FormGroup>
+    <FormGroup LabelText="Account Details">
+        <FormItem Field="@nameof(Patient.AccountType)" LabelText="Account Type" ColumnSpan="1"/>
+        <FormItem Field="@nameof(Patient.AccountNotes)" LabelText="Account Notes"/>
+        <FormItem Field="@nameof(Patient.InsuranceScheme)" LabelText="Insurance Scheme"/>
+        <FormItem Field="@nameof(Patient.PolicyNumber)" LabelText="Policy Number"/>
+        <FormItem Field="@nameof(Patient.BillingName)" LabelText="Billing Name"/>
+        <FormItem Field="@nameof(Patient.BillingDetail)" LabelText="Billing Detail" EditorType="FormEditorType.TextArea"/>
+    </FormGroup>
 </FormItems>
 
 
 @code {
-    [Parameter] public UpsertPatientDto Patient { get; set; } = new();
-    private List<HealthcareDto> HealthCares { get; set; } = new();
+[Parameter] public UpsertPatientDto Patient { get; set; } = new();
+private List<HealthcareDto> HealthCares { get; set; } = new();
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        await GetHealthCares();
-    }
+protected override async Task OnInitializedAsync()
+{
+await GetHealthCares();
+}
 
-    private async Task GetHealthCares()
-    {
-        HealthCares = await UnitOfWork.User
-            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
-    }
+private async Task GetHealthCares()
+{
+HealthCares = await UnitOfWork.User
+.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+}
 
-    private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
-    {
-        Patient.IsGmsActive = Patient.GmsStatus == "Active";
-    }
+private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+{
+Patient.IsGmsActive = Patient.GmsStatus == "Active";
+}
 
 
 }

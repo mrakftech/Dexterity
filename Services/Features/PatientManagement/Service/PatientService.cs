@@ -10,11 +10,13 @@ using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
+using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
+using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -85,12 +87,13 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             .Include(x => x.Hospitals)
             .Include(x => x.FamilyMembers)
             .FirstOrDefaultAsync(x => x.Id == patientId);
-
+        var hostpitals = await context.PatientHospitals.Include(x => x.Clinic).Where(x => x.PatientId == patientId)
+            .ToListAsync();
         if (patient == null)
             return new PatientSummaryDto();
 
-        var hospitals = mapper.Map<List<PatientHospitalDto>>(patient.Hospitals);
-        var families = mapper.Map<List<FamilyMemeberDto>>(patient.FamilyMembers.Where(x => x.IsCarer == false));
+        var hospitals = mapper.Map<List<PatientHospitalDto>>(hostpitals);
+        var families = mapper.Map<List<FamilyMemberDto>>(patient.FamilyMembers.Where(x => x.IsCarer == false));
         var summary = new PatientSummaryDto()
         {
             UniqueNumber = patient.UniqueNumber,
@@ -145,6 +148,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsReviewDate = request.GmsReviewDate;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
+            //Account
+            patient.PatientAccountDetail.AccountType = request.AccountType.ToString();
+            patient.PatientAccountDetail.AccountNotes = request.AccountNotes;
+            patient.PatientAccountDetail.InsuranceScheme = request.InsuranceScheme;
+            patient.PatientAccountDetail.PolicyNumber = request.PolicyNumber;
+
 
             await context.Patients.AddAsync(patient);
             var rowsUpdated = await context.SaveChangesAsync();
@@ -173,8 +182,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
             var patient = mapper.Map(request, patientInDb);
             patient.ClinicId = ApplicationState.CurrentUser.ClinicId;
-            patient.CreatedBy = ApplicationState.CurrentUser.UserId;
-            patient.CreatedDate = DateTime.Now;
+            patient.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            patient.ModifiedDate = DateTime.Now;
             patient.RegistrationDate = DateTime.Now;
             patient.Gender = request.Gender.ToString();
             patient.PatientType = request.PatientType.ToString();
@@ -193,7 +202,13 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsReviewDate = request.GmsReviewDate;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
-
+//Account
+            patient.PatientAccountDetail.AccountType = request.AccountType.ToString();
+            patient.PatientAccountDetail.AccountNotes = request.AccountNotes;
+            patient.PatientAccountDetail.InsuranceScheme = request.InsuranceScheme ?? "None";
+            patient.PatientAccountDetail.PolicyNumber = request.PolicyNumber;
+            patient.PatientAccountDetail.BillingName = request.BillingName;
+            patient.PatientAccountDetail.BillingDetail = request.BillingDetail;
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             var rowsUpdated = await context.SaveChangesAsync();
@@ -498,7 +513,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                 var hcpInDb = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == request.Id);
                 if (hcpInDb == null) return await Result.FailAsync("HCP not found.");
 
-                var data = mapper.Map(request, hcpInDb);
+                hcpInDb = mapper.Map(request, hcpInDb);
                 context.RelatedHcps.Update(hcpInDb);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("HealthCare professional Saved.");
@@ -655,21 +670,21 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     #region Family
 
-    public async Task<List<FamilyMemeberDto>> GetFamilyMembers(Guid patientId)
+    public async Task<List<FamilyMemberDto>> GetFamilyMembers(Guid patientId)
     {
         var list = await context.FamilyMembers.Where(x => x.PatientId == patientId).ToListAsync();
-        var mapped = mapper.Map<List<FamilyMemeberDto>>(list);
+        var mapped = mapper.Map<List<FamilyMemberDto>>(list);
         return mapped;
     }
 
-    public async Task<FamilyMemeberDto> GetFamilyMember(int id)
+    public async Task<FamilyMemberDto> GetFamilyMember(int id)
     {
         var data = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
-        var mapped = mapper.Map<FamilyMemeberDto>(data);
+        var mapped = mapper.Map<FamilyMemberDto>(data);
         return mapped;
     }
 
-    public async Task<IResult> SaveFamilyMember(int id, FamilyMemeberDto request)
+    public async Task<IResult> SaveFamilyMember(int id, FamilyMemberDto request)
     {
         if (id == 0)
         {
@@ -704,6 +719,30 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         context.FamilyMembers.Remove(nextKin);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Member removed");
+    }
+
+    #endregion
+
+    #region Account
+
+    public async Task<GetPatientAccountDto> GetPatientAccount(Guid patientId)
+    {
+        var patient = await context.Patients.FirstOrDefaultAsync(x => x.Id == patientId);
+        var data = new GetPatientAccountDto()
+        {
+            UniqueNumber = patient.UniqueNumber,
+            Name = patient.FullName,
+            Status = patient.Status,
+            Type = patient.PatientType,
+            Ppsn = patient.Ppsn,
+            Age = PatientConstants.CalculateAge(patient.DateOfBirth),
+            AccountNotes = patient.PatientAccountDetail.AccountNotes,
+            AccountType = patient.PatientAccountDetail.AccountType,
+            InsuranceScheme = patient.PatientAccountDetail.InsuranceScheme,
+            PolicyNumber = patient.PatientAccountDetail.PolicyNumber,
+            PersonalBalance = patient.PatientAccountDetail.PersonalBalance,
+        };
+        return data;
     }
 
     #endregion

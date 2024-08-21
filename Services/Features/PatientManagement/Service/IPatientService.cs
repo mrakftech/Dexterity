@@ -1,5 +1,6 @@
 using Domain.Entities.PatientManagement.Alert;
 using Services.Features.PatientManagement.Dtos;
+using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
@@ -24,7 +25,6 @@ public interface IPatientService
     public Task<PatientSummaryDto> GetPatientSummary(Guid patientId);
 
     #endregion
-
 
     #region Contact
 
@@ -96,12 +96,19 @@ public interface IPatientService
     #endregion
 
     #endregion
+
     #region Family
 
-    public Task<List<FamilyMemeberDto>> GetFamilyMembers(Guid patientId);
-    public Task<FamilyMemeberDto> GetFamilyMember(int id);
-    public Task<IResult> SaveFamilyMember(int id,FamilyMemeberDto request);
+    public Task<List<FamilyMemberDto>> GetFamilyMembers(Guid patientId);
+    public Task<FamilyMemberDto> GetFamilyMember(int id);
+    public Task<IResult> SaveFamilyMember(int id, FamilyMemberDto request);
     public Task<IResult> DeleteFamilyMember(int id);
+
+    #endregion
+
+    #region Account
+
+     public Task<GetPatientAccountDto> GetPatientAccount(Guid patientId);
 
     #endregion
 }

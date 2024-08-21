@@ -67,6 +67,7 @@ public class PatientDto
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
+    public PatientAccountDetail PatientAccountDetail { get; set; } = new();
 
     public OtherDetail OtherDetails { get; set; } = new();
     public MaritalDetail MaritalDetails { get; set; } = new();

@@ -1,0 +1,251 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using TextAlign = Syncfusion.Blazor.Grids.TextAlign
+@using Services.Features.PatientManagement.Dtos.RelatedHcp
+<TabTitle Title="Contact Details"></TabTitle>
+<RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+    <RadzenColumn Size="12" SizeMD="12">
+        <RadzenStack>
+            <RadzenFieldset Text="Heathcare Professionals">
+                <SfGrid DataSource="@Hcps" Height="200px">
+                    <GridTemplates>
+                        <RowTemplate>
+                            @{
+                                var hcp = (context as RelatedHcpDto);
+                                <td class="photo">
+                                    <h5>@hcp.Name</h5>
+                                </td>
+                                <td class="details">
+                                    <table class="CardTable" cellpadding="3" cellspacing="2">
+                                        <colgroup>
+                                            <col width="50%">
+                                            <col width="50%">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td class="CardHeader">Type</td>
+                                                <td>@hcp.Type </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Email
+                                                </td>
+                                                <td>
+                                                    @hcp.Email
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Address
+                                                </td>
+                                                <td>
+                                                    @hcp.Address
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Fax
+                                                </td>
+                                                <td>
+                                                    @hcp.Fax
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Telephone
+                                                </td>
+                                                <td>
+                                                    @hcp.Telephone
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Website
+                                                </td>
+                                                <td>
+                                                    @hcp.Website
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            }
+                        </RowTemplate>
+                    </GridTemplates>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(RelatedHcpDto.Name)" HeaderText="Name" Width="120px">
+
+                        </GridColumn>
+                        <GridColumn HeaderText="Details" Width="200" TextAlign="TextAlign.Center"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Occupation Details">
+                <SfGrid DataSource="@Occupations" Height="200px">
+                    <GridTemplates>
+                        <RowTemplate>
+                            @{
+                                var occupation = (context as PatientOccupationDto);
+                                <td class="photo">
+                                    <h5>@occupation.Name</h5>
+                                </td>
+                                <td class="details">
+                                    <table class="CardTable" cellpadding="3" cellspacing="2">
+                                        <colgroup>
+                                            <col width="50%">
+                                            <col width="50%">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Start Date
+                                                </td>
+                                                <td>
+                                                    @occupation.StartDate
+                                                </td>
+                                            </tr>
+
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    End Date
+                                                </td>
+                                                <td>
+                                                    @occupation.EndDate
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            }
+                        </RowTemplate>
+                    </GridTemplates>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(RelatedHcpDto.Name)" HeaderText="Name" Width="120px">
+
+                        </GridColumn>
+                        <GridColumn HeaderText="Details" Width="200" TextAlign="TextAlign.Center"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Contact Details">
+                <SfGrid DataSource="@Contacts" Height="200px">
+                    <GridTemplates>
+                        <RowTemplate>
+                            @{
+                                var hcp = (context as PatientContactDto);
+                                <td class="photo">
+                                    <h5>@hcp.FirstName @hcp.Surname</h5>
+                                </td>
+                                <td class="details">
+                                    <table class="CardTable" cellpadding="3" cellspacing="2">
+                                        <colgroup>
+                                            <col width="50%">
+                                            <col width="50%">
+                                        </colgroup>
+                                        <tbody>
+                                            <tr>
+                                                <td class="CardHeader">Date of Birth</td>
+                                                <td>@hcp.DateOfBirth.ToString("d") </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Gender
+                                                </td>
+                                                <td>
+                                                    @hcp.Gender
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Address
+                                                </td>
+                                                <td>
+                                                    @hcp.Address
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td class="CardHeader">
+                                                    Phone
+                                                </td>
+                                                <td>
+                                                    @hcp.Phone
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </td>
+                            }
+                        </RowTemplate>
+                    </GridTemplates>
+                    <GridColumns>
+                        <GridColumn HeaderText="Name" Width="120px">
+                        </GridColumn>
+                        <GridColumn HeaderText="Details" Width="200" TextAlign="TextAlign.Center"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            </RadzenFieldset>
+        </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+<style type="text/css" class="cssStyles">
+    .photo,
+    .details {
+        border-color: #e0e0e0;
+        border-style: solid;
+    }
+
+    .details {
+        border-width: 1px 0px 0px 0px;
+        padding-left: 18px;
+    }
+
+    .e-bigger .details {
+        padding-left: 25px;
+    }
+
+    .e-device .details {
+        padding-left: 8px;
+    }
+
+    .details > table {
+        width: 100%;
+    }
+
+    .CardHeader {
+        font-weight: 600;
+        
+    }
+
+    td {
+        padding: 2px 2px 3px 4px;
+    }
+</style>
+
+@code {
+    private List<RelatedHcpDto> Hcps { get; set; } = new();
+    private List<PatientOccupationDto> Occupations { get; set; } = new();
+    private List<PatientContactDto> Contacts { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetHcps();
+        await GetOccupations();
+        await GetContacts();
+        _loading = false;
+    }
+
+    private async Task GetHcps()
+    {
+        Hcps = await UnitOfWork.Patient.GetRealtedHcps(ApplicationState.SelectedPatientId);
+    }
+
+    private async Task GetOccupations()
+    {
+        Occupations = await UnitOfWork.Patient.GetPatientOccupations(ApplicationState.SelectedPatientId);
+    }
+    private async Task GetContacts()
+    {
+        Contacts = await UnitOfWork.Patient.GetPatientContacts(ApplicationState.SelectedPatientId);
+    }
+}

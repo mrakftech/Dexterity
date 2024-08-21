@@ -65,6 +65,13 @@ namespace Database.Configurations
                     v => JsonConvert.SerializeObject(v),
                     v => JsonConvert.DeserializeObject<PrivateHealthInsuranceDetail>(v)
                 );
+            
+            builder
+                .Property(e => e.PatientAccountDetail)
+                .HasConversion(
+                    v => JsonConvert.SerializeObject(v),
+                    v => JsonConvert.DeserializeObject<PatientAccountDetail>(v)
+                );
         }
     }
 }

@@ -11,7 +11,7 @@
             <Template>
                 @{
                     var item = (context as PatientListDto);
-                    <DexSimpleButton Name="Select Patient" Click="()=>SelectPatient(item.Id)" />
+                    <DexSimpleButton Name="Select Patient" Click="() => PatientChanged(item.Id)"/>
                 }
             </Template>
         </GridColumn>
@@ -21,6 +21,7 @@
 @code {
     private List<PatientListDto> Patients { get; set; } = new();
     private bool _patientLoading;
+    [Parameter] public EventCallback<Guid> SelectPatient { get; set; }
 
     protected override async Task OnInitializedAsync()
     {
@@ -35,9 +36,9 @@
         _patientLoading = false;
     }
 
-    private void SelectPatient(Guid patientId)
+    private void PatientChanged(Guid patientId)
     {
-        ApplicationState.SelectedPatientId = patientId;
+        SelectPatient.InvokeAsync(patientId);
         StateHasChanged();
     }
 

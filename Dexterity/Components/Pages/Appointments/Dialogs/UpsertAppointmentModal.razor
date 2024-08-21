@@ -1,6 +1,4 @@
 ﻿@using Services.Features.Appointments.Dtos
-@using Services.Features.PatientManagement.Dtos
-@using Services.Features.PatientManagement.Dtos.Alerts
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Settings.Dtos
 @using Services.Features.UserAccounts.Dtos.User
@@ -15,7 +13,7 @@
                 </MudItem>
                 <MudItem>
                     <CascadingValue Value="Appointment.PatientId" Name="PatientId">
-                        <PatientAlertBar AlertType="@AlertTypes.Appointment.ToString()"/>
+                        <PatientAlertBar AlertType="@AlertType.Appointment.ToString()"/>
                     </CascadingValue>
                 </MudItem>
             </MudStack>

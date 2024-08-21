@@ -1,6 +1,7 @@
 ﻿:root {
     --mud-palette-surface: "#fff";
 }
+
 .mud-button-filled.mud-button-filled-secondary {
     background-image: linear-gradient(to right, #e53935 0%, #e35d5b 51%, #e53935 100%);
     text-decoration: none !important;
@@ -12,6 +13,7 @@
     /*box-shadow: 0 0 20px #eee;*/
     border-radius: 10px;
 }
+
 .mud-button-filled.mud-button-filled-primary {
     background-image: linear-gradient(to right, #2b5876 0%, #4e4376 51%, #2b5876 100%);
     text-decoration: none !important;
@@ -23,6 +25,7 @@
     /*box-shadow: 0 0 20px #eee;*/
     border-radius: 10px;
 }
+
 @media (hover: hover) and (pointer: fine) {
     .mud-button-filled:hover {
         background-position: right center !important;
@@ -69,21 +72,25 @@
 }
 
 .mud-tab:hover {
-    color: transparent!important;
+    color: transparent !important;
 }
 
 .mud-list .mud-selected-item {
-    background-color: #FF7F7F !important;
+    background-color: lightslategray !important;
+    color: white !important;
+}
+
+.mud-list-item-icon {
     color: white !important;
 }
 
 .mud-list .mud-list-item-clickable:hover {
-    background-color: crimson !important;
+    background-color: lightslategray !important;
     color: white !important;
 }
 
 .mud-tabs-panels {
-    background-color: transparent!important;
+    background-color: transparent !important;
 }
 
 .mud-tabs-tabbar .mud-tabs-tabbar-inner {

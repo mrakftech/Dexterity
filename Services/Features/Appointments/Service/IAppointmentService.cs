@@ -8,6 +8,7 @@ namespace Services.Features.Appointments.Service;
 public interface IAppointmentService
 {
     Task<List<SearchAppointmentDto>> FindAppointments();
+    Task<List<AppointmentHistoryDto>> GetAppointmentHistory(Guid patientId);
     Task<List<AppointmentDto>> GetAllAppointments(DateTime StartDate, DateTime EndDate);
     Task<IResult<AppointmentDto>> GetAppointment(int id);
     Task<bool> IsSlotAvaiable(DateTime date, Guid HcpId);

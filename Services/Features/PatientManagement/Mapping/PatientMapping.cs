@@ -6,6 +6,7 @@ using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Services.Features.PatientManagement.Dtos;
+using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
@@ -42,6 +43,10 @@ public class PatientMapping : Profile
             .ForMember(x => x.GmsPatientNumber, c => c.MapFrom(m => m.MedicalCardDetails.GmsPatientNumber))
             .ForMember(x => x.GmsReviewDate, c => c.MapFrom(m => m.MedicalCardDetails.GmsReviewDate))
             .ForMember(x => x.GmsDistanceCode, c => c.MapFrom(m => m.MedicalCardDetails.GmsDistanceCode))
+            .ForMember(x => x.AccountType, c => c.MapFrom(m => m.PatientAccountDetail.AccountType))
+            .ForMember(x => x.AccountNotes, c => c.MapFrom(m => m.PatientAccountDetail.AccountNotes))
+            .ForMember(x => x.InsuranceScheme, c => c.MapFrom(m => m.PatientAccountDetail.InsuranceScheme))
+            .ForMember(x => x.PolicyNumber, c => c.MapFrom(m => m.PatientAccountDetail.PolicyNumber))
             .ReverseMap();
 
         #endregion
@@ -78,7 +83,13 @@ public class PatientMapping : Profile
 
         #region Patient Family
 
-        CreateMap<FamilyMember, FamilyMemeberDto>().ReverseMap();
+        CreateMap<FamilyMember, FamilyMemberDto>().ReverseMap();
+
+        #endregion
+
+        #region Account
+
+        CreateMap<PatientAccountDetail, GetPatientAccountDto>().ReverseMap();
 
         #endregion
     }

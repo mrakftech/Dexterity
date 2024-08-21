@@ -12,5 +12,11 @@ public class AppointmentProfile : Profile
             .ReverseMap();
         CreateMap<Appointment, SearchAppointmentDto>()
           .ReverseMap();
+        
+        CreateMap<Appointment, AppointmentHistoryDto>()
+            .ForMember(x=>x.PatientName,c=>c.MapFrom(m=>m.Patient.FullName))
+            .ForMember(x=>x.Hcp,c=>c.MapFrom(m=>m.Hcp.FullName))
+            .ForMember(x=>x.Type,c=>c.MapFrom(m=>m.AppointmentType.Name))
+            .ReverseMap();
     }
 }

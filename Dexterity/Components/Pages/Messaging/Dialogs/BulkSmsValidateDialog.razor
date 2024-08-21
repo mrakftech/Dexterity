@@ -111,7 +111,7 @@
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
     private HashSet<PatientListDto> _selectedPatients = new();
     Validations _validationsRef;
-    private SendMessageDto _messageDto = new();
+    private BulkSmsDto _messageDto = new();
     private bool _processing;
 
 
@@ -123,6 +123,39 @@
     private async Task GetSmsTemplates()
     {
         SmsTemplates = await UnitOfWork.Setting.GetSmsTemplates();
+    }
+
+
+    private async Task SendSmsClick()
+    {
+        _processing = true;
+        if (_selectedPatients.Count == 0)
+        {
+            Snackbar.FailMessge("Please select person for sending msg");
+            return;
+        }
+
+        if (await _validationsRef.ValidateAll())
+        {
+            await Task.Delay(1500);
+            _messageDto.Patients = _selectedPatients.ToList();
+            var res = await UnitOfWork.Messaging.SendBulkSms(_messageDto);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge("Message has been sent.");
+            }
+            else
+            {
+                foreach (var item in res.Messages)
+                {
+                    Console.WriteLine(item);
+                }
+            }
+
+            await _validationsRef.ClearAll();
+        }
+
+        _processing = false;
     }
 
     void SelectedItemsChanged(HashSet<PatientListDto> items)
@@ -141,42 +174,6 @@
             var res = await UnitOfWork.Setting.GetSmsTemplate(id);
             _messageDto.Content = res.Data.Content;
         }
-    }
-
-    private async Task SendSmsClick()
-    {
-        _processing = true;
-        if (_selectedPatients.Count == 0)
-        {
-            Snackbar.FailMessge("Please select person for sending msg");
-            return;
-        }
-
-        if (await _validationsRef.ValidateAll())
-        {
-            await Task.Delay(2500);
-            var request = new SmsRequest()
-            {
-                Content = _messageDto.Content,
-                To = _selectedPatients.Select(x => x.Mobile).ToList()
-            };
-            var res = await SmsEndpoints.SendMessage(request);
-            if (res.ResponseCode == 202)
-            {
-                Snackbar.SuccessMessge("Message has been sent.");
-            }
-            else
-            {
-                foreach (var item in res.Messages)
-                {
-                    Console.WriteLine(item.ErrorDescription);
-                }
-            }
-
-            await _validationsRef.ClearAll();
-        }
-
-        _processing = false;
     }
 
 }

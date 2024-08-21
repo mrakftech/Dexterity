@@ -1,9 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Services.Configurations.Attributes;
+using Shared.Constants.Module;
 using Shared.Helper;
-using static Shared.Constants.Module.PatientConstants;
-using static Shared.Constants.Module.PatientConstants.PatientType;
-using static Shared.Constants.Module.PatientConstants.Status;
 
 namespace Services.Features.PatientManagement.Dtos.Details
 {
@@ -19,7 +17,7 @@ namespace Services.Features.PatientManagement.Dtos.Details
         public string Title { get; set; }
         public DateTime DateOfBirth { get; set; } = DateTime.Now;
         public Gender Gender { get; set; }
-        public PatientTypes PatientType { get; set; }
+        public PatientType PatientType { get; set; }
         public PatientStatus PatientStatus { get; set; }
         public bool DispensingStatus { get; set; }
 
@@ -57,6 +55,17 @@ namespace Services.Features.PatientManagement.Dtos.Details
         public DateTime GmsReviewDate { get; set; } = DateTime.Now;
         public string GmsDoctorNumber { get; set; }
         public string GmsDistanceCode { get; set; }
+
+        #endregion
+
+        #region Account
+
+        public string AccountNotes { get; set; }
+        public string InsuranceScheme { get; set; }
+        public string PolicyNumber { get; set; }
+        public AccountType AccountType { get; set; }
+        public string BillingName { get; set; }
+        public string BillingDetail { get; set; }
 
         #endregion
     }

@@ -1,4 +1,5 @@
 using AutoMapper;
+using ClickATell.Services;
 using Database;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
@@ -16,6 +17,7 @@ public sealed class UnitOfWork(
     IMapper mapper,
     ISettingService setting,
     IAppointmentService appointment,
+    SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
 {
@@ -40,7 +42,7 @@ public sealed class UnitOfWork(
         {
             if (messaging == null)
             {
-                messaging = new MessagingService(context, mapper);
+                messaging = new MessagingService(context, mapper, smsEndpoints);
             }
 
             return messaging;

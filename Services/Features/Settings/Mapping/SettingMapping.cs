@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
+using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
 using Services.Features.Settings.Dtos;
 
@@ -13,5 +14,8 @@ public class SettingMapping : Profile
         CreateMap<Clinic, ClinicDto>().ReverseMap();
         CreateMap<AppointmentType, AppointmentTypeDto>().ReverseMap();
 
+        CreateMap<AccountType, AccountTypeDto>()
+            .ForMember(x => x.Type, c => c.MapFrom(m => m.Type.ToString()))
+            .ReverseMap();
     }
 }

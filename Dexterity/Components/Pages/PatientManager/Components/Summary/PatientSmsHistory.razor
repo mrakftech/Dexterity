@@ -1,0 +1,22 @@
+﻿@using Domain.Entities.PatientManagement.Extra
+<TabTitle Title="Sms History"></TabTitle>
+<DexGrid DataSource="SmsHistories" Loading="_loading" Height="400px">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(SmsHistory.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Sent Date" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(SmsHistory.Mobile)" HeaderText="Mobile" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(SmsHistory.Content)" HeaderText="Content" Width="120px"></GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<SmsHistory> SmsHistories { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        SmsHistories = await UnitOfWork.Messaging.GetSmsHistory(ApplicationState.SelectedPatientId);
+        _loading = false;
+    }
+
+}

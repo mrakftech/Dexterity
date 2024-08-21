@@ -1,0 +1,89 @@
+﻿@using Services.Features.PatientManagement.Dtos.Alerts
+@using Syncfusion.Blazor.Notifications
+<MudItem md="12" Class="mt-5">
+    <MudExpansionPanels Dense="true">
+        <MudExpansionPanel HideIcon="true">
+            <TitleContent>
+                <div class="d-flex">
+                    @if (PatientAlerts.Count == 0)
+                    {
+                        <MudText Class="mt-1">No Alerts </MudText>
+                    }
+                    else
+                    {
+                        <MudText Class="mt-1">@PatientAlerts.Count Alerts </MudText>
+                    }
+                    @if (PatientAlerts.Count > 0)
+                    {
+                        <MudBadge Content="@PatientAlerts.Count" Color="MudColor.Default" Overlap="true" Class="d-flex ml-auto">
+                            <MudIcon Icon="@MudIcons.Material.Filled.Warning" Color="MudColor.Error"/>
+                        </MudBadge>
+                    }
+                </div>
+            </TitleContent>
+            <ChildContent>
+                <MudExpansionPanels Outlined="true" Elevation="0" Dense="true">
+
+                    @if (PatientAlerts.Count > 0)
+                    {
+                        <MudExpansionPanel Text="@($"Low ({_lowSeverity.Count})")">
+                            @foreach (var item in _lowSeverity)
+                            {
+                                <SfMessage ShowIcon="false" Severity="MessageSeverity.Warning">@item.CreatedDate.ToString("d") - @item.Details</SfMessage>
+                            }
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="@($"Medium ({_medSeverity.Count})")">
+                            @foreach (var item in _medSeverity)
+                            {
+                                <SfMessage ShowIcon="false" Severity="MessageSeverity.Warning">@item.CreatedDate.ToString("d") - @item.Details</SfMessage>
+                            }
+                        </MudExpansionPanel>
+                        <MudExpansionPanel Text="@($"High ({_highSeverity.Count})")">
+                            @foreach (var item in _highSeverity)
+                            {
+                                <SfMessage ShowIcon="false" Severity="MessageSeverity.Error">@item.CreatedDate.ToString("d") - @item.Details</SfMessage>
+                            }
+                        </MudExpansionPanel>
+                    }
+
+                </MudExpansionPanels>
+            </ChildContent>
+        </MudExpansionPanel>
+    </MudExpansionPanels>
+</MudItem>
+
+
+@code {
+
+    [CascadingParameter(Name = "PatientId")]
+    public Guid PatientId { get; set; } = Guid.Empty;
+
+    [Parameter] public string AlertType { get; set; }
+
+    private List<PatientAlertDto> PatientAlerts { get; set; } = new();
+    private List<PatientAlertDto> _lowSeverity = new();
+    private List<PatientAlertDto> _medSeverity = new();
+    private List<PatientAlertDto> _highSeverity = new();
+
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (PatientId != Guid.Empty)
+        {
+            PatientAlerts = await UnitOfWork.Patient.GetPatientAlertByModule(PatientId, AlertType);
+            _lowSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.Low.ToString()).ToList();
+            _medSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.Medium.ToString()).ToList();
+            _highSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.High.ToString()).ToList();
+        }
+        else
+        {
+            PatientAlerts = new();
+            _lowSeverity = new();
+            _medSeverity = new();
+            _highSeverity = new();
+        }
+
+        await Task.CompletedTask;
+    }
+
+}

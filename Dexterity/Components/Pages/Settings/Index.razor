@@ -36,6 +36,15 @@
                     </MudNavLink>
                 </MudItem>
             </MudNavGroup>
+            <MudNavGroup Title="Types">
+                <MudItem>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-file-invoice" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChanged(5))">
+                        Account Types
+                    </MudNavLink>
+                </MudItem>
+               
+            </MudNavGroup>
         </NavigationItems>
 
         <DexContentTabs>
@@ -55,6 +64,9 @@
                         </MudTabPanel>
                         <MudTabPanel >
                             <AppointmentCancelReasonTab/>
+                        </MudTabPanel>
+                        <MudTabPanel >
+                            <AccountTypeTab/>
                         </MudTabPanel>
                     </MudTabs>
                 </div>

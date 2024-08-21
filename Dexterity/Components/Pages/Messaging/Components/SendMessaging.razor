@@ -1,10 +1,7 @@
-﻿@using ClickATell.Requests
-@using Domain.Entities.Settings.Templates
+﻿@using Domain.Entities.Settings.Templates
 @using Services.Features.Messaging.Dtos.Sms
 @using Services.Features.PatientManagement.Dtos.Details
-@using Services.Features.PatientManagement.Dtos
 <TabTitle Title="Send SMS"></TabTitle>
-
 <div class="vertical-space">
     <DexForm Model="@_messageDto" OnValidSubmit="SendSmsClick">
         <Fields>
@@ -20,6 +17,11 @@
             <FormItem Field="@nameof(SendMessageDto.Content)">
                 <Template>
                     <DexInputBox Label="Content" @bind-FieldDataSource="@_messageDto.Content" IsMultiLine="true"/>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(SendMessageDto.PatientId)">
+                <Template>
+                    <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
                 </Template>
             </FormItem>
             <FormItem Field="@nameof(SendMessageDto.Mobile)">
@@ -54,18 +56,9 @@
     private async Task SendSmsClick()
     {
         _processing = true;
-
-        var util = PhoneNumberUtil.GetInstance();
-        var s = util.Parse(_messageDto.Mobile, ApplicationConstants.AppRegion);
-        var n = util.Format(s, PhoneNumberFormat.E164);
-        await Task.Delay(2500);
-        var request = new SmsRequest()
-        {
-            Content = _messageDto.Content,
-            To = [n]
-        };
-        var res = await SmsEndpoints.SendMessage(request);
-        if (res.ResponseCode == 202)
+        await Task.Delay(1500);
+        var res = await UnitOfWork.Messaging.SendSms(_messageDto);
+        if (res.Succeeded)
         {
             Snackbar.SuccessMessge("Message has been sent.");
         }
@@ -73,7 +66,7 @@
         {
             foreach (var item in res.Messages)
             {
-                Console.WriteLine(item.ErrorDescription);
+                Console.WriteLine(item.First());
             }
         }
 
@@ -88,10 +81,9 @@
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
         var patient = args.ItemData;
-        if (patient != null)
-        {
-            _messageDto.Mobile = patient.Mobile;
-        }
+        if (patient == null) return;
+        _messageDto.PatientId = patient.Id;
+        _messageDto.Mobile = patient.Mobile;
     }
 
 }

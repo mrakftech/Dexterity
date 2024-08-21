@@ -442,6 +442,33 @@ namespace Database.Migrations
                     b.ToTable("RelatedHcps", "PatientManagement");
                 });
 
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.SmsHistory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mobile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientSmsHistories", "PatientManagement");
+                });
+
             modelBuilder.Entity("Domain.Entities.PatientManagement.Family.FamilyMember", b =>
                 {
                     b.Property<int>("Id")
@@ -643,6 +670,9 @@ namespace Database.Migrations
                     b.Property<string>("OtherDetails")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("PatientAccountDetail")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("PatientType")
                         .HasColumnType("nvarchar(max)");
 
@@ -676,6 +706,31 @@ namespace Database.Migrations
                     b.ToTable("Patients", "PatientManagement");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Account.AccountType", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AccountTypes", "Setting");
+                });
+
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.Clinic", b =>
                 {
                     b.Property<int>("Id")
@@ -685,6 +740,9 @@ namespace Database.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("Address")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Contact")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Name")
@@ -1050,7 +1108,7 @@ namespace Database.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithMany()
+                        .WithMany("Hospitals")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1082,10 +1140,21 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Family.FamilyMember", b =>
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.SmsHistory", b =>
                 {
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
                         .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Family.FamilyMember", b =>
+                {
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany("FamilyMembers")
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -1190,6 +1259,13 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.PatientManagement.Group.Group", b =>
                 {
                     b.Navigation("RegisteredPatients");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Patient", b =>
+                {
+                    b.Navigation("FamilyMembers");
+
+                    b.Navigation("Hospitals");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.Clinic", b =>

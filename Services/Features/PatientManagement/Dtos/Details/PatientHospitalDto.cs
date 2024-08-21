@@ -9,6 +9,7 @@ namespace Services.Features.PatientManagement.Dtos.Details
 
         public string Name { get; set; }
         public string Address { get; set; }
+        public string Contact { get; set; }
         public int ClinicId { get; set; }
         public ClinicDto Clinic { get; set; }
         public Guid PatientId { get; set; }

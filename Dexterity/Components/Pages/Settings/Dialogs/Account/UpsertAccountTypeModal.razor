@@ -1,0 +1,59 @@
+﻿@using Services.Features.Settings.Dtos
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="AccountTypeRequest" OnValidSubmit="SaveAppointmentType">
+            <Fields>
+                <FormItem Field="@nameof(@AccountTypeDto.Name)" LabelText="Name"></FormItem>
+                <FormItem Field="@nameof(@AccountTypeDto.Amount)" LabelText="Amount"></FormItem>
+                <FormItem Field="@nameof(@AccountTypeDto.AccountType)" LabelText="Type"></FormItem>
+                <FormItem Field="@nameof(@AccountTypeDto.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox"></FormItem>
+            </Fields> 
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private AccountTypeDto AccountTypeRequest { get; set; } = new();
+    private bool _processing;
+    private string _title;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var s = await UnitOfWork.Setting.GetAccountType(Id);
+            AccountTypeRequest = s;
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
+        }
+    }
+
+    private async Task SaveAppointmentType()
+    {
+        _processing = true;
+
+        var res = await UnitOfWork.Setting.SaveAccountType(Id, AccountTypeRequest);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+}

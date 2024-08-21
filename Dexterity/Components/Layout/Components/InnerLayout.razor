@@ -15,9 +15,9 @@
                 </LayoutSiderContent>
             </LayoutSider>
             <Layout>
-                <LayoutContent Style="margin-left:150px">
+                <LayoutContent Style="margin-left:150px"  >
                     <MudPaper Elevation="0" Height="@AllHeight" Style="overflow-x:hidden; overflow-y:auto; position:relative;">
-                        <div class="d-flex justify-center align-center" >
+                        <div class="d-flex justify-center align-center">
                             @DexContentTabs
                         </div>
                     </MudPaper>
@@ -26,13 +26,15 @@
             </Layout>
         </Layout>
     </Layout>
+   
+
+
 </MudPaper>
+
 @code {
     private bool _open = true;
     [Parameter] public string AllHeight { get; set; } = "800px";
-    [Parameter]
-    public RenderFragment NavigationItems { get; set; }
+    [Parameter] public RenderFragment NavigationItems { get; set; }
 
-    [Parameter]
-    public RenderFragment DexContentTabs { get; set; }
+    [Parameter] public RenderFragment DexContentTabs { get; set; }
 }

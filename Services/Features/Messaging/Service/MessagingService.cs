@@ -1,20 +1,33 @@
 ﻿using AutoMapper;
+using ClickATell.Requests;
+using ClickATell.Services;
 using Database;
-using Domain.Entities.Messaging;
 using Domain.Entities.Messaging.UserTasks;
+using Domain.Entities.PatientManagement.Extra;
 using Microsoft.EntityFrameworkCore;
+using PhoneNumbers;
+using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Services.State;
+using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Helper;
 using Shared.Wrapper;
 
 namespace Services.Features.Messaging.Service;
 
-public class MessagingService(ApplicationDbContext context, IMapper mapper)
+public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsEndpoints smsEndpoints)
     : IMessagingService
 {
     #region User Tasks
+
+    public async Task<List<UserTask>> GetUserTasksByPatient(Guid patientId)
+    {
+        return await context.UserTasks
+            .Where(x => x.PatientId == patientId)
+            .OrderByDescending(x => x.TaskDate)
+            .ToListAsync();
+    }
 
     public async Task<List<UserTask>> GetUserTaskList(string view = UserTaskConstants.All)
     {
@@ -24,29 +37,30 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
             UserTaskConstants.All => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
                             x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .Include(x=>x.AssignedBy)
+                .Include(x => x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.DayView => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
                             x.ClinicId == ApplicationState.CurrentUser.ClinicId)
                 .Where(x => x.TaskDate.Date == DateTime.Today.Date)
-                .Include(x=>x.AssignedBy)
+                .Include(x => x.AssignedBy)
                 .ToListAsync(),
 
             UserTaskConstants.WeekView => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
                             x.TaskDate.Date < startOfWeek.AddDays(7) &&
                             x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .Include(x=>x.AssignedBy)
+                .Include(x => x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.MonthView => await context.UserTasks
                 .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
                             x.TaskDate.Date.Month == DateTime.Today.Date.Month &&
                             x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-                .Include(x=>x.AssignedBy)
+                .Include(x => x.AssignedBy)
                 .ToListAsync(),
 
-            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId).Include(x=>x.AssignedBy).ToListAsync(),
+            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId)
+                .Include(x => x.AssignedBy).ToListAsync(),
         };
     }
 
@@ -104,7 +118,6 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         context.Entry(taskInDb).State = EntityState.Detached;
         return await Result.SuccessAsync("Task has been updated.");
-
     }
 
     public async Task<UserTaskDto> GetTask(Guid id)
@@ -122,6 +135,101 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper)
         context.UserTasks.Remove(taskInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Task has been deleted.");
+    }
+
+    #endregion
+
+    #region Messaging
+
+    public async Task<IResult> SendBulkSms(BulkSmsDto request)
+    {
+        try
+        {
+            var sendRequest = new SmsRequest()
+            {
+                Content = request.Content,
+                To = request.Patients.Select(x => x.Mobile).ToList()
+            };
+            var res = await smsEndpoints.SendMessage(sendRequest);
+            if (res.ResponseCode == 202)
+            {
+                foreach (var item in request.Patients)
+                {
+                    var smsHistory = new SmsHistory()
+                    {
+                        Date = DateTime.Now,
+                        PatientId = item.Id,
+                        Mobile = item.Mobile,
+                        Content = request.Content
+                    };
+                    await context.PatientSmsHistories.AddAsync(smsHistory);
+                }
+
+                await context.SaveChangesAsync();
+                await Result.SuccessAsync();
+            }
+            else
+            {
+                return await Result.FailAsync(res.Messages.First().ErrorDescription.ToString());
+            }
+        }
+        catch (Exception e)
+        {
+            await Result.FailAsync(e.Message);
+        }
+
+        return await Result.FailAsync();
+    }
+
+    public async Task<IResult> SendSms(SendMessageDto request)
+    {
+        try
+        {
+            var util = PhoneNumberUtil.GetInstance();
+            var s = util.Parse(request.Mobile, ApplicationConstants.AppRegion);
+            var n = util.Format(s, PhoneNumberFormat.E164);
+            var sendRequest = new SmsRequest()
+            {
+                Content = request.Content,
+                To = [n]
+            };
+            var res = await smsEndpoints.SendMessage(sendRequest);
+            if (res.ResponseCode == 202)
+            {
+                var smsHistory = new SmsHistory()
+                {
+                    Date = DateTime.Now,
+                    Mobile = request.Mobile,
+                    PatientId = request.PatientId,
+                    Content = request.Content
+                };
+                await AddMessageInPatietnHistory(smsHistory);
+                await Result.SuccessAsync();
+            }
+            else
+            {
+                return await Result.FailAsync(res.Messages.First().ErrorDescription.ToString());
+            }
+        }
+        catch (Exception e)
+        {
+            await Result.FailAsync(e.Message);
+        }
+
+        return await Result.FailAsync("Something went wrong.");
+    }
+
+    public async Task<List<SmsHistory>> GetSmsHistory(Guid patientId)
+    {
+        return await context.PatientSmsHistories.Where(x => x.PatientId == patientId)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory)
+    {
+        await context.PatientSmsHistories.AddAsync(smsHistory);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync();
     }
 
     #endregion

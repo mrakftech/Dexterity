@@ -1,0 +1,96 @@
+﻿@using Services.Features.PatientManagement.Dtos.Account
+<TabTitle Title="Patient Accounts"/>
+@if (ApplicationState.SelectedPatientId != Guid.Empty)
+{
+    <RadzenRow >
+        <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
+            <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem" class="rz-p-4">
+                <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@Patient.Name</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Type</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.Type ?? "Not set")</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Status</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.Status ?? "Not set")</b>
+                    </RadzenText>
+                </RadzenStack>
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Age</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@($"{Patient.Age}")</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">PPSN</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.Ppsn ?? "Not set")</b>
+                    </RadzenText>
+                </RadzenStack>
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Unique No.</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.UniqueNumber)</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Personal Balance</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.PersonalBalance.ToString("C"))</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Group Balance</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@(Patient.GroupBalance.ToString("C"))</b>
+                    </RadzenText>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+    </RadzenRow>
+    <RadzenRow >
+        <RadzenColumn Size="12" class=" rz-p-5">
+            <RadzenStack>
+                <CascadingValue Value="ApplicationState.SelectedPatientId" Name="PatientId">
+                    <PatientAlertBar AlertType="@AlertType.Account.ToString()"/>
+                </CascadingValue>
+                <RadzenFieldset Text="Account Details">
+                    <RadzenStack Orientation="RadOrientation.Horizontal" AlignItems="RadAlignItems.Center" Gap="0.5rem" class="rz-p-4 rz-mb-6 rz-border-radius-1" Style="border: var(--rz-grid-cell-border);">
+                        <RadzenLabel Text="Insurance:"/>
+                        <RadzenLabel Text="@($"{Patient.InsuranceScheme ?? "None"}")"/>
+                        <RadzenLabel Text="Insurance:"/>
+                        <RadzenLabel Text="@($"{Patient.InsuranceScheme ?? "None"}")"/>
+                    </RadzenStack>
+
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+
+    </RadzenRow>
+}
+else
+{
+    <PatientList SelectPatient="SelectPatient"/>
+}
+
+@code {
+    private GetPatientAccountDto Patient { get; set; } = new();
+    MudTabs _tabs = new();
+
+    private void ClickChangedTab(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
+
+    private async Task SelectPatient(Guid patientId)
+    {
+        ApplicationState.SelectedPatientId = patientId;
+        await GetAccountDetails();
+        StateHasChanged();
+    }
+
+    private async Task GetAccountDetails()
+    {
+        Patient = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatientId);
+    }
+
+}

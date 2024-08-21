@@ -41,7 +41,6 @@
         <MauiAsset Include="wwwroot\assets\css\app.css" />
         <MauiAsset Include="wwwroot\assets\images\modules\messaging\communication1.svg" />
         <MauiAsset Include="wwwroot\assets\images\modules\messaging\my-tasks.svg" />
-        <MauiAsset Include="wwwroot\assets\images\modules\patient-wating.svg" />
         <MauiAsset Include="wwwroot\assets\images\modules\patients.svg" />
         <MauiAsset Include="wwwroot\assets\images\modules\waiting-room.svg" />
         <MauiIcon Include="Resources\AppIcon\appicon.svg" />
@@ -62,6 +61,7 @@
 
     <ItemGroup>
       <Content Remove="Components\Pages\Appointments\Components\RecurringAppointment.razor" />
+      <Content Remove="Components\Pages\PatientManager\Components\Summary\ContactDetails.razor" />
       <Content Update="wwwroot\assets\images\patient.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
@@ -104,7 +104,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ClickATell\ClickATell.csproj" />
       <ProjectReference Include="..\DailyCo\DailyCo.csproj" />
       <ProjectReference Include="..\Database\Database.csproj" />
       <ProjectReference Include="..\Services\Services.csproj" />
@@ -125,6 +124,11 @@
 
     <ItemGroup>
       <_ContentIncludedByDefault Remove="Components\Pages\Appointments\Components\RecurringAppointment.razor" />
+      <_ContentIncludedByDefault Remove="Components\Pages\PatientManager\Components\Summary\ContactDetails.razor" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <UpToDateCheckInput Remove="Components\Pages\PatientManager\Components\Summary\ContactDetails.razor" />
     </ItemGroup>
 
 </Project>

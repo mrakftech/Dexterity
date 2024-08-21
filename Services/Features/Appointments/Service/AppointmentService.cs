@@ -25,17 +25,31 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             return await Result<AppointmentDto>.FailAsync("Appointment not found");
         var data = mapper.Map<AppointmentDto>(appointment);
         return await Result<AppointmentDto>.SuccessAsync(data);
-
     }
+
     public async Task<List<SearchAppointmentDto>> FindAppointments()
     {
         var data = await context.Appointments
-             .Include(x => x.Patient)
-             .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
-              .AsNoTracking()
-              .ToListAsync();
+            .Include(x => x.Patient)
+            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            .AsNoTracking()
+            .ToListAsync();
         return mapper.Map<List<SearchAppointmentDto>>(data);
     }
+
+    public async Task<List<AppointmentHistoryDto>> GetAppointmentHistory(Guid patientId)
+    {
+        var list = await context.Appointments
+            .Include(x=>x.Patient)
+            .Include(x=>x.Hcp)
+            .Include(x=>x.AppointmentType)
+            .Where(x => x.PatientId == patientId
+                        && x.StartTime < DateTime.Now)
+            .ToListAsync();
+        var data = mapper.Map<List<AppointmentHistoryDto>>(list);
+        return data;
+    }
+
     public async Task<IResult> SaveAppointment(int id, AppointmentDto request)
     {
         try
@@ -46,6 +60,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 {
                     return await Result.FailAsync("Slot already booked.");
                 }
+
                 var appointment = mapper.Map<Appointment>(request);
                 appointment.Id = request.Id;
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
@@ -61,17 +76,20 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             {
                 var appointment = await context.Appointments
                     .FirstOrDefaultAsync(x => x.Id == id);
-                if (context.Appointments.Any(x => x.StartTime == request.StartTime && x.HcpId == request.HcpId && x.Id != appointment.Id))
+                if (context.Appointments.Any(x =>
+                        x.StartTime == request.StartTime && x.HcpId == request.HcpId && x.Id != appointment.Id))
                 {
                     return await Result.FailAsync("Slot already booked.");
                 }
+
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
 
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
                 appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
-                appointment.EndTime = request.StartTime.AddMinutes(request.Duration); ;
+                appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
+                ;
                 appointment.PatientId = request.PatientId;
                 appointment.HcpId = request.HcpId;
                 appointment.AppointmentTypeId = request.AppointmentTypeId;
@@ -82,6 +100,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 appointment.RecurrenceID = request.RecurrenceID;
                 context.Appointments.Update(appointment);
             }
+
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("Appointment Saved");
         }
@@ -89,7 +108,6 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             return await Result.FailAsync(e.Message);
         }
-
     }
 
     public async Task<IResult> CancelAppointment(int id, int cancelReasonId)
@@ -109,7 +127,6 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             return await Result<AppointmentDto>.FailAsync(e.Message);
         }
-
     }
 
     public async Task<List<AppointmentDto>> GetAllAppointments(DateTime StartDate, DateTime EndDate)
@@ -117,12 +134,12 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         var data = await context.Appointments
             .Include(x => x.Patient)
             .Include(x => x.AppointmentType)
-             .Where(evt => evt.StartTime >= StartDate
-             && evt.EndTime <= EndDate
-             || evt.RecurrenceRule != null && evt.ClinicId == ApplicationState.CurrentUser.ClinicId
-             )
-             .AsNoTracking()
-             .ToListAsync();
+            .Where(evt => evt.StartTime >= StartDate
+                          && evt.EndTime <= EndDate
+                          || evt.RecurrenceRule != null && evt.ClinicId == ApplicationState.CurrentUser.ClinicId
+            )
+            .AsNoTracking()
+            .ToListAsync();
         return mapper.Map<List<AppointmentDto>>(data);
     }
 
@@ -138,13 +155,12 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         await context.Appointments.AddAsync(appointment);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Appointment Created");
-
     }
 
     public async Task UpdateAppointment(AppointmentDto request)
     {
         var appointment = await context.Appointments
-                    .FirstOrDefaultAsync(x => x.Id == request.Id);
+            .FirstOrDefaultAsync(x => x.Id == request.Id);
 
         if (appointment != null)
         {
@@ -161,7 +177,6 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             context.Appointments.Update(appointment);
             await context.SaveChangesAsync();
         }
-
     }
 
     public async Task DeleteAppointment(int appointmentId)
@@ -175,7 +190,6 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             context.Appointments.Remove(appointmentInDb);
             await context.SaveChangesAsync();
         }
-
     }
 
     public async Task<bool> IsSlotAvaiable(DateTime date, Guid hcpId)
@@ -219,7 +233,8 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 // If the hour is free, add it to the list of free slots
                 if (isFree)
                 {
-                    freeSlots.Add(new AppointmentSlotDto() { StartTime = startDate, EndTime = endDate, IsAvailable = true });
+                    freeSlots.Add(new AppointmentSlotDto()
+                        {StartTime = startDate, EndTime = endDate, IsAvailable = true});
                 }
             }
         }
@@ -230,9 +245,9 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     private List<Appointment> GetAppointments(Guid hcpId, DateTime startDate, DateTime endDate)
     {
         var appts = context.Appointments
-          .Where(a => a.HcpId == hcpId
-              && a.StartTime >= startDate
-              && a.EndTime <= endDate).ToList();
+            .Where(a => a.HcpId == hcpId
+                        && a.StartTime >= startDate
+                        && a.EndTime <= endDate).ToList();
         return appts;
     }
 
@@ -242,7 +257,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
         foreach (var day in days)
         {
-            var workingDay = (DayOfWeek)day;
+            var workingDay = (DayOfWeek) day;
             workingDays.Add(workingDay);
         }
 
@@ -260,10 +275,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         }
         catch (Exception e)
         {
-
             return await Result.FailAsync(e.Message);
-
         }
-
     }
 }

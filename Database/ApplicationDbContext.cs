@@ -15,24 +15,38 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Group;
+using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
 
 namespace Database;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
+    #region Settings
+
     public DbSet<SmsTemplate> SmsTemplates { get; set; }
     public DbSet<EmailTemplate> EmailTemplates { get; set; }
-    public DbSet<Role> Roles { get; set; }
-    public DbSet<User> Users { get; set; }
-    public DbSet<UserClinic> UserClinics { get; set; }
-    public DbSet<UserTask> UserTasks { get; set; }
-    public DbSet<PermissionClaim> PermissionClaims { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
     public DbSet<ClinicSite> ClinicSites { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
+    public DbSet<AccountType> AccountTypes { get; set; }
+
+    #endregion
+
+
+    #region User
+
+    public DbSet<Role> Roles { get; set; }
+    public DbSet<User> Users { get; set; }
+    public DbSet<UserClinic> UserClinics { get; set; }
+    public DbSet<UserTask> UserTasks { get; set; }
+    public DbSet<PermissionClaim> PermissionClaims { get; set; }
+
+    #endregion
+
+    #region Patient
 
     public DbSet<Patient> Patients { get; set; }
     public DbSet<PatientContact> PatientContacts { get; set; }
@@ -45,6 +59,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<FamilyMember> FamilyMembers { get; set; }
     public DbSet<Group> Groups { get; set; }
     public DbSet<GroupPatient> GroupPatients { get; set; }
+    public DbSet<SmsHistory> PatientSmsHistories { get; set; }
+
+    #endregion
 
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -76,11 +93,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
 
+        
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinic", "Setting"); });
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
+        builder.Entity<AccountType>(entity => { entity.ToTable(name: "AccountTypes", "Setting"); });
+
+
         builder.Entity<AppointmentCancellationReason>(entity =>
         {
             entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler");
@@ -89,7 +110,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PatientManagement"); });
-        builder.Entity<PatientOccupation>(entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
+        builder.Entity<PatientOccupation>(
+            entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
         builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
         builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
         builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PatientManagement"); });
@@ -97,5 +119,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<Group>(entity => { entity.ToTable(name: "Groups", "PatientManagement"); });
         builder.Entity<GroupPatient>(entity => { entity.ToTable(name: "GroupPatients", "PatientManagement"); });
         builder.Entity<FamilyMember>(entity => { entity.ToTable(name: "FamilyMembers", "PatientManagement"); });
+        builder.Entity<SmsHistory>(entity => { entity.ToTable(name: "PatientSmsHistories", "PatientManagement"); });
     }
 }

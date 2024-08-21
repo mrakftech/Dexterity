@@ -64,7 +64,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public MaritalDetail MaritalDetails { get; set; }= new();
     public DrugPaymentSchemeDetail DrugPaymentSchemeDetails { get; set; } = new();
     public PrivateHealthInsuranceDetail PrivateHealthInsuranceDetails { get; set; } = new();
-    
+    public PatientAccountDetail PatientAccountDetail { get; set; } = new();
     public string Ppsn { get; set; }
     public string IhiNumber { get; set; }
     

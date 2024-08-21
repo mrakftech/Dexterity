@@ -17,8 +17,8 @@ public class PatientSummaryDto
     public string DefualtHcp { get; set; }
     public string RegistrationDate { get; set; }
 
-
-    public List<FamilyMemeberDto> FamilyMembers { get; set; } = new();
+    public string HospitalNo { get; set; }
+    public List<FamilyMemberDto> FamilyMembers { get; set; } = new();
     public string NextOfKin { get; set; }
     public string Relationship { get; set; }
     public string KinContact { get; set; }

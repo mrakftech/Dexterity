@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
+using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
@@ -114,12 +115,14 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
         return mappedData;
     }
+
     public async Task<List<ClinicSiteDto>> GetSitesByClinic(int clinicId)
     {
         var data = await context.ClinicSites.Where(x => x.ClinicId == clinicId).ToListAsync();
         var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
         return mappedData;
     }
+
     public async Task<IResult<ClinicSiteDto>> GetClinicSite(int id)
     {
         var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
@@ -129,6 +132,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         var mappedData = mapper.Map<ClinicSiteDto>(clinic);
         return await Result<ClinicSiteDto>.SuccessAsync(mappedData);
     }
+
     public async Task<IResult> SaveClinicSite(int id, ClinicSiteDto request)
     {
         if (id == 0)
@@ -161,6 +165,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Clinic site deleted.");
     }
+
     #endregion
 
     #region Email Templates
@@ -203,8 +208,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Sms template deleted.");
     }
-
-
 
     #endregion
 
@@ -256,8 +259,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Appointment Type deleted.");
     }
 
-
-
     #endregion
 
     #region Appointment Cancel Reasons
@@ -275,7 +276,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             return await Result<AppointmentCancellationReason>.FailAsync("Appointment reason not found.");
 
         return await Result<AppointmentCancellationReason>.SuccessAsync(appointmentType);
-
     }
 
     public async Task<IResult> SaveAppointmentCancelReason(int id, AppointmentCancellationReason request)
@@ -303,7 +303,67 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Appointment Cancel Reason deleted.");
     }
 
+    #endregion
 
+    #region Account Type
+
+    public async Task<AccountTypeDto> GetAccountType(int id)
+    {
+        var accountInDb = await context.AccountTypes.FirstOrDefaultAsync(x => x.Id == id);
+        if (accountInDb is null)
+            return new AccountTypeDto();
+        var mapped = mapper.Map<AccountTypeDto>(accountInDb);
+        return mapped;
+    }
+
+    public async Task<List<AccountTypeDto>> GetAccountTypes()
+    {
+        var list = await context.AccountTypes.Where(x => x.IsActive).ToListAsync();
+        var mapped = mapper.Map<List<AccountTypeDto>>(list);
+        return mapped;
+    }
+
+    public async Task<IResult> SaveAccountType(int id, AccountTypeDto request)
+    {
+        try
+        {
+            var account = mapper.Map<AccountType>(request);
+            if (id == 0)
+            {
+                await context.AccountTypes.AddAsync(account);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                var accountInDb = await context.AccountTypes.FirstOrDefaultAsync(x => x.Id == id);
+                if (accountInDb is null)
+                    return await Result.FailAsync("Account type is not found");
+
+                accountInDb.IsActive = request.IsActive;
+                accountInDb.Name = request.Name;
+                accountInDb.Amount = request.Amount;
+                accountInDb.Type = request.AccountType;
+                context.AccountTypes.Update(accountInDb);
+                await context.SaveChangesAsync();
+            }
+
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+        return await Result.SuccessAsync("Account added.");
+    }
+
+    public async Task<IResult> DeleteAccountType(int id)
+    {
+        var accountInDb = await context.AccountTypes.FirstOrDefaultAsync(x => x.Id == id);
+        if (accountInDb is null)
+            return await Result.FailAsync("Account type is not found");
+        context.AccountTypes.Remove(accountInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Account deleted.");
+    }
 
     #endregion
 }
