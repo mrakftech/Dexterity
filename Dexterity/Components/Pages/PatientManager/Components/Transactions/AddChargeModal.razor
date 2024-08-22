@@ -1,0 +1,91 @@
+﻿@using Services.Features.PatientManagement.Dtos.Account
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.Features.Settings.Dtos
+<DexDialog>
+    <DialogTitle>
+        Accounting - Charge
+    </DialogTitle>
+    <Content>
+        <TabTitle Title="@($"Personal Balance: {PatientAccount.Balance:C}")"></TabTitle>
+        <DexForm Model="Charge" OnValidSubmit="AddCharge">
+            <Fields>
+                <FormItem Field="@nameof(@ChargeDto.ChargedById)" LabelText="Charged By">
+                    <Template>
+                        <label class="e-form-label"> Charged By : </label>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Charged By" DataSource="@HealthCares" @bind-Value="@Charge.ChargedById">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(@ChargeDto.ChargeId)" LabelText="Charges">
+                    <Template>
+                        <label class="e-form-label"> Charges: </label>
+                        <SfDropDownList TValue="int" TItem="AccountTypeDto" Placeholder="Charges" DataSource="@ChargeTypes" @bind-Value="@Charge.ChargeId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="int" TItem="AccountTypeDto" ValueChange="OnValueChange"></DropDownListEvents>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ChargeDto.ChargeTo)" LabelText="Charge To" ColumnSpan="1"/>
+                <FormItem Field="@nameof(ChargeDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(@ChargeDto.Amount)" LabelText="Amount"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public GetPatientAccountDto PatientAccount { get; set; }
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private List<AccountTypeDto> ChargeTypes { get; set; } = new();
+    private ChargeDto Charge { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+        await GetChargeTypes();
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task GetChargeTypes()
+    {
+        ChargeTypes = await UnitOfWork.Setting.GetAllAccountTypes(TransactionTypes.Charge);
+    }
+
+    private async Task AddCharge()
+    {
+        _processing = true;
+
+        Charge.AccountId = PatientAccount.Id;
+        var res = await UnitOfWork.Patient.Charge(Charge);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+    public void OnValueChange(ChangeEventArgs<int, AccountTypeDto> args)
+    {
+        var chargeType = args.ItemData;
+        Charge.Amount = chargeType.Amount;
+        Charge.ChargedName = chargeType.Name;
+    }
+
+}

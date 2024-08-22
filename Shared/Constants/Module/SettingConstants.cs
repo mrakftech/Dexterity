@@ -5,9 +5,10 @@ public class SettingConstants
     
 }
 
-public enum AccountTypes
+public enum TransactionTypes
 {
     Charge,
     Payment,
     StrikeOff
 }
+

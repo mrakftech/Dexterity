@@ -52,7 +52,7 @@
     private async Task GetAccountTypes()
     {
         _processing = true;
-        AccountTypes = await UnitOfWork.Setting.GetAccountTypes();
+        AccountTypes = await UnitOfWork.Setting.GetAllAccountTypes(null);
         _processing = false;
     }
 

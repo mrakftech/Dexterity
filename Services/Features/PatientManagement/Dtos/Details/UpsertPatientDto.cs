@@ -58,15 +58,5 @@ namespace Services.Features.PatientManagement.Dtos.Details
 
         #endregion
 
-        #region Account
-
-        public string AccountNotes { get; set; }
-        public string InsuranceScheme { get; set; }
-        public string PolicyNumber { get; set; }
-        public AccountType AccountType { get; set; }
-        public string BillingName { get; set; }
-        public string BillingDetail { get; set; }
-
-        #endregion
     }
 }

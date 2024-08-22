@@ -6,6 +6,7 @@ using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
+using Shared.Constants.Module;
 using Shared.Wrapper;
 
 namespace Services.Features.PatientManagement.Service;
@@ -108,7 +109,10 @@ public interface IPatientService
 
     #region Account
 
-     public Task<GetPatientAccountDto> GetPatientAccount(Guid patientId);
+    public Task<GetPatientAccountDto> GetPatientAccount(Guid patientId);
+    public List<GetTransactionDto> FilterTransactions(int accountId, AccountView accountView);
+    public Task<IResult> Charge(ChargeDto request);
+    public Task<IResult> Payment(PaymentDto request);
 
     #endregion
 }

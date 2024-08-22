@@ -1,0 +1,107 @@
+﻿@using Services.Features.PatientManagement.Dtos.Account
+@using SelectionType = Syncfusion.Blazor.Grids.SelectionType
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
+    <DialogTitle>
+        Accounting - Payment
+    </DialogTitle>
+    <Content>
+        <TabTitle Title="@($"Personal Balance: {PatientAccount.Balance:C}")"></TabTitle>
+        <DexForm Model="Payment" OnValidSubmit="AddPayment">
+            <Fields>
+                <FormItem Field="@nameof(@PaymentDto.HcpId)" LabelText="Charged By">
+                    <Template>
+                        <label class="e-form-label"> HCP: </label>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@Payment.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(PaymentDto.ChargeTo)" LabelText="Payment Type" ColumnSpan="1"/>
+                <FormItem Field="@nameof(PaymentDto.PaymentType)" LabelText="Payment To" ColumnSpan="1"/>
+                <FormItem Field="@nameof(PaymentDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(PaymentDto.Amount)" LabelText="Amount" IsEnabled="false"></FormItem>
+                <FormItem Field="@nameof(PaymentDto.Amount)">
+                    <Template>
+                        <SfGrid @ref="@_grid" DataSource="Transactions" AllowSelection="true" AllowPaging="true">
+                            <GridPageSettings PageSize="4"></GridPageSettings>
+                            <GridEvents RowSelected="GetSelectedRecords" RowDeselected="Callback" TValue="GetTransactionDto"></GridEvents>
+                            <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"></GridSelectionSettings>
+                            <GridColumns>
+                                <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+                                <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="d" Type="ColumnType.DateTime" Width="90"></GridColumn>
+                                <GridColumn Field=@nameof(GetTransactionDto.Description) HeaderText="Description" Width="90"></GridColumn>
+                                <GridColumn Field=@nameof(GetTransactionDto.Amount) HeaderText="Amount" Format="C" Width="90"></GridColumn>
+                            </GridColumns>
+                        </SfGrid>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public GetPatientAccountDto PatientAccount { get; set; }
+    private List<GetTransactionDto> Transactions { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private PaymentDto Payment { get; set; } = new();
+    private bool _processing;
+    SfGrid<GetTransactionDto> _grid = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+        Transactions = UnitOfWork.Patient.FilterTransactions(PatientAccount.Id, AccountView.Outstanding);
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task AddPayment()
+    {
+        _processing = true;
+
+        Payment.AccountId = PatientAccount.Id;
+        if (Payment.Amount > PatientAccount.Balance)
+        {
+            Snackbar.FailMessge("Patient don't have enough balance.");
+        }
+        // var res = await UnitOfWork.Patient.Charge(Payment);
+        // if (res.Succeeded)
+        // {
+        //     Snackbar.SuccessMessge(res.Messages.First());
+        //     MudDialog.Close();
+        // }
+        // else
+        // {
+        //     Snackbar.FailMessge(res.Messages.First());
+        // }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+    public async Task GetSelectedRecords(RowSelectEventArgs<GetTransactionDto> args)
+    {
+        Payment.SelectedTransaction = await _grid.GetSelectedRecordsAsync();
+        var totalAmount = Payment.SelectedTransaction.Sum(x => x.Amount);
+        Payment.Amount = totalAmount;
+        StateHasChanged();
+    }
+
+    private async Task Callback(RowDeselectEventArgs<GetTransactionDto> args)
+    {
+        Payment.SelectedTransaction = await _grid.GetSelectedRecordsAsync();
+        var totalAmount = Payment.SelectedTransaction.Sum(x => x.Amount);
+        Payment.Amount = totalAmount;
+        StateHasChanged();
+    }
+
+}

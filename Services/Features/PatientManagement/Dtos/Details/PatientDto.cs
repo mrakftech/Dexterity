@@ -47,6 +47,7 @@ public class PatientDto
     public DateTime DateOfBirth { get; set; }
     public string Gender { get; set; }
     public string MedicalRecordNumber { get; set; }
+    public string UniqueNumber { get; set; }
     public string HomePhone { get; set; }
     public string MobilePhone { get; set; }
     public string Email { get; set; }
@@ -67,8 +68,6 @@ public class PatientDto
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
-    public PatientAccountDetail PatientAccountDetail { get; set; } = new();
-
     public OtherDetail OtherDetails { get; set; } = new();
     public MaritalDetail MaritalDetails { get; set; } = new();
     public DrugPaymentSchemeDetail DrugPaymentSchemeDetails { get; set; } = new();

@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
-using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
+using Shared.Constants.Module;
 using Shared.Wrapper;
+using AccountType = Domain.Entities.Settings.Account.AccountType;
 
 namespace Services.Features.Settings.Service;
 
@@ -316,7 +317,41 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return mapped;
     }
 
-    public async Task<List<AccountTypeDto>> GetAccountTypes()
+    public async Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionTypes? accountTypes)
+    {
+        var list = new List<AccountType>();
+        switch (accountTypes)
+        {
+            case TransactionTypes.Charge:
+                list = await context.AccountTypes
+                    .Where(x => x.IsActive && x.Type==TransactionTypes.Charge)
+                    .ToListAsync();
+                break;
+            case TransactionTypes.Payment:
+                list = await context.AccountTypes
+                    .Where(x => x.IsActive && x.Type==TransactionTypes.Payment)
+                    .ToListAsync();
+                break;
+            case TransactionTypes.StrikeOff:
+                list = await context.AccountTypes
+                    .Where(x => x.IsActive && x.Type==TransactionTypes.StrikeOff)
+                    .ToListAsync();
+                break;
+            default:
+                list = await context.AccountTypes
+                    .Where(x => x.IsActive)
+                    .ToListAsync();
+                break;
+        }
+        
+        
+        
+        
+        var mapped = mapper.Map<List<AccountTypeDto>>(list);
+        return mapped;
+    }
+
+    public async Task<List<AccountTypeDto>> GetAllAccountTypes()
     {
         var list = await context.AccountTypes.Where(x => x.IsActive).ToListAsync();
         var mapped = mapper.Map<List<AccountTypeDto>>(list);
@@ -342,7 +377,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 accountInDb.IsActive = request.IsActive;
                 accountInDb.Name = request.Name;
                 accountInDb.Amount = request.Amount;
-                accountInDb.Type = request.AccountType;
+                accountInDb.Type = request.TransactionType;
                 context.AccountTypes.Update(accountInDb);
                 await context.SaveChangesAsync();
             }

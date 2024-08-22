@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Details;
+using Shared.Constants.Module;
 
 namespace Database.Configurations
 {
@@ -65,13 +66,7 @@ namespace Database.Configurations
                     v => JsonConvert.SerializeObject(v),
                     v => JsonConvert.DeserializeObject<PrivateHealthInsuranceDetail>(v)
                 );
-            
-            builder
-                .Property(e => e.PatientAccountDetail)
-                .HasConversion(
-                    v => JsonConvert.SerializeObject(v),
-                    v => JsonConvert.DeserializeObject<PatientAccountDetail>(v)
-                );
+
         }
     }
 }

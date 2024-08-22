@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240821205648_UpdateTransaction156")]
+    partial class UpdateTransaction156
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -284,7 +287,7 @@ namespace Database.Migrations
                     b.ToTable("PatientAlerts", "PatientManagement");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransaction", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -295,36 +298,17 @@ namespace Database.Migrations
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId")
-                        .IsUnique();
-
-                    b.ToTable("PatientAccounts", "PatientManagement");
-                });
-
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransaction", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("decimal(18,2)");
-
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<decimal>("Credit")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<decimal>("Debt")
+                        .HasColumnType("decimal(18,2)");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -335,20 +319,55 @@ namespace Database.Migrations
                     b.Property<bool>("IsPrinted")
                         .HasColumnType("bit");
 
-                    b.Property<int>("PatientAccountId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uniqueidentifier");
 
-                    b.Property<string>("PaymentType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("TakenById")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("PatientAccountId");
+                    b.HasIndex("PatientId");
+
+                    b.HasIndex("TakenById");
 
                     b.ToTable("PatientTransactions", "PatientManagement");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransactionDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ChargedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PatientTransactionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientTransactionId");
+
+                    b.ToTable("PatientTransactionDetails", "PatientManagement");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.DoctorVisitCard", b =>
@@ -735,6 +754,9 @@ namespace Database.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("OtherDetails")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientAccountDetail")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PatientType")
@@ -1141,26 +1163,34 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransaction", b =>
                 {
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithOne("PatientAccount")
-                        .HasForeignKey("Domain.Entities.PatientManagement.Billing.PatientAccount", "PatientId")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAccounts.User", "TakenBy")
+                        .WithMany()
+                        .HasForeignKey("TakenById")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Patient");
+
+                    b.Navigation("TakenBy");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransaction", b =>
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransactionDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.PatientManagement.Billing.PatientAccount", "PatientAccount")
-                        .WithMany("PatientTransactions")
-                        .HasForeignKey("PatientAccountId")
+                    b.HasOne("Domain.Entities.PatientManagement.Billing.PatientTransaction", "PatientTransaction")
+                        .WithMany()
+                        .HasForeignKey("PatientTransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("PatientAccount");
+                    b.Navigation("PatientTransaction");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.DoctorVisitCard", b =>
@@ -1342,11 +1372,6 @@ namespace Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
-                {
-                    b.Navigation("PatientTransactions");
-                });
-
             modelBuilder.Entity("Domain.Entities.PatientManagement.Group.Group", b =>
                 {
                     b.Navigation("RegisteredPatients");
@@ -1357,8 +1382,6 @@ namespace Database.Migrations
                     b.Navigation("FamilyMembers");
 
                     b.Navigation("Hospitals");
-
-                    b.Navigation("PatientAccount");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.Clinic", b =>

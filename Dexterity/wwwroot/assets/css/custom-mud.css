@@ -25,7 +25,12 @@
     /*box-shadow: 0 0 20px #eee;*/
     border-radius: 10px;
 }
-
+.mud-button-filled:disabled {
+    color: darkgray;
+    box-shadow: none;
+    background-image: none!important;
+    background-color: grey !important;
+}
 @media (hover: hover) and (pointer: fine) {
     .mud-button-filled:hover {
         background-position: right center !important;

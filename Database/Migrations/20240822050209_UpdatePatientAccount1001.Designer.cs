@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240822050209_UpdatePatientAccount1001")]
+    partial class UpdatePatientAccount1001
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -338,8 +341,8 @@ namespace Database.Migrations
                     b.Property<int>("PatientAccountId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid?>("TakenById")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
@@ -347,6 +350,8 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PatientAccountId");
+
+                    b.HasIndex("TakenById");
 
                     b.ToTable("PatientTransactions", "PatientManagement");
                 });
@@ -1160,7 +1165,13 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.UserAccounts.User", "TakenBy")
+                        .WithMany()
+                        .HasForeignKey("TakenById");
+
                     b.Navigation("PatientAccount");
+
+                    b.Navigation("TakenBy");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.DoctorVisitCard", b =>

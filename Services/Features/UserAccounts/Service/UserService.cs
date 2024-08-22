@@ -43,10 +43,9 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             RoleName = userInDb.Role.Name,
             IsForceReset = userInDb.IsForceReset,
             Name = userInDb.FullName,
-            WorkingDays=userInDb.WorkingDays,
-            StartHour=userInDb.StartHour,
-            EndHour=userInDb.EndHour,
-
+            WorkingDays = userInDb.WorkingDays,
+            StartHour = userInDb.StartHour,
+            EndHour = userInDb.EndHour,
         };
         ApplicationState.CurrentUser = response;
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
@@ -68,7 +67,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             case UserTypeConstants.Doctor:
                 userList = await context.Users
                     .Include(x => x.Role)
-                    .Where(x => x.IsDeleted == false && x.UserType == usertype )
+                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
                     .OrderByDescending(x => x.CreatedDate)
                     .ToListAsync();
                 break;
@@ -109,10 +108,10 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 request.RoleId = request.RoleId;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
                 request.CreatedBy = ApplicationState.CurrentUser.UserId;
-                
+
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
-                user.WorkingDays= request.WorkingDays;
+                user.WorkingDays = request.WorkingDays;
                 user.PasswordHash = hashPassword;
                 context.Users.Add(user);
                 await context.SaveChangesAsync();
@@ -287,7 +286,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserClinic>> GetUserClinics(Guid userId)
     {
-        return await context.UserClinics.Include(x=>x.Clinic)
+        return await context.UserClinics.Include(x => x.Clinic)
             .Where(x => x.UserId == userId)
             .Include(x => x.Clinic).ToListAsync();
     }
@@ -329,7 +328,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<HealthcareDto>> GetUsersByClinic(int clinicId)
     {
         var list = new List<HealthcareDto>();
-        
+
         var users = await context.UserClinics
             .AsNoTracking()
             .Where(x => x.ClinicId == clinicId)
@@ -347,6 +346,17 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         }
 
         return list;
+    }
+
+    public async Task<List<HealthcareDto>> GetDoctors(int clinicId)
+    {
+        var users = await context.UserClinics
+            .AsNoTracking()
+            .Where(x => x.ClinicId == clinicId)
+            .Select(x => x.User)
+            .ToListAsync();
+
+        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(user => mapper.Map<HealthcareDto>(user)).Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
     }
 
     #endregion

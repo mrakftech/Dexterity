@@ -1,9 +1,11 @@
 ﻿using Domain.Contracts;
+using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
+using Shared.Constants.Module;
 
 namespace Domain.Entities.PatientManagement;
 
@@ -28,6 +30,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
 
     public string FirstName { get; set; }
     public string LastName { get; set; }
+
     public string FullName
     {
         get => $"{FirstName} {LastName}";
@@ -46,6 +49,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
             }
         }
     }
+
     public string Title { get; set; }
     public DateTime DateOfBirth { get; set; }
     public string Gender { get; set; }
@@ -60,15 +64,14 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
-    public OtherDetail OtherDetails { get; set; }= new();
-    public MaritalDetail MaritalDetails { get; set; }= new();
+    public OtherDetail OtherDetails { get; set; } = new();
+    public MaritalDetail MaritalDetails { get; set; } = new();
     public DrugPaymentSchemeDetail DrugPaymentSchemeDetails { get; set; } = new();
     public PrivateHealthInsuranceDetail PrivateHealthInsuranceDetails { get; set; } = new();
-    public PatientAccountDetail PatientAccountDetail { get; set; } = new();
     public string Ppsn { get; set; }
     public string IhiNumber { get; set; }
-    
-    
+
+
     public string CompanyMedicalScheme { get; set; }
     public string EnrollmentStatus { get; set; }
     public DateTime DateOfEnrollment { get; set; }
@@ -80,9 +83,8 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public Guid HcpId { get; set; }
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
-    
-    
+
+    public PatientAccount PatientAccount { get; set; } = new() {Type = PatientAccountType.Personal, Balance = 500};
     public virtual ICollection<PatientHospital> Hospitals { get; set; }
     public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
-
 }

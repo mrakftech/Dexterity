@@ -12,5 +12,5 @@ public class AccountTypeDto
     public bool IsActive { get; set; }
 
 
-    public AccountTypes AccountType { get; set; }
+    public TransactionTypes TransactionType { get; set; }
 }

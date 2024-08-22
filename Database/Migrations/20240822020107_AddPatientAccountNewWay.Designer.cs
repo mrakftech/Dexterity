@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240822020107_AddPatientAccountNewWay")]
+    partial class AddPatientAccountNewWay
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -292,19 +295,18 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("AccountType")
+                        .HasColumnType("int");
+
                     b.Property<decimal>("Balance")
                         .HasColumnType("decimal(18,2)");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int>("Type")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
-                    b.HasIndex("PatientId")
-                        .IsUnique();
+                    b.HasIndex("PatientId");
 
                     b.ToTable("PatientAccounts", "PatientManagement");
                 });
@@ -338,8 +340,8 @@ namespace Database.Migrations
                     b.Property<int>("PatientAccountId")
                         .HasColumnType("int");
 
-                    b.Property<string>("PaymentType")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("TakenById")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("TransactionType")
                         .HasColumnType("int");
@@ -347,6 +349,8 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("PatientAccountId");
+
+                    b.HasIndex("TakenById");
 
                     b.ToTable("PatientTransactions", "PatientManagement");
                 });
@@ -1144,8 +1148,8 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
                 {
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithOne("PatientAccount")
-                        .HasForeignKey("Domain.Entities.PatientManagement.Billing.PatientAccount", "PatientId")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -1155,12 +1159,20 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientTransaction", b =>
                 {
                     b.HasOne("Domain.Entities.PatientManagement.Billing.PatientAccount", "PatientAccount")
-                        .WithMany("PatientTransactions")
+                        .WithMany()
                         .HasForeignKey("PatientAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.UserAccounts.User", "TakenBy")
+                        .WithMany()
+                        .HasForeignKey("TakenById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("PatientAccount");
+
+                    b.Navigation("TakenBy");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Extra.DoctorVisitCard", b =>
@@ -1342,11 +1354,6 @@ namespace Database.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
-                {
-                    b.Navigation("PatientTransactions");
-                });
-
             modelBuilder.Entity("Domain.Entities.PatientManagement.Group.Group", b =>
                 {
                     b.Navigation("RegisteredPatients");
@@ -1357,8 +1364,6 @@ namespace Database.Migrations
                     b.Navigation("FamilyMembers");
 
                     b.Navigation("Hospitals");
-
-                    b.Navigation("PatientAccount");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.Clinic", b =>

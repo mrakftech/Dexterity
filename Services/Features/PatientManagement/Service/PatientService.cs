@@ -6,6 +6,7 @@ using Services.State;
 using Shared.Helper;
 using Shared.Wrapper;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
@@ -148,12 +149,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsReviewDate = request.GmsReviewDate;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
-            //Account
-            patient.PatientAccountDetail.AccountType = request.AccountType.ToString();
-            patient.PatientAccountDetail.AccountNotes = request.AccountNotes;
-            patient.PatientAccountDetail.InsuranceScheme = request.InsuranceScheme;
-            patient.PatientAccountDetail.PolicyNumber = request.PolicyNumber;
-
 
             await context.Patients.AddAsync(patient);
             var rowsUpdated = await context.SaveChangesAsync();
@@ -202,13 +197,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             patient.MedicalCardDetails.GmsReviewDate = request.GmsReviewDate;
             patient.MedicalCardDetails.GmsDoctorNumber = request.GmsDistanceCode;
 
-//Account
-            patient.PatientAccountDetail.AccountType = request.AccountType.ToString();
-            patient.PatientAccountDetail.AccountNotes = request.AccountNotes;
-            patient.PatientAccountDetail.InsuranceScheme = request.InsuranceScheme ?? "None";
-            patient.PatientAccountDetail.PolicyNumber = request.PolicyNumber;
-            patient.PatientAccountDetail.BillingName = request.BillingName;
-            patient.PatientAccountDetail.BillingDetail = request.BillingDetail;
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             var rowsUpdated = await context.SaveChangesAsync();
@@ -727,22 +715,80 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<GetPatientAccountDto> GetPatientAccount(Guid patientId)
     {
-        var patient = await context.Patients.FirstOrDefaultAsync(x => x.Id == patientId);
-        var data = new GetPatientAccountDto()
-        {
-            UniqueNumber = patient.UniqueNumber,
-            Name = patient.FullName,
-            Status = patient.Status,
-            Type = patient.PatientType,
-            Ppsn = patient.Ppsn,
-            Age = PatientConstants.CalculateAge(patient.DateOfBirth),
-            AccountNotes = patient.PatientAccountDetail.AccountNotes,
-            AccountType = patient.PatientAccountDetail.AccountType,
-            InsuranceScheme = patient.PatientAccountDetail.InsuranceScheme,
-            PolicyNumber = patient.PatientAccountDetail.PolicyNumber,
-            PersonalBalance = patient.PatientAccountDetail.PersonalBalance,
-        };
+        var patient = await context.PatientAccounts
+            .Include(x => x.Patient)
+            .Include(x => x.PatientTransactions)
+            .FirstOrDefaultAsync(x => x.PatientId == patientId);
+        var data = mapper.Map<GetPatientAccountDto>(patient);
         return data;
+    }
+
+    public List<GetTransactionDto> FilterTransactions(int accountId, AccountView accountView)
+    {
+        var list = new List<PatientTransaction>();
+        switch (accountView)
+        {
+            case AccountView.Statement:
+                list = context.PatientTransactions
+                    .Where(t => t.Id == accountId && !t.IsDeleted && t.CreatedDate.Month == DateTime.Now.Month)
+                    .ToList();
+                break;
+            case AccountView.Outstanding:
+                list = context.PatientTransactions
+                    .Where(t => t.PatientAccountId == accountId
+                                && !t.IsDeleted && t.TransactionType == TransactionType.Charge)
+                    .ToList();
+                break;
+        }
+
+        var data = mapper.Map<List<GetTransactionDto>>(list);
+        return data;
+    }
+
+    public async Task<IResult> Charge(ChargeDto request)
+    {
+        try
+        {
+            var transaction = new PatientTransaction()
+            {
+                CreatedBy = ApplicationState.CurrentUser.UserId,
+                CreatedDate = request.Date,
+                TransactionType = TransactionType.Charge,
+                Description = request.ChargedName,
+                Amount = request.Amount,
+                PatientAccountId = request.AccountId
+            };
+            await context.PatientTransactions.AddAsync(transaction);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Charged has been added.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> Payment(PaymentDto request)
+    {
+        try
+        {
+            var transaction = new PatientTransaction()
+            {
+                CreatedBy = ApplicationState.CurrentUser.UserId,
+                CreatedDate = request.Date,
+                TransactionType = TransactionType.Charge,
+                Description = "Payment",
+                Amount = request.Amount,
+                PatientAccountId = request.AccountId
+            };
+            await context.PatientTransactions.AddAsync(transaction);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Charged has been added.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
     }
 
     #endregion

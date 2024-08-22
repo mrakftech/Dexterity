@@ -43,6 +43,7 @@ public interface IUserService
     Task<IResult> SaveUserClinic(int id, UserClinic request);
     Task<IResult> DeleteClinic(int id);
     Task<List<HealthcareDto>> GetUsersByClinic(int clinicId);
+    Task<List<HealthcareDto>> GetDoctors(int clinicId);
 
     #endregion
 }

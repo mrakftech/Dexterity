@@ -4,7 +4,6 @@ namespace Shared.Constants.Module;
 
 public static class PatientConstants
 {
-
     public static List<Ethnicity> Ethnicities { get; set; } =
     [
         new Ethnicity(1, "White Irish"),
@@ -77,7 +76,6 @@ public class Relationship(int id, string name)
     public string Name { get; set; } = name;
 }
 
-
 public enum PatientStatus
 {
     Active,
@@ -107,6 +105,7 @@ public enum Gender
     Female,
     Others
 }
+
 public enum AlertType
 {
     Appointment,
@@ -114,10 +113,10 @@ public enum AlertType
     Consultation
 }
 
-public enum AccountType
+public enum PatientAccountType
 {
-    Personal,
-    Group,
+    Personal = 1,
+    Group = 2,
 }
 
 public enum AlertSeverity
@@ -131,4 +130,16 @@ public enum TransactionType
 {
     Charge,
     Payment
+}
+public enum PaymentType
+{
+    Cash,
+}
+public enum AccountView
+{
+    Outstanding,
+    Statement,
+    History,
+    Audit,
+    PrintLog
 }
