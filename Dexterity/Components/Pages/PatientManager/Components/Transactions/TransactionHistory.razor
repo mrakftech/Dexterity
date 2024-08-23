@@ -1,0 +1,18 @@
+﻿@using Services.Features.PatientManagement.Dtos.Account
+<SfGrid TValue="GetTransactionDto" DataSource="Transactions" AllowPaging="true">
+    <GridPageSettings PageSize="5"></GridPageSettings>
+    <GridColumns>
+        <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="g"
+                    Type="ColumnType.DateTime" Width="110"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Description) Width="500"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Remaining) HeaderText="Remaining" Format="C" Width="80"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Debit) HeaderText="Debt" Format="C" Width="80"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Credit) HeaderText="Credit" Format="C" Width="80"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Balance) HeaderText="Balance" Format="C" Width="80"/>
+    </GridColumns>
+</SfGrid>
+
+@code {
+    [Parameter] public List<GetTransactionDto> Transactions { get; set; } = new();
+
+}

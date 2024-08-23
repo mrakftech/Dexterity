@@ -15,7 +15,7 @@ public class SettingMapping : Profile
         CreateMap<AppointmentType, AppointmentTypeDto>().ReverseMap();
 
         CreateMap<AccountType, AccountTypeDto>()
-            .ForMember(x => x.Type, c => c.MapFrom(m => m.Type.ToString()))
+            .ForMember(x => x.TransactionType, c => c.MapFrom(m => m.Type.ToString()))
             .ReverseMap();
     }
 }

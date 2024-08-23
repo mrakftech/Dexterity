@@ -1,121 +1,127 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Components.Transactions
+@using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
 @using Services.Features.PatientManagement.Dtos.Account
 
 <TabTitle Title="Patient Accounts"/>
 @if (ApplicationState.SelectedPatientId != Guid.Empty)
 {
-    <RadzenRow>
-        <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
-            <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem"
-                         class="rz-p-4">
-                <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
-                <RadzenStack Gap="0">
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@AccountDto.Patient.FullName</b>
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Type</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.Patient.PatientType ?? "Not set")</b>
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Status</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.Patient.Status ?? "Not set")</b>
-                    </RadzenText>
+    <div style="height: 900px">
+        <RadzenRow>
+            <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
+                <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem"
+                             class="rz-p-4">
+                    <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@AccountDto.Patient.FullName</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Type</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.Patient.PatientType ?? "Not set")</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Status</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.Patient.Status ?? "Not set")</b>
+                        </RadzenText>
+                    </RadzenStack>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Age</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@($"{AccountDto.Age}")</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">PPSN</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.Patient.Ppsn ?? "Not set")</b>
+                        </RadzenText>
+                    </RadzenStack>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">
+                            Unique No.
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.Patient.UniqueNumber)</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">
+                            Personal Balance
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.Balance.ToString("C"))</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">
+                            Group Balance
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(AccountDto.GroupBalance.ToString("C"))</b>
+                        </RadzenText>
+                    </RadzenStack>
                 </RadzenStack>
-                <RadzenStack Gap="0">
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Age</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@($"{AccountDto.Age}")</b>
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">PPSN</RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.Patient.Ppsn ?? "Not set")</b>
-                    </RadzenText>
-                </RadzenStack>
-                <RadzenStack Gap="0">
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">
-                        Unique No.
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.Patient.UniqueNumber)</b>
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">
-                        Personal Balance
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.Balance.ToString("C"))</b>
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">
-                        Group Balance
-                    </RadzenText>
-                    <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@(AccountDto.GroupBalance.ToString("C"))</b>
-                    </RadzenText>
-                </RadzenStack>
-            </RadzenStack>
-        </RadzenCard>
-    </RadzenRow>
-    <RadzenRow>
-        <DexForm Model="AccountDto" ColumnCount="2" OnValidSubmit="CheckAccount">
-            <Fields>
-                <FormGroup LabelText="Account Information" ColumnCount="1">
-                    <FormItem Field="@nameof(GetPatientAccountDto.InsuranceScheme)">
-                        <Template>
-                            <label class="e-form-label">Insurance: @(AccountDto.InsuranceScheme ?? "None")</label>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(AccountDto.Type)" LabelText="Account Type" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(AccountDto.AccountView)" LabelText="View" ColumnSpan="1"/>
-                </FormGroup>
-                <FormGroup LabelText="Billing Detail" ColumnCount="1">
-                    <FormItem Field="@nameof(GetPatientAccountDto.BillingName)" LabelText="Billing Name"/>
-                    <FormItem Field="@nameof(GetPatientAccountDto.BillingDetail)" EditorType="FormEditorType.TextArea"
-                              LabelText="Billing Details"/>
-                </FormGroup>
-            </Fields>
-            <Buttons>
-                <DexLoadingButton Name="Check Account" Type="MudButtonType.Submit"/>
-            </Buttons>
-        </DexForm>
-    </RadzenRow>
-    <RadzenRow class="mt-4">
-        <TabTitle Title="@AccountDto.AccountView.ToString()"></TabTitle>
-        <SfGrid TValue="GetTransactionDto" DataSource="Transactions" AllowPaging="true">
-            <GridPageSettings PageSize="5"></GridPageSettings>
-            <GridEvents QueryCellInfo="QueryCellInfoHandler" TValue="GetTransactionDto"></GridEvents>
-            <GridColumns>
-                <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="g"
-                            Type="ColumnType.DateTime" Width="110"/>
-                <GridColumn Field=@nameof(GetTransactionDto.Description) Width="500"/>
-                <GridColumn Field=@nameof(GetTransactionDto.Amount) HeaderText="Amount" Format="C" Width="80"/>
-            </GridColumns>
-        </SfGrid>
-    </RadzenRow>
-    <RadzenRow>
-        <TabTitle Title="">
-            <ActionButtons>
+            </RadzenCard>
+        </RadzenRow>
+        <RadzenRow>
+            <DexForm Model="AccountDto" ColumnCount="2" OnValidSubmit="CheckAccount">
+                <Fields>
+                    <FormGroup LabelText="Account Information" ColumnCount="1">
+                        <FormItem Field="@nameof(GetPatientAccountDto.InsuranceScheme)">
+                            <Template>
+                                <label class="e-form-label">Insurance: @(AccountDto.InsuranceScheme ?? "None")</label>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(AccountDto.Type)" LabelText="Account Type" ColumnSpan="1"/>
+                        <FormItem Field="@nameof(AccountDto.AccountView)" LabelText="View" ColumnSpan="1"/>
+                    </FormGroup>
+                    <FormGroup LabelText="Billing Detail" ColumnCount="1">
+                        <FormItem Field="@nameof(GetPatientAccountDto.BillingName)" LabelText="Billing Name"/>
+                        <FormItem Field="@nameof(GetPatientAccountDto.BillingDetail)" EditorType="FormEditorType.TextArea"
+                                  LabelText="Billing Details"/>
+                    </FormGroup>
+                </Fields>
+                <Buttons>
+                    <DexLoadingButton Name="Check Account" Type="MudButtonType.Submit"/>
+                </Buttons>
+            </DexForm>
+        </RadzenRow>
+        <RadzenRow class="mt-4">
+            <TabTitle Title="@AccountDto.AccountView.ToString()"></TabTitle>
+            @switch (AccountDto.AccountView)
+            {
+                case AccountView.Outstanding:
+                    <OutstandingList Transactions="Transactions"/>
+                    break;
+                case AccountView.Statement:
+                    <StatementList Transactions="Statement" AccountId="AccountDto.Id"/>
+                    break;
+                case AccountView.History:
+                    <TransactionHistory Transactions="Transactions"/>
+                    break;
+                case AccountView.Audit:
+                    <AuditList Transactions="Transactions"/>
+                    break;
+                case AccountView.PrintLog:
+                    <PrintLogs Transactions="Transactions"/>
+                    break;
+            }
+        </RadzenRow>
+        <RadzenRow>
+            <SfAppBar ColorMode="AppBarColor.Light">
                 <DexSimpleButton Name="Charge" Click="ChargeModal"/>
                 <DexSimpleButton Name="Payment" Click="PaymentModal"/>
-                <DexSimpleButton Name="Strike Off"/>
-            </ActionButtons>
-        </TabTitle>
-    </RadzenRow>
+                <DexSimpleButton Name="Strike Off" Click="OpenStrikeOffModal"/>
+                <AppBarSpacer></AppBarSpacer>
+                <DexSimpleButton Name="Print Statement" Click="OpenPrintStatementModal"></DexSimpleButton>
+            </SfAppBar>
+        </RadzenRow>
+    </div>
 }
 else
 {
     <PatientList SelectPatient="SelectPatient"/>
 }
-<style>
-    .e-grid .e-gridcontent .e-rowcell.outstanding {
-        color: crimson;
-        font-weight: bolder;
-    }
-</style>
 
 @code {
     private GetPatientAccountDto AccountDto { get; set; } = new();
     private List<GetTransactionDto> Transactions { get; set; } = new();
+    private List<AccountStatementDto> Statement { get; set; } = new();
     MudTabs _tabs = new();
 
     private void ClickChangedTab(int tabIndex)
@@ -127,7 +133,6 @@ else
     {
         ApplicationState.SelectedPatientId = patientId;
         await GetAccountDetails();
-        GetTransactions();
         StateHasChanged();
     }
 
@@ -136,9 +141,9 @@ else
         AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatientId);
     }
 
-    private void GetTransactions()
+    private async Task GetOutstanding()
     {
-        Transactions = UnitOfWork.Patient.FilterTransactions(AccountDto.Id, AccountDto.AccountView);
+        Transactions = await UnitOfWork.Patient.GetOutstanding(AccountDto.Id);
     }
 
     private async Task ChargeModal()
@@ -150,35 +155,72 @@ else
         var res = await dialogresult.Result;
         if (!res.Canceled)
         {
-            GetTransactions();
+            await GetOutstanding();
+            await GetAccountDetails();
+        }
+    }
+
+    private async Task OpenStrikeOffModal()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("PatientAccount", AccountDto);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<StrikeOffModal>("", parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetOutstanding();
+            await GetAccountDetails();
         }
     }
 
     private async Task PaymentModal()
     {
-        var parameters = new DialogParameters();
-        parameters.Add("PatientAccount", AccountDto);
+        var parameters = new DialogParameters {{"PatientAccount", AccountDto}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<PaymentModal>("", parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
         {
-            GetTransactions();
+            await GetOutstanding();
+            await GetAccountDetails();
         }
     }
 
-    private void CheckAccount()
+    private async Task CheckAccount()
     {
-        Transactions = UnitOfWork.Patient.FilterTransactions(AccountDto.Id, AccountDto.AccountView);
+        Transactions = null;
+        switch (AccountDto.AccountView)
+        {
+            case AccountView.Outstanding:
+                Transactions = await UnitOfWork.Patient.GetOutstanding(AccountDto.Id);
+                break;
+            case AccountView.Statement:
+                Statement = await UnitOfWork.Patient.GetStatement(AccountDto.Id);
+                break;
+            case AccountView.Audit:
+                Transactions = await UnitOfWork.Patient.GetAudit(AccountDto.Id);
+                break;
+            case AccountView.History:
+                Transactions = await UnitOfWork.Patient.GetHistory(AccountDto.Id);
+                break;
+            case AccountView.PrintLog:
+                Transactions = await UnitOfWork.Patient.GetPrintLog(AccountDto.Id);
+                break;
+            default:
+                Transactions = await UnitOfWork.Patient.GetOutstanding(AccountDto.Id);
+                break;
+        }
+
         StateHasChanged();
     }
 
-    public void QueryCellInfoHandler(QueryCellInfoEventArgs<GetTransactionDto> args)
+
+    private async Task OpenPrintStatementModal()
     {
-        if (AccountDto.AccountView == AccountView.Outstanding)
-        {
-            args.Cell.AddClass(new string[] {"outstanding"});
-        }
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<PrintStatementModal>("", parameters, options);
     }
 
 }

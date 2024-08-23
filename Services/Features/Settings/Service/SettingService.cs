@@ -317,24 +317,24 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return mapped;
     }
 
-    public async Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionTypes? accountTypes)
+    public async Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes)
     {
         var list = new List<AccountType>();
         switch (accountTypes)
         {
-            case TransactionTypes.Charge:
+            case TransactionActionType.Charge:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionTypes.Charge)
+                    .Where(x => x.IsActive && x.Type==TransactionActionType.Charge)
                     .ToListAsync();
                 break;
-            case TransactionTypes.Payment:
+            case TransactionActionType.Payment:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionTypes.Payment)
+                    .Where(x => x.IsActive && x.Type==TransactionActionType.Payment)
                     .ToListAsync();
                 break;
-            case TransactionTypes.StrikeOff:
+            case TransactionActionType.StrikeOff:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionTypes.StrikeOff)
+                    .Where(x => x.IsActive && x.Type==TransactionActionType.StrikeOff)
                     .ToListAsync();
                 break;
             default:
@@ -377,7 +377,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 accountInDb.IsActive = request.IsActive;
                 accountInDb.Name = request.Name;
                 accountInDb.Amount = request.Amount;
-                accountInDb.Type = request.TransactionType;
+                accountInDb.Type = request.Type;
                 context.AccountTypes.Update(accountInDb);
                 await context.SaveChangesAsync();
             }

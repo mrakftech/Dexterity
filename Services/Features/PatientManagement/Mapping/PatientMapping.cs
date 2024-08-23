@@ -92,7 +92,8 @@ public class PatientMapping : Profile
             .ReverseMap();
         CreateMap<PatientTransaction, GetTransactionDto>()
             .ReverseMap();
-
+        CreateMap<PatientAccount,AccountStatementDto>()
+            .ReverseMap();
         #endregion
     }
 }

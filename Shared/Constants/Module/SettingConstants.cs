@@ -5,7 +5,7 @@ public class SettingConstants
     
 }
 
-public enum TransactionTypes
+public enum TransactionActionType
 {
     Charge,
     Payment,

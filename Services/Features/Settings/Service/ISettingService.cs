@@ -65,7 +65,7 @@ public interface ISettingService
 
     #region Account Types
     public Task<AccountTypeDto> GetAccountType(int id);
-    public Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionTypes? accountTypes);
+    public Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes);
     public Task<IResult> SaveAccountType(int id, AccountTypeDto request);
     public Task<IResult> DeleteAccountType(int id);
 

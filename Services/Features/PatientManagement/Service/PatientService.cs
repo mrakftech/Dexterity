@@ -723,24 +723,55 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
-    public List<GetTransactionDto> FilterTransactions(int accountId, AccountView accountView)
+    public async Task<List<GetTransactionDto>> GetOutstanding(int accountId)
     {
-        var list = new List<PatientTransaction>();
-        switch (accountView)
-        {
-            case AccountView.Statement:
-                list = context.PatientTransactions
-                    .Where(t => t.Id == accountId && !t.IsDeleted && t.CreatedDate.Month == DateTime.Now.Month)
-                    .ToList();
-                break;
-            case AccountView.Outstanding:
-                list = context.PatientTransactions
-                    .Where(t => t.PatientAccountId == accountId
-                                && !t.IsDeleted && t.TransactionType == TransactionType.Charge)
-                    .ToList();
-                break;
-        }
+        var list = await context.PatientTransactions
+            .Include(x => x.PatientAccount)
+            .OrderByDescending(x => x.CreatedDate)
+            .Where(t => t.PatientAccountId == accountId
+                        && !t.IsDeleted
+                        && t.TransactionType == TransactionType.Charge).ToListAsync();
+        var data = mapper.Map<List<GetTransactionDto>>(list);
+        return data;
+    }
 
+    public async Task<List<AccountStatementDto>> GetStatement(int accountId)
+    {
+        var statements = new List<AccountStatementDto>();
+        var account = await context.PatientAccounts.Include(x =>
+                x.PatientTransactions.Where(t =>
+                    t.TransactionType == TransactionType.Charge && !t.IsDeleted))
+            .FirstOrDefaultAsync(x => x.Id == accountId);
+        var statement = mapper.Map<AccountStatementDto>(account);
+        statements.Add(statement);
+        return statements;
+    }
+
+    public async Task<List<GetTransactionDto>> GetPrintLog(int accountId)
+    {
+        var list = await context.PatientTransactions
+            .Include(x => x.PatientAccount)
+            .Where(t => t.PatientAccountId == accountId
+                        && t.IsPrinted).ToListAsync();
+        var data = mapper.Map<List<GetTransactionDto>>(list);
+        return data;
+    }
+
+    public async Task<List<GetTransactionDto>> GetAudit(int accountId)
+    {
+        var list = await context.PatientTransactions
+            .Include(x => x.PatientAccount)
+            .Where(t => t.PatientAccountId == accountId && t.IsDeleted).ToListAsync();
+        var data = mapper.Map<List<GetTransactionDto>>(list);
+        return data;
+    }
+
+    public async Task<List<GetTransactionDto>> GetHistory(int accountId)
+    {
+        var list = await context.PatientTransactions
+            .Include(x => x.PatientAccount)
+            .Where(t => t.PatientAccountId == accountId)
+            .ToListAsync();
         var data = mapper.Map<List<GetTransactionDto>>(list);
         return data;
     }
@@ -749,15 +780,21 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
-            var transaction = new PatientTransaction()
+            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+            previousBalance += request.Amount;
+            var transaction = new PatientTransaction
             {
                 CreatedBy = ApplicationState.CurrentUser.UserId,
                 CreatedDate = request.Date,
                 TransactionType = TransactionType.Charge,
-                Description = request.ChargedName,
-                Amount = request.Amount,
-                PatientAccountId = request.AccountId
+                PatientAccountType = request.ChargeTo,
+                Description = request.Description ?? TransactionType.Charge.ToString(),
+                Debit = request.Amount,
+                PatientAccountId = request.AccountId,
+                ActionType = request.AccountType ?? TransactionActionType.Charge.ToString(),
+                Balance = previousBalance,
             };
+
             await context.PatientTransactions.AddAsync(transaction);
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("Charged has been added.");
@@ -772,23 +809,142 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
-            var transaction = new PatientTransaction()
+            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+            foreach (var item in request.SelectedTransaction)
             {
-                CreatedBy = ApplicationState.CurrentUser.UserId,
-                CreatedDate = request.Date,
-                TransactionType = TransactionType.Charge,
-                Description = "Payment",
-                Amount = request.Amount,
-                PatientAccountId = request.AccountId
-            };
-            await context.PatientTransactions.AddAsync(transaction);
+                previousBalance -= item.Amount;
+
+                var transaction = new PatientTransaction()
+                {
+                    CreatedBy = ApplicationState.CurrentUser.UserId,
+                    CreatedDate = request.Date,
+                    TransactionType = TransactionType.Payment,
+                    PatientAccountType = request.PaymentTo,
+                    Description = request.Description ?? TransactionType.Payment.ToString(),
+                    Credit = item.Amount,
+                    PatientAccountId = request.AccountId,
+                    IsPrinted = request.IsPrinted,
+                    ActionType = request.AccountType ?? TransactionActionType.Payment.ToString(),
+                    Balance = previousBalance
+                };
+
+                await context.PatientTransactions.AddAsync(transaction);
+                UpdateTransaction(item.Id);
+            }
+
             await context.SaveChangesAsync();
-            return await Result.SuccessAsync("Charged has been added.");
+            UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.Amount);
+            return await Result.SuccessAsync("Payment has been made successfully.");
         }
         catch (Exception e)
         {
             return await Result.FailAsync(e.Message);
         }
+    }
+
+    public async Task<IResult> StrikeOff(StrikeOffDto request)
+    {
+        try
+        {
+            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+
+            foreach (var item in request.SelectedTransaction)
+            {
+                previousBalance -= item.Amount;
+
+                var transaction = new PatientTransaction()
+                {
+                    CreatedBy = ApplicationState.CurrentUser.UserId,
+                    CreatedDate = request.Date,
+                    TransactionType = TransactionType.Payment,
+                    PatientAccountType = request.PaymentTo,
+                    Description = request.AccountType ?? TransactionActionType.StrikeOff.ToString(),
+                    Credit = item.Debit,
+                    PatientAccountId = request.AccountId,
+                    ActionType = request.AccountType ?? TransactionActionType.StrikeOff.ToString(),
+                    Balance = previousBalance
+                };
+                await context.PatientTransactions.AddAsync(transaction);
+                UpdateTransaction(item.Id);
+            }
+
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Strike-off has been made successfully.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> DeleteTransaction(int transactionId)
+    {
+        var transaction = context.PatientTransactions
+            .FirstOrDefault(x => x.Id == transactionId);
+
+        if (transaction is null)
+        {
+            return await Result.FailAsync("Transaction is not found.");
+        }
+
+        transaction.IsDeleted = true;
+        context.ChangeTracker.Clear();
+        context.PatientTransactions.Update(transaction);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Transactions has been deleted successfully.");
+    }
+
+    private void UpdateTransaction(int transId)
+    {
+        var transaction = context.PatientTransactions
+            .FirstOrDefault(x => x.Id == transId);
+
+        if (transaction is not null)
+        {
+            transaction.IsDeleted = true;
+            context.PatientTransactions.Update(transaction);
+        }
+    }
+
+    private decimal UpdatePersonalBalance(int accountId, TransactionActionType transactionType, decimal amount)
+    {
+        var patientAccount = context.PatientAccounts
+            .FirstOrDefault(x => x.Id == accountId);
+        decimal newBalance = 0;
+        if (patientAccount is not null)
+        {
+            if (transactionType == TransactionActionType.Payment)
+            {
+                patientAccount.Balance -= amount;
+            }
+            else if (transactionType == TransactionActionType.StrikeOff)
+            {
+                patientAccount.Balance += amount;
+            }
+
+            context.PatientAccounts.Update(patientAccount);
+            context.SaveChanges();
+            newBalance = patientAccount.Balance;
+        }
+
+        return newBalance;
+    }
+
+    private decimal GetPersonalBalance(int accountId)
+    {
+        var patientAccount = context.PatientAccounts
+            .FirstOrDefault(x => x.Id == accountId);
+
+        return patientAccount?.Balance ?? 0;
+    }
+
+    public decimal GetBroughtForwardBalance(int accountId)
+    {
+        var broughtForwardBalance = context.PatientTransactions
+            .Where(t => t.CreatedDate.Date.Month == DateTime.Today.Month && t.PatientAccountId == accountId && !t.IsDeleted)
+            .Sum(t => t.Debit - t.Credit);
+
+        return broughtForwardBalance;
     }
 
     #endregion

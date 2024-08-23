@@ -10,7 +10,12 @@ public class GetTransactionDto
     public string Description { get; set; }
     public bool IsPrinted { get; set; }
     public TransactionType TransactionType { get; set; }
+    public decimal Debit { get; set; }
+    public decimal Credit { get; set; }
     public decimal Amount { get; set; }
+    public decimal Remaining { get; set; }
+
     public decimal Balance { get; set; }
+    public bool IsPaid { get; set; }
     public Guid PatientId { get; set; }
 }

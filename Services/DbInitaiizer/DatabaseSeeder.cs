@@ -240,7 +240,8 @@ public class DatabaseSeeder(
         Task.Run(async () =>
         {
             await using var context = await contextFactory.CreateDbContextAsync();
-            return;
+            if (context.Clinics.Any())
+                return;
             var c = new Clinic()
             {
                 Address = "Not set",

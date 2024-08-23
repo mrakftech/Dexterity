@@ -8,9 +8,7 @@ public class AccountTypeDto
     public int Id { get; set; }
     [Required(ErrorMessage = "Required")] public string Name { get; set; }
     public decimal Amount { get; set; } = 0;
-    public string Type { get; set; }
+    public string TransactionType { get; set; }
     public bool IsActive { get; set; }
-
-
-    public TransactionTypes TransactionType { get; set; }
+    public TransactionActionType Type { get; set; }
 }

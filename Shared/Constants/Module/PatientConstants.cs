@@ -129,7 +129,7 @@ public enum AlertSeverity
 public enum TransactionType
 {
     Charge,
-    Payment
+    Payment,
 }
 public enum PaymentType
 {

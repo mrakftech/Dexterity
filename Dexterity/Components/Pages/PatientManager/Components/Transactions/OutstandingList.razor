@@ -1,0 +1,52 @@
+﻿@using Services.Features.PatientManagement.Dtos.Account
+<SfGrid TValue="GetTransactionDto" DataSource="Transactions" AllowPaging="true">
+    <GridPageSettings PageSize="5"></GridPageSettings>
+    <GridEvents QueryCellInfo="QueryCellInfoHandler" TValue="GetTransactionDto"></GridEvents>
+    <GridColumns>
+        <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="g"
+                    Type="ColumnType.DateTime" Width="110"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Description) Width="500"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Debit) HeaderText="Debt" Format="C" Width="80"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Credit) HeaderText="Credit" Format="C" Width="80"/>
+        <GridColumn Field=@nameof(GetTransactionDto.Balance) HeaderText="Balance" Format="C" Width="80"/>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as GetTransactionDto);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteTransaction(item.Id)"/>
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+@code {
+    [Parameter] public List<GetTransactionDto> Transactions { get; set; } = new();
+
+    public void QueryCellInfoHandler(QueryCellInfoEventArgs<GetTransactionDto> args)
+    {
+        args.Cell.AddClass(new string[] {"outstanding"});
+    }
+
+    private async Task DeleteTransaction(int itemId)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Patient.DeleteTransaction(itemId);
+            Snackbar.SuccessMessge(userRes.Messages.First());
+            StateHasChanged();
+        }
+    }
+
+}
+
+
+<style>
+    .e-grid .e-gridcontent .e-rowcell.outstanding {
+        color: crimson;
+        font-weight: bolder;
+    }
+</style>

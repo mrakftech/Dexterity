@@ -110,9 +110,16 @@ public interface IPatientService
     #region Account
 
     public Task<GetPatientAccountDto> GetPatientAccount(Guid patientId);
-    public List<GetTransactionDto> FilterTransactions(int accountId, AccountView accountView);
+    public Task<List<GetTransactionDto>> GetOutstanding(int accountId);
+    public Task<List<AccountStatementDto>> GetStatement(int accountId);
+    public Task<List<GetTransactionDto>> GetPrintLog(int accountId);
+    public Task<List<GetTransactionDto>> GetAudit(int accountId);
+    public Task<List<GetTransactionDto>> GetHistory(int accountId);
     public Task<IResult> Charge(ChargeDto request);
     public Task<IResult> Payment(PaymentDto request);
+    public Task<IResult> StrikeOff(StrikeOffDto request);
+    public Task<IResult> DeleteTransaction(int transactionId);
+    public decimal GetBroughtForwardBalance(int accountId);
 
     #endregion
 }
