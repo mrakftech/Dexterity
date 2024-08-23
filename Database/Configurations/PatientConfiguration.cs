@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Details;
-using Shared.Constants.Module;
 
 namespace Database.Configurations
 {
@@ -11,7 +10,7 @@ namespace Database.Configurations
     {
         public void Configure(EntityTypeBuilder<Patient> builder)
         {
-            builder.ToTable(name: "Patients", "PatientManagement");
+            builder.ToTable(name: "Patients", "PM");
 
 
             builder.HasOne(d => d.Clinic)

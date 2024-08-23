@@ -4,6 +4,7 @@ using ClickATell.Services;
 using Database;
 using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Options;
 using Microsoft.EntityFrameworkCore;
 using PhoneNumbers;
 using Services.Features.Messaging.Dtos.Sms;

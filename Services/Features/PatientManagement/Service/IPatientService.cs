@@ -5,6 +5,7 @@ using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
+using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Constants.Module;
 using Shared.Wrapper;
@@ -73,11 +74,11 @@ public interface IPatientService
 
     #endregion
 
-    #region Add Hospital
+    #region Select Hospital
 
-    public Task<List<PatientHospitalDto>> GetHospitals(Guid patientId);
-    public Task<IResult> AddHospital(PatientHospitalDto request);
-    public Task<IResult> DeleteHospital(int id);
+    public Task<List<PatientHospitalDto>> GetSelectedHospitals(Guid patientId);
+    public Task<IResult> SelectHospital(PatientHospitalDto request);
+    public Task<IResult> DeleteSelectedHospital(int id);
 
     #endregion
 
@@ -120,6 +121,15 @@ public interface IPatientService
     public Task<IResult> StrikeOff(StrikeOffDto request);
     public Task<IResult> DeleteTransaction(int transactionId);
     public decimal GetBroughtForwardBalance(int accountId);
+
+    #endregion
+
+    #region Options
+
+    public Task<List<HospitalDto>> GetHospitals();
+    public Task<HospitalDto> GetHospital(int id);
+    public Task<IResult> SaveHospital(int id, HospitalDto request);
+    public Task<IResult> DeleteHospital(int id);
 
     #endregion
 }

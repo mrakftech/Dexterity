@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.PatientManagement.Extra;
+using Domain.Entities.PatientManagement.Options;
 using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Shared.Wrapper;

@@ -1,5 +1,4 @@
-﻿@using Dexterity.Components.Pages.PatientManager.Dialogs
-@using Services.Features.PatientManagement.Dtos
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Form.Dialogs
 @using Services.Features.PatientManagement.Dtos.Details
 <DexForm Model="@PatientExtraDetail"
          ColumnCount="3"
@@ -62,7 +61,7 @@
             <FormItem Field="@nameof(PatientExtraDetail.Status)">
                 <Template>
                     <SfDropDownList TValue="int" Placeholder="e.g. hospital" TItem="PatientHospitalDto"
-                                    @bind-Value="clinicId" DataSource="@clinics">
+                                    @bind-Value="hospitalId" DataSource="@hospitals">
                         <DropDownListFieldSettings Value="Id" Text="Clinic.Name"></DropDownListFieldSettings>
                         <DropDownListEvents TItem="PatientHospitalDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
                     </SfDropDownList>
@@ -80,7 +79,7 @@
                     <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
                 </Template>
             </FormItem>
-            @if (clinicId > 0)
+            @if (hospitalId > 0)
             {
                 <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
                     <Template>
@@ -100,19 +99,19 @@
 
 @code {
     [Parameter] public PatientExtraDetailDto PatientExtraDetail { get; set; } = new();
-    private List<PatientHospitalDto> clinics = new();
+    private List<PatientHospitalDto> hospitals = new();
     private PatientHospitalDto _patientHospital = new();
     private bool _processing;
-    private int clinicId = 0;
+    private int hospitalId = 0;
 
     protected override async Task OnInitializedAsync()
     {
-        await GetClinics();
+        await GetSelectedHospitals();
     }
 
-    private async Task GetClinics()
+    private async Task GetSelectedHospitals()
     {
-        clinics = await UnitOfWork.Patient.GetHospitals(PatientExtraDetail.PatientId);
+        hospitals = await UnitOfWork.Patient.GetSelectedHospitals(PatientExtraDetail.PatientId);
     }
 
     public async Task SaveExtraInfo()
@@ -146,7 +145,7 @@
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
-            await GetClinics();
+            await GetSelectedHospitals();
         }
     }
 
@@ -157,10 +156,10 @@
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
-            var hospital = await UnitOfWork.Patient.DeleteHospital(clinicId);
+            var hospital = await UnitOfWork.Patient.DeleteSelectedHospital(hospitalId);
             _patientHospital = new();
-            clinicId = 0;
-            await GetClinics();
+            hospitalId = 0;
+            await GetSelectedHospitals();
             Snackbar.SuccessMessge(hospital.Messages.First());
         }
     }
@@ -168,11 +167,11 @@
     private void ValueChangeHandler(ChangeEventArgs<int, PatientHospitalDto> obj)
     {
         var clinic = obj.ItemData;
-        _patientHospital.ClinicId = clinic.Id;
+        _patientHospital.HospitalId = clinic.Id;
         if (clinic.Id > 0)
         {
-            _patientHospital.Name = clinic.Clinic.Name;
-            _patientHospital.Address = clinic.Clinic.Address;
+            _patientHospital.Name = clinic.Hospital.Name;
+            _patientHospital.Address = clinic.Hospital.Address1;
         }
     }
 

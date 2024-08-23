@@ -98,9 +98,11 @@
                 <label class="e-form-label">GMS Status:</label>
                 <MudStack Row>
                     <SfRadioButton Label="Yes" Name="options" Value="Active" @bind-Checked="Patient.GmsStatus"
-                                   @onchange="OnGMSStatusChange"></SfRadioButton>
+                                   @onchange="OnGMSStatusChange">
+                    </SfRadioButton>
                     <SfRadioButton Label="No" Name="options" Value="Inactive" @bind-Checked="Patient.GmsStatus"
-                                   @onchange="OnGMSStatusChange"></SfRadioButton>
+                                   @onchange="OnGMSStatusChange">
+                    </SfRadioButton>
 
                 </MudStack>
             </Template>
@@ -128,7 +130,8 @@
             <Template>
                 <label class="e-form-label">GMS Review Date:</label>
                 <SfDatePicker TValue="DateTime" Placeholder="Choose a Date" FullScreen="true" ShowClearButton="true"
-                              @bind-Value="@Patient.GmsReviewDate" Enabled="@Patient.IsGmsActive"></SfDatePicker>
+                              @bind-Value="@Patient.GmsReviewDate" Enabled="@Patient.IsGmsActive">
+                </SfDatePicker>
             </Template>
         </FormItem>
         <FormItem Field="@nameof(Patient.GmsDistanceCode)" ColumnSpan="1">
@@ -143,25 +146,25 @@
 
 
 @code {
-[Parameter] public UpsertPatientDto Patient { get; set; } = new();
-private List<HealthcareDto> HealthCares { get; set; } = new();
+    [Parameter] public UpsertPatientDto Patient { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
 
 
-protected override async Task OnInitializedAsync()
-{
-await GetHealthCares();
-}
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+    }
 
-private async Task GetHealthCares()
-{
-HealthCares = await UnitOfWork.User
-.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
-}
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User
+            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
 
-private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
-{
-Patient.IsGmsActive = Patient.GmsStatus == "Active";
-}
+    private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)
+    {
+        Patient.IsGmsActive = Patient.GmsStatus == "Active";
+    }
 
 
 }

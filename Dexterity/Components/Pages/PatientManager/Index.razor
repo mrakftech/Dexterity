@@ -1,6 +1,6 @@
 ﻿@layout MainLayout
 @page "/patient-management"
-@using Dexterity.Components.Pages.PatientManager.Dialogs
+@using Dexterity.Components.Pages.PatientManager.Components.PatientOptions
 <style>
     .mud-tabs-toolbar-content {
         overflow-x: scroll !important;
@@ -40,13 +40,23 @@
                         @onclick="@(() => ClickChangedTab(4))">
                 Patients Accounts
             </MudNavLink>
+            <MudDivider/>
+            <MudNavGroup Title="Patient Options">
+                <MudItem>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChangedTab(5))">
+                        Hospital Viewer
+                    </MudNavLink>
+                </MudItem>
+
+            </MudNavGroup>
         </NavigationItems>
 
         <DexContentTabs>
             <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
                 <MudTabs @ref="_tabs">
                     <MudTabPanel Text="">
-                        <OpenPatient TabChangeClick="ClickChangedTab" />
+                        <OpenPatient TabChangeClick="ClickChangedTab"/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
                         <AddNewPatient/>
@@ -55,10 +65,13 @@
                         <PatientGroup/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
-                        <PatientSummary TabChangeClick="ClickChangedTab" />
+                        <PatientSummary TabChangeClick="ClickChangedTab"/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
                         <PatientAccounts/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <HospitalViewer/>
                     </MudTabPanel>
                 </MudTabs>
             </div>

@@ -5,9 +5,6 @@ using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
-using Newtonsoft.Json;
-using System.Reflection.Emit;
-using System.Xml;
 using Database.Configurations;
 using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.PatientManagement.Family;
@@ -16,6 +13,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Group;
+using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
 
@@ -63,6 +61,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<SmsHistory> PatientSmsHistories { get; set; }
     public DbSet<PatientTransaction> PatientTransactions { get; set; }
     public DbSet<PatientAccount> PatientAccounts { get; set; }
+    public DbSet<Hospital> Hospitals { get; set; }
 
     #endregion
 
@@ -117,22 +116,20 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         });
 
 
-        builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PatientManagement"); });
-        builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PatientManagement"); });
+        builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
+        builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PM"); });
         builder.Entity<PatientOccupation>(
-            entity => { entity.ToTable(name: "PatientOccupations", "PatientManagement"); });
-        builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PatientManagement"); });
-        builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PatientManagement"); });
-        builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PatientManagement"); });
-        builder.Entity<PatientHospital>(entity => { entity.ToTable(name: "PatientHospitals", "PatientManagement"); });
-        builder.Entity<Group>(entity => { entity.ToTable(name: "Groups", "PatientManagement"); });
-        builder.Entity<GroupPatient>(entity => { entity.ToTable(name: "GroupPatients", "PatientManagement"); });
-        builder.Entity<FamilyMember>(entity => { entity.ToTable(name: "FamilyMembers", "PatientManagement"); });
-        builder.Entity<SmsHistory>(entity => { entity.ToTable(name: "PatientSmsHistories", "PatientManagement"); });
-        builder.Entity<PatientTransaction>(entity =>
-        {
-            entity.ToTable(name: "PatientTransactions", "PatientManagement");
-        });
-        builder.Entity<PatientAccount>(entity => { entity.ToTable(name: "PatientAccounts", "PatientManagement"); });
+            entity => { entity.ToTable(name: "PatientOccupations", "PM"); });
+        builder.Entity<PatientAlert>(entity => { entity.ToTable(name: "PatientAlerts", "PM"); });
+        builder.Entity<AlertCategory>(entity => { entity.ToTable(name: "AlertCategories", "PM"); });
+        builder.Entity<RelatedHcp>(entity => { entity.ToTable(name: "RelatedHcps", "PM"); });
+        builder.Entity<PatientHospital>(entity => { entity.ToTable(name: "PatientHospitals", "PM"); });
+        builder.Entity<Group>(entity => { entity.ToTable(name: "Groups", "PM"); });
+        builder.Entity<GroupPatient>(entity => { entity.ToTable(name: "GroupPatients", "PM"); });
+        builder.Entity<FamilyMember>(entity => { entity.ToTable(name: "FamilyMembers", "PM"); });
+        builder.Entity<SmsHistory>(entity => { entity.ToTable(name: "PatientSmsHistories", "PM"); });
+        builder.Entity<PatientTransaction>(entity => { entity.ToTable(name: "PatientTransactions", "PM"); });
+        builder.Entity<PatientAccount>(entity => { entity.ToTable(name: "PatientAccounts", "PM"); });
+        builder.Entity<Hospital>(entity => { entity.ToTable(name: "Hospitals", "PM"); });
     }
 }

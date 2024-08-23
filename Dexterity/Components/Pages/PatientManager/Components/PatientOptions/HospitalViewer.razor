@@ -1,0 +1,108 @@
+﻿@using Services.Features.PatientManagement.Dtos.Options
+<TabTitle Title="Hospital Viewer">
+    <ActionButtons>
+        <DexSimpleButton Name="Add New Hospital" Click="NewHospital"/>
+        <DexSimpleButton Name="Delete Hospital" Disabled="_isButtonDisabled" Click="DeleteHospital"/>
+    </ActionButtons>
+</TabTitle>
+<MudItem>
+    <SfDropDownList TValue="int" TItem="HospitalDto" Placeholder="Select a hospital" DataSource="@Hospitals">
+        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+        <DropDownListEvents TValue="int" TItem="HospitalDto" ValueChange="OnValueChange"></DropDownListEvents>
+    </SfDropDownList>
+</MudItem>
+<MudItem>
+    <DexForm Model="Hospital" ColumnCount="2" OnValidSubmit="UpdateHospital">
+        <Fields>
+            <FormGroup LabelText="Hospital Information">
+                <FormItem Field="@nameof(Hospital.Name)" LabelText="Hospital Name"/>
+                <FormItem Field="@nameof(Hospital.Address1)" LabelText="Address 1"/>
+                <FormItem Field="@nameof(Hospital.Address2)" LabelText="Address 2"/>
+                <FormItem Field="@nameof(Hospital.Address3)" LabelText="Address 3"/>
+                <FormItem Field="@nameof(Hospital.AlsoKnownAs)" LabelText="Also Known As"/>
+                <FormItem Field="@nameof(Hospital.HealthBoard)" LabelText="Health Board"/>
+                <FormItem Field="@nameof(Hospital.HealthCode)" LabelText="Health Code"/>
+            </FormGroup>
+            <FormGroup LabelText="Contact Details">
+                <FormItem Field="@nameof(Hospital.Contact)" LabelText="Contact "/>
+                <FormItem Field="@nameof(Hospital.Fax)" LabelText="Fax"/>
+                <FormItem Field="@nameof(Hospital.Email)" LabelText="Email"/>
+                <FormItem Field="@nameof(Hospital.Website)" LabelText="Website"/>
+                <FormItem Field="@nameof(Hospital.City)" LabelText="City"/>
+                <FormItem Field="@nameof(Hospital.Country)" LabelText="Country"/>
+                <FormItem Field="@nameof(Hospital.PostCode)" LabelText="PostCode"/>
+            </FormGroup>
+        </Fields>
+        <Buttons>
+            <DexLoadingButton Name="@_submitName" Processing="_loading" Type="MudButtonType.Submit"/>
+        </Buttons>
+    </DexForm>
+</MudItem>
+
+@code {
+
+    private List<HospitalDto> Hospitals { get; set; } = new();
+    private HospitalDto Hospital { get; set; } = new();
+    private bool _loading;
+    private bool _isButtonDisabled = true;
+    private string _submitName = "Add New";
+    private int _hospitalId = 0;
+
+
+    public void OnValueChange(ChangeEventArgs<int, HospitalDto> args)
+    {
+        _isButtonDisabled = false;
+        _submitName = "Update";
+        Hospital = args.ItemData;
+        _hospitalId = args.ItemData.Id;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHospitals();
+    }
+
+    private void NewHospital()
+    {
+        _hospitalId = 0;
+        _submitName = "Add New";
+        Hospital = new();
+    }
+
+    private async Task GetHospitals()
+    {
+        Hospitals = await UnitOfWork.Patient.GetHospitals();
+    }
+
+    private async Task UpdateHospital()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Patient.SaveHospital(_hospitalId, Hospital);
+        if (res.Succeeded)
+        {
+            await GetHospitals();
+            Snackbar.SuccessMessge(res.Messages.First());
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _loading = false;
+    }
+
+    private async Task DeleteHospital()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Patient.DeleteHospital(_hospitalId);
+            StateHasChanged();
+            await GetHospitals();
+            Snackbar.SuccessMessge(res.Messages.First());
+        }
+    }
+
+}

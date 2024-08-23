@@ -11,11 +11,13 @@ using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
+using Domain.Entities.PatientManagement.Options;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
+using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Constants.Module;
 
@@ -88,7 +90,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             .Include(x => x.Hospitals)
             .Include(x => x.FamilyMembers)
             .FirstOrDefaultAsync(x => x.Id == patientId);
-        var hostpitals = await context.PatientHospitals.Include(x => x.Clinic).Where(x => x.PatientId == patientId)
+        var hostpitals = await context.PatientHospitals.Include(x => x.Hospital).Where(x => x.PatientId == patientId)
             .ToListAsync();
         if (patient == null)
             return new PatientSummaryDto();
@@ -525,20 +527,20 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-    #region Hospital
+    #region Select Hospital
 
-    public async Task<List<PatientHospitalDto>> GetHospitals(Guid patientId)
+    public async Task<List<PatientHospitalDto>> GetSelectedHospitals(Guid patientId)
     {
         var data = await context.PatientHospitals
-            .Include(x => x.Clinic)
+            .Include(x => x.Hospital)
             .Where(x => x.PatientId == patientId).ToListAsync();
         var mappedData = mapper.Map<List<PatientHospitalDto>>(data);
         return mappedData;
     }
 
-    public async Task<IResult> AddHospital(PatientHospitalDto request)
+    public async Task<IResult> SelectHospital(PatientHospitalDto request)
     {
-        if (await context.PatientHospitals.AnyAsync(x => x.ClinicId == request.ClinicId))
+        if (await context.PatientHospitals.AnyAsync(x => x.HospitalId == request.HospitalId))
         {
             return await Result.FailAsync("Hospital already exists");
         }
@@ -549,7 +551,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Hospital added");
     }
 
-    public async Task<IResult> DeleteHospital(int id)
+    public async Task<IResult> DeleteSelectedHospital(int id)
     {
         var hospitalInDb = await context.PatientHospitals.FirstOrDefaultAsync(x => x.Id == id);
         if (hospitalInDb == null)
@@ -941,11 +943,67 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public decimal GetBroughtForwardBalance(int accountId)
     {
         var broughtForwardBalance = context.PatientTransactions
-            .Where(t => t.CreatedDate.Date.Month == DateTime.Today.Month && t.PatientAccountId == accountId && !t.IsDeleted)
+            .Where(t => t.CreatedDate.Date.Month == DateTime.Today.Month && t.PatientAccountId == accountId &&
+                        !t.IsDeleted)
             .Sum(t => t.Debit - t.Credit);
 
         return broughtForwardBalance;
     }
+
+    #endregion
+
+    #region Options
+
+    #region Hospital Viewer
+
+    public async Task<List<HospitalDto>> GetHospitals()
+    {
+        var hospitals = await context.Hospitals.ToListAsync();
+        var mapped = mapper.Map<List<HospitalDto>>(hospitals);
+        return mapped;
+    }
+
+    public async Task<HospitalDto> GetHospital(int id)
+    {
+        var hospital = await context.Hospitals.FirstOrDefaultAsync(x => x.Id == id);
+        var mapped = mapper.Map<HospitalDto>(hospital);
+        return mapped;
+    }
+
+    public async Task<IResult> SaveHospital(int id, HospitalDto request)
+    {
+        var hospital = mapper.Map<Hospital>(request);
+        if (id == 0)
+        {
+            await context.Hospitals.AddAsync(hospital);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            var hospitalInDb = await context.Hospitals.FirstOrDefaultAsync(x => x.Id == id);
+            if (hospitalInDb is null)
+                return await Result.FailAsync("Hospital not found.");
+
+            hospitalInDb = mapper.Map(hospital, hospitalInDb);
+            context.ChangeTracker.Clear();
+            context.Hospitals.Update(hospitalInDb);
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("Hospital saved.");
+    }
+
+    public async Task<IResult> DeleteHospital(int id)
+    {
+        var hospital = await context.Hospitals.FirstOrDefaultAsync(x => x.Id == id);
+        if (hospital is null)
+            return await Result.FailAsync("Hospital not found.");
+        context.Hospitals.Remove(hospital);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Hospital deleted.");
+    }
+
+    #endregion
 
     #endregion
 }

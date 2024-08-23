@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities.PatientManagement.Extra;
+﻿namespace Domain.Entities.PatientManagement.Options;
 
 public class SmsHistory
 {

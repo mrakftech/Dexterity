@@ -6,12 +6,14 @@ using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
+using Domain.Entities.PatientManagement.Options;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
+using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Constants.Module;
 
@@ -92,8 +94,15 @@ public class PatientMapping : Profile
             .ReverseMap();
         CreateMap<PatientTransaction, GetTransactionDto>()
             .ReverseMap();
-        CreateMap<PatientAccount,AccountStatementDto>()
+        CreateMap<PatientAccount, AccountStatementDto>()
             .ReverseMap();
+
+        #endregion
+
+        #region Options
+
+        CreateMap<Hospital, HospitalDto>().ReverseMap();
+
         #endregion
     }
 }
