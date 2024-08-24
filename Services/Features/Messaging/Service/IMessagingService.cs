@@ -10,6 +10,7 @@ namespace Services.Features.Messaging.Service;
 public interface IMessagingService
 {
     #region User Task
+
     public Task<List<UserTask>> GetUserTasksByPatient(Guid patientId);
     public Task<List<UserTask>> GetUserTaskList(string view = "All");
     public Task<IResult> SaveTask(Guid id, UserTaskDto dto);
@@ -20,12 +21,13 @@ public interface IMessagingService
     #endregion
 
     #region Sms
+
     public Task<IResult> SendBulkSms(BulkSmsDto request);
     public Task<IResult> SendSms(SendMessageDto request);
 
     public Task<List<SmsHistory>> GetSmsHistory(Guid patientId);
+    public Task<List<SmsHistory>> FilterSmsHistory(Guid patientId, DateTime from, DateTime to);
     public Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory);
-
 
     #endregion
 }

@@ -1,0 +1,138 @@
+﻿@using Domain.Entities.PatientManagement.Alert
+@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.PatientManagement.Dtos.Options
+<DexDialog>
+    <DialogTitle></DialogTitle>
+    <Content>
+        <SfDataForm Model="@_createPatientAlert"
+                    ColumnCount="1"
+                    Width="100%"
+                    ColumnSpacing="20px"
+                    ButtonsAlignment="FormButtonsAlignment.Left"
+                    OnValidSubmit="AddPatientAlert">
+            <FormValidator>
+                <ObjectGraphDataAnnotationsValidator/>
+            </FormValidator>
+            <FormItems>
+                <FormItem Field="@nameof(_createPatientAlert.AlertType)" LabelText="Type" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(_createPatientAlert.CreatedDate)" LabelText="Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                <FormItem Field="@nameof(_createPatientAlert.AlertCategoryId)" ColumnSpan="2">
+                    <Template>
+                        <MudStack Row Spacing="1">
+                            <SfDropDownList TValue="int" TItem="AlertCategory" Placeholder="Category" DataSource="@AlertCategoryList" @bind-Value="@_createPatientAlert.AlertCategoryId">
+                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                            </SfDropDownList>
+                            <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
+                            <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
+                            <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
+                                <MudPaper Outlined="true" Class="px-4 py-8">
+                                    <MudStack>
+                                        <SfTextBox @bind-Value="_categoryName" Placeholder="Category Name"></SfTextBox>
+                                        <DexLoadingButton Name="Add Category" Click="AddCategory"></DexLoadingButton>
+                                        <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                    </MudStack>
+                                </MudPaper>
+                            </MudPopover>
+                        </MudStack>
+
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(_createPatientAlert.Severity)" LabelText="Severity" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(_createPatientAlert.Details)" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">Detail:</label>
+                        <SfTextBox @bind-Value="@_createPatientAlert.Details" Multiline></SfTextBox>
+                    </Template>
+                </FormItem>
+            </FormItems>
+            <FormButtons>
+                <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit" FullWidth="false"/>
+            </FormButtons>
+        </SfDataForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [Parameter] public List<PatientListDto> SelectedPatients { get; set; }
+    private CreatePatientGroupAlertDto _createPatientAlert = new();
+    private List<AlertCategory> AlertCategoryList { get; set; } = new();
+    private bool _processing;
+    private string _categoryName;
+    private bool _disableButtons = true;
+    private void ToggleOpen() => _open = !_open;
+    private bool _open = false;
+
+    private async Task AddPatientAlert()
+    {
+        _processing = true;
+        _createPatientAlert.SelectedPatients = SelectedPatients;
+        var res = await UnitOfWork.Patient.CreateGroupAlerts(_createPatientAlert);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            _createPatientAlert = new();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+    #region Category
+
+    private async Task GetAlertCategory()
+    {
+        AlertCategoryList = await UnitOfWork.Patient.GetAlertCategories();
+    }
+
+    private void ValueChangeHandler(ChangeEventArgs<int, AlertCategory> obj)
+    {
+        _createPatientAlert.AlertCategoryId = obj.Value;
+        if (_createPatientAlert.AlertCategoryId > 0)
+        {
+            _disableButtons = false;
+        }
+    }
+
+    private async Task AddCategory()
+    {
+        if (!string.IsNullOrWhiteSpace(_categoryName))
+        {
+            var res = await UnitOfWork.Patient.AddAlertCategories(_categoryName);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessge(res.Messages.First());
+                _categoryName = "";
+                await GetAlertCategory();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+        else
+        {
+            Snackbar.FailMessge("name is required.");
+        }
+    }
+
+    private async Task DeleteCategory()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var userRes = await UnitOfWork.Patient.DeleteAlertCategory(_createPatientAlert.AlertCategoryId);
+            await GetAlertCategory();
+            StateHasChanged();
+            Snackbar.SuccessMessge(userRes.Messages.First());
+        }
+    }
+
+    #endregion
+
+}

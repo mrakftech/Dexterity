@@ -130,6 +130,11 @@ public interface IPatientService
     public Task<HospitalDto> GetHospital(int id);
     public Task<IResult> SaveHospital(int id, HospitalDto request);
     public Task<IResult> DeleteHospital(int id);
+    
+    public Task<IResult> CreateGroupAlerts(CreatePatientGroupAlertDto request);
+    public Task<IResult> DeleteGroupAlerts(List<GetGroupAlertDto> groupAlerts);
+    public Task<IResult> ResolveGroupAlerts(List<GetGroupAlertDto> groupAlerts);
+    public Task<List<GetGroupAlertDto>> GetAllPatientAlerts();
 
     #endregion
 }

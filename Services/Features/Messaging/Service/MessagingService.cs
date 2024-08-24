@@ -226,6 +226,19 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsE
             .ToListAsync();
     }
 
+    public async Task<List<SmsHistory>> GetSmsHistory(Guid patientId, DateTime from, DateTime to)
+    {
+        throw new NotImplementedException();
+    }
+
+    public async Task<List<SmsHistory>> FilterSmsHistory(Guid patientId, DateTime from, DateTime to)
+    {
+        return await context.PatientSmsHistories
+            .Where(x => x.PatientId == patientId && x.Date >= from && x.Date <= to)
+            // .Where(m => m.Content.Contains(message, StringComparison.OrdinalIgnoreCase))
+            .ToListAsync();
+    }
+
     public async Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory)
     {
         await context.PatientSmsHistories.AddAsync(smsHistory);

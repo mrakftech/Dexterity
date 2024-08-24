@@ -1003,6 +1003,66 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Hospital deleted.");
     }
 
+    public async Task<IResult> CreateGroupAlerts(CreatePatientGroupAlertDto request)
+    {
+        foreach (var alert in request.SelectedPatients.Select(item => new PatientAlert
+                 {
+                     Details = request.Details,
+                     Type = request.AlertType.ToString(),
+                     Severity = request.Severity.ToString(),
+                     AlertCategoryId = request.AlertCategoryId,
+                     CreatedBy = ApplicationState.CurrentUser.UserId,
+                     CreatedDate = DateTime.Now,
+                     PatientId = item.Id
+                 }))
+        {
+            await context.PatientAlerts.AddAsync(alert);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Group Alerts has been saved.");
+    }
+    public async Task<IResult> ResolveGroupAlerts(List<GetGroupAlertDto> groupAlerts)
+    {
+        foreach (var item in groupAlerts)
+        {
+            var alertInDb = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == item.Id);
+            if (alertInDb is not null)
+            {
+                alertInDb.IsResolved = true;
+                context.PatientAlerts.Update(alertInDb);
+            }
+        }
+        await context.SaveChangesAsync();
+
+        return await Result.SuccessAsync("Selected Alerts has been resolved.");
+    }
+    public async Task<IResult> DeleteGroupAlerts(List<GetGroupAlertDto> groupAlerts)
+    {
+        foreach (var item in groupAlerts)
+        {
+            var alertInDb = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == item.Id);
+            if (alertInDb is null) continue;
+            var data = mapper.Map<PatientAlert>(alertInDb);
+            context.PatientAlerts.Remove(data);
+        }
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Selected Alerts has been deleted.");
+    }
+
+    public async Task<List<GetGroupAlertDto>> GetAllPatientAlerts()
+    {
+        var list = await context.PatientAlerts
+            .Include(x => x.AlertCategory)
+            .Include(x => x.Patient)
+            .Where(x => x.IsDeleted == false)
+            .AsNoTracking()
+            .ToListAsync();
+        context.ChangeTracker.Clear();
+        var mappedData = mapper.Map<List<GetGroupAlertDto>>(list);
+        return mappedData;
+    }
+
     #endregion
 
     #endregion

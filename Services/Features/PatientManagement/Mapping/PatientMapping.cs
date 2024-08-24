@@ -102,7 +102,11 @@ public class PatientMapping : Profile
         #region Options
 
         CreateMap<Hospital, HospitalDto>().ReverseMap();
-
+        CreateMap<PatientAlert, GetGroupAlertDto>()
+            .ForMember(x => x.Category, c => c.MapFrom(m => m.AlertCategory.Name))
+            .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
+            .ForMember(x => x.Status, c => c.MapFrom(m => m.IsResolved == true ? "Resolved" : "Pending"))
+            .ReverseMap();
         #endregion
     }
 }

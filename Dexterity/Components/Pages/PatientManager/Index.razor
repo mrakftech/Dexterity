@@ -43,9 +43,17 @@
             <MudDivider/>
             <MudNavGroup Title="Patient Options">
                 <MudItem>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-circle-h" IconColor="MudColor.Info"
                                 @onclick="@(() => ClickChangedTab(5))">
                         Hospital Viewer
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-rectangle-list" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChangedTab(6))">
+                        Sms History
+                    </MudNavLink>
+                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-rectangle-list" IconColor="MudColor.Info"
+                                @onclick="@(() => ClickChangedTab(7))">
+                        Group Alerts
                     </MudNavLink>
                 </MudItem>
 
@@ -72,6 +80,12 @@
                     </MudTabPanel>
                     <MudTabPanel Text="">
                         <HospitalViewer/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <AllSmsHistory/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <GroupAlert/>
                     </MudTabPanel>
                 </MudTabs>
             </div>

@@ -1,0 +1,159 @@
+﻿@using Services.Features.PatientManagement.Dtos.Alerts
+@using SelectionType = Syncfusion.Blazor.Grids.SelectionType
+@using Services.Features.PatientManagement.Dtos.Options
+@using Services.Features.PatientManagement.Dtos.Details
+<TabTitle Title="Patient Group Alerts">
+    <ActionButtons>
+        <DexSimpleButton Name="Load Patients" Click="GetPatients"/>
+    </ActionButtons>
+</TabTitle>
+<SfTab CssClass="mt-5">
+    <TabItems>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Alert Groups"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <TabTitle Title="">
+                    <ActionButtons>
+                        @if (SelectedPatients.Count > 0)
+                        {
+                            <DexSimpleButton Name="Create Alert" Click="AddNewPatientGroupAlert"/>
+                        }
+                    </ActionButtons>
+                </TabTitle>
+                <SfGrid Toolbar="@(new List<string>() {"Search"})" @ref="@_patientGrid" DataSource="Patients" AllowSelection="true" AllowPaging="true">
+                    <GridPageSettings PageSize="10"></GridPageSettings>
+                    <GridEvents RowSelected="GetPatientSelectedRecords" RowDeselected="GetPatientDeselectedRow" TValue="PatientListDto"></GridEvents>
+                    <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"></GridSelectionSettings>
+                    <GridColumns>
+                        <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+                        <GridColumn Field=@nameof(PatientListDto.FullName) HeaderText="Name" Width="90"></GridColumn>
+                        <GridColumn Field=@nameof(PatientListDto.DateOfBirth) HeaderText="Date Of Birth" Type="ColumnType.Date" Format="d" Width="90"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+                <SfSpinner @bind-Visible="@_loading">
+                </SfSpinner>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Sms Histories"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <MudStack Row Class="mb-3">
+                    <DexLoadingButton Name="Load Alert History" Click="GetPatientAlertsHistory"/>
+                    @if (SelectedAlerts.Count > 0)
+                    {
+                        <DexLoadingButton Name="Resolve" Click="ResolveAlerts"/>
+                        <DexLoadingButton Name="Delete" Click="DeleteAlerts"/>
+                    }
+
+                </MudStack>
+                <SfGrid Toolbar="@(new List<string>() {"Search"})" DataSource="PatientAlertList" Height="400px" @ref="_alertGrid" AllowSelection="true" AllowPaging="true">
+                    <GridPageSettings PageSize="25"></GridPageSettings>
+                    <GridEvents RowSelected="GetAlertsSelectedRecords" RowDeselected="GetAlertsDeselectedRow" TValue="GetGroupAlertDto"></GridEvents>
+                    <GridSelectionSettings  PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"></GridSelectionSettings>
+                    <GridColumns>
+                        <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.CreatedDate)" Format="g" Type="ColumnType.DateTime" HeaderText="Created Date" Width="150px"></GridColumn>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.Category)" HeaderText="Category" Width="80px"></GridColumn>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.Type)" HeaderText="Type" Width="80px"></GridColumn>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.Severity)" HeaderText="Severity" Width="70px"></GridColumn>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.Status)" HeaderText="Status" Width="70px"/>
+                        <GridColumn Field="@nameof(GetGroupAlertDto.Details)" HeaderText="" Width="500px"></GridColumn>
+                    </GridColumns>
+                    <SfSpinner @bind-Visible="@_loading">
+                    </SfSpinner>
+                </SfGrid>
+            </ContentTemplate>
+        </TabItem>
+    </TabItems>
+</SfTab>
+
+
+@code {
+    SfGrid<PatientListDto> _patientGrid = new();
+    SfGrid<GetGroupAlertDto> _alertGrid = new();
+    
+    public List<PatientListDto> Patients { get; set; } = new();
+    private List<PatientListDto> SelectedPatients { get; set; } = new();
+    
+    private List<GetGroupAlertDto> PatientAlertList { get; set; } = new();
+    private List<GetGroupAlertDto> SelectedAlerts { get; set; } = new();
+    private bool _loading;
+
+    public async Task GetPatientSelectedRecords(RowSelectEventArgs<PatientListDto> args)
+    {
+        SelectedPatients = await _patientGrid.GetSelectedRecordsAsync();
+        StateHasChanged();
+    }
+
+    private async Task GetPatientDeselectedRow(RowDeselectEventArgs<PatientListDto> args)
+    {
+        SelectedPatients = await _patientGrid.GetSelectedRecordsAsync();
+        StateHasChanged();
+    }
+
+    private async Task GetPatients()
+    {
+        _loading = true;
+        await Task.Delay(2000);
+        Patients = await UnitOfWork.Patient.GetPatients();
+        _loading = false;
+    }
+
+    private async Task GetPatientAlertsHistory()
+    {
+        PatientAlertList = await UnitOfWork.Patient.GetAllPatientAlerts();
+    }
+
+    private async Task AddNewPatientGroupAlert()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("SelectedPatients", SelectedPatients);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<GroupAlertFormDialog>("New Group Alert", parameters, options);
+    }
+
+
+    public async Task GetAlertsSelectedRecords(RowSelectEventArgs<GetGroupAlertDto> args)
+    {
+        SelectedAlerts = await _alertGrid.GetSelectedRecordsAsync();
+        StateHasChanged();
+    }
+
+    private async Task GetAlertsDeselectedRow(RowDeselectEventArgs<GetGroupAlertDto> args)
+    {
+        SelectedAlerts = await _alertGrid.GetSelectedRecordsAsync();
+        StateHasChanged();
+    }
+
+    private async Task DeleteAlerts()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var alerts = await UnitOfWork.Patient.DeleteGroupAlerts(SelectedAlerts);
+            StateHasChanged();
+            Snackbar.SuccessMessge(alerts.Messages.First());
+           await GetPatientAlertsHistory();
+        }
+    }
+    private async Task ResolveAlerts()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var alerts = await UnitOfWork.Patient.ResolveGroupAlerts(SelectedAlerts);
+            StateHasChanged();
+            Snackbar.SuccessMessge(alerts.Messages.First());
+            await GetPatientAlertsHistory();
+        }
+    }
+
+}

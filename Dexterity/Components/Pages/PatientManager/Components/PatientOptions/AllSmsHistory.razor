@@ -1,0 +1,66 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.PatientManagement.Dtos.Options
+@using Domain.Entities.PatientManagement.Options
+
+<TabTitle Title="Sms History"/>
+<DexForm Model="_smsHistory" OnValidSubmit="SearchSmsHistory">
+    <Fields>
+        <FormItem Field="@nameof(SmsHistorySearchDto.Id)">
+            <Template>
+                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+            </Template>
+        </FormItem>
+        <FormItem Field="@nameof(SmsHistorySearchDto.From)" EditorType="FormEditorType.DatePicker"/>
+        <FormItem Field="@nameof(SmsHistorySearchDto.To)" EditorType="FormEditorType.DatePicker"/>
+    </Fields>
+    <Buttons>
+        <DexSimpleButton Name="Search" Type="MudButtonType.Submit"/>
+    </Buttons>
+</DexForm>
+<div class="mt-3">
+    <DexGrid DataSource="SmsHistories" Loading="_loading" Height="300px" >
+        <DexGridColumns>
+            <GridColumn Field="@nameof(SmsHistory.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Sent Date" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(SmsHistory.Mobile)" HeaderText="Mobile" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(SmsHistory.Content)" HeaderText="Content" Width="120px"></GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</div>
+
+
+@code {
+    private List<SmsHistory> SmsHistories { get; set; } = new();
+    public List<PatientListDto> PatientList { get; set; } = new();
+    private SmsHistorySearchDto _smsHistory = new();
+    private Guid PatientId { get; set; }
+    private bool _loading;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetPatients();
+        _loading = false;
+    }
+
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
+    {
+        var patient = args.ItemData;
+        if (patient != null)
+        {
+            PatientId = patient.Id;
+        }
+    }
+
+    private async Task GetPatients()
+    {
+        await Task.Delay(2000);
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private async Task SearchSmsHistory()
+    {
+        SmsHistories = await UnitOfWork.Messaging.FilterSmsHistory(_smsHistory.PatientId, _smsHistory.From, _smsHistory.To);
+    }
+
+}
