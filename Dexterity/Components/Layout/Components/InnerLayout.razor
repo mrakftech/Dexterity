@@ -4,7 +4,7 @@
             <LayoutSider>
                 <LayoutSiderContent >
                     <MudDrawerContainer>
-                        <MudDrawer Height="@AllHeight" Class="sub-drawer" Style="" @bind-Open="@_open" Fixed="false" Elevation="1"
+                        <MudDrawer Height="@AllHeight" Class="sub-drawer" Style="@($"width:{DrawerWidth}")" @bind-Open="@_open" Fixed="false" Elevation="1"
                                    Variant="@DrawerVariant.Mini"
                                    OpenMiniOnHover="true">
                             <MudNavMenu>
@@ -15,7 +15,7 @@
                 </LayoutSiderContent>
             </LayoutSider>
             <Layout>
-                <LayoutContent Style="margin-left:150px"  >
+                <LayoutContent Style="@($"margin-left:{MarginLeftContent}")">
                     <MudPaper Elevation="0" Height="@AllHeight" Style="overflow-x:hidden; overflow-y:auto; position:relative;">
                         <div class="d-flex justify-center align-center">
                             @DexContentTabs
@@ -26,7 +26,6 @@
             </Layout>
         </Layout>
     </Layout>
-   
 
 
 </MudPaper>
@@ -34,7 +33,8 @@
 @code {
     private bool _open = true;
     [Parameter] public string AllHeight { get; set; } = "800px";
+    [Parameter] public string DrawerWidth { get; set; } = "200px";
+    [Parameter] public string MarginLeftContent { get; set; } = "150px";
     [Parameter] public RenderFragment NavigationItems { get; set; }
-
     [Parameter] public RenderFragment DexContentTabs { get; set; }
 }

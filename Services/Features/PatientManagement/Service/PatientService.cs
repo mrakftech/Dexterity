@@ -20,6 +20,7 @@ using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Constants.Module;
+using Syncfusion.Blazor.RichTextEditor;
 
 namespace Services.Features.PatientManagement.Service;
 
@@ -783,22 +784,34 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         try
         {
             var previousBalance = GetBroughtForwardBalance(request.AccountId);
-            previousBalance += request.Amount;
-            var transaction = new PatientTransaction
+            var chargedTransaction = new PatientTransaction
             {
                 CreatedBy = ApplicationState.CurrentUser.UserId,
                 CreatedDate = request.Date,
                 TransactionType = TransactionType.Charge,
                 PatientAccountType = request.ChargeTo,
                 Description = request.Description ?? TransactionType.Charge.ToString(),
-                Debit = request.Amount,
                 PatientAccountId = request.AccountId,
                 ActionType = request.AccountType ?? TransactionActionType.Charge.ToString(),
-                Balance = previousBalance,
+                Debit = request.Amount
             };
+            await context.PatientTransactions.AddAsync(chargedTransaction);
 
-            await context.PatientTransactions.AddAsync(transaction);
-            await context.SaveChangesAsync();
+            if (request.MakePayment)
+            {
+                if (request.Amount != request.PaidAmount)
+                {
+                    previousBalance += request.PaidAmount;
+                    chargedTransaction.Balance = previousBalance;
+                }
+                else
+                {
+                    previousBalance += request.Amount;
+                    chargedTransaction.IsDeleted = true;
+                }
+                await context.SaveChangesAsync();
+                await AddSinglePayment(request);
+            }
             return await Result.SuccessAsync("Charged has been added.");
         }
         catch (Exception e)
@@ -807,7 +820,30 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<IResult> Payment(PaymentDto request)
+    private async Task AddSinglePayment(ChargeDto request)
+    {
+        var previousBalance = GetBroughtForwardBalance(request.AccountId);
+        previousBalance -= request.PaidAmount;
+        var paymentTransaction = new PatientTransaction()
+        {
+            CreatedBy = ApplicationState.CurrentUser.UserId,
+            CreatedDate = request.Date,
+            TransactionType = TransactionType.Payment,
+            PatientAccountType = request.ChargeTo,
+            Description = request.Description ?? TransactionType.Payment.ToString(),
+            Credit = request.PaidAmount,
+            IsPrinted = request.IsPrinted,
+            PatientAccountId = request.AccountId,
+            ActionType = request.AccountType ?? TransactionActionType.Payment.ToString(),
+            Balance = previousBalance,
+        };
+        await context.PatientTransactions.AddAsync(paymentTransaction);
+        await context.SaveChangesAsync();
+        UpdateTransaction(paymentTransaction.Id);
+        UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.PaidAmount);
+    }
+
+    public async Task<IResult> PaymentForAllocatedItems(PaymentAllocatedDto request)
     {
         try
         {
@@ -899,11 +935,13 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     private void UpdateTransaction(int transId)
     {
         var transaction = context.PatientTransactions
+            .AsNoTracking()
             .FirstOrDefault(x => x.Id == transId);
 
         if (transaction is not null)
         {
             transaction.IsDeleted = true;
+            context.ChangeTracker.Clear();
             context.PatientTransactions.Update(transaction);
         }
     }
@@ -911,6 +949,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     private decimal UpdatePersonalBalance(int accountId, TransactionActionType transactionType, decimal amount)
     {
         var patientAccount = context.PatientAccounts
+            .AsNoTracking()
             .FirstOrDefault(x => x.Id == accountId);
         decimal newBalance = 0;
         if (patientAccount is not null)
@@ -923,7 +962,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             {
                 patientAccount.Balance += amount;
             }
-
+            context.ChangeTracker.Clear();
             context.PatientAccounts.Update(patientAccount);
             context.SaveChanges();
             newBalance = patientAccount.Balance;
@@ -1006,15 +1045,15 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> CreateGroupAlerts(CreatePatientGroupAlertDto request)
     {
         foreach (var alert in request.SelectedPatients.Select(item => new PatientAlert
-                 {
-                     Details = request.Details,
-                     Type = request.AlertType.ToString(),
-                     Severity = request.Severity.ToString(),
-                     AlertCategoryId = request.AlertCategoryId,
-                     CreatedBy = ApplicationState.CurrentUser.UserId,
-                     CreatedDate = DateTime.Now,
-                     PatientId = item.Id
-                 }))
+        {
+            Details = request.Details,
+            Type = request.AlertType.ToString(),
+            Severity = request.Severity.ToString(),
+            AlertCategoryId = request.AlertCategoryId,
+            CreatedBy = ApplicationState.CurrentUser.UserId,
+            CreatedDate = DateTime.Now,
+            PatientId = item.Id
+        }))
         {
             await context.PatientAlerts.AddAsync(alert);
         }

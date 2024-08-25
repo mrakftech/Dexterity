@@ -10,7 +10,7 @@
         <TabTitle Title="@($"Personal Balance: {PatientAccount.Balance:C}")"></TabTitle>
         <DexForm Model="Payment" OnValidSubmit="AddPayment">
             <Fields>
-                <FormItem Field="@nameof(@PaymentDto.HcpId)" LabelText="Charged By">
+                <FormItem Field="@nameof(PaymentAllocatedDto.HcpId)" LabelText="Charged By">
                     <Template>
                         <label class="e-form-label"> HCP: </label>
                         <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@Payment.HcpId">
@@ -18,8 +18,8 @@
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(PaymentDto.PaymentTo)" LabelText="Charge To" ColumnSpan="1"/>
-                <FormItem Field="@nameof(PaymentDto.AccountType)" LabelText="Payment Type">
+                <FormItem Field="@nameof(PaymentAllocatedDto.PaymentTo)" LabelText="Charge To" ColumnSpan="1"/>
+                <FormItem Field="@nameof(PaymentAllocatedDto.AccountType)" LabelText="Payment Type">
                     <Template>
                         <label class="e-form-label"> Payment To: </label>
                         <SfDropDownList TValue="int" TItem="AccountTypeDto" Placeholder="Payment To" DataSource="@AccountTypes" @bind-Value="@Payment.AccountTypeId">
@@ -28,11 +28,11 @@
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(PaymentDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
-                <FormItem Field="@nameof(PaymentDto.Amount)" LabelText="Amount" IsEnabled="false"/>
-                <FormItem Field="@nameof(PaymentDto.Description)" LabelText="Description" IsEnabled="false"/>
-                <FormItem Field="@nameof(PaymentDto.IsPrinted)" LabelText="Print" EditorType="FormEditorType.Checkbox"></FormItem>
-                <FormItem Field="@nameof(PaymentDto.Amount)">
+                <FormItem Field="@nameof(PaymentAllocatedDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(PaymentAllocatedDto.Amount)" LabelText="Amount" IsEnabled="false"/>
+                <FormItem Field="@nameof(PaymentAllocatedDto.Description)" LabelText="Description" IsEnabled="false"/>
+                <FormItem Field="@nameof(PaymentAllocatedDto.IsPrinted)" LabelText="Print" EditorType="FormEditorType.Checkbox"></FormItem>
+                <FormItem Field="@nameof(PaymentAllocatedDto.Amount)">
                     <Template>
                         <SfGrid @ref="@_grid" DataSource="Transactions" AllowSelection="true" AllowPaging="true">
                             <GridPageSettings PageSize="4"></GridPageSettings>
@@ -60,7 +60,7 @@
     [Parameter] public GetPatientAccountDto PatientAccount { get; set; }
     private List<GetTransactionDto> Transactions { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
-    private PaymentDto Payment { get; set; } = new();
+    private PaymentAllocatedDto Payment { get; set; } = new();
     private bool _processing;
     private List<AccountTypeDto> AccountTypes { get; set; } = new();
 
@@ -101,7 +101,7 @@
             return;
         }
 
-        var res = await UnitOfWork.Patient.Payment(Payment);
+        var res = await UnitOfWork.Patient.PaymentForAllocatedItems(Payment);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessge(res.Messages.First());

@@ -16,6 +16,7 @@ using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Hospital;
+using Domain.Entities.WaitingRoom;
 
 namespace Database;
 
@@ -27,13 +28,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<EmailTemplate> EmailTemplates { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
     public DbSet<ClinicSite> ClinicSites { get; set; }
-    public DbSet<Appointment> Appointments { get; set; }
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
     public DbSet<AccountType> AccountTypes { get; set; }
 
     #endregion
-
 
     #region User
 
@@ -65,6 +64,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     #endregion
 
+    #region Appointments
+
+    public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<WaitingAppointment> WaitingAppointments { get; set; }
+
+    #endregion
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -114,6 +119,15 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler");
         });
+        builder.Entity<WaitingAppointment>(entity =>
+        {
+            entity.ToTable(name: "WaitingAppointments", "Scheduler");
+            entity.HasOne(d => d.Patient)
+                .WithMany(p => p.WaitingAppointments)
+                .HasForeignKey(d => d.PatientId)
+                .OnDelete(DeleteBehavior.NoAction);
+        });
+
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });

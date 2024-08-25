@@ -26,10 +26,13 @@
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(ChargeDto.ChargeTo)" LabelText="Charge To" ColumnSpan="1"/>
-                <FormItem Field="@nameof(ChargeDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
-                <FormItem Field="@nameof(@ChargeDto.Amount)" LabelText="Amount"/>
-                <FormItem Field="@nameof(@ChargeDto.Description)" LabelText="Description" EditorType="FormEditorType.TextArea"/>
+                <FormItem Field="@nameof(ChargeDto.ChargeTo)" LabelText="Charge To" ColumnSpan="1" />
+                <FormItem Field="@nameof(ChargeDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker" />
+                <FormItem Field="@nameof(@ChargeDto.Amount)" LabelText="Amount" />
+                <FormItem Field="@nameof(@ChargeDto.Description)" LabelText="Description" EditorType="FormEditorType.TextArea" />
+                <FormItem Field="@nameof(@ChargeDto.MakePayment)" LabelText="Make Payment" EditorType="FormEditorType.Checkbox" />
+                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.PaidAmount)" LabelText="Amount" />
+                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.IsPrinted)" LabelText="Print" EditorType="FormEditorType.Checkbox" />
             </Fields>
             <Buttons>
                 <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>

@@ -117,7 +117,7 @@ public interface IPatientService
     public Task<List<GetTransactionDto>> GetAudit(int accountId);
     public Task<List<GetTransactionDto>> GetHistory(int accountId);
     public Task<IResult> Charge(ChargeDto request);
-    public Task<IResult> Payment(PaymentDto request);
+    public Task<IResult> PaymentForAllocatedItems(PaymentAllocatedDto request);
     public Task<IResult> StrikeOff(StrikeOffDto request);
     public Task<IResult> DeleteTransaction(int transactionId);
     public decimal GetBroughtForwardBalance(int accountId);

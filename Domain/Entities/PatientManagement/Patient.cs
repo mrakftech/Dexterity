@@ -5,6 +5,7 @@ using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
+using Domain.Entities.WaitingRoom;
 using Shared.Constants.Module;
 
 namespace Domain.Entities.PatientManagement;
@@ -87,4 +88,6 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public PatientAccount PatientAccount { get; set; } = new() {Type = PatientAccountType.Personal, Balance = 500};
     public virtual ICollection<PatientHospital> Hospitals { get; set; }
     public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
+    public virtual ICollection<WaitingAppointment> WaitingAppointments { get; set; }
+
 }

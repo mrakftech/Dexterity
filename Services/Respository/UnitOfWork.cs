@@ -7,6 +7,7 @@ using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
 using Services.Features.UserAccounts.Service;
+using Services.Features.WaitingRoom.Service;
 
 namespace Services.Respository;
 
@@ -17,11 +18,25 @@ public sealed class UnitOfWork(
     IMapper mapper,
     ISettingService setting,
     IAppointmentService appointment,
+    IWaitingRoomService waitingRoom,
     SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
 {
     private bool _disposed;
+
+    public IWaitingRoomService WaitingRoom
+    {
+        get
+        {
+            if (waitingRoom == null)
+            {
+                waitingRoom = new WaitingRoomService(context, mapper);
+            }
+
+            return waitingRoom;
+        }
+    }
 
     public IAppointmentService Appointment
     {

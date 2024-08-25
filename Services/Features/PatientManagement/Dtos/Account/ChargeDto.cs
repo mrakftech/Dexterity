@@ -18,4 +18,11 @@ public class ChargeDto
     public int AccountTypeId { get; set; }
     public int AccountId { get; set; }
     public string Description { get; set; }
+
+
+    public bool MakePayment { get; set; }
+    public bool IsPrinted { get; set; }
+    public decimal PaidAmount { get; set; }
+
+    
 }

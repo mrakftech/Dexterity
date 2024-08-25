@@ -1,33 +1,154 @@
 ﻿@page "/waiting-room"
-@using Dexterity.Components.Pages.WaitingRoom.PartialViews
+@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Dexterity.Components.Pages.WaitingRoom.Dialogs
+@using Services.Features.WaitingRoom.Dtos
+@using Services.Features.PatientManagement.Dtos.Details
+@using Dexterity.Components.Pages.WaitingRoom.Components
 @layout MainLayout
-<TopTitleBar Title="Waiting Room" Image="modules/patient-waiting.svg"/>
-<InnerLayout AllHeight="700px">
-    <NavigationItems>
-        <MudList T="string" Style="width: 200px">
-            <MudListItem T="string" Text="Patients Expected" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
-            <MudListItem T="string" Text="Patients Present" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
-            <MudListItem T="string" Text="In Consultation" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
-            <MudListItem T="string" Text="Visit History" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
-        </MudList>
-    </NavigationItems>
-    <DexContentTabs>
-        <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
-            <MudTabs @ref="_tabs">
-                <MudTabPanel Text="">
-                    <PatientsExpected/>
-                </MudTabPanel>
-            </MudTabs>
-        </div>
-    </DexContentTabs>
-</InnerLayout>
+<TopTitleBar Title="Waiting Room" Image="modules/patient-waiting.svg" />
+<div class="mt-5">
+    <InnerLayout AllHeight="700px" DrawerWidth="250px" MarginLeftContent="250px">
+        <NavigationItems>
+            <MudList T="string" Style="width: 250px">
+                <MudListItem T="string" Text="@($"Patients Expected ({ExpectedPatients.Count})")" Icon="fas  fa-person-walking-arrow-right" OnClick="@(() => ClickChangedTab(0))" />
+                <MudListItem T="string" Text="@($"Patients Present ({PresentPatients.Count})")" Icon="fas fa-screen-users" OnClick="@(() => ClickChangedTab(1))" />
+                <MudListItem T="string" Text="In Consultation" Icon="fas fa-user-doctor-message" OnClick="@(() => ClickChangedTab(2))" />
+                <MudListItem T="string" Text="Visit History" Icon="fas fa-rectangle-history-circle-user" OnClick="@(() => ClickChangedTab(3))" />
+                <MudDivider Style="border:3px dashed whitesmoke;" />
+
+                <MudListItem Disabled="@_disableBtns"
+                             T="string"
+                             Text="@(_status)"
+                             Icon="fas fa-house-return"
+                             OnClick="@(() => UpdatePatientStatus(_status))" />
+
+                <MudListItem Disabled="@_disableBtns"
+                             T="string"
+                             Text="View Consultation"
+                             Icon="fas fa-user-doctor-message"
+                             OnClick="@(() => ClickChangedTab(0))" />
+                <MudListItem Disabled="@_disableBtns"
+                             T="string"
+                             Text="Finished"
+                             Icon="fas fa-check-circle"
+                             OnClick="@(() => ClickChangedTab(0))" />
+
+                <MudListItem Disabled="@_disableBtns"
+                             T="string" Text="Cancelled"
+                             Icon="fas fa-ban" OnClick="CancelAppointment" />
+                <MudListItem Disabled="@_disableBtns" T="string" Text="Charge Patient" Icon="fas fa-credit-card" OnClick="@(() => ClickChangedTab(0))" />
+                <MudListItem Disabled="@_disableBtns" T="string" Text="Payment Only" Icon="fas fa-money-bill-1" OnClick="@(() => ClickChangedTab(0))" />
+            </MudList>
+        </NavigationItems>
+        <DexContentTabs>
+            <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+                <MudTabs @ref="_tabs">
+                    <MudTabPanel Text="">
+                        <TabTitle Title="@($"Patients Expected ({ExpectedPatients.Count})")"></TabTitle>
+                        <PatientInfoCard Patient="_patient" />
+                        <WaitingPatientList Patients="ExpectedPatients"
+                                            Loading="_loading"
+                                            WaitingPatientGrid="_grid"
+                                            RowSelected="GetPatientSelectedRecords" />
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <TabTitle Title="@($"Patients Present ({PresentPatients.Count})")" />
+                        <PatientInfoCard Patient="_patient" />
+                        <WaitingPatientList Patients="PresentPatients"
+                                            Loading="_loading"
+                                            WaitingPatientGrid="_grid"
+                                            RowSelected="GetPatientSelectedRecords" />
+                    </MudTabPanel>
+                </MudTabs>
+            </div>
+        </DexContentTabs>
+    </InnerLayout>
+
+</div>
 
 @code {
+    private List<WaitingPatientDto> ExpectedPatients { get; set; } = new();
+    private List<WaitingPatientDto> PresentPatients { get; set; } = new();
+    private List<WaitingPatientDto> ConsultationPatients { get; set; } = new();
+    private readonly SfGrid<WaitingPatientDto> _grid = new();
+    private PatientSummaryDto _patient = new();
     MudTabs _tabs = new();
+    private bool _loading;
+    private bool _disableBtns = true;
+    private Guid _patientId = Guid.Empty;
+    private int _appointmentId = 0;
+    private string _status;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetExpectedPatients();
+        _loading = false;
+    }
 
     private void ClickChangedTab(int tabIndex)
     {
+        _disableBtns = true;
         _tabs.ActivatePanel(tabIndex);
     }
 
+    private async Task GetExpectedPatients()
+    {
+        ExpectedPatients = await UnitOfWork.WaitingRoom.GetExpectedPatients();
+        PresentPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.Status.Arrived);
+    }
+    private async Task GetPatient()
+    {
+        _patient = await UnitOfWork.Patient.GetPatientSummary(_patientId);
+    }
+    private async Task UpdatePatientStatus(string status)
+    {
+        var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(_appointmentId, status);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessge(res.Messages.First());
+            await GetExpectedPatients();
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+    private async Task CancelAppointment()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("AppointmentId", _appointmentId);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<CancelWaitingAppointment>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+            await GetExpectedPatients();
+        }
+    }
+    public async Task GetPatientSelectedRecords(RowSelectEventArgs<WaitingPatientDto> args)
+    {
+        if (args.Data.PatientId != Guid.Empty)
+        {
+            _patientId = args.Data.PatientId;
+            _appointmentId = args.Data.AppointmentId;
+            _status = args.Data.Status;
+
+            if (_status == AppointmentConstants.Status.Arrived)
+            {
+                _status = AppointmentConstants.Status.Expected;
+            }
+            else
+            {
+                _status = AppointmentConstants.Status.Arrived;
+            }
+
+            _disableBtns = false;
+            await GetPatient();
+            StateHasChanged();
+        }
+
+        StateHasChanged();
+    }
 }

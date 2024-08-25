@@ -83,7 +83,7 @@ public class DatabaseSeeder(
             {
                 Name = "General",
                 Duration = 15,
-                Active = true
+                Active = true,
             };
             context.AppointmentTypes.Add(c);
             await context.SaveChangesAsync();
