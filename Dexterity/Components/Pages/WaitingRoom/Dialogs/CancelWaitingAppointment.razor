@@ -1,0 +1,61 @@
+﻿@using Domain.Entities.Appointments
+<MudDialog>
+    <TitleContent>
+        <MudText Align="Align.Center" Style="font-weight: bolder">Cancel Appointment</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudItem>
+            <SfDropDownList TValue="int" TItem="AppointmentCancellationReason" Placeholder="Select Reason" DataSource="@Reasons">
+                <DropDownListFieldSettings Value="Id" Text="Reason"></DropDownListFieldSettings>
+                <DropDownListEvents TValue="int" TItem="AppointmentCancellationReason" ValueChange="OnSelectedValueChanged"></DropDownListEvents>
+            </SfDropDownList>
+        </MudItem>
+
+    </DialogContent>
+    <DialogActions>
+        <DexLoadingButton Click="CancelAppointmentClick" Icon="fas fa-ban" Name="Cancel Appointment" Processing="_processing"></DexLoadingButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int AppointmentId { get; set; }
+    private List<AppointmentCancellationReason> Reasons { get; set; } = new();
+    private bool _processing;
+    int _reasonId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Reasons = await UnitOfWork.Setting.GetAppointmentCancelReasons();
+    }
+
+
+    Task OnSelectedValueChanged(ChangeEventArgs<int, AppointmentCancellationReason> args)
+    {
+        _reasonId = args.Value;
+        return Task.CompletedTask;
+    }
+
+    private async Task CancelAppointmentClick()
+    {
+        if (_reasonId == 0)
+        {
+            Snackbar.FailMessge("Please select reason");
+            _processing = false;
+            return;
+        }
+        _processing = true;
+        await Task.Delay(2000);
+        var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(AppointmentId, AppointmentConstants.Status.Cancelled); ;
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+        _processing = false;
+    }
+
+}
