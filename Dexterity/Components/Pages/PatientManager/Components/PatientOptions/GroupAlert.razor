@@ -139,7 +139,7 @@
         {
             var alerts = await UnitOfWork.Patient.DeleteGroupAlerts(SelectedAlerts);
             StateHasChanged();
-            Snackbar.SuccessMessge(alerts.Messages.First());
+            Snackbar.SuccessMessage(alerts.Messages.First());
            await GetPatientAlertsHistory();
         }
     }
@@ -152,7 +152,7 @@
         {
             var alerts = await UnitOfWork.Patient.ResolveGroupAlerts(SelectedAlerts);
             StateHasChanged();
-            Snackbar.SuccessMessge(alerts.Messages.First());
+            Snackbar.SuccessMessage(alerts.Messages.First());
             await GetPatientAlertsHistory();
         }
     }

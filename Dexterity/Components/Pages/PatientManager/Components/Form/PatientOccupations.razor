@@ -56,7 +56,7 @@
         var res = await UnitOfWork.Patient.AddPatientOccupation(_patientOccupation);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             await GetOccupations(Id);
         }
         else
@@ -92,7 +92,7 @@
             var userRes = await UnitOfWork.Patient.DeletePatientContact(_occupationId);
             await GetOccupations(Id);
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 

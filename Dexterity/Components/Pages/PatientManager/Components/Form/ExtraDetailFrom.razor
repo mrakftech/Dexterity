@@ -121,7 +121,7 @@
         var res = await UnitOfWork.Patient.SaveExtraDetails(PatientExtraDetail);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
         }
         else
         {
@@ -160,7 +160,7 @@
             _patientHospital = new();
             hospitalId = 0;
             await GetSelectedHospitals();
-            Snackbar.SuccessMessge(hospital.Messages.First());
+            Snackbar.SuccessMessage(hospital.Messages.First());
         }
     }
 

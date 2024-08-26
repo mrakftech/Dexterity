@@ -49,7 +49,7 @@
         var res = await UnitOfWork.Setting.SaveClinic(Id, ClinicDto);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
         }
         else

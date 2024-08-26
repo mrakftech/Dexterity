@@ -6,8 +6,8 @@
     <DexGrid DataSource="AppointmentList" Loading="@_loading">
         <DexGridColumns>
             <GridColumn Field="@nameof(SearchAppointmentDto.StartTime)" HeaderText="Date" Width="120px"></GridColumn>
-            <GridColumn Field="@nameof(SearchAppointmentDto.Patient.FullName)" HeaderText="Patient Name" Width="120px"></GridColumn>
-            <GridColumn Field="@nameof(SearchAppointmentDto.Patient.DateOfBirth)" HeaderText="DOB" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(SearchAppointmentDto.PatientName)" HeaderText="Patient Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(SearchAppointmentDto.DateOfBirth)" HeaderText="DOB" Width="120px"></GridColumn>
             <GridColumn Field="@nameof(SearchAppointmentDto.Status)" HeaderText="Status" Width="120px"></GridColumn>
         </DexGridColumns>
     </DexGrid>

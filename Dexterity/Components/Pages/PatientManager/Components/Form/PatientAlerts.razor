@@ -107,7 +107,7 @@
         var res = await UnitOfWork.Patient.SavePatientAlert(Guid.Empty, _patientAlert);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             await GetPatientAlerts(Id);
             _patientAlert = new();
         }
@@ -135,7 +135,7 @@
             var userRes = await UnitOfWork.Patient.ResolvePatientAlert(id);
             await GetPatientAlerts(Id);
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 
@@ -149,7 +149,7 @@
             var userRes = await UnitOfWork.Patient.DeletePatientAlert(id);
             await GetPatientAlerts(Id);
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 
@@ -176,7 +176,7 @@
             var res = await UnitOfWork.Patient.AddAlertCategories(_categoryName);
             if (res.Succeeded)
             {
-                Snackbar.SuccessMessge(res.Messages.First());
+                Snackbar.SuccessMessage(res.Messages.First());
                 _categoryName = "";
                 await GetAlertCategory();
             }
@@ -201,7 +201,7 @@
             var userRes = await UnitOfWork.Patient.DeleteAlertCategory(_patientAlert.AlertCategoryId);
             await GetAlertCategory();
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 

@@ -112,7 +112,7 @@
     private async Task CopyMeetingLink()
     {
         await JsRuntime.InvokeVoidAsync("clipboardCopy.copyText", _meetingLink);
-        Snackbar.SuccessMessge("Link Copied");
+        Snackbar.SuccessMessage("Link Copied");
     }
 
     private async Task ShareLinkToPatient()
@@ -133,7 +133,7 @@
             To = _mailRequest.To
         };
         await MailService.SendAsync(mailRequest, default);
-        Snackbar.SuccessMessge("Email has been sent.");
+        Snackbar.SuccessMessage("Email has been sent.");
         _processing = false;
     }
 

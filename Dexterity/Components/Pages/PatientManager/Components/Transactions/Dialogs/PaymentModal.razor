@@ -36,8 +36,8 @@
                     <Template>
                         <SfGrid @ref="@_grid" DataSource="Transactions" AllowSelection="true" AllowPaging="true">
                             <GridPageSettings PageSize="4"></GridPageSettings>
-                            <GridEvents RowSelected="GetSelectedRecords" RowDeselected="GetDeselectedRow" TValue="GetTransactionDto"></GridEvents>
-                            <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"></GridSelectionSettings>
+                            <GridEvents RowSelected="GetSelectedRecords" RowDeselected="GetDeselectedRow" TValue="GetTransactionDto"/>
+                            <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"/>
                             <GridColumns>
                                 <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
                                 <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="d" Type="ColumnType.DateTime" Width="90"></GridColumn>
@@ -104,7 +104,7 @@
         var res = await UnitOfWork.Patient.PaymentForAllocatedItems(Payment);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
         }
         else

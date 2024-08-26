@@ -35,7 +35,7 @@
         var res = await UnitOfWork.Setting.SaveAppointmentCancelReason(Id, CancellationReason);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
         }
         else

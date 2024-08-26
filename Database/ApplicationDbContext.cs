@@ -119,6 +119,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             entity.ToTable(name: "AppointmentCancellationReasons", "Scheduler");
         });
+
         builder.Entity<WaitingAppointment>(entity =>
         {
             entity.ToTable(name: "WaitingAppointments", "Scheduler");
@@ -126,7 +127,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .WithMany(p => p.WaitingAppointments)
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.NoAction);
+            entity.HasOne(d => d.Clinic)
+              .WithMany(p => p.WaitingAppointments)
+              .HasForeignKey(d => d.ClinicId)
+              .OnDelete(DeleteBehavior.NoAction);
         });
+
+
 
 
 

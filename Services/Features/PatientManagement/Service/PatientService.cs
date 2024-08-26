@@ -642,7 +642,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<GroupDto> GetSelectedGroup(Guid patientId)
     {
         var patientGroup = await context.GroupPatients
-            .Include(x => x.Group).FirstOrDefaultAsync(x => x.PatientId == patientId);
+            .Include(x => x.Group)
+            .FirstOrDefaultAsync(x => x.PatientId == patientId);
+        if (patientGroup is null)
+        {
+            return new GroupDto();
+        }
         var mappedData = mapper.Map<GroupDto>(patientGroup.Group);
         return patientGroup != null ? mappedData : new GroupDto();
     }

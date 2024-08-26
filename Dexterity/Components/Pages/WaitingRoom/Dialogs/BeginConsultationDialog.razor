@@ -1,0 +1,35 @@
+﻿<DexDialog>
+    <DialogTitle>
+        <MudText Align="Align.Center" Style="font-weight: bolder">Begin Consultation</MudText>
+    </DialogTitle>
+    <Content>
+        <MudItem>
+            <h1>Consultation Form (@AppointmentId)</h1>
+        </MudItem>
+    </Content>
+    <ActionButtons>
+        <DexLoadingButton Click="StartConsultation" Name="Save" Processing="_processing"></DexLoadingButton>
+    </ActionButtons>
+</DexDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int AppointmentId { get; set; }
+    private bool _processing;
+
+    private async Task StartConsultation()
+    {
+        var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(AppointmentId, AppointmentConstants.WaitingStatus.InConsultation);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            StateHasChanged();
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

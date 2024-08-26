@@ -149,7 +149,7 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsE
             var sendRequest = new SmsRequest()
             {
                 Content = request.Content,
-                To = request.Patients.Select(x => x.Mobile).ToList()
+                To = request.Patients.Select(x => x.MobilePhone).ToList()
             };
             var res = await smsEndpoints.SendMessage(sendRequest);
             if (res.ResponseCode == 202)
@@ -160,7 +160,7 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsE
                     {
                         Date = DateTime.Now,
                         PatientId = item.Id,
-                        Mobile = item.Mobile,
+                        Mobile = item.MobilePhone,
                         Content = request.Content
                     };
                     await context.PatientSmsHistories.AddAsync(smsHistory);

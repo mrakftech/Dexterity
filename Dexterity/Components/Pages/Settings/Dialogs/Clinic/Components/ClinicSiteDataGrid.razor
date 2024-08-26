@@ -48,7 +48,7 @@
             var user = ClinicSites.FirstOrDefault(x => x.Id == id);
             ClinicSites.Remove(user);
             StateHasChanged();
-            Snackbar.SuccessMessge(response.Messages.First());
+            Snackbar.SuccessMessage(response.Messages.First());
         }
     }
     private async Task GetClinicSites()

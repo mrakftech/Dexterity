@@ -54,7 +54,7 @@
         {
             var deleteGroup = await UnitOfWork.Patient.DeleteGroup(id);
             StateHasChanged();
-            Snackbar.SuccessMessge(deleteGroup.Messages.First());
+            Snackbar.SuccessMessage(deleteGroup.Messages.First());
             await GetGroups();
         }
     }

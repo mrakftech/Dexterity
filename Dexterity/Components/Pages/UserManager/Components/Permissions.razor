@@ -171,7 +171,7 @@
         var res = await UnitOfWork.User.UpdatePermissions(list);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             _isLoadPermissionBtnDisabled = true;
         }
         else

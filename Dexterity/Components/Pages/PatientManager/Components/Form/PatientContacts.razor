@@ -75,7 +75,7 @@
         var res = await UnitOfWork.Patient.AddPatientContact(PatientContact);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             await GetContacts(Id);
         }
         else
@@ -111,7 +111,7 @@
             var userRes = await UnitOfWork.Patient.DeletePatientContact(_contactId);
             await GetContacts(Id);
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 

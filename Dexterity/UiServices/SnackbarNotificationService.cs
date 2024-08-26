@@ -8,7 +8,7 @@ public class SnackbarNotificationService(ISnackbar snackbar)
     [Inject] public ISnackbar Snackbar { get; set; } = snackbar;
 
 
-    public void SuccessMessge(string message)
+    public void SuccessMessage(string message)
     {
         Snackbar.Add(message);
     }

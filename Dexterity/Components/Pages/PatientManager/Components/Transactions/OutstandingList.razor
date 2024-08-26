@@ -36,7 +36,7 @@
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
             var userRes = await UnitOfWork.Patient.DeleteTransaction(itemId);
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
             StateHasChanged();
         }
     }

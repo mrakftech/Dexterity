@@ -9,108 +9,71 @@
         <MudText Align="Align.Center" Style="font-weight: bolder">Bulk Sms Details</MudText>
     </TitleContent>
     <DialogContent>
-        <MudStack Justify="Justify.Center" AlignItems="MudAlignItems.Center">
-            <MudItem md="12">
-                <MudGrid Justify="Justify.Center">
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem>
-                                <MudText Style="font-weight: bolder">Created By:</MudText>
-                            </MudItem>
-                            <MudItem>@ApplicationState.CurrentUser.Name</MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem>
-                                <MudText Style="font-weight: bolder">Valid Mobile Numbers:</MudText>
-                            </MudItem>
-                            <MudItem>@ValidPatients.Count</MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem>
-                                <MudText Style="font-weight: bolder">Selected Patients:</MudText>
-                            </MudItem>
-                            <MudItem>@_selectedPatients.Count</MudItem>
-                        </MudStack>
-                    </MudItem>
-                </MudGrid>
-            </MudItem>
-            <MudItem md="12">
-                <MudExpansionPanels>
-                    <MudExpansionPanel Text="@($"{_selectedPatients.Count} selected persons")" Expanded="false">
-                        <MudDataGrid RowsPerPage="5" T="PatientListDto" MultiSelection="true" Items="@ValidPatients" SortMode="SortMode.Multiple" Filterable="true"
-                                     Hideable="true" SelectedItemsChanged="@SelectedItemsChanged">
-                            <ToolBarContent>
-                                <MudText Typo="Typo.h6">Valid list</MudText>
-                            </ToolBarContent>
-                            <Columns>
-                                <SelectColumn T="PatientListDto"/>
-                                <PropertyColumn Property="x => x.FullName" Title="Full Name" Sortable="false" Filterable="false"/>
-                                <PropertyColumn Property="x => x.Mobile"/>
-                            </Columns>
-                            <PagerContent>
-                                <MudDataGridPager T="PatientListDto"/>
-                            </PagerContent>
-                        </MudDataGrid>
-
-                    </MudExpansionPanel>
-                </MudExpansionPanels>
-            </MudItem>
-
-            <MudItem md="12">
-                <Validations @ref="@_validationsRef" Mode="ValidationMode.Manual" Model="@_messageDto">
-                    <MudStack>
+        <MudItem md="12">
+            <MudGrid Justify="Justify.Center">
+                <MudItem md="12">
+                    <MudStack Row>
                         <MudItem>
-                            <FieldLabel>Sms Template</FieldLabel>
-                            <MudSelect T="Guid" Label="" AnchorOrigin="Origin.BottomCenter" ValueChanged="ChangeSmsTemplate" Variant="Variant.Outlined" Margin="MudMargin.Dense">
-                                <MudSelectItem T="Guid" Value="@Guid.Empty">None</MudSelectItem>
-                                @foreach (var item in SmsTemplates)
-                                {
-                                    <MudSelectItem Value="@(item.Id)">@($"[{@item.Name}]")</MudSelectItem>
-                                }
-                            </MudSelect>
+                            <MudText Style="font-weight: bolder">Created By:</MudText>
                         </MudItem>
-                        <MudItem>
-                            <Validation>
-                                <FieldLabel>Content</FieldLabel>
-                                <MemoEdit @bind-Text="@_messageDto.Content">
-                                    <Feedback>
-                                        <ValidationError/>
-                                    </Feedback>
-                                </MemoEdit>
-                            </Validation>
-                        </MudItem>
-                        <MudItem>
-                        </MudItem>
-                        <MudItem>
-                            <MudButton Disabled="@_processing" OnClick="@SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                                @if (_processing)
-                                {
-                                    <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
-                                    <MudText Class="ms-2 white-color">Processing</MudText>
-                                }
-                                else
-                                {
-                                    <MudText><i class="fas fa-paper-plane"></i> Send SMS</MudText>
-                                }
-                            </MudButton>
-                        </MudItem>
+                        <MudItem>@ApplicationState.CurrentUser.Name</MudItem>
                     </MudStack>
-                </Validations>
-            </MudItem>
-        </MudStack>
+                </MudItem>
+                <MudItem md="12">
+                    <MudStack Row>
+                        <MudItem>
+                            <MudText Style="font-weight: bolder">Valid Mobile Numbers:</MudText>
+                        </MudItem>
+                        <MudItem>@SelectedPatients.Count</MudItem>
+                    </MudStack>
+                </MudItem>
+                <MudItem md="12">
+                    <MudStack Row>
+                        <MudItem>
+                            <MudText Style="font-weight: bolder">Selected Patients:</MudText>
+                        </MudItem>
+                        <MudItem>@SelectedPatients.Count</MudItem>
+                    </MudStack>
+                </MudItem>
+                <MudItem>
+                    <SfGrid DataSource="@SelectedPatients" Height="100px" AllowSelection="true" AllowPaging="true">
+                        <GridColumns>
+                            <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+                            <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Name" Width="120px"/>
+                            <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"/>
+                            <GridColumn Field="@nameof(PatientListDto.MobilePhone)" HeaderText="Mobile" Width="120px"/>
+                            <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"/>
+                        </GridColumns>
+                    </SfGrid>
+                </MudItem>
+                <MudItem>
+                    <DexForm Model="_messageDto" OnValidSubmit="SendSmsClick">
+                        <Fields>
+                            <FormItem Field="@nameof(SendMessageDto.Content)">
+                                <Template>
+                                    <label class="e-form-label">Template</label>
+                                    <SfDropDownList TValue="Guid" TItem="SmsTemplate" Placeholder="Select a template" DataSource="@SmsTemplates">
+                                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                        <DropDownListEvents TValue="Guid" TItem="SmsTemplate" ValueChange="OnValueChange"></DropDownListEvents>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(BulkSmsDto.Content)" EditorType="FormEditorType.TextArea"/>
+                        </Fields>
+                        <Buttons>
+                            <DexLoadingButton Name="Send SMS" Type="MudButtonType.Submit" Processing="_processing"/>
+                        </Buttons>
+                    </DexForm>
 
+                </MudItem>
+            </MudGrid>
+        </MudItem>
     </DialogContent>
 </MudDialog>
 
 @code {
-    [Parameter] public List<PatientListDto> ValidPatients { get; set; } = new();
+    [Parameter] public List<PatientListDto> SelectedPatients { get; set; } = new();
     private List<SmsTemplate> SmsTemplates { get; set; } = new();
-    private HashSet<PatientListDto> _selectedPatients = new();
-    Validations _validationsRef;
     private BulkSmsDto _messageDto = new();
     private bool _processing;
 
@@ -129,38 +92,23 @@
     private async Task SendSmsClick()
     {
         _processing = true;
-        if (_selectedPatients.Count == 0)
+
+        await Task.Delay(1500);
+        _messageDto.Patients = SelectedPatients.ToList();
+        var res = await UnitOfWork.Messaging.SendBulkSms(_messageDto);
+        if (res.Succeeded)
         {
-            Snackbar.FailMessge("Please select person for sending msg");
-            return;
+            Snackbar.SuccessMessage("Message has been sent.");
         }
-
-        if (await _validationsRef.ValidateAll())
+        else
         {
-            await Task.Delay(1500);
-            _messageDto.Patients = _selectedPatients.ToList();
-            var res = await UnitOfWork.Messaging.SendBulkSms(_messageDto);
-            if (res.Succeeded)
+            foreach (var item in res.Messages)
             {
-                Snackbar.SuccessMessge("Message has been sent.");
+                Console.WriteLine(item);
             }
-            else
-            {
-                foreach (var item in res.Messages)
-                {
-                    Console.WriteLine(item);
-                }
-            }
-
-            await _validationsRef.ClearAll();
         }
 
         _processing = false;
-    }
-
-    void SelectedItemsChanged(HashSet<PatientListDto> items)
-    {
-        _selectedPatients = items;
     }
 
     private async Task ChangeSmsTemplate(Guid id)
@@ -174,6 +122,11 @@
             var res = await UnitOfWork.Setting.GetSmsTemplate(id);
             _messageDto.Content = res.Data.Content;
         }
+    }
+
+    public void OnValueChange(ChangeEventArgs<Guid, SmsTemplate> args)
+    {
+        _messageDto.Content = args.ItemData.Content;
     }
 
 }

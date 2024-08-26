@@ -79,7 +79,7 @@
 
         await Task.Delay(2500);
         await MailService.SendAsync(_mailRequest, default);
-        Snackbar.SuccessMessge("Email has been sent.");
+        Snackbar.SuccessMessage("Email has been sent.");
 
         _processing = false;
     }

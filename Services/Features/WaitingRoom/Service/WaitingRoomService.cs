@@ -3,6 +3,7 @@ using Database;
 using Domain.Entities.WaitingRoom;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.WaitingRoom.Dtos;
+using Services.State;
 using Shared.Constants.Module;
 using Shared.Wrapper;
 
@@ -32,7 +33,24 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
             .Include(x => x.Appointment)
             .Include(x => x.Patient)
             .Include(x => x.Patient.PatientAccount)
-            .Where(x => x.Appointment.StartTime.Date == todayDate && x.Status == status)
+            .Where(x => x.Appointment.StartTime.Date == todayDate
+            && x.Status == status
+            && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            .ToListAsync();
+
+
+        var data = mapper.Map<List<WaitingPatientDto>>(appointments);
+        return data;
+    }
+    public async Task<List<WaitingPatientDto>> GetAllWaitingPatients()
+    {
+        var todayDate = DateTime.Now.Date;
+        var appointments = await context.WaitingAppointments
+            .Include(x => x.Appointment)
+            .Include(x => x.Patient)
+            .Include(x => x.Patient.PatientAccount)
+            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId 
+            && x.Appointment.StartTime.Date == todayDate)
             .ToListAsync();
 
 
@@ -74,7 +92,8 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
                 {
                     PatientId = item.PatientId,
                     AppointmentId = item.Id,
-                    Status = AppointmentConstants.Status.Expected
+                    ClinicId = ApplicationState.CurrentUser.ClinicId,
+                    Status = AppointmentConstants.WaitingStatus.Expected
                 };
                 list.Add(waitAppt);
             }

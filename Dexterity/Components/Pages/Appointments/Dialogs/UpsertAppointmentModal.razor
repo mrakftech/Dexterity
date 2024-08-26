@@ -161,7 +161,7 @@ else
         var res = await UnitOfWork.Appointment.SaveAppointment(Id, Appointment);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
         }
         else

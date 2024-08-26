@@ -28,7 +28,7 @@
         var res = await UnitOfWork.Patient.CreatePatient(Patient);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             Patient = new();
         }
         else

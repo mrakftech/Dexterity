@@ -68,7 +68,7 @@
         {
             var patientRes = await UnitOfWork.Patient.DeletePatient(id);
             await GetPatients();
-            Snackbar.SuccessMessge(patientRes.Messages.First());
+            Snackbar.SuccessMessage(patientRes.Messages.First());
         }
     }
 

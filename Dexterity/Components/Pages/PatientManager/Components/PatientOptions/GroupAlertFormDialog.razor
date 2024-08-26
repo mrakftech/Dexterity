@@ -70,7 +70,7 @@
         var res = await UnitOfWork.Patient.CreateGroupAlerts(_createPatientAlert);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             _createPatientAlert = new();
         }
         else
@@ -104,7 +104,7 @@
             var res = await UnitOfWork.Patient.AddAlertCategories(_categoryName);
             if (res.Succeeded)
             {
-                Snackbar.SuccessMessge(res.Messages.First());
+                Snackbar.SuccessMessage(res.Messages.First());
                 _categoryName = "";
                 await GetAlertCategory();
             }
@@ -129,7 +129,7 @@
             var userRes = await UnitOfWork.Patient.DeleteAlertCategory(_createPatientAlert.AlertCategoryId);
             await GetAlertCategory();
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 

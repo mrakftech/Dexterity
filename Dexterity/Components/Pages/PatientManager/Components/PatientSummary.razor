@@ -91,8 +91,8 @@ else
     private PatientSummaryDto Patient { get; set; } = new();
     string _tabIndex = "0";
     private bool _loading;
-    private string _title = ApplicationState.SelectedPatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
-    
+    private string _title = "";
+
     protected override async Task OnInitializedAsync()
     {
         await GetPateintSummary();
@@ -112,6 +112,7 @@ else
     private async Task GetPateintSummary()
     {
         _loading = true;
+        _title = ApplicationState.SelectedPatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
         var summary = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
         Patient = summary;
         _loading = false;

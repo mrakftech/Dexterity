@@ -5,9 +5,9 @@
 
 <DexGrid DataSource="AppointmentList" Loading="_loading">
     <DexGridColumns >
-        <GridColumn Field="@nameof(SearchAppointmentDto)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="120px"/>
-        <GridColumn Field="@nameof(SearchAppointmentDto.Patient.FullName)" HeaderText="Full Name" Width="120px"/>
-        <GridColumn Field="@nameof(SearchAppointmentDto.Patient.DateOfBirth)" Format="d" Type="ColumnType.DateTime" HeaderText="Date of Birth" Width="120px"/>
+        <GridColumn Field="@nameof(SearchAppointmentDto.StartTime)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="120px"/>
+        <GridColumn Field="@nameof(SearchAppointmentDto.PatientName)" HeaderText="Full Name" Width="120px"/>
+        <GridColumn Field="@nameof(SearchAppointmentDto.DateOfBirth)" Format="d" Type="ColumnType.DateTime" HeaderText="Date of Birth" Width="120px"/>
         <GridColumn Field="@nameof(SearchAppointmentDto.Status)" HeaderText="Status" Width="120px"/>
     </DexGridColumns>
 </DexGrid>
@@ -29,7 +29,7 @@
         if (string.IsNullOrWhiteSpace(_searchString))
             return true;
 
-        if (x.Patient.FullName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
+        if (x.PatientName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         if (x.Status.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
             return true;

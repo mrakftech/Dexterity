@@ -5,30 +5,26 @@
 <div class="vertical-space">
     <MudStack>
         <MudItem>
+            <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
+        </MudItem>
+        <MudItem>
             <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-
         </MudItem>
         @if (!string.IsNullOrWhiteSpace(_waLink))
         {
             <MudItem md="6">
-
-                <MudButton FullWidth="false" Size="MudSize.Medium" Href="@_waLink" Color="MudColor.Primary" Variant="Variant.Filled" StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
+                <MudButton FullWidth="false"
+                           Size="MudSize.Medium"
+                           Href="@_waLink"
+                           Color="MudColor.Primary"
+                           Variant="Variant.Filled"
+                           StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
             </MudItem>
         }
         <MudItem>
             @if (!string.IsNullOrWhiteSpace(_mobile))
             {
-                <MudButton Disabled="@_processing" OnClick="SendSmsClick" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-                    @if (_processing)
-                    {
-                        <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
-                        <MudText Class="ms-2 white-color">Processing</MudText>
-                    }
-                    else
-                    {
-                        <MudText><i class="fas fa-paper-plane"></i> Generate Link</MudText>
-                    }
-                </MudButton>
+                <DexLoadingButton Name="Generate Link" Click="SendSmsClick" />
             }
 
         </MudItem>
@@ -41,6 +37,7 @@
     private bool _processing;
     private string _waLink = "";
     private string _mobile = "";
+    private string _error = "";
 
     private async Task SendSmsClick()
     {
@@ -48,16 +45,26 @@
         var n = Method.GetMobileFormat(_mobile);
         await Task.Delay(2500);
         _waLink = $"https://wa.me/{n}";
-        Snackbar.SuccessMessge("WhatsApp link generated.");
+        Snackbar.SuccessMessage("WhatsApp link generated.");
         _processing = false;
     }
 
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
     {
+        _error = "";
         var patient = args.ItemData;
         if (patient != null)
         {
-            _mobile = patient.Mobile;
+            _mobile = patient.MobilePhone;
+            if (string.IsNullOrEmpty(_mobile))
+            {
+                _error = "Mobile number not valid.";
+            }
+        }
+        else
+        {
+            _mobile = string.Empty;
+
         }
     }
 

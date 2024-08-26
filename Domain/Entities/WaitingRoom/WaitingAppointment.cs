@@ -1,5 +1,6 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.Settings.Hospital;
 
 namespace Domain.Entities.WaitingRoom;
 
@@ -13,6 +14,9 @@ public class WaitingAppointment
 
     public int AppointmentId { get; set; }
     public Appointment Appointment { get; set; }
+
+    public Clinic Clinic { get; set; }
+    public int ClinicId { get; set; }
     
     
 }

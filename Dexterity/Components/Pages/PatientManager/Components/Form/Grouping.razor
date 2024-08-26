@@ -33,7 +33,6 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetSelectedGroup();
         await GetGroups();
     }
 
@@ -62,7 +61,7 @@
         var res = await UnitOfWork.Patient.RegisterPatientToGroup(req);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
         }
         else
         {

@@ -1,50 +1,97 @@
 ﻿@page "/waiting-room"
-@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
 @using Dexterity.Components.Pages.WaitingRoom.Dialogs
+@using Services.Features.PatientManagement.Dtos.Account
 @using Services.Features.WaitingRoom.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using Dexterity.Components.Pages.WaitingRoom.Components
 @layout MainLayout
 <TopTitleBar Title="Waiting Room" Image="modules/patient-waiting.svg" />
 <div class="mt-5">
-    <InnerLayout AllHeight="700px" DrawerWidth="250px" MarginLeftContent="250px">
+
+    <InnerLayout AllHeight="700px" DrawerWidth="290px" MarginLeftContent="250px">
         <NavigationItems>
-            <MudList T="string" Style="width: 250px">
+            <MudList T="string" Style="width: 290px">
                 <MudListItem T="string" Text="@($"Patients Expected ({ExpectedPatients.Count})")" Icon="fas  fa-person-walking-arrow-right" OnClick="@(() => ClickChangedTab(0))" />
                 <MudListItem T="string" Text="@($"Patients Present ({PresentPatients.Count})")" Icon="fas fa-screen-users" OnClick="@(() => ClickChangedTab(1))" />
-                <MudListItem T="string" Text="In Consultation" Icon="fas fa-user-doctor-message" OnClick="@(() => ClickChangedTab(2))" />
-                <MudListItem T="string" Text="Visit History" Icon="fas fa-rectangle-history-circle-user" OnClick="@(() => ClickChangedTab(3))" />
-                <MudDivider Style="border:3px dashed whitesmoke;" />
+                <MudListItem T="string" Text="@($"In Consultation ({ConsultationPatients.Count})")" Icon="fas fa-user-doctor-message" OnClick="@(() => ClickChangedTab(2))" />
+                <MudListItem T="string" Text="@($"Visit History ({VisitHistoryPatients.Count})")" Icon="fas fa-rectangle-history-circle-user" OnClick="@(() => ClickChangedTab(3))" />
+                <MudDivider Style="border:3px dashed whitesmoke;margin:15px;width:270px " />
+                <MudListItem Icon="fa-solid fa-square-poll-horizontal" Text="Patient Status" Expanded>
+                    <NestedList>
 
-                <MudListItem Disabled="@_disableBtns"
-                             T="string"
-                             Text="@(_status)"
-                             Icon="fas fa-house-return"
-                             OnClick="@(() => UpdatePatientStatus(_status))" />
+                        @if (_status == AppointmentConstants.WaitingStatus.Expected)
+                        {
+                            <MudListItem Disabled="@_disableBtns"
+                                         T="string"
+                                         Text="@(AppointmentConstants.WaitingStatus.Arrived)"
+                                         Icon="fas fa-house-return"
+                                         OnClick="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Arrived))" />
+                        }
+                        else
+                        {
+                            <MudListItem Disabled="@_disableBtns"
+                                         T="string"
+                                         Text="@(AppointmentConstants.WaitingStatus.Expected)"
+                                         Icon="fas fa-house-return"
+                                         OnClick="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Expected))" />
+                        }
+                        @if (_tabs.ActivePanelIndex == 1)
+                        {
+                            <MudListItem Disabled="@_disableConsultationBtn"
+                                         T="string"
+                                         Text="Begin Consultation"
+                                         Icon="fas fa-user-doctor-message"
+                                         OnClick="BeginConsultation" />
+                        }
+                        @if (_tabs.ActivePanelIndex == 2)
+                        {
+                            <MudListItem Disabled="@_disableConsultationBtn"
+                                         T="string"
+                                         Text="Finished Consultation"
+                                         Icon="fas fa-check-circle"
+                                         OnClick="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Completed))" />
+                            <MudListItem Disabled="@_disableConsultationBtn"
+                                         T="string"
+                                         Text="Edit Consultation"
+                                         Icon="fas fa-pencil"
+                                         OnClick="@(() => ClickChangedTab(0))" />
+                        }
+                        <MudListItem Disabled="@_disableBtns"
+                                     T="string" Text="Cancelled"
+                                     Icon="fas fa-ban" OnClick="CancelAppointment" />
 
-                <MudListItem Disabled="@_disableBtns"
-                             T="string"
-                             Text="View Consultation"
-                             Icon="fas fa-user-doctor-message"
-                             OnClick="@(() => ClickChangedTab(0))" />
-                <MudListItem Disabled="@_disableBtns"
-                             T="string"
-                             Text="Finished"
-                             Icon="fas fa-check-circle"
-                             OnClick="@(() => ClickChangedTab(0))" />
-
-                <MudListItem Disabled="@_disableBtns"
-                             T="string" Text="Cancelled"
-                             Icon="fas fa-ban" OnClick="CancelAppointment" />
-                <MudListItem Disabled="@_disableBtns" T="string" Text="Charge Patient" Icon="fas fa-credit-card" OnClick="@(() => ClickChangedTab(0))" />
-                <MudListItem Disabled="@_disableBtns" T="string" Text="Payment Only" Icon="fas fa-money-bill-1" OnClick="@(() => ClickChangedTab(0))" />
+                        <MudListItem Disabled="@_disableBtns"
+                                     T="string" Text="Charge Patient"
+                                     Icon="fas fa-credit-card" OnClick="OpenChargeDialog" />
+                    </NestedList>
+                </MudListItem>
+                <MudDivider Style="border:3px dashed whitesmoke;margin:15px;width:270px" />
+                @if (!_disableBtns)
+                {
+                    <MudListItem Icon="fa-solid fa-sitemap" Text="Additional items">
+                        <NestedList>
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="Update Visit" Icon="fas fa-clock" OnClick="@(() => ClickChangedTab(0))" />
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="Transfer Patient" Icon="fas fa-right-left" OnClick="@(() => ClickChangedTab(0))" />
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="Patient Summary" Icon="fas fa-clipboard-list-check" OnClick="@(() => ClickChangedTab(0))" />
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="Patient Account" Icon="fas fa-piggy-bank" OnClick="@(() => ClickChangedTab(0))" />
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="My Queue" Icon="fas fa-people-line" OnClick="@(() => ClickChangedTab(0))" />
+                            <MudListItem Disabled="@_disableBtns" T="string" Text="Walk In" Icon="fas fa-person-walking-arrow-right" OnClick="@(() => ClickChangedTab(0))" />
+                        </NestedList>
+                    </MudListItem>
+                }
+              
             </MudList>
         </NavigationItems>
         <DexContentTabs>
             <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
                 <MudTabs @ref="_tabs">
                     <MudTabPanel Text="">
-                        <TabTitle Title="@($"Patients Expected ({ExpectedPatients.Count})")"></TabTitle>
+                        <TabTitle Title="@($"Patients Expected ({ExpectedPatients.Count})")">
+                            <ActionButtons>
+                                <DexSimpleButton Name="Refresh" Click="GetExpectedPatients" />
+                            </ActionButtons>
+                        </TabTitle>
                         <PatientInfoCard Patient="_patient" />
                         <WaitingPatientList Patients="ExpectedPatients"
                                             Loading="_loading"
@@ -55,6 +102,24 @@
                         <TabTitle Title="@($"Patients Present ({PresentPatients.Count})")" />
                         <PatientInfoCard Patient="_patient" />
                         <WaitingPatientList Patients="PresentPatients"
+                                            Loading="_loading"
+                                            WaitingPatientGrid="_grid"
+                                            RowSelected="GetPatientSelectedRecords" />
+                    </MudTabPanel>
+
+                    <MudTabPanel Text="">
+                        <TabTitle Title="@($"In Consultation ({ConsultationPatients.Count})")" />
+                        <PatientInfoCard Patient="_patient" />
+                        <WaitingPatientList Patients="ConsultationPatients"
+                                            Loading="_loading"
+                                            WaitingPatientGrid="_grid"
+                                            RowSelected="GetPatientSelectedRecords" />
+                    </MudTabPanel>
+
+                    <MudTabPanel Text="">
+                        <TabTitle Title="@($"Visit History ({VisitHistoryPatients.Count})")" />
+                        <PatientInfoCard Patient="_patient" />
+                        <WaitingPatientList Patients="VisitHistoryPatients"
                                             Loading="_loading"
                                             WaitingPatientGrid="_grid"
                                             RowSelected="GetPatientSelectedRecords" />
@@ -70,11 +135,18 @@
     private List<WaitingPatientDto> ExpectedPatients { get; set; } = new();
     private List<WaitingPatientDto> PresentPatients { get; set; } = new();
     private List<WaitingPatientDto> ConsultationPatients { get; set; } = new();
+    private List<WaitingPatientDto> VisitHistoryPatients { get; set; } = new();
+    
     private readonly SfGrid<WaitingPatientDto> _grid = new();
+    private GetPatientAccountDto AccountDto { get; set; } = new();
     private PatientSummaryDto _patient = new();
     MudTabs _tabs = new();
+    
     private bool _loading;
     private bool _disableBtns = true;
+    private bool _disableConsultationBtn = true;
+
+
     private Guid _patientId = Guid.Empty;
     private int _appointmentId = 0;
     private string _status;
@@ -82,32 +154,52 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await GetExpectedPatients();
+        await GetWaitingPatients();
+
+        //will refresh after 45 seconds
+        LoadRoomAfterTimer(45);
         _loading = false;
     }
 
     private void ClickChangedTab(int tabIndex)
     {
+        _patientId = Guid.Empty;
+        _appointmentId = 0;
         _disableBtns = true;
+        _disableConsultationBtn = true;
         _tabs.ActivatePanel(tabIndex);
     }
 
+    private async Task GetAccountDetails()
+    {
+        AccountDto = await UnitOfWork.Patient.GetPatientAccount(_patientId);
+    }
+    
     private async Task GetExpectedPatients()
     {
         ExpectedPatients = await UnitOfWork.WaitingRoom.GetExpectedPatients();
-        PresentPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.Status.Arrived);
     }
+
+    private async Task GetWaitingPatients()
+    {
+        ExpectedPatients = await UnitOfWork.WaitingRoom.GetExpectedPatients();
+        PresentPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.WaitingStatus.Arrived);
+        ConsultationPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.WaitingStatus.InConsultation);
+        VisitHistoryPatients = await UnitOfWork.WaitingRoom.GetAllWaitingPatients();
+    }
+
     private async Task GetPatient()
     {
         _patient = await UnitOfWork.Patient.GetPatientSummary(_patientId);
     }
+
     private async Task UpdatePatientStatus(string status)
     {
         var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(_appointmentId, status);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
-            await GetExpectedPatients();
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetWaitingPatients();
             StateHasChanged();
         }
         else
@@ -115,6 +207,7 @@
             Snackbar.FailMessge(res.Messages.First());
         }
     }
+
     private async Task CancelAppointment()
     {
         var parameters = new DialogParameters();
@@ -124,9 +217,23 @@
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
-            await GetExpectedPatients();
+            await GetWaitingPatients();
         }
     }
+
+    private async Task OpenChargeDialog()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("PatientAccount", AccountDto);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<AddChargeModal>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+            await GetWaitingPatients();
+        }
+    }
+    
     public async Task GetPatientSelectedRecords(RowSelectEventArgs<WaitingPatientDto> args)
     {
         if (args.Data.PatientId != Guid.Empty)
@@ -134,14 +241,19 @@
             _patientId = args.Data.PatientId;
             _appointmentId = args.Data.AppointmentId;
             _status = args.Data.Status;
-
-            if (_status == AppointmentConstants.Status.Arrived)
+            await GetAccountDetails();
+            if (_tabs.ActivePanelIndex == 0)
             {
-                _status = AppointmentConstants.Status.Expected;
             }
-            else
+
+            if (_tabs.ActivePanelIndex == 1)
             {
-                _status = AppointmentConstants.Status.Arrived;
+                _disableConsultationBtn = false;
+            }
+
+            if (_tabs.ActivePanelIndex == 2)
+            {
+                _disableConsultationBtn = false;
             }
 
             _disableBtns = false;
@@ -150,5 +262,29 @@
         }
 
         StateHasChanged();
+    }
+
+    private async Task BeginConsultation()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("AppointmentId", _appointmentId);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogResult = await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+            await GetWaitingPatients();
+        }
+    }
+    private void LoadRoomAfterTimer(int seconds)
+    {
+        var startTimeSpan = TimeSpan.Zero;
+        var periodTimeSpan = TimeSpan.FromSeconds(seconds);
+
+        var timer = new System.Threading.Timer(async (e) =>
+       {
+           await GetWaitingPatients();
+           //Snackbar.SuccessMessge("Success");
+       }, null, startTimeSpan, periodTimeSpan);
     }
 }

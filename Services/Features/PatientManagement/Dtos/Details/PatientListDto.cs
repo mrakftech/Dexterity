@@ -9,6 +9,6 @@ public class PatientListDto
     public string Gender { get; set; }
     public string Email { get; set; }
     public string AddressLine1 { get; set; }
-    public string Mobile { get; set; }
+    public string MobilePhone { get; set; }
     public string IhiNumber { get; set; }
 }

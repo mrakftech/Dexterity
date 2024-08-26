@@ -60,7 +60,7 @@
         var res = await UnitOfWork.Messaging.SendSms(_messageDto);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge("Message has been sent.");
+            Snackbar.SuccessMessage("Message has been sent.");
         }
         else
         {
@@ -83,7 +83,7 @@
         var patient = args.ItemData;
         if (patient == null) return;
         _messageDto.PatientId = patient.Id;
-        _messageDto.Mobile = patient.Mobile;
+        _messageDto.Mobile = patient.MobilePhone;
     }
 
 }

@@ -63,7 +63,7 @@
     }
     private async Task FindSlot()
     {
-        Snackbar.SuccessMessge("Testing");
+        Snackbar.SuccessMessage("Testing");
         _slots = await UnitOfWork.Appointment.GetFreeSlots(DateValue, DateValue.AddMinutes(15), HcpId);
     }
 }

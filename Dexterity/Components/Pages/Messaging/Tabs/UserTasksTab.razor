@@ -136,7 +136,7 @@ else
             var user = UserTaskList.FirstOrDefault(x => x.Id == id);
             UserTaskList.Remove(user);
             StateHasChanged();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 
@@ -187,7 +187,7 @@ else
         var res = await UnitOfWork.Messaging.UpdateTaskStatus(id, e.Value.ToString());
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
         }
     }
 

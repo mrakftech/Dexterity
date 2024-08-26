@@ -81,7 +81,7 @@
         if (res.Succeeded)
         {
             await GetHospitals();
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
         }
         else
         {
@@ -101,7 +101,7 @@
             var res = await UnitOfWork.Patient.DeleteHospital(_hospitalId);
             StateHasChanged();
             await GetHospitals();
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
         }
     }
 

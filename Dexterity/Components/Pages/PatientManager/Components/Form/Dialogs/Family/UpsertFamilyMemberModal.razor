@@ -56,7 +56,7 @@
         var res = await UnitOfWork.Patient.SaveFamilyMember(Id, FamilyMember);
         if (res.Succeeded)
         {
-            Snackbar.SuccessMessge(res.Messages.First());
+            Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
         }
         else

@@ -98,7 +98,7 @@
             var userRes = await UnitOfWork.Patient.DeleteFamilyMember(id);
             StateHasChanged();
             await GetFamilyMembers();
-            Snackbar.SuccessMessge(userRes.Messages.First());
+            Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
 
