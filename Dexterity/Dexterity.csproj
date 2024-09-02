@@ -69,6 +69,7 @@
 
     <ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.DataAnnotations.Validation" Version="3.2.0-rc1.20223.4" />
+        <PackageReference Include="MudBlazor.Extensions" Version="*" />
 		<PackageReference Include="Radzen.Blazor" Version="5.0.9" />
         <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
         <PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.5" />
@@ -87,7 +88,7 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="MudBlazor" Version="7.0.0" />
+        <PackageReference Include="MudBlazor" Version="7.5.0" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
     </ItemGroup>
 

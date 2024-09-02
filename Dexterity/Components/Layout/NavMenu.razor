@@ -1,4 +1,5 @@
-﻿@using Dexterity.Components.Layout.Dialogs.TeleHealth
+﻿@using MudBlazor.Extensions.Options
+@using Dexterity.Components.Pages.Messaging.Dialogs
 <MudNavMenu Style="margin-top: 30px;">
     <MudItem Style="margin-left:0px">
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-home" IconColor="MudColor.Info" Href="/home">
@@ -24,23 +25,61 @@
         </MudNavLink>
         <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Telehealth</MudText>
-            </MudNavLink>
+        </MudNavLink>
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Settings</MudText>
-            </MudNavLink>
+        </MudNavLink>
 
     </MudItem>
-    <MudSpacer />
+    <MudSpacer/>
 
 </MudNavMenu>
+<SfDialog Target="#target" Width="300px" ResizeHandles="@DialogResizeDirections" AllowDragging="true" EnableResize="true" ShowCloseIcon="true" @bind-Visible="Visibility">
+    <DialogTemplates>
+        <Header> Resize Me!!!</Header>
+        <Content> This is a dialog with resizable support. </Content>
+    </DialogTemplates>
+    <DialogEvents OnOpen="@DialogOpen" Closed="@DialogClose"></DialogEvents>
+</SfDialog>
 
 @code {
+
+
+    private bool Visibility { get; set; } = true;
+    private bool ShowButton { get; set; } = false;
+    private ResizeDirection[] DialogResizeDirections { get; set; } = [ResizeDirection.All];
+
+    private void DialogOpen(Object args)
+    {
+        ShowButton = false;
+    }
+
+    private void DialogClose(Object args)
+    {
+        ShowButton = true;
+    }
+
+    private void OnClicked()
+    {
+        Visibility = true;
+    }
 
     private async Task OpenVideoLinkModal()
     {
         var parameters = new DialogParameters { };
-        var options = new DialogOptions() { CloseButton = false, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center, FullScreen = true, CloseOnEscapeKey = false };
-        var dialogresult = await DialogService.ShowAsync<MeetingModal>("", parameters, options);
+
+        var options = new DialogOptionsEx
+        {
+            Resizeable = true,
+            DragMode = MudDialogDragMode.Simple,
+            CloseButton = true,
+            FullWidth = true,
+            MinimizeButton = true,
+            Position = DialogPosition.CenterRight,
+            Animation = AnimationType.SlideIn,
+            AnimationDuration = TimeSpan.FromMilliseconds(500),
+        };
+        var dialog = await DialogService.ShowEx<TelehealthDialog>("", parameters, options);
     }
 
 }

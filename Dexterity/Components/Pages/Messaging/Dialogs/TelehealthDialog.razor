@@ -1,0 +1,163 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Icons = MudBlazor.Icons
+@using global::Services.Features.Messaging.Dtos.Sms
+
+<DexDialog>
+    <DialogTitle>
+        Meeting - @_meetingLink
+    </DialogTitle>
+    <Content>
+        @if (_processing)
+        {
+        <CommonLoader/>
+        }
+        else
+        {
+        <p>@_messageFrameLoading</p>
+        <iframe allow="camera; microphone" src="@_meetingLink" height="500" @onload="FrameLoaded"></iframe>
+        @if (!string.IsNullOrWhiteSpace(@_meetingLink))
+        {
+        <MudStack Row>
+            <MudGrid Justify="MudJustify.Center">
+                <MudItem>
+                    <MudTooltip Text="Invite patients">
+                        <MudIconButton Icon="@Icons.Material.Filled.Share"  Color="MudColor.Primary" OnClick="ToggleOpen" ></MudIconButton>
+                    </MudTooltip>
+                    <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
+                        <MudPaper Outlined="true" Class="px-4 py-8">
+                            <MudStack>
+                                <DexForm Model="_mailRequest" ColumnCount="1" OnValidSubmit="ShareLinkToPatient">
+                                    <Fields>
+                                        <FormItem Field="@nameof(_mailRequest.To)">
+                                            <Template>
+                                                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+                                            </Template>
+                                        </FormItem>
+                                        <FormItem Field="@nameof(_mailRequest.To)">
+                                            <Template>
+                                                <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"/>
+                                            </Template>
+                                        </FormItem>
+                                    </Fields>
+                                    <Buttons>
+                                        <DexLoadingButton Processing="_processing" Type="MudButtonType.Submit" Name="Send Mail"></DexLoadingButton>
+                                        <MudButton OnClick="@ToggleOpen" Class="ml-auto mr-n3 mb-1" Color="MudColor.Error">Close</MudButton>
+                                    </Buttons>
+                                </DexForm>
+
+
+                            </MudStack>
+                        </MudPaper>
+                    </MudPopover>
+                </MudItem>
+                <MudItem>
+                    <MudTooltip Text="Copy Meeting Link">
+                        <MudIconButton Icon="@Icons.Material.Filled.FileCopy" Color="MudColor.Primary" OnClick="CopyMeetingLink" ></MudIconButton>
+                    </MudTooltip>
+                </MudItem>
+                <MudItem>
+                    <MudIconButton Icon="@Icons.Material.Filled.CallEnd" Color="MudColor.Secondary" OnClick="EndCall" ></MudIconButton>
+                </MudItem>
+            </MudGrid>
+        </MudStack>
+        }
+        }
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    private List<PatientListDto> PatientList { get; set; } = new();
+    private bool _processing;
+    private string _meetingLink;
+    private MailRequest _mailRequest = new();
+    private string _messageFrameLoading;
+
+    private bool _open;
+    private void ToggleOpen() => _open = !_open;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (string.IsNullOrWhiteSpace(ApplicationState.Telehealth.MeetingLink))
+        {
+            _processing = true;
+            _messageFrameLoading = "Loading video call components....";
+            await Task.Delay(2000);
+            await GetPatients();
+            await CreateMeetingLink();
+            _messageFrameLoading = "";
+            _processing = false;
+        }
+        else
+        {
+            _meetingLink = ApplicationState.Telehealth.MeetingLink;
+            PatientList = ApplicationState.Telehealth.PatientList;
+        }
+    }
+
+    private async Task CreateMeetingLink()
+    {
+        ApplicationState.Telehealth.MeetingName = CryptographyHelper.GetUniqueKey(25);
+        var res = await DailyMeetingRoom.CreateMeetingLink(ApplicationState.Telehealth.MeetingName);
+        _meetingLink = res.Url;
+        ApplicationState.Telehealth.MeetingLink = res.Url;
+    }
+
+    private async Task EndCall()
+    {
+        await DailyMeetingRoom.DeleteRoom(ApplicationState.Telehealth.MeetingName);
+        ApplicationState.Telehealth.MeetingLink = string.Empty;
+        ApplicationState.Telehealth.MeetingName = string.Empty;
+        ApplicationState.Telehealth.PatientList = [];
+        MudDialog.Close();
+    }
+
+    private void FrameLoaded(Microsoft.AspNetCore.Components.Web.ProgressEventArgs e)
+    {
+        _messageFrameLoading = "";
+    }
+
+    private async Task CopyMeetingLink()
+    {
+        await JsRuntime.InvokeVoidAsync("clipboardCopy.copyText", _meetingLink);
+        Snackbar.SuccessMessage("Link Copied");
+    }
+
+    private async Task ShareLinkToPatient()
+    {
+        if (string.IsNullOrWhiteSpace(_mailRequest.To))
+        {
+            Snackbar.FailMessge("Please enter patient email");
+            return;
+        }
+
+        _processing = true;
+
+        await Task.Delay(2500);
+        var mailRequest = new MailRequest()
+        {
+            Subject = "Meeting Link",
+            Body = _meetingLink,
+            To = _mailRequest.To
+        };
+        await MailService.SendAsync(mailRequest, default);
+        Snackbar.SuccessMessage("Email has been sent.");
+        _processing = false;
+    }
+
+    private async Task GetPatients()
+    {
+        PatientList = await UnitOfWork.Patient.GetPatients();
+        ApplicationState.Telehealth.PatientList = PatientList;
+    }
+
+    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
+    {
+        var patient = args.ItemData;
+        if (patient != null)
+        {
+            _mailRequest.To = patient.Email;
+        }
+    }
+
+}

@@ -11,13 +11,14 @@ using Dexterity.UiServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
+using MudBlazor.Extensions;
 using MudBlazor.Services;
 using Radzen;
 using Services.DbInitaiizer;
 using Services.State;
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
-using Services.Features.Appointments.Service;
+using DialogPosition = MudBlazor.DialogPosition;
 
 namespace Dexterity
 {
@@ -100,6 +101,15 @@ namespace Dexterity
                 .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
             builder.Services.AddRepositories();
             builder.Services.AddExternalApis();
+            builder.Services.AddMudServicesWithExtensions(c =>
+            {
+                c.WithDefaultDialogOptions(ex =>
+                {
+                    ex.Position = DialogPosition.BottomRight;
+                    
+                });
+                c.WithoutAutomaticCssLoading();
+            });
 
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
@@ -113,11 +123,11 @@ namespace Dexterity
         {
             Task.Run(async () =>
             {
-                if (!string.IsNullOrWhiteSpace(ApplicationState.MeetingName))
+                if (!string.IsNullOrWhiteSpace(ApplicationState.Telehealth.MeetingName))
                 {
                     var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
                     var roomEndpoints = new RoomEnpoints(httpClientFactory);
-                    await roomEndpoints.DeleteRoom(ApplicationState.MeetingName);
+                    await roomEndpoints.DeleteRoom(ApplicationState.Telehealth.MeetingName);
                 }
             }).GetAwaiter().GetResult();
         }

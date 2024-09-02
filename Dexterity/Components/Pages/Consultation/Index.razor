@@ -1,6 +1,26 @@
 ﻿@layout MainLayout
 @page "/consultation"
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
-@code {
 
+<InnerLayout AllHeight="700px" DrawerWidth="290px" MarginLeftContent="250px">
+    <NavigationItems>
+        <MudList T="string" Style="width: 290px">
+            <MudListItem T="string" Text="" Icon="fas fa-person-walking-arrow-right" OnClick="@(() => ClickChangedTab(0))" />
+        </MudList>
+    </NavigationItems>
+    <DexContentTabs>
+        
+    </DexContentTabs>
+</InnerLayout>
+
+@code {
+    MudTabs _tabs = new();
+
+    
+    
+    
+    private void ClickChangedTab(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
 }

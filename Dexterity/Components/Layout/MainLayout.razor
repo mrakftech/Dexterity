@@ -20,9 +20,9 @@
                        OnClick="@ToggleDrawer"/>
         <MudSpacer/>
         <UserPersonalToolBar/>
-        <MudToggleIconButton 
-                             Icon="@MudIcons.Material.Filled.DarkMode" Color="MudColor.Info"
-                             ToggledIcon="@MudIcons.Material.Filled.WbSunny" ToggledColor="MudColor.Info" ToggledChanged="ThemeChange"/>
+        <MudToggleIconButton
+            Icon="@MudIcons.Material.Filled.DarkMode" Color="MudColor.Info"
+            ToggledIcon="@MudIcons.Material.Filled.WbSunny" ToggledColor="MudColor.Info" ToggledChanged="ThemeChange"/>
     </MudAppBar>
     <MudDrawer Style="color: white!important; background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;" @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
                Width="200px" Variant="@DrawerVariant.Mini" Class="bg-side-nav">
@@ -52,7 +52,8 @@
 <MudPopoverProvider/>
 <MudDialogProvider BackdropClick="false"/>
 <MudSnackbarProvider/>
-<RadzenComponents  />
+<RadzenComponents/>
+
 @code {
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
     private bool _open = false;
