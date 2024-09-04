@@ -51,11 +51,11 @@
     {
         if (firstRender)
         {
-            await GetRecurrenceDates();
+            GetRecurrenceDates();
         }
     }
 
-    private async Task GetRecurrenceDates()
+    private void GetRecurrenceDates()
     {
         List<DateTime> dates = RecurrenceEditorRef.GetRecurrenceDates(new DateTime(2023, 7, 7, 10, 0, 0), "FREQ=DAILY;INTERVAL=1", "", 6);
         RecurrenceDates = dates.ToList();

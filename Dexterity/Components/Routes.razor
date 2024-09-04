@@ -6,3 +6,17 @@
 </Router>
 
 
+@code
+{
+    [Parameter] public string StartPath { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (!string.IsNullOrEmpty(StartPath))
+        {
+            NavigationManager.NavigateTo(StartPath);
+        }
+
+        base.OnParametersSet();
+    }
+}

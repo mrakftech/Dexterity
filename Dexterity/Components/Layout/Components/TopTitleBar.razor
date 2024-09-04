@@ -1,15 +1,22 @@
-﻿<MudAppBar Color="MudColor.Primary" Fixed="false" Style="z-index: 1;">
-    <MudImage Src=@($"assets/images/{Image}") Fluid="true" Width="48"></MudImage>
+﻿<style>
+    .e-appbar.e-dark {
+        background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;
+    }
+</style>
+<SfAppBar ColorMode="AppBarColor.Dark">
+    <MudImage Src=@($"assets/images/{Image}") Fluid="true" Width="32"/>
     <MudText
-        Typo="Typo.h4"
+        Typo="Typo.h6"
         Align="MudAlign.Center"
         Style="color: white;font-weight: bolder;margin-left: 15px">
         @Title
     </MudText>
-
-</MudAppBar>
-
+    <MudSpacer/>
+    @ActionButtons
+</SfAppBar>
 @code {
     [Parameter] public string Title { get; set; }
     [Parameter] public string Image { get; set; } = "waitingRoom/waiting-room.svg";
+    [Parameter] public RenderFragment ActionButtons { get; set; }
+
 }

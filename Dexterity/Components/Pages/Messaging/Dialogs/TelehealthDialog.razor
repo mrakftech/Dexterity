@@ -1,27 +1,23 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 @using Icons = MudBlazor.Icons
 @using global::Services.Features.Messaging.Dtos.Sms
-
-<DexDialog>
-    <DialogTitle>
-        Meeting - @_meetingLink
-    </DialogTitle>
-    <Content>
-        @if (_processing)
-        {
-        <CommonLoader/>
-        }
-        else
-        {
-        <p>@_messageFrameLoading</p>
-        <iframe allow="camera; microphone" src="@_meetingLink" height="500" @onload="FrameLoaded"></iframe>
-        @if (!string.IsNullOrWhiteSpace(@_meetingLink))
-        {
+@page "/telehealth"
+@layout BlankLayout
+@if (_processing)
+{
+    <CommonLoader/>
+}
+else
+{
+    <p>@_messageFrameLoading</p>
+    <iframe allow="camera; microphone" src="@_meetingLink" height="800" @onload="FrameLoaded"></iframe>
+    @if (!string.IsNullOrWhiteSpace(@_meetingLink))
+    {
         <MudStack Row>
             <MudGrid Justify="MudJustify.Center">
                 <MudItem>
                     <MudTooltip Text="Invite patients">
-                        <MudIconButton Icon="@Icons.Material.Filled.Share"  Color="MudColor.Primary" OnClick="ToggleOpen" ></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.Share" Color="MudColor.Primary" OnClick="ToggleOpen"></MudIconButton>
                     </MudTooltip>
                     <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomCenter" TransformOrigin="Origin.TopCenter" Paper="false">
                         <MudPaper Outlined="true" Class="px-4 py-8">
@@ -52,21 +48,20 @@
                 </MudItem>
                 <MudItem>
                     <MudTooltip Text="Copy Meeting Link">
-                        <MudIconButton Icon="@Icons.Material.Filled.FileCopy" Color="MudColor.Primary" OnClick="CopyMeetingLink" ></MudIconButton>
+                        <MudIconButton Icon="@Icons.Material.Filled.FileCopy" Color="MudColor.Primary" OnClick="CopyMeetingLink"></MudIconButton>
                     </MudTooltip>
                 </MudItem>
                 <MudItem>
-                    <MudIconButton Icon="@Icons.Material.Filled.CallEnd" Color="MudColor.Secondary" OnClick="EndCall" ></MudIconButton>
+                    <MudIconButton Icon="@Icons.Material.Filled.CallEnd" Color="MudColor.Secondary" OnClick="EndCall"></MudIconButton>
                 </MudItem>
             </MudGrid>
         </MudStack>
-        }
-        }
-    </Content>
-</DexDialog>
+    }
+}
 
 @code {
-    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+
+    // [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     private List<PatientListDto> PatientList { get; set; } = new();
     private bool _processing;
     private string _meetingLink;
@@ -109,7 +104,7 @@
         ApplicationState.Telehealth.MeetingLink = string.Empty;
         ApplicationState.Telehealth.MeetingName = string.Empty;
         ApplicationState.Telehealth.PatientList = [];
-        MudDialog.Close();
+        //MudDialog.Close();
     }
 
     private void FrameLoaded(Microsoft.AspNetCore.Components.Web.ProgressEventArgs e)

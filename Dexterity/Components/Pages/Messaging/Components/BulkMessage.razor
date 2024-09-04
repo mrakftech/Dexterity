@@ -1,8 +1,6 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Dialogs
-@using Services.Features.PatientManagement.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using SelectionType = Syncfusion.Blazor.Grids.SelectionType
-@using Shared.Helper
 
 <TabTitle Title="Bulk SMS"></TabTitle>
 <div class="vertical-space">
@@ -19,6 +17,7 @@
                                 </RadzenMenuItem>
                             </RadzenMenuItem>
                         </RadzenMenu>
+                        
                     </MudItem>
                     @if (SelectedPatients is {Count: > 0})
                     {
@@ -58,7 +57,6 @@
     private List<PatientListDto> ValidPatients { get; set; } = new();
     private List<PatientListDto> SelectedPatients { get; set; } = new();
     private bool _patientLoading;
-    private string _searchString;
     SfGrid<PatientListDto> _grid = new();
 
     private void LoadPatients()

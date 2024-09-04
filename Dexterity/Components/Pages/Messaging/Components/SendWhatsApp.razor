@@ -34,19 +34,16 @@
 
 @code {
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
-    private bool _processing;
     private string _waLink = "";
     private string _mobile = "";
     private string _error = "";
 
     private async Task SendSmsClick()
     {
-        _processing = true;
         var n = Method.GetMobileFormat(_mobile);
         await Task.Delay(2500);
         _waLink = $"https://wa.me/{n}";
         Snackbar.SuccessMessage("WhatsApp link generated.");
-        _processing = false;
     }
 
     private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)

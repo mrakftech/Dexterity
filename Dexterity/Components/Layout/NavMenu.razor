@@ -23,63 +23,49 @@
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message-dots" IconColor="MudColor.Info" Href="/messaging">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Messaging</MudText>
         </MudNavLink>
-        <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Telehealth</MudText>
-        </MudNavLink>
+        @if (string.IsNullOrWhiteSpace(ApplicationState.Telehealth.MeetingLink))
+        {
+            <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">
+                <MudText Color="MudColor.Info" Align="MudAlign.Left">Telehealth</MudText>
+            </MudNavLink>
+        }
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Settings</MudText>
         </MudNavLink>
 
     </MudItem>
     <MudSpacer/>
-
 </MudNavMenu>
-<SfDialog Target="#target" Width="300px" ResizeHandles="@DialogResizeDirections" AllowDragging="true" EnableResize="true" ShowCloseIcon="true" @bind-Visible="Visibility">
-    <DialogTemplates>
-        <Header> Resize Me!!!</Header>
-        <Content> This is a dialog with resizable support. </Content>
-    </DialogTemplates>
-    <DialogEvents OnOpen="@DialogOpen" Closed="@DialogClose"></DialogEvents>
-</SfDialog>
 
 @code {
 
-
-    private bool Visibility { get; set; } = true;
-    private bool ShowButton { get; set; } = false;
-    private ResizeDirection[] DialogResizeDirections { get; set; } = [ResizeDirection.All];
-
-    private void DialogOpen(Object args)
+    private void OpenVideoLinkModal()
     {
-        ShowButton = false;
-    }
-
-    private void DialogClose(Object args)
-    {
-        ShowButton = true;
-    }
-
-    private void OnClicked()
-    {
-        Visibility = true;
-    }
-
-    private async Task OpenVideoLinkModal()
-    {
-        var parameters = new DialogParameters { };
-
-        var options = new DialogOptionsEx
+        var counterWindow = new Window
         {
-            Resizeable = true,
-            DragMode = MudDialogDragMode.Simple,
-            CloseButton = true,
-            FullWidth = true,
-            MinimizeButton = true,
-            Position = DialogPosition.CenterRight,
-            Animation = AnimationType.SlideIn,
-            AnimationDuration = TimeSpan.FromMilliseconds(500),
+            Page = new MainPage("/telehealth"),
+            Width = 500,
+            Height = 500,
+            Title = $"Meeting",
         };
-        var dialog = await DialogService.ShowEx<TelehealthDialog>("", parameters, options);
+
+        Application.Current.OpenWindow(counterWindow);
+        // var parameters = new DialogParameters { };
+        //
+        // var options = new DialogOptionsEx
+        // {
+        //     Resizeable = false,
+        //     DragMode = MudDialogDragMode.None,
+        //     CloseButton = true,
+        //     FullWidth = true,
+        //     MinimizeButton = true,
+        //     JsRuntime = JsRuntime,
+        //     Position = DialogPosition.CenterRight,
+        //     Animation = AnimationType.SlideIn,
+        //     AnimationDuration = TimeSpan.FromMilliseconds(500),
+        //     FullHeight = true
+        // };
+        // var dialog = await DialogService.ShowEx<TelehealthDialog>("", parameters, options);
     }
 
 }

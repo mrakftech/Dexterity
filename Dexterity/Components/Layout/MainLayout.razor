@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using MudBlazor.Extensions.Helper
+@inherits LayoutComponentBase
 <style>
     body {
         font-family: "Open Sans", serif;
@@ -41,7 +42,7 @@
         </MudNavMenu>
     </MudDrawer>
     <MudMainContent Class="">
-        <MudContainer Class="mt-6" MaxWidth="MaxWidth.ExtraExtraLarge">
+        <MudContainer Class="mt-2" MaxWidth="MaxWidth.ExtraExtraLarge">
             @Body
         </MudContainer>
     </MudMainContent>
@@ -53,7 +54,6 @@
 <MudDialogProvider BackdropClick="false"/>
 <MudSnackbarProvider/>
 <RadzenComponents/>
-
 @code {
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
     private bool _open = false;
@@ -62,6 +62,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+
         await CheckPasswordReset();
     }
 

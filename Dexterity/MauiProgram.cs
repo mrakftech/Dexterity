@@ -1,7 +1,6 @@
 ﻿using Blazorise;
 using Blazorise.Bootstrap5;
 using Blazorise.Icons.FontAwesome;
-using Blazorise.RichTextEdit;
 using DailyCo.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
@@ -36,11 +35,10 @@ namespace Dexterity
                 .AddBlazorise(options => { options.Immediate = true; })
                 .AddBootstrap5Providers()
                 .AddFontAwesomeIcons();
-            builder.Services
-                .AddBlazoriseRichTextEdit();
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
-            SyncfusionLicenseProvider.RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
+            SyncfusionLicenseProvider
+                .RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
             builder.Services.AddBlazorContextMenu(options =>
             {
                 options.ConfigureTemplate("myTemplate", template =>
@@ -67,9 +65,9 @@ namespace Dexterity
                         {
                             case Microsoft.UI.Windowing.OverlappedPresenter overlappedPresenter:
                                 overlappedPresenter.SetBorderAndTitleBar(true, true);
-                                overlappedPresenter.Maximize();
-                                overlappedPresenter.IsResizable = false;
-                                overlappedPresenter.IsMaximizable = true;
+                                //overlappedPresenter.Maximize();
+                                //overlappedPresenter.IsResizable = false;
+                            //    overlappedPresenter.IsMaximizable = true;
 
                                 break;
                         }
@@ -107,8 +105,8 @@ namespace Dexterity
                 {
                     ex.Position = DialogPosition.BottomRight;
                     
+                    
                 });
-                c.WithoutAutomaticCssLoading();
             });
 
 #if DEBUG
@@ -128,6 +126,10 @@ namespace Dexterity
                     var httpClientFactory = serviceProvider.GetService<IHttpClientFactory>();
                     var roomEndpoints = new RoomEnpoints(httpClientFactory);
                     await roomEndpoints.DeleteRoom(ApplicationState.Telehealth.MeetingName);
+                    ApplicationState.Telehealth.MeetingName = string.Empty;
+                    ApplicationState.Telehealth.MeetingLink = string.Empty;
+                    ApplicationState.Telehealth.PatientList = new();
+
                 }
             }).GetAwaiter().GetResult();
         }

@@ -96,8 +96,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        _loading = true;
         await GetPatientAlerts(Id);
         await GetAlertCategory();
+        _loading = false;
+
     }
 
     private async Task AddPatientAlert()

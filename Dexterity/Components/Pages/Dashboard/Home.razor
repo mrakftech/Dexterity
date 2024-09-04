@@ -47,13 +47,12 @@
         </MudItem>
       </MudGrid>
     </MudItem>
-    
+
     <MudItem md="12" Style="margin-top: 5%">
       <MudStack Row>
         <MudItem md="6">
           <MudPaper >
-            <MudChart 
-              ChartType="ChartType.Bar"
+            <MudChart ChartType="MudBlazor.ChartType.Bar"
               ChartSeries="@Series"
               @bind-SelectedIndex="Index"
               LegendPosition="Position.Right"
@@ -62,18 +61,17 @@
         </MudItem>
         <MudSpacer/>
         <MudItem md="6">
-          <MudPaper  >
-            <MudChart 
-                      ChartType="ChartType.Donut" 
-                      LegendPosition="Position.Right" Width="300px" Height="350px"
-                      InputData="@data" InputLabels="@labels">
+          <MudPaper >
+            <MudChart
+              ChartType="MudBlazor.ChartType.Donut"
+              LegendPosition="Position.Right" Width="300px" Height="350px"
+              InputData="@data" InputLabels="@labels">
             </MudChart>
           </MudPaper>
         </MudItem>
       </MudStack>
     </MudItem>
   </MudGrid>
-
 </MudContainer>
 
 @code{

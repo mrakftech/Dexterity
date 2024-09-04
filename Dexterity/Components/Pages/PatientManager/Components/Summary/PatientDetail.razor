@@ -3,136 +3,99 @@
 <TabTitle Title="Details"></TabTitle>
 @if (ApplicationState.SelectedPatientId != Guid.Empty)
 {
-       <RadzenRow >
-            <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
-                <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem" class="rz-p-4">
-                    <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
-                    <RadzenStack Gap="0">
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@Patient.Name</b>
-                        </RadzenText>
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Date Of Birth</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@Patient.DateOfBirth</b>
-                        </RadzenText>
+    <PatientInfoCard Patient="Patient"/>
+    <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack>
+                <RadzenFieldset Text="Patient Details">
+                    <RadzenStack Gap="1rem">
+                        <DexForm Model="Patient">
+                            <Fields>
+                                <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
+                                    <Template>
+                                        <DexInputBox Label="Unique Number" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.UniqueNumber"/>
+                                        <DexInputBox Label="Phone" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Mobile"/>
+                                        <DexInputBox Label="Address" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Mobile" IsMultiLine/>
+                                        <DexInputBox Label="HCP" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.DefualtHcp"/>
+                                        <DexInputBox Label="Registered Date" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.RegistrationDate"/>
+                                    </Template>
+                                </FormItem>
+                            </Fields>
+                        </DexForm>
                     </RadzenStack>
-                    <RadzenStack Gap="0">
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Nationality</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@(Patient.Nationality ?? "Not set")</b>
-                        </RadzenText>
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">PPSN</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@(Patient.Ppsn ?? "Not set")</b>
-                        </RadzenText>
+                </RadzenFieldset>
+
+                <RadzenFieldset Text="Family Details">
+                    <RadzenStack Gap="1rem">
+                        <DexForm Model="Patient">
+                            <Fields>
+                                <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
+                                    <Template>
+                                        <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="FamilyMemberDto"
+                                                        DataSource="@Patient.FamilyMembers" Width="400px">
+                                            <DropDownListFieldSettings Value="Id" Text="Clinic.Name"/>
+                                            <DropDownListEvents TItem="FamilyMemberDto" TValue="int" ValueChange="@ValueChangeFamilyHandler"/>
+                                        </SfDropDownList>
+                                        <DexInputBox Label="Name" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.NextOfKin"/>
+                                        <DexInputBox Label="Relationship" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Relationship"/>
+                                        <DexInputBox Label="Contact" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.KinContact"/>
+                                        <DexInputBox Label="Address" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.KinAddress"/>
+                                    </Template>
+                                </FormItem>
+                            </Fields>
+                        </DexForm>
                     </RadzenStack>
-                    <RadzenStack Gap="0">
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Patient Status</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@(Patient.Status ?? "Not set")</b>
-
-                        </RadzenText>
-                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Patient Type</RadzenText>
-                        <RadzenText TextStyle="TextStyle.Body1">
-                            <b>@(Patient.Type ?? "Not set")</b>
-                        </RadzenText>
+                </RadzenFieldset>
+            </RadzenStack>
+        </RadzenColumn>
+        <RadzenColumn Size="12" SizeMD="6">
+            <RadzenStack>
+                <RadzenFieldset Text="GMS Details">
+                    <RadzenStack Gap="1rem">
+                        <DexForm Model="Patient">
+                            <Fields>
+                                <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
+                                    <Template>
+                                        <DexInputBox Label="Patient Type" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Type"/>
+                                        <DexInputBox Label="GMS Status" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsStatus"/>
+                                        <DexInputBox Label="GMS Doctor" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsDoctor"/>
+                                        <DexInputBox Label="GMS Number" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsNumber"/>
+                                        <DexInputBox Label="GMS Review Date" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsReviewDate"/>
+                                        <DexInputBox Label="GMS Distance" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsDistance"/>
+                                    </Template>
+                                </FormItem>
+                            </Fields>
+                        </DexForm>
                     </RadzenStack>
-                </RadzenStack>
-            </RadzenCard>
-        </RadzenRow>
-        <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
-            <RadzenColumn Size="12" SizeMD="6">
-                <RadzenStack>
-                    <RadzenFieldset Text="Patient Details">
-                        <RadzenStack Gap="1rem">
-                            <DexForm Model="Patient">
-                                <Fields>
-                                    <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
-                                        <Template>
-                                            <DexInputBox Label="Unique Number" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.UniqueNumber"/>
-                                            <DexInputBox Label="Phone" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Mobile"/>
-                                            <DexInputBox Label="Address" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Mobile" IsMultiLine/>
-                                            <DexInputBox Label="HCP" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.DefualtHcp"/>
-                                            <DexInputBox Label="Registered Date" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.RegistrationDate"/>
-                                        </Template>
-                                    </FormItem>
-                                </Fields>
-                            </DexForm>
-                        </RadzenStack>
-                    </RadzenFieldset>
+                </RadzenFieldset>
+                <RadzenFieldset Text="Hospital Details">
+                    <RadzenStack Gap="1rem">
+                        <DexForm Model="Patient">
+                            <Fields>
+                                <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
+                                    <Template>
+                                        <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientHospitalDto"
+                                                        DataSource="@Patient.Hospitals" Width="400px">
+                                            <DropDownListFieldSettings Value="Id" Text="Clinic.Name"/>
+                                            <DropDownListEvents TItem="PatientHospitalDto" TValue="int" ValueChange="@ValueChangeHandler"/>
+                                        </SfDropDownList>
+                                        <DexInputBox Label="Hospital No." IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.HospitalNo"/>
+                                    </Template>
+                                </FormItem>
+                            </Fields>
+                        </DexForm>
+                    </RadzenStack>
+                </RadzenFieldset>
 
-                    <RadzenFieldset Text="Family Details">
-                        <RadzenStack Gap="1rem">
-                            <DexForm Model="Patient">
-                                <Fields>
-                                    <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
-                                        <Template>
-                                            <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="FamilyMemberDto"
-                                                            DataSource="@Patient.FamilyMembers" Width="400px">
-                                                <DropDownListFieldSettings Value="Id" Text="Clinic.Name"/>
-                                                <DropDownListEvents TItem="FamilyMemberDto" TValue="int" ValueChange="@ValueChangeFamilyHandler"/>
-                                            </SfDropDownList>
-                                            <DexInputBox Label="Name" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.NextOfKin"/>
-                                            <DexInputBox Label="Relationship" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Relationship"/>
-                                            <DexInputBox Label="Contact" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.KinContact"/>
-                                            <DexInputBox Label="Address" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.KinAddress"/>
-                                        </Template>
-                                    </FormItem>
-                                </Fields>
-                            </DexForm>
-                        </RadzenStack>
-                    </RadzenFieldset>
-                </RadzenStack>
-            </RadzenColumn>
-            <RadzenColumn Size="12" SizeMD="6">
-                <RadzenStack>
-                    <RadzenFieldset Text="GMS Details">
-                        <RadzenStack Gap="1rem">
-                            <DexForm Model="Patient">
-                                <Fields>
-                                    <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
-                                        <Template>
-                                            <DexInputBox Label="Patient Type" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.Type"/>
-                                            <DexInputBox Label="GMS Status" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsStatus"/>
-                                            <DexInputBox Label="GMS Doctor" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsDoctor"/>
-                                            <DexInputBox Label="GMS Number" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsNumber"/>
-                                            <DexInputBox Label="GMS Review Date" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsReviewDate"/>
-                                            <DexInputBox Label="GMS Distance" IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.GmsDistance"/>
-                                        </Template>
-                                    </FormItem>
-                                </Fields>
-                            </DexForm>
-                        </RadzenStack>
-                    </RadzenFieldset>
-                    <RadzenFieldset Text="Hospital Details">
-                        <RadzenStack Gap="1rem">
-                            <DexForm Model="Patient">
-                                <Fields>
-                                    <FormItem Field="@nameof(PatientSummaryDto.UniqueNumber)">
-                                        <Template>
-                                            <SfDropDownList TValue="int" Placeholder="e.g. select contact" TItem="PatientHospitalDto"
-                                                            DataSource="@Patient.Hospitals" Width="400px">
-                                                <DropDownListFieldSettings Value="Id" Text="Clinic.Name"/>
-                                                <DropDownListEvents TItem="PatientHospitalDto" TValue="int" ValueChange="@ValueChangeHandler"/>
-                                            </SfDropDownList>
-                                            <DexInputBox Label="Hospital No." IsFieldReadOnly="true" @bind-FieldDataSource="@Patient.HospitalNo"/>
-                                        </Template>
-                                    </FormItem>
-                                </Fields>
-                            </DexForm>
-                        </RadzenStack>
-                    </RadzenFieldset>
-
-                </RadzenStack>
-            </RadzenColumn>
-        </RadzenRow>
-    
+            </RadzenStack>
+        </RadzenColumn>
+    </RadzenRow>
 }
 
 
 @code {
-    [Parameter]public PatientSummaryDto Patient { get; set; } = new();
+    [Parameter] public PatientSummaryDto Patient { get; set; } = new();
+
     private void ValueChangeHandler(ChangeEventArgs<int, PatientHospitalDto> obj)
     {
         Patient.HospitalNo = obj.ItemData.Contact;

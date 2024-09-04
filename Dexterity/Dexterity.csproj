@@ -69,8 +69,8 @@
 
     <ItemGroup>
 		<PackageReference Include="Microsoft.AspNetCore.Components.DataAnnotations.Validation" Version="3.2.0-rc1.20223.4" />
-        <PackageReference Include="MudBlazor.Extensions" Version="*" />
 		<PackageReference Include="Radzen.Blazor" Version="5.0.9" />
+        <PackageReference Include="MudBlazor.Extensions" Version="2.0.3" />
         <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
         <PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.5" />
 		<PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
@@ -79,7 +79,6 @@
         <PackageReference Include="Blazorise.Components" Version="1.5.3" />
         <PackageReference Include="Blazorise.Generator.Features" Version="1.5.3" />
         <PackageReference Include="Blazorise.Icons.FontAwesome" Version="1.5.3" />
-        <PackageReference Include="Blazorise.RichTextEdit" Version="1.5.3" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -88,7 +87,7 @@
         <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.AspNetCore.Components.WebView.Maui" Version="$(MauiVersion)" />
         <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
-        <PackageReference Include="MudBlazor" Version="7.5.0" />
+        <PackageReference Include="MudBlazor" Version="7.6.0" />
         <PackageReference Include="PInvoke.User32" Version="0.7.124" />
     </ItemGroup>
 
@@ -111,6 +110,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Components\Pages\Consultation\Components\" />
       <Folder Include="wwwroot\assets\css\syncfusion\" />
       <Folder Include="wwwroot\assets\fonts\" />
     </ItemGroup>

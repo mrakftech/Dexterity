@@ -14,7 +14,6 @@
 
 @code {
     private List<SearchAppointmentDto> AppointmentList { get; set; } = new();
-    private string _searchString;
     private bool _loading;
 
     protected override async Task OnInitializedAsync()
@@ -24,21 +23,6 @@
         _loading = false;
     }
 
-    private Func<SearchAppointmentDto, bool> QuickFilter => x =>
-    {
-        if (string.IsNullOrWhiteSpace(_searchString))
-            return true;
-
-        if (x.PatientName.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (x.Status.Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-        if (x.StartTime.ToString().Contains(_searchString, StringComparison.OrdinalIgnoreCase))
-            return true;
-
-
-        return false;
-    };
 
     private async Task GetAppointments()
     {

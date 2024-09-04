@@ -1,12 +1,12 @@
-﻿
-
-<MudPaper Height="@AllHeight">
+﻿<MudPaper Height="@AllHeight" Class="vertical-space">
     <Layout>
         <Layout Sider>
             <LayoutSider>
                 <LayoutSiderContent >
                     <MudDrawerContainer>
-                        <MudDrawer Height="@AllHeight" Class="sub-drawer" Style="@($"width:{DrawerWidth}")" @bind-Open="@_open" Fixed="false" Elevation="1"
+                        <MudDrawer Height="@AllHeight" Class="sub-drawer" 
+                                   Style="@($"width:{DrawerWidth}")" 
+                                   @bind-Open="@_open" Fixed="false" Elevation="1"
                                    Variant="@DrawerVariant.Mini"
                                    OpenMiniOnHover="true">
                             <MudNavMenu>
@@ -23,7 +23,6 @@
                             @DexContentTabs
                         </div>
                     </MudPaper>
-
                 </LayoutContent>
             </Layout>
         </Layout>
