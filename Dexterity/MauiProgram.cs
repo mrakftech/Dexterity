@@ -1,7 +1,4 @@
-﻿using Blazorise;
-using Blazorise.Bootstrap5;
-using Blazorise.Icons.FontAwesome;
-using DailyCo.Services;
+﻿using DailyCo.Services;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.LifecycleEvents;
 using Database;
@@ -31,11 +28,7 @@ namespace Dexterity
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
             builder.Services.AddTransient<SnackbarNotificationService>();
-            
-            builder.Services
-                .AddBlazorise(options => { options.Immediate = true; })
-                .AddBootstrap5Providers()
-                .AddFontAwesomeIcons();
+          
             
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();

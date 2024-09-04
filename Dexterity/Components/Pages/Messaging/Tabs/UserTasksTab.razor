@@ -72,13 +72,12 @@ else
                                 }
                                 else
                                 {
-                                    <Select TValue="string" @onchange="(ChangeEventArgs e) => ChangeStatus(e, item.Id)">
-
+                                    <InputSelect TValue="string" @onchange="e => ChangeStatus(e, item.Id)">
                                         @foreach (var item in UserTaskConstants.TaskStatusList)
                                         {
-                                            <SelectItem Value="@item.Name">@item.Name</SelectItem>
+                                            <option value="@item.Name">@item.Name</option>
                                         }
-                                    </Select>
+                                    </InputSelect>
                                 }
                             }
                         </Template>

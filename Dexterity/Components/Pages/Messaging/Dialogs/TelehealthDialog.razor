@@ -31,7 +31,7 @@ else
                                         </FormItem>
                                         <FormItem Field="@nameof(_mailRequest.To)">
                                             <Template>
-                                                <DexTextInputField Label="Patient Email" @bind-FieldDataSource="_mailRequest.To" FieldRole="TextRole.Email"/>
+                                                <FormItem LabelText="Patient Email" Field="@nameof(_mailRequest.To)"></FormItem>
                                             </Template>
                                         </FormItem>
                                     </Fields>

@@ -28,7 +28,7 @@
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="2">
                         <Template>
-                            <Label class="e-form-label">Start Time:</Label>
+                            <label class="e-form-label">Start Time:</label>
                             <SfDateTimePicker Min="@DateTime.Today" TValue="DateTime" Value="@Appointment.StartTime">
                                 <DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
                                 </DateTimePickerEvents>
@@ -37,7 +37,7 @@
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.AppointmentTypeId)" ColumnSpan="1">
                         <Template>
-                            <Label class="e-form-label">Appointment Type:</Label>
+                            <label class="e-form-label">Appointment Type:</label>
                             <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                                 <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
@@ -46,7 +46,7 @@
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
-                            <Label class="e-form-label">Site:</Label>
+                            <label class="e-form-label">Site:</label>
                             <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                                 <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnClinicStieChanged"></DropDownListEvents>
@@ -55,7 +55,7 @@
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.HcpId)" ColumnSpan="1">
                         <Template>
-                            <Label class="e-form-label">HCP:</Label>
+                            <label class="e-form-label">HCP:</label>
                             <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Appointment.HcpId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
@@ -63,13 +63,13 @@
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1">
                         <Template>
-                            <Label class="e-form-label">Duration:</Label>
+                            <label class="e-form-label">Duration:</label>
                             <SfNumericTextBox TValue="int" Value=@Appointment.Duration Min="5" Step="5" Max="60"></SfNumericTextBox>
                         </Template>
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.Description)" ColumnSpan="2">
                         <Template>
-                            <Label class="e-form-label">Description:</Label>
+                            <label class="e-form-label">Description:</label>
                             <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
                         </Template>
                     </FormItem>

@@ -6,13 +6,12 @@
             <MudStack>
                 <MudItem>
                     <MudStack>
-                        <Select TValue="int" @bind-SelectedValue="@_clinicId">
-                            <SelectItem Value="0">Select Clinic</SelectItem>
-                            @foreach (var item in ClinicList)
-                            {
-                                <SelectItem Value="@item.Id">@item.Name - @item.Address</SelectItem>
-                            }
-                        </Select>
+                        <SfDropDownList TValue="int" TItem="ClinicDto"
+                                        Placeholder="Clinic"
+                                        @bind-Value="@_clinicId"
+                                        DataSource="ClinicList">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
                         <DexLoadingButton Name="Add Clinic" Processing="_processing" Click="AddUserClinic"></DexLoadingButton>
                     </MudStack>
                 </MudItem>
@@ -41,7 +40,7 @@
                         <Template>
                             @{
                                 var item = (context as UserClinic);
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(item.Id)" />
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteUserClinic(item.Id)"/>
                             }
                         </Template>
                     </GridColumn>
@@ -81,10 +80,10 @@
         if (_clinicId > 0)
         {
             var clinic = new UserClinic()
-                {
-                    ClinicId = _clinicId,
-                    UserId = UserId
-                };
+            {
+                ClinicId = _clinicId,
+                UserId = UserId
+            };
             var res = await UnitOfWork.User.SaveUserClinic(0, clinic);
             if (res.Succeeded)
             {
@@ -117,4 +116,5 @@
             Snackbar.SuccessMessage(userRes.Messages.First());
         }
     }
+
 }

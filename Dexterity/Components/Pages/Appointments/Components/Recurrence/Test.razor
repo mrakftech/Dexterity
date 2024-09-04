@@ -10,7 +10,7 @@
         <SfDatePicker TValue="DateTime" @bind-Value="@DateValue" Min="DateValue"></SfDatePicker>
     </MudItem>
     <MudItem md="6">
-        <Label>HCP:</Label>
+        <label>HCP:</label>
         <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@HcpId">
             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
         </SfDropDownList>
