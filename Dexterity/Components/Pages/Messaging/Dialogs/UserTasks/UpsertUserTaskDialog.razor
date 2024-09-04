@@ -1,126 +1,81 @@
 ﻿@using Services.Features.Messaging.Dtos.UserTasks
-@using Services.Features.PatientManagement.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.UserAccounts.Dtos.User
-<MudDialog>
-    <TitleContent>
+<DexDialog>
+    <DialogTitle>
         <MudStack>
             <MudItem>
                 <MudText Align="Align.Center" Style="font-weight: bolder">@_title</MudText>
             </MudItem>
         </MudStack>
-    </TitleContent>
-    <DialogContent>
+    </DialogTitle>
+    <Content>
         @if (_loadComponent)
         {
             <CommonLoader/>
         }
         else
         {
-            <MudStack>
-                <Validations Mode="ValidationMode.Manual" Model="_userTask" @ref="_validationsRef">
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem md="6">
-                                <FieldLabel ColumnSize="ColumnSize.Is4">Start Date</FieldLabel>
-                                <DateEdit TValue="DateTime" @bind-Date="@_userTask.StartDate"/>
-                            </MudItem>
-                            <MudItem md="6">
-                                <FieldLabel ColumnSize="ColumnSize.Is4">Start Time</FieldLabel>
-                                <TimeEdit TValue="DateTime" @bind-Time="@_userTask.StartTime"/>
-                            </MudItem>
-                        </MudStack>
-                    </MudItem>
-                    <MudItem md="12">
-                        <MudStack Row>
-                            <MudItem md="6">
-                                <FieldLabel ColumnSize="ColumnSize.Is4">End Date</FieldLabel>
-                                <DateEdit TValue="DateTime" @bind-Date="@_userTask.EndDate"/>
-                            </MudItem>
-                            <MudItem md="6">
-                                <FieldLabel ColumnSize="ColumnSize.Is4">End Time</FieldLabel>
-                                <TimeEdit TValue="DateTime" @bind-Time="@_userTask.EndTime"/>
-                            </MudItem>
-
-                        </MudStack>
-                    </MudItem>
-                    <MudItem>
-                        <MudStack Row>
-                            <MudItem md="6">
-                                <FieldLabel ColumnSize="ColumnSize.Is2">Status</FieldLabel>
-                                <Select TValue="string" @bind-SelectedValue="@_userTask.Status" Disabled="@(Id == Guid.Empty)">
-
-                                    @foreach (var item in UserTaskConstants.TaskStatusList)
-                                    {
-                                        <SelectItem Value="@item.Name">@item.Name</SelectItem>
-                                    }
-                                </Select>
-                            </MudItem>
-                            <MudItem>
-                                <MudCheckBox Label="Private" @bind-Value="_userTask.IsPrivate" Color="MudColor.Primary"></MudCheckBox>
-                            </MudItem>
-                        </MudStack>
-
-                    </MudItem>
-                    <MudItem md="12">
-                        <SfTab>
-                            <TabItems>
-                                <TabItem>
-                                    <ChildContent>
-                                        <TabHeader Text="Details"></TabHeader>
-                                    </ChildContent>
-                                    <ContentTemplate>
-                                        <PatientAutoComplete PatientList="Patients" OnChangePatient="ChangePatient"/>
-                                        <MudItem Class="mt-3">
-                                            <DexTextInputField Label="Subject" @bind-FieldDataSource="_userTask.Subject"></DexTextInputField>
-                                        </MudItem>
-                                        <DexTextInputField Label="Location" @bind-FieldDataSource="_userTask.Location"></DexTextInputField>
-                                        <FieldLabel>Description</FieldLabel>
-                                        <MemoEdit @bind-Text="@_userTask.Description"/>
-                                    </ContentTemplate>
-                                </TabItem>
-                                <TabItem>
-                                    <ChildContent>
-                                        <TabHeader Text="@($"Assigned To ({_userTask.SelectedHealthCares.Count} HCPs)")"></TabHeader>
-                                    </ChildContent>
-                                    <ContentTemplate>
-                                        <MudDataGrid T="HealthcareDto"
-                                                     MultiSelection="true"
-                                                     Items="HealthCares"
-                                                     SortMode="SortMode.Multiple"
-                                                     SelectedItemsChanged="@SelectedItemsChanged"
-                                                     Hideable="true">
-                                            <Columns>
-                                                <SelectColumn T="HealthcareDto"/>
-                                                <PropertyColumn Property="x => x.Name" Title="Name"/>
-                                                <PropertyColumn Property="x => x.UserType" Title="Type"/>
-                                            </Columns>
-                                        </MudDataGrid>
-                                    </ContentTemplate>
-                                </TabItem>
-                            </TabItems>
-                        </SfTab>
-                    </MudItem>
-                </Validations>
-            </MudStack>
+            <DexForm Model="UserTask" ColumnCount="2" OnValidSubmit="@SaveUserTask">
+                <Fields>
+                    <FormItem Field="@nameof(UserTaskDto.StartDate)" LabelText="Start Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(UserTaskDto.StartTime)" LabelText="Start Time" EditorType="FormEditorType.TimePicker" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(UserTaskDto.EndDate)" LabelText="End Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(UserTaskDto.EndTime)" LabelText="End Time" EditorType="FormEditorType.TimePicker" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
+                        <Template>
+                            <SfDropDownList  Enabled="@(Id != Guid.Empty)" TValue="string" TItem="UserTaskConstants.TaskStatus" Placeholder="Status" DataSource="@UserTaskConstants.TaskStatusList"
+                                            @bind-Value="@UserTask.Status">
+                                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                            </SfDropDownList>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
+                        <Template>
+                            <PatientAutoComplete PatientList="Patients" OnChangePatient="ChangePatient"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(UserTaskDto.Subject)"/>
+                    <FormItem Field="@nameof(UserTaskDto.Location)"/>
+                    <FormItem Field="@nameof(UserTaskDto.Description)" EditorType="FormEditorType.TextArea"/>
+                    <FormItem Field="@nameof(UserTaskDto.IsPrivate)" LabelText="Private" EditorType="FormEditorType.Checkbox" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
+                        <Template>
+                            <SfTab>
+                                <TabItems>
+                                    <TabItem>
+                                        <ChildContent>
+                                            <TabHeader Text="@($"Assigned To ({UserTask.SelectedHealthCares.Count} HCPs)")"></TabHeader>
+                                        </ChildContent>
+                                        <ContentTemplate>
+                                            <MudDataGrid T="HealthcareDto"
+                                                         MultiSelection="true"
+                                                         Items="HealthCares"
+                                                         SortMode="SortMode.Multiple"
+                                                         SelectedItemsChanged="@SelectedItemsChanged"
+                                                         Hideable="true">
+                                                <Columns>
+                                                    <SelectColumn T="HealthcareDto"/>
+                                                    <PropertyColumn Property="x => x.Name" Title="Name"/>
+                                                    <PropertyColumn Property="x => x.UserType" Title="Type"/>
+                                                </Columns>
+                                            </MudDataGrid>
+                                        </ContentTemplate>
+                                    </TabItem>
+                                </TabItems>
+                            </SfTab>
+                        </Template>
+                    </FormItem>
+                </Fields>
+                <Buttons>
+                    <DexLoadingButton Name="Save Task" Type="MudButtonType.Submit" Processing="_processing"/>
+                </Buttons>
+            </DexForm>
         }
-
-
-    </DialogContent>
-    <DialogActions>
-        <MudButton Disabled="@_processing" OnClick="@SaveUserTask" Variant="Variant.Filled" Color="MudColor.Primary" StartIcon="">
-            @if (_processing)
-            {
-                <MudProgressCircular Class="ms-n1 white-color" Size="MudSize.Small" Indeterminate="true"/>
-                <MudText Class="ms-2 white-color">Processing</MudText>
-            }
-            else
-            {
-                <MudText><i class="fas fa-paper-plane"></i> Save Task</MudText>
-            }
-        </MudButton>
-    </DialogActions>
-</MudDialog>
+    </Content>
+    <ActionButtons>
+    </ActionButtons>
+</DexDialog>
 
 
 @code {
@@ -128,10 +83,9 @@
     [Parameter] public Guid Id { get; set; }
     private List<PatientListDto> Patients { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
-    private UserTaskDto _userTask { get; set; } = new();
+    private UserTaskDto UserTask { get; set; } = new();
     private bool _processing;
     private bool _loadComponent;
-    Validations _validationsRef;
     private string _title;
     private MudBlazor.Utilities.MudColor _colorValue;
 
@@ -141,8 +95,8 @@
         if (Id != Guid.Empty)
         {
             _title = "Edit Task";
-            _userTask = await UnitOfWork.Messaging.GetTask(Id);
-            _colorValue = _userTask.Color;
+            UserTask = await UnitOfWork.Messaging.GetTask(Id);
+            _colorValue = UserTask.Color;
         }
         else
         {
@@ -162,17 +116,13 @@
     private async Task SaveUserTask()
     {
         _processing = true;
-        if (await _validationsRef.ValidateAll())
-        {
-            //_userTask.Color = _colorValue.Value;
-            var res = await UnitOfWork.Messaging.SaveTask(Id, _userTask);
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessage(res.Messages.First());
-                MudDilaog.Close();
-            }
 
-            await _validationsRef.ClearAll();
+        //_userTask.Color = _colorValue.Value;
+        var res = await UnitOfWork.Messaging.SaveTask(Id, UserTask);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDilaog.Close();
         }
 
         _processing = false;
@@ -184,8 +134,8 @@
         var patient = args.ItemData;
         if (patient != null)
         {
-            _userTask.Subject = patient.FullName;
-            _userTask.PatientId = patient.Id;
+            UserTask.Subject = patient.FullName;
+            UserTask.PatientId = patient.Id;
         }
     }
 
@@ -198,7 +148,7 @@
 
     void SelectedItemsChanged(HashSet<HealthcareDto> items)
     {
-        _userTask.SelectedHealthCares = items;
+        UserTask.SelectedHealthCares = items;
     }
 
 }

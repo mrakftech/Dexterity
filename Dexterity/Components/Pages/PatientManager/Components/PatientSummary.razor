@@ -26,26 +26,23 @@
 {
     if (!_loading)
     {
-         <MudItem md="12" Class="vertical-space">
-        <InnerLayout AllHeight="700px">
-            <NavigationItems>
-                <MudList T="string" Style="width: 200px">
-                    <MudListItem T="string" Text="Details" Icon="fas fa-memo-circle-info" OnClick="@(() => ClickChangedTab(0))"/>
-                    <MudListItem T="string" Text="Contacts" Icon="fas fa-address-book" OnClick="@(() => ClickChangedTab(1))"/>
-                    <MudListItem T="string" Text="Medical Summary" Icon="fas fa-receipt" OnClick="@(() => ClickChangedTab(2))"/>
-                    <MudListItem T="string" Text="Medical History" Icon="fas fa-files-medical" OnClick="@(() => ClickChangedTab(3))"/>
-                    <MudListItem T="string" Text="Baseline Details" Icon="fas fa-shield-heart" OnClick="@(() => ClickChangedTab(4))"/>
-                    <MudListItem T="string" Text="Visit History" Icon="fas fa-rectangle-history" OnClick="@(() => ClickChangedTab(5))"/>
-                    <MudListItem T="string" Text="SMS History" Icon="fas fa-message" OnClick="@(() => ClickChangedTab(6))"/>
-                    <MudListItem T="string" Text="Patient Tasks" Icon="fas fa-bars-progress" OnClick="@(() => ClickChangedTab(7))"/>
-                </MudList>
-            </NavigationItems>
-            <DexContentTabs>
-                <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
+        <MudItem md="12" Class="vertical-space">
+            <InnerLayout ShowHeader="false">
+                <NavigationItems>
+                    <DexMenuItem Text="Details" Icon="fas fa-memo-circle-info" Click="@(() => ClickChangedTab(0))"/>
+                    <DexMenuItem Text="Contacts" Icon="fas fa-address-book" Click="@(() => ClickChangedTab(1))"/>
+                    <DexMenuItem Text="Medical Summary" Icon="fas fa-receipt" Click="@(() => ClickChangedTab(2))"/>
+                    <DexMenuItem Text="Medical History" Icon="fas fa-files-medical" Click="@(() => ClickChangedTab(3))"/>
+                    <DexMenuItem Text="Baseline Details" Icon="fas fa-shield-heart" Click="@(() => ClickChangedTab(4))"/>
+                    <DexMenuItem Text="Visit History" Icon="fas fa-rectangle-history" Click="@(() => ClickChangedTab(5))"/>
+                    <DexMenuItem Text="SMS History" Icon="fas fa-message" Click="@(() => ClickChangedTab(6))"/>
+                    <DexMenuItem Text="Patient Tasks" Icon="fas fa-bars-progress" Click="@(() => ClickChangedTab(7))"/>
+                </NavigationItems>
+                <DexContentTabs>
                     <MudTabs @ref="_tabs">
                         <MudTabPanel Text="">
                             <PatientDetail Patient="Patient"/>
-                        </MudTabPanel> 
+                        </MudTabPanel>
                         <MudTabPanel Text="">
                             <ContactDetail/>
                         </MudTabPanel>
@@ -68,11 +65,9 @@
                             <PatientTask/>
                         </MudTabPanel>
                     </MudTabs>
-                </div>
-            </DexContentTabs>
-        </InnerLayout>
-    </MudItem>
-
+                </DexContentTabs>
+            </InnerLayout>
+        </MudItem>
     }
     else
     {
@@ -109,6 +104,7 @@ else
     {
         await TabChangeClick.InvokeAsync(e);
     }
+
     private async Task GetPateintSummary()
     {
         _loading = true;
@@ -117,11 +113,13 @@ else
         Patient = summary;
         _loading = false;
     }
-    
+
     private async Task SelectPatient(Guid patientId)
     {
         ApplicationState.SelectedPatientId = patientId;
         await GetPateintSummary();
         StateHasChanged();
     }
+
 }
+

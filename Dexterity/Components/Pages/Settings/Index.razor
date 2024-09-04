@@ -5,77 +5,50 @@
              Image="modules/settings.svg">
 </TopTitleBar>
 <MudItem md="12" Class="vertical-space">
-    <InnerLayout DrawerWidth="250px" MarginLeftContent="200px">
+    <InnerLayout >
         <NavigationItems>
-            <MudNavGroup Title="  Categories & Templates" Expanded="true">
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-comment-sms" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(0))">
-                    Sms Templates
-                </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope-open-text" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(1))">
-                    Email Templates
-                </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-house-chimney-medical" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(2))">
-                    Clinics
-                </MudNavLink>
-
-            </MudNavGroup>
-            <MudNavGroup Title="Appointments">
-                <MudItem>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-clock" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged(3))">
-                        Appointment Types
-                    </MudNavLink>
-                </MudItem>
-                <MudItem>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-ban" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged(4))">
-                        Appointment Cancellation Reason
-                    </MudNavLink>
-                </MudItem>
-            </MudNavGroup>
-            <MudNavGroup Title="Types">
-                <MudItem>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-file-invoice" IconColor="MudColor.Info"
-                                @onclick="@(() => ClickChanged(5))">
-                        Account Types
-                    </MudNavLink>
-                </MudItem>
-               
-            </MudNavGroup>
+            <RadzenPanelMenuItem Text="Categories & Templates">
+                <DexMenuItem Text="Sms Templates" Icon="fas fa-comment-sms" Click="@(() => ClickChanged(0))"/>
+                <DexMenuItem Text="Email Templates" Icon="fas fa-envelope-open-text" Click="@(() => ClickChanged(1))"/>
+                <DexMenuItem Text="Clinics" Icon="fas fa-house-chimney-medical" Click="@(() => ClickChanged(2))"/>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Appointments">
+                <DexMenuItem Text="Appointment Types" Icon="fas fa-calendar-clock" Click="@(() => ClickChanged(3))"/>
+                <DexMenuItem Text="Appointment Cancellation Reason" Icon="fas fa-ban" Click="@(() => ClickChanged(4))"/>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Types">
+                <DexMenuItem Text="Account Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(5))"/>
+            </RadzenPanelMenuItem>
         </NavigationItems>
 
         <DexContentTabs>
-                <div class="d-flex justify-center align-center mt-lg-5">
-                    <MudTabs @ref="tabs" >
-                        <MudTabPanel >
-                            <SmsTemplateTab/>
-                        </MudTabPanel>
-                        <MudTabPanel >
-                            <EmailTemplateTab/>
-                        </MudTabPanel>
-                        <MudTabPanel >
-                            <ClinicTab/>
-                        </MudTabPanel>
-                        <MudTabPanel >
-                            <AppointmentTypeTab/>
-                        </MudTabPanel>
-                        <MudTabPanel >
-                            <AppointmentCancelReasonTab/>
-                        </MudTabPanel>
-                        <MudTabPanel >
-                            <AccountTypeTab/>
-                        </MudTabPanel>
-                    </MudTabs>
-                </div>
+            <MudTabs @ref="tabs">
+                <MudTabPanel >
+                    <SmsTemplateTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <EmailTemplateTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <ClinicTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <AppointmentTypeTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <AppointmentCancelReasonTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <AccountTypeTab/>
+                </MudTabPanel>
+            </MudTabs>
         </DexContentTabs>
     </InnerLayout>
 </MudItem>
 
 @code {
     MudTabs tabs;
+
     private void ClickChanged(int tabIndex)
     {
         tabs.ActivatePanel(tabIndex);

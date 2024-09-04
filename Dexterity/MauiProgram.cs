@@ -31,10 +31,12 @@ namespace Dexterity
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
             builder.Services.AddTransient<SnackbarNotificationService>();
+            
             builder.Services
                 .AddBlazorise(options => { options.Immediate = true; })
                 .AddBootstrap5Providers()
                 .AddFontAwesomeIcons();
+            
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
             SyncfusionLicenseProvider

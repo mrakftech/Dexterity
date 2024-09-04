@@ -20,26 +20,12 @@
     {
         <InnerLayout>
             <NavigationItems>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(0))">
-                    Appointments
-                </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-circle-plus" IconColor="MudColor.Info"
-                            @onclick="@(() => NewAppointment(DateTime.Now))">
-                    New Appointment
-                </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-calendar-range" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(1))">
-                    Recurring Appointments
-                </MudNavLink>
-                <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-magnifying-glass" IconColor="MudColor.Info"
-                            @onclick="@(() => ClickChanged(2))">
-                    Find Appointments
-                </MudNavLink>
+                <DexMenuItem Text="Appointments" Icon="fas fa-calendar-range" Click="@(() => ClickChanged(0))"/>
+                <DexMenuItem Text="New Appointment" Icon="fas fa-calendar-circle-plus" Click="@(() => NewAppointment(DateTime.Now))"/>
+                <DexMenuItem Text="Recurring Appointments" Icon="fas fa-calendar-range" Click="@(() => ClickChanged(1))"/>
+                <DexMenuItem Text="Find Appointments" Icon="fas fa-magnifying-glass" Click="@(() => ClickChanged(2))"/>
             </NavigationItems>
-
             <DexContentTabs>
-                <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
                     <MudTabs @ref="_tabs">
                         <MudTabPanel Text="">
                             <DexScheduler HealthCares="HealthCares" PatientList="PatientList"/>
@@ -51,8 +37,6 @@
                             <FindAppointments/>
                         </MudTabPanel>
                     </MudTabs>
-                </div>
-
             </DexContentTabs>
         </InnerLayout>
     }

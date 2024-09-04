@@ -8,30 +8,14 @@
 <div class="vertical-space">
     <InnerLayout>
         <NavigationItems>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-bars-progress" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(0))">
-                User Tasks
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-address-book" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(1))">
-                Contacts
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-inbox" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(2))">
-                SMS Messaging
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(3))">
-                Instant Messaging
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-phone-rotary" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(4))">
-                Phone Directory
-            </MudNavLink>
+            <DexMenuItem Text="User Tasks" Icon="fas fa-bars-progress" Click="@(() => ClickChanged(0))"/>
+            <DexMenuItem Text="Contacts" Icon="fas fa-address-book" Click="@(() => ClickChanged(1))"/>
+            <DexMenuItem Text="SMS Messaging" Icon="fas fa-inbox" Click="@(() => ClickChanged(2))"/>
+            <DexMenuItem Text="Instant Messaging" Icon="fas fa-message" Click="@(() => ClickChanged(3))"/>
+            <DexMenuItem Text="Phone Directory" Icon="fas fa-phone-rotary" Click="@(() => ClickChanged(4))"/>
         </NavigationItems>
 
         <DexContentTabs >
-            <div class="d-flex justify-center align-center mt-lg-5" style="width: 100%!important;">
                 <MudTabs @ref="_tabs">
                     <MudTabPanel Text="" Style="background-color: transparent">
                         <UserTasksTab/>
@@ -53,8 +37,6 @@
                     </MudTabPanel>
 
                 </MudTabs>
-            </div>
-
         </DexContentTabs>
     </InnerLayout>
 </div>

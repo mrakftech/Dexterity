@@ -5,21 +5,13 @@
 <TopTitleBar Title="User Management"
              Image="modules/users.svg">
 </TopTitleBar>
-<MudItem md="12" Class="vertical-space">
-    <InnerLayout>
-        <NavigationItems>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-users" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(0))">
-                Users
-            </MudNavLink>
-            <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-sliders" IconColor="MudColor.Info"
-                        @onclick="@(() => ClickChanged(1))">
-                Permission
-            </MudNavLink>
+    <InnerLayout DrawerWidth="150px">
+        <NavigationItems >
+            <DexMenuItem Text="Users" Icon="fas fa-users" Click="@(() => ClickChanged(0))"/>
+            <DexMenuItem Text="Permission" Icon="fas fa-sliders" Click="@(() => ClickChanged(1))"/>
         </NavigationItems>
         
         <DexContentTabs>
-            <div class="d-flex justify-center align-center mt-lg-5">
                 <MudTabs @ref="tabs" >
                     <MudTabPanel Text="" >
                         <UserList/>
@@ -28,10 +20,8 @@
                         <Permissions/>
                     </MudTabPanel>
                 </MudTabs>
-            </div>
         </DexContentTabs>
     </InnerLayout>
-</MudItem>
 @code {
     MudTabs tabs;
     private void ClickChanged(int tabIndex)

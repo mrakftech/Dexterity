@@ -2,14 +2,12 @@
 @page "/consultation"
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
-<InnerLayout AllHeight="700px" DrawerWidth="290px" MarginLeftContent="250px">
+<InnerLayout>
     <NavigationItems>
-        <MudList T="string" Style="width: 290px">
-            <MudListItem T="string" Text="" Icon="fas fa-person-walking-arrow-right" OnClick="@(() => ClickChangedTab(0))" />
-        </MudList>
+
     </NavigationItems>
     <DexContentTabs>
-        
+
     </DexContentTabs>
 </InnerLayout>
 
@@ -20,4 +18,5 @@
     {
         _tabs.ActivatePanel(tabIndex);
     }
+
 }

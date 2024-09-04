@@ -2,59 +2,42 @@
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.PatientManagement.Dtos
 
-<style>
-    .tab-content{
-        width: 75%!important;
-    }
-    .mud-drawer {
-        background-image: linear-gradient(135deg, #8BC6EC 0%, #9599E2 100%);!important;
-        color: #ffffff !important;;
-    }
-</style>
 @if (_comLoading)
 {
     <CommonLoader/>
 }
 else
 {
-    <MudPaper Height="700px" Style="overflow:hidden; position:relative;margin-top: 3%">
-        <MudDrawerContainer Class="mud-height-full">
-            <MudDrawer Style="background-color: #319ae1;background-image: linear-gradient(135deg, #319ae1 0%, #bdbdd4 100%);;!important; color: #ffffff !important;;" @bind-Open="@_open" Fixed="false" Elevation="1" Variant="@DrawerVariant.Mini" OpenMiniOnHover="true">
-                <MudNavMenu>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("Sms"))">Messages</MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelopes-bulk" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("bulk-msg"))">Bulk Sms</MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fab fa-whatsapp" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("whatsapp"))">WhatsApp</MudNavLink>
-                    <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-envelope" IconColor="MudColor.Info" @onclick="@(() => ClickChanged("send-mail"))">Email</MudNavLink>
-                </MudNavMenu>
-            </MudDrawer>
-            <div class="d-flex justify-center align-center">
-                <Tabs SelectedTab="@_selectedTab" Style="width: 100%;margin-top: 3%">
-                    <Content>
-                        <TabPanel Name="Sms">
-                            <SendMessaging PatientList="PatientList"/>
-                        </TabPanel>
-                        <TabPanel Name="bulk-msg">
-                            <BulkMessage PatientList="PatientList"/>
-                        </TabPanel>
-                        <TabPanel Name="whatsapp">
-                            <SendWhatsApp PatientList="PatientList"/>
-
-                        </TabPanel>
-                        <TabPanel Name="send-mail">
-                            <SendEmail PatientList="PatientList"/>
-
-                        </TabPanel>
-                    </Content>
-                </Tabs>
-            </div>
-        </MudDrawerContainer>
-    </MudPaper>
+    <InnerLayout DrawerWidth="150px" ShowHeader="false">
+        <NavigationItems>
+            <DexMenuItem Text="Messages" Icon="fas fa-message" Click="@(() => ClickChanged(0))"/>
+            <DexMenuItem Text="Bulk Sms" Icon="fas fa-envelopes-bulk" Click="@(() => ClickChanged(1))"/>
+            <DexMenuItem Text="WhatsApp" Icon="fab fa-whatsapp" Click="@(() => ClickChanged(2))"/>
+            <DexMenuItem Text="Email" Icon="fas fa-envelope" Click="@(() => ClickChanged(3))"/>
+        </NavigationItems>
+        <DexContentTabs>
+            <MudTabs @ref="tabs">
+                <MudTabPanel>
+                    <SendMessaging PatientList="PatientList"/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <BulkMessage PatientList="PatientList"/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <SendWhatsApp PatientList="PatientList"/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <SendEmail PatientList="PatientList"/>
+                </MudTabPanel>
+            </MudTabs>
+        </DexContentTabs>
+    </InnerLayout>
 }
 
 
 @code {
     private bool _comLoading;
-    private bool _open = false;
+    MudTabs tabs;
 
     private List<PatientListDto> PatientList { get; set; } = new();
 
@@ -71,11 +54,10 @@ else
         PatientList = await UnitOfWork.Patient.GetPatients();
     }
 
-    string _selectedTab = "Sms";
-
-    private void ClickChanged(string tabName)
+    private void ClickChanged(int tabIndex)
     {
-        _selectedTab = tabName;
+        tabs.ActivatePanel(tabIndex);
     }
+
 
 }

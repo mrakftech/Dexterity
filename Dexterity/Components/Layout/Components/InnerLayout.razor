@@ -1,41 +1,50 @@
-﻿<MudPaper Height="@AllHeight" Class="vertical-space">
-    <Layout>
-        <Layout Sider>
-            <LayoutSider>
-                <LayoutSiderContent >
-                    <MudDrawerContainer>
-                        <MudDrawer Height="@AllHeight" Class="sub-drawer" 
-                                   Style="@($"width:{DrawerWidth}")" 
-                                   @bind-Open="@_open" Fixed="false" Elevation="1"
-                                   Variant="@DrawerVariant.Mini"
-                                   OpenMiniOnHover="true">
-                            <MudNavMenu>
-                                @NavigationItems
-                            </MudNavMenu>
-                        </MudDrawer>
-                    </MudDrawerContainer>
-                </LayoutSiderContent>
-            </LayoutSider>
-            <Layout>
-                <LayoutContent Style="@($"margin-left:{MarginLeftContent}")">
-                    <MudPaper Elevation="0" Height="@AllHeight" Style="overflow-x:hidden; overflow-y:auto; position:relative;">
-                        <div class="d-flex justify-center align-center">
-                            @DexContentTabs
-                        </div>
-                    </MudPaper>
-                </LayoutContent>
-            </Layout>
-        </Layout>
-    </Layout>
-
-
-</MudPaper>
+﻿@using AlignItems = Radzen.AlignItems
+@using Orientation = Radzen.Orientation
+<style>
+    .rz-sidebar {
+        background-image: linear-gradient(to top, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%)!important;
+        color: #ffffff !important;
+        box-shadow: var(--rz-header-shadow);
+    }
+    .rz-panel-menu {
+        background-color: transparent!important;
+    }
+    .rz-panel-menu .rz-navigation-item {
+        border-block-end: none;
+    }
+</style>
+<RadzenLayout >
+  @if (ShowHeader)
+  {
+      <RadzenHeader>
+          <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
+              <RadzenSidebarToggle Click="@(() => _open = !_open)"/>
+              <RadzenLabel Text="@MenuTitle"/>
+          </RadzenStack>
+      </RadzenHeader>
+  }
+    <RadzenSidebar @bind-Expanded="@_open" Style="@($"width:{DrawerWidth}")" >
+        <RadzenPanelMenu>
+            @NavigationItems
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+    <RadzenBody>
+        @DexContentTabs
+    </RadzenBody>
+    @if (ShowFooter)
+    {
+        <RadzenFooter>
+            Footer
+        </RadzenFooter>
+    }
+</RadzenLayout>
 
 @code {
-    private bool _open = true;
-    [Parameter] public string AllHeight { get; set; } = "800px";
     [Parameter] public string DrawerWidth { get; set; } = "200px";
-    [Parameter] public string MarginLeftContent { get; set; } = "150px";
     [Parameter] public RenderFragment NavigationItems { get; set; }
     [Parameter] public RenderFragment DexContentTabs { get; set; }
+    [Parameter] public bool ShowHeader { get; set; } = true;
+    [Parameter] public bool ShowFooter{ get; set; } 
+    [Parameter] public string MenuTitle { get; set; }
+    bool _open = true;
 }

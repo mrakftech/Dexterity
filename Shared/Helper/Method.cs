@@ -78,4 +78,6 @@ public static class Method
         var s = util.Parse(mobileNumber, ApplicationConstants.AppRegion);
         return util.Format(s, PhoneNumberFormat.E164);
     }
+
+    public static string FaIcon(string icon) => $"<i class=\"fa fa-solid {icon}\"></i>";
 }
