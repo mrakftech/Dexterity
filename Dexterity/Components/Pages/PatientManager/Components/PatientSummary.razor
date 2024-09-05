@@ -14,12 +14,6 @@
     }
 </style>
 <TabTitle Title="@_title">
-    <ActionButtons>
-        @if (ApplicationState.SelectedPatientId != Guid.Empty)
-        {
-            <DexSimpleButton Name="Go Back" Click="() => ChangeTab(3)" Color="MudColor.Primary" FullWidth="false"/>
-        }
-    </ActionButtons>
 </TabTitle>
 
 @if (ApplicationState.SelectedPatientId != Guid.Empty)
@@ -82,8 +76,8 @@ else
 
 @code {
     [Parameter] public EventCallback<int> TabChangeClick { get; set; }
-    MudTabs _tabs = new();
     private PatientSummaryDto Patient { get; set; } = new();
+    MudTabs _tabs = new();
     string _tabIndex = "0";
     private bool _loading;
     private string _title = "";

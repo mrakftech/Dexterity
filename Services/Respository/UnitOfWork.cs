@@ -3,6 +3,7 @@ using ClickATell.Services;
 using Database;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
+using Services.Features.Consultation.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -18,12 +19,25 @@ public sealed class UnitOfWork(
     IMapper mapper,
     ISettingService setting,
     IAppointmentService appointment,
+    IConsultationService consultation,
     IWaitingRoomService waitingRoom,
     SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
 {
     private bool _disposed;
+    public IConsultationService Consultation
+    {
+        get
+        {
+            if (consultation == null)
+            {
+                consultation = new ConsultationService(context,mapper);
+            }
+
+            return consultation;
+        }
+    }
 
     public IWaitingRoomService WaitingRoom
     {

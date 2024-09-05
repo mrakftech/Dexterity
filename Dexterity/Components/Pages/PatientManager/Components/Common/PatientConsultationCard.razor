@@ -1,0 +1,49 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+<RadzenRow >
+    <RadzenCard Variant="RadVariant.Filled" class="" Style="width: 100%">
+        <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="6rem">
+            <RadzenImage Path="assets/images/patient.png" Style="width: 100px; height: 100px; border-radius: 50%;"/>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.Name</b>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.Address</b>
+                </RadzenText>
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Date Of Birth</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.DateOfBirth (@Patient.Age)</b>
+                </RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Gender</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.Gender</b>
+                </RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Mobile</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.Mobile</b>
+                </RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Unique Number</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.UniqueNumber</b>
+                </RadzenText>
+            </RadzenStack>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Type</RadzenText>
+                <RadzenText TextStyle="TextStyle.Body1">
+                    <b>@Patient.Type</b>
+                </RadzenText>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenCard>
+</RadzenRow>
+
+@code{
+    [Parameter] public PatientSummaryDto Patient { get; set; } = new();
+}

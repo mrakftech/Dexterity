@@ -1,4 +1,5 @@
 using Services.Features.Appointments.Service;
+using Services.Features.Consultation.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -15,4 +16,5 @@ public interface IUnitOfWork: IDisposable
     IMessagingService Messaging { get; }
     IAppointmentService Appointment { get; }
     IWaitingRoomService WaitingRoom { get; }
+    IConsultationService Consultation { get; }
 }

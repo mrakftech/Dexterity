@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore.ChangeTracking;
 using Microsoft.Extensions.Configuration;
 using Database.Configurations;
 using Database.Configurations.AppointmentFluentApi;
+using Domain.Entities.Consultation;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
@@ -71,6 +72,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     #endregion
 
+    #region Consultation
+
+    public DbSet<ConsultationDetail> ConsultationDetails { get; set; }
+
+    #endregion
+
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
         var builder = new ConfigurationBuilder();
@@ -128,13 +135,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.PatientId)
                 .OnDelete(DeleteBehavior.NoAction);
             entity.HasOne(d => d.Clinic)
-              .WithMany(p => p.WaitingAppointments)
-              .HasForeignKey(d => d.ClinicId)
-              .OnDelete(DeleteBehavior.NoAction);
+                .WithMany(p => p.WaitingAppointments)
+                .HasForeignKey(d => d.ClinicId)
+                .OnDelete(DeleteBehavior.NoAction);
         });
-
-
-
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
@@ -152,5 +156,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<PatientTransaction>(entity => { entity.ToTable(name: "PatientTransactions", "PM"); });
         builder.Entity<PatientAccount>(entity => { entity.ToTable(name: "PatientAccounts", "PM"); });
         builder.Entity<Hospital>(entity => { entity.ToTable(name: "Hospitals", "PM"); });
+
+
+        builder.Entity<ConsultationDetail>(entity => { entity.ToTable(name: "ConsultationDetails", "Consultation"); });
     }
 }

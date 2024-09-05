@@ -1,0 +1,102 @@
+﻿@using Services.Features.Consultation.Dto
+@using AlignItems = Radzen.AlignItems
+@using Orientation = Radzen.Orientation
+<RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenStack>
+            <RadzenFieldset Text="">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="12">
+                            <ConsultationList Consultations="Consultations" RowSelected="RowSelected"/>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenStack>
+    </RadzenColumn>
+    <RadzenColumn Size="12" SizeMD="6">
+        <RadzenStack>
+            <RadzenFieldset Text="Baseline Details">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenLabel Text="Store #" Component="StoreId"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="9">
+                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem">
+                                <RadzenTextBox Placeholder="123" Style="width: 8rem;" Name="StoreId"/>
+                                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="add_location" Text="Locate store"></RadzenButton>
+                            </RadzenStack>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Current Medications">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenLabel Text="Trans #" Component="TransId"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="9">
+                            <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Active Diagnosis">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenLabel Text="Trans #" Component="TransId"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="9">
+                            <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Social & Past Medical History">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenLabel Text="Trans #" Component="TransId"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="9">
+                            <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+            <RadzenFieldset Text="Patient Documents">
+                <RadzenStack Gap="1rem">
+                    <RadzenRow AlignItems="AlignItems.Center">
+                        <RadzenColumn Size="12" SizeMD="3">
+                            <RadzenLabel Text="Trans #" Component="TransId"/>
+                        </RadzenColumn>
+                        <RadzenColumn Size="12" SizeMD="9">
+                            <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
+                        </RadzenColumn>
+                    </RadzenRow>
+                </RadzenStack>
+            </RadzenFieldset>
+        </RadzenStack>
+    </RadzenColumn>
+</RadzenRow>
+@code{
+    [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
+    private List<GetConsultationDetailDto> Consultations { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ApplicationState.SelectedPatientId != Guid.Empty)
+        {
+            await GetConsultations(ApplicationState.SelectedPatientId);
+        }
+
+    }
+    private async Task GetConsultations(Guid selectedPatientId)
+    {
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(selectedPatientId);
+    }
+}

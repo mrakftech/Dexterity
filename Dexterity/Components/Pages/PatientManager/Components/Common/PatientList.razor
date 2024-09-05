@@ -22,7 +22,7 @@
     private List<PatientListDto> Patients { get; set; } = new();
     private bool _patientLoading;
     [Parameter] public EventCallback<Guid> SelectPatient { get; set; }
-
+   
     protected override async Task OnInitializedAsync()
     {
         await GetPatients();

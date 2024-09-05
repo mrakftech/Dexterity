@@ -106,7 +106,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Components\Pages\Consultation\Components\" />
       <Folder Include="wwwroot\assets\fonts\" />
     </ItemGroup>
 

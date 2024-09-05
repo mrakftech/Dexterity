@@ -22,7 +22,7 @@
                 <Template>
                     @{
                         var item = (context as UserResponseDto);
-                        @if (item.IsActive)
+                        @if (item!.IsActive)
                         {
                             <MudText Color="MudColor.Primary"> Yes</MudText>
                         }
@@ -49,7 +49,7 @@
 
 @code {
     private List<UserResponseDto> UsersList { get; set; } = new();
-    
+
     private bool _userLoading;
 
     protected override async Task OnInitializedAsync()

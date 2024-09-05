@@ -153,6 +153,46 @@ namespace Database.Migrations
                     b.ToTable("AppointmentTypes", "Scheduler");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicSiteId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ConsultationClass")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ConsultationDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ConsultationType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Pomr")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicSiteId");
+
+                    b.HasIndex("HcpId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("ConsultationDetails", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Messaging.UserTasks.UserTask", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1176,6 +1216,33 @@ namespace Database.Migrations
                     b.Navigation("AppointmentType");
 
                     b.Navigation("Clinic");
+
+                    b.Navigation("ClinicSite");
+
+                    b.Navigation("Hcp");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Hospital.ClinicSite", "ClinicSite")
+                        .WithMany()
+                        .HasForeignKey("ClinicSiteId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
+                        .WithMany()
+                        .HasForeignKey("HcpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("ClinicSite");
 

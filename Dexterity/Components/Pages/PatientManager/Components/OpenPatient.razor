@@ -3,12 +3,13 @@
     <ActionButtons>
         @if (ApplicationState.SelectedPatientId != Guid.Empty)
         {
-            <DexSimpleButton Name="Patient Summary" Click="()=>ChangeTab(3)" Color="MudColor.Primary" FullWidth="false"/>
+            @* <DexSimpleButton Name="Patient Summary" Click="()=>ChangeTab(3)" Color="MudColor.Primary" FullWidth="false"/> *@
             <DexSimpleButton Name="Go Back" Click="()=>ChangeTab(0)" Color="MudColor.Primary" FullWidth="false"/>
         }
         else
         {
             <DexSimpleButton Name="Load Patients" Click="GetPatients" Color="MudColor.Primary" FullWidth="false"/>
+
         }
     </ActionButtons>
 </TabTitle>

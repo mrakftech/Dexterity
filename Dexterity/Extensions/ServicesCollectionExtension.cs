@@ -2,6 +2,7 @@
 using DailyCo.Extensions;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
+using Services.Features.Consultation.Service;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -17,6 +18,7 @@ public static class ServicesCollectionExtension
 {
     public static IServiceCollection AddRepositories(this IServiceCollection services)
     {
+        services.AddTransient<IConsultationService, ConsultationService>();
         services.AddTransient<IWaitingRoomService, WaitingRoomService>();
         services.AddTransient<IAppointmentService, AppointmentService>();
         services.AddTransient<IPatientService, PatientService>();

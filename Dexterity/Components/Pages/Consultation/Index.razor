@@ -1,22 +1,130 @@
 ﻿@layout MainLayout
 @page "/consultation"
+@using Services.Features.PatientManagement.Dtos.Details
+@using Dexterity.Components.Pages.Consultation.Dialogs
+@using Services.Features.Consultation.Dto
+@using Dexterity.Components.Pages.Consultation.Components
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
-
-<InnerLayout>
-    <NavigationItems>
-
-    </NavigationItems>
-    <DexContentTabs>
-
-    </DexContentTabs>
-</InnerLayout>
+@if (ApplicationState.SelectedPatientId != Guid.Empty)
+{
+    @if (!_loading)
+    {
+        <InnerLayout DrawerWidth="260px">
+            <NavigationItems>
+                <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                    <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient"/>
+                    <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
+                    <hr class="hr-custom"/>
+                    <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
+                    <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)"/>
+                    <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"/>
+                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)"/>
+                    <hr class="hr-custom"/>
+                    <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
+                </RadzenPanelMenuItem>
+                <hr class="hr-custom m-1"/>
+                <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                </RadzenPanelMenuItem>
+                <hr class="hr-custom m-1"/>
+                <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                </RadzenPanelMenuItem>
+                <hr class="hr-custom m-1"/>
+                <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                </RadzenPanelMenuItem>
+                <hr class="hr-custom m-1"/>
+                <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                </RadzenPanelMenuItem>
+            </NavigationItems>
+            <DexContentTabs>
+                <PatientConsultationCard Patient="Patient"/>
+                <ConsultationDetails RowSelected="RowSelectHandler"/>
+            </DexContentTabs>
+        </InnerLayout>
+    }
+}
+else
+{
+    <PatientList SelectPatient="SelectPatient"/>
+}
 
 @code {
-    MudTabs _tabs = new();
+    public PatientSummaryDto Patient { get; set; } = new();
+    readonly MudTabs _tabs = new();
+    private bool _loading;
+    private int _consultationId = 0;
+    private bool _isConsultationSelected;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        if (ApplicationState.SelectedPatientId != Guid.Empty)
+        {
+            await GetPateintSummary(ApplicationState.SelectedPatientId);
+        }
+
+        _loading = false;
+    }
 
     private void ClickChangedTab(int tabIndex)
     {
         _tabs.ActivatePanel(tabIndex);
+    }
+
+    private async Task GetPateintSummary(Guid patientId)
+    {
+        _loading = true;
+        var summary = await UnitOfWork.Patient.GetPatientSummary(patientId);
+        Patient = summary;
+        ApplicationState.SelectedPatientId = patientId;
+        ApplicationState.SelectedPatientName = Patient.Name;
+        _loading = false;
+    }
+
+    private async Task SelectPatient(Guid patientId)
+    {
+        await GetPateintSummary(patientId);
+        StateHasChanged();
+    }
+
+    private void FindPatient()
+    {
+        ApplicationState.SelectedPatientId = Guid.Empty;
+        StateHasChanged();
+    }
+
+    private async Task OpenPatientSummaryModal()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<PatientSummary>("", parameters, options);
+    }
+
+    private async Task OpenBeginConsultationDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
+    }
+
+    public void RowSelectHandler(RowSelectEventArgs<GetConsultationDetailDto> args)
+    {
+        if (args.Data.Id > 0)
+        {
+            _isConsultationSelected = true;
+            _consultationId = args.Data.Id;
+        }
+        else
+        {
+            _isConsultationSelected = false;
+            _consultationId = 0;
+        }
+
+        Snackbar.SuccessMessage(args.Data.Id.ToString());
+        StateHasChanged();
     }
 
 }

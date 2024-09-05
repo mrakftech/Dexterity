@@ -3,9 +3,15 @@
     <GridTemplates>
         @DexRowTemplate
     </GridTemplates>
+    <GridTemplates>
+        <EmptyRecordTemplate>
+            <span>No records to display. create new one</span>
+        </EmptyRecordTemplate>
+    </GridTemplates>
     <GridColumns>
         @DexGridColumns
     </GridColumns>
+    @DexTemplates
     <SfSpinner @bind-Visible="@Loading">
     </SfSpinner>
 </SfGrid>
@@ -16,4 +22,5 @@
     [Parameter] public string Height { get; set; } = "500px";
     [Parameter] public RenderFragment DexGridColumns { get; set; }
     [Parameter] public RenderFragment DexRowTemplate { get; set; }
+    [Parameter] public RenderFragment DexTemplates { get; set; }
 }
