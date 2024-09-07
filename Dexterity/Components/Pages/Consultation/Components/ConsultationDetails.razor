@@ -20,15 +20,10 @@
             <RadzenFieldset Text="Baseline Details">
                 <RadzenStack Gap="1rem">
                     <RadzenRow AlignItems="AlignItems.Center">
-                        <RadzenColumn Size="12" SizeMD="3">
-                            <RadzenLabel Text="Store #" Component="StoreId"/>
+                        <RadzenColumn Size="12" SizeMD="12">
+                            <BaselineDetailList/>
                         </RadzenColumn>
-                        <RadzenColumn Size="12" SizeMD="9">
-                            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Wrap="FlexWrap.Wrap" Gap="0.5rem">
-                                <RadzenTextBox Placeholder="123" Style="width: 8rem;" Name="StoreId"/>
-                                <RadzenButton ButtonStyle="ButtonStyle.Info" Icon="add_location" Text="Locate store"></RadzenButton>
-                            </RadzenStack>
-                        </RadzenColumn>
+                    
                     </RadzenRow>
                 </RadzenStack>
             </RadzenFieldset>

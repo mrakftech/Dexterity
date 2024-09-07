@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities.Consultation;
 using Services.Features.Consultation.Dto;
+using Services.Features.Consultation.Dto.BaselineDetails;
 
 namespace Services.Features.Consultation.Mapping;
 
@@ -13,5 +14,7 @@ public class ConsultationMapping : Profile
             .ForMember(x => x.Hcp, c => c.MapFrom(m => m.Hcp.FullName))
             .ForMember(x => x.Type, c => c.MapFrom(m => m.ConsultationType))
             .ReverseMap();
+        
+        CreateMap<BaselineDetail, BaselineDetailDto>();
     }
 }

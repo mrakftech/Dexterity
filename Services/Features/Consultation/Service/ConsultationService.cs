@@ -3,6 +3,7 @@ using Database;
 using Domain.Entities.Consultation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
+using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.State;
 using Shared.Wrapper;
 
@@ -40,5 +41,13 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         }
 
         return await Result.SuccessAsync("");
+    }
+
+
+    public async Task<List<BaselineDetailDto>> GetBaselineDetails(int consultationId)
+    {
+        var baselineDetails = await context.ConsultationDetails.Where(x => x.Id == consultationId).ToListAsync();
+        var mapped = mapper.Map<List<BaselineDetailDto>>(baselineDetails);
+        return mapped;
     }
 }

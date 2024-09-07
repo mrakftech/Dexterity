@@ -153,6 +153,105 @@ namespace Database.Migrations
                     b.ToTable("AppointmentTypes", "Scheduler");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<float>("AbdominalCircumference")
+                        .HasColumnType("real");
+
+                    b.Property<string>("BloodGroup")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<float>("Bmi")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Cholesterol")
+                        .HasColumnType("real");
+
+                    b.Property<int>("ConsultationDetailId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("CurrentOccupation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Diastolic")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("DrinkingStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("DrinkingStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("ExSmokerYears")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("FamilyCvdHistory")
+                        .HasColumnType("bit");
+
+                    b.Property<float>("Hdl")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Height")
+                        .HasColumnType("real");
+
+                    b.Property<float>("Ldl")
+                        .HasColumnType("real");
+
+                    b.Property<bool>("Lvh")
+                        .HasColumnType("bit");
+
+                    b.Property<int>("PeakFlow")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Pulse")
+                        .HasColumnType("int");
+
+                    b.Property<string>("PulseRhythm")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RespiratoryRate")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SmokePerDay")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("SmokerStatus")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("SmokingStartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("SubtanceMisuse")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Systolic")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Temperature")
+                        .HasColumnType("real");
+
+                    b.Property<int>("WeeklyAlcohol")
+                        .HasColumnType("int");
+
+                    b.Property<float>("Weight")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationDetailId");
+
+                    b.ToTable("BaselineDetails", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
                 {
                     b.Property<int>("Id")
@@ -1222,6 +1321,17 @@ namespace Database.Migrations
                     b.Navigation("Hcp");
 
                     b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Consultation.ConsultationDetail", "ConsultationDetail")
+                        .WithMany()
+                        .HasForeignKey("ConsultationDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ConsultationDetail");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>

@@ -1,0 +1,65 @@
+﻿@using Dexterity.Components.Pages.Consultation.Dialogs
+@using Services.Features.Consultation.Dto.BaselineDetails
+<DexSimpleButton Name="Add New Baseline Detail" Click="AddNewBaselineDetail" Class="m-2"/>
+<DexGrid DataSource="BaselineDetails" Height="300px">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(BaselineDetailDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.Systolic)" HeaderText="BP">
+            <Template>
+                @{
+                    var item = context as BaselineDetailDto;
+                }
+                <span>@item!.Systolic / @item.Diastolic</span>
+            </Template>
+        </GridColumn>
+
+        <GridColumn Field="@nameof(BaselineDetailDto.Cholesterol)" HeaderText="Cholesterol"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.Height)" HeaderText="Height"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.Weight)" HeaderText="Weight"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.Bmi)" HeaderText="BMI"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.SmokerStatus)" HeaderText="Cig">
+            <Template>
+                @{
+                    var item = context as BaselineDetailDto;
+                }
+                @if (item!.SmokerStatus)
+                {
+                    <span>Y/(@item.SmokePerDay)</span>
+                }
+                else
+                {
+                    <span>N</span>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.DrinkingStatus)" HeaderText="Cig">
+            <Template>
+                @{
+                    var item = context as BaselineDetailDto;
+                }
+                @if (item!.DrinkingStatus)
+                {
+                    <span>Y/(@item.WeeklyAlcohol)</span>
+                }
+                else
+                {
+                    <span>N/(@item.ExSmokerYears)</span>
+                }
+            </Template>
+        </GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.AbdominalCircumference)" HeaderText="Wst"></GridColumn>
+
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<BaselineDetailDto> BaselineDetails { get; set; } = new();
+
+    private async Task AddNewBaselineDetail()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<AddBaselineDetailDialog>("", parameters, options);
+    }
+   
+}

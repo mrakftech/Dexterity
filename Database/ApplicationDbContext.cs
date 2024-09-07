@@ -75,6 +75,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     #region Consultation
 
     public DbSet<ConsultationDetail> ConsultationDetails { get; set; }
+    public DbSet<BaselineDetail> BaselineDetails { get; set; }
 
     #endregion
 
@@ -159,5 +160,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
 
         builder.Entity<ConsultationDetail>(entity => { entity.ToTable(name: "ConsultationDetails", "Consultation"); });
+        builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
     }
 }
