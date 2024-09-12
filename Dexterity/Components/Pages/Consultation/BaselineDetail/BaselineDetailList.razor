@@ -3,7 +3,7 @@
 <DexSimpleButton Name="Add New Baseline Detail" Click="AddNewBaselineDetail" Class="m-2"/>
 <DexGrid DataSource="BaselineDetails" Height="300px">
     <DexGridColumns>
-        <GridColumn Field="@nameof(BaselineDetailDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(BaselineDetailDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="150px"></GridColumn>
         <GridColumn Field="@nameof(BaselineDetailDto.Systolic)" HeaderText="BP">
             <Template>
                 @{
@@ -32,7 +32,7 @@
                 }
             </Template>
         </GridColumn>
-        <GridColumn Field="@nameof(BaselineDetailDto.DrinkingStatus)" HeaderText="Cig">
+        <GridColumn Field="@nameof(BaselineDetailDto.DrinkingStatus)" HeaderText="Alc">
             <Template>
                 @{
                     var item = context as BaselineDetailDto;
@@ -55,11 +55,26 @@
 @code {
     private List<BaselineDetailDto> BaselineDetails { get; set; } = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBaselineDetails();
+    }
+
+    private async Task GetBaselineDetails()
+    {
+        BaselineDetails = await UnitOfWork.Consultation.GetBaselineDetails();
+    }
+
     private async Task AddNewBaselineDetail()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<AddBaselineDetailDialog>("", parameters, options);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AddBaselineDetailDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetBaselineDetails();
+        }
     }
-   
+
 }

@@ -14,7 +14,12 @@ public class ConsultationMapping : Profile
             .ForMember(x => x.Hcp, c => c.MapFrom(m => m.Hcp.FullName))
             .ForMember(x => x.Type, c => c.MapFrom(m => m.ConsultationType))
             .ReverseMap();
+
+        CreateMap<BaselineDetail, BaselineDetailDto>()
+            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
+            .ReverseMap();
         
-        CreateMap<BaselineDetail, BaselineDetailDto>();
+        CreateMap<BaselineDetail, CreateBaselineDetailDto>().ReverseMap();
+        CreateMap<BaselineDetailDto, CreateBaselineDetailDto>().ReverseMap();
     }
 }

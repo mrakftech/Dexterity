@@ -1,8 +1,14 @@
-﻿namespace Domain.Entities.Consultation;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Contracts;
+using Domain.Entities.PatientManagement;
+using Domain.Entities.UserAccounts;
 
-public class BaselineDetail
+namespace Domain.Entities.Consultation;
+
+public class BaselineDetail:IBaseId
 {
-    public int Id { get; set; }
+    [Key]
+    public Guid Id { get; set; }
 
     #region Physical Measurement
 
@@ -46,6 +52,9 @@ public class BaselineDetail
 
     #endregion
 
-    public ConsultationDetail ConsultationDetail { get; set; }
-    public int ConsultationDetailId { get; set; }
+    public Patient Patient { get; set; }
+    public Guid PatientId { get; set; }
+    
+    public User Hcp { get; set; }
+    public Guid HcpId { get; set; }
 }

@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240912171430_UpdateBaselineDetail1008p")]
+    partial class UpdateBaselineDetail1008p
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -151,108 +154,6 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppointmentTypes", "Scheduler");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<float>("AbdominalCircumference")
-                        .HasColumnType("real");
-
-                    b.Property<string>("BloodGroup")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<float>("Bmi")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Cholesterol")
-                        .HasColumnType("real");
-
-                    b.Property<string>("CurrentOccupation")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("Diastolic")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("DrinkingStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("DrinkingStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<int>("ExSmokerYears")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("FamilyCvdHistory")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("HcpId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<float>("Hdl")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Height")
-                        .HasColumnType("real");
-
-                    b.Property<float>("Ldl")
-                        .HasColumnType("real");
-
-                    b.Property<bool>("Lvh")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("PeakFlow")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Pulse")
-                        .HasColumnType("int");
-
-                    b.Property<string>("PulseRhythm")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("RespiratoryRate")
-                        .HasColumnType("int");
-
-                    b.Property<int>("SmokePerDay")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("SmokerStatus")
-                        .HasColumnType("bit");
-
-                    b.Property<DateTime>("SmokingStartDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("SubtanceMisuse")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Systolic")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Temperature")
-                        .HasColumnType("real");
-
-                    b.Property<int>("WeeklyAlcohol")
-                        .HasColumnType("int");
-
-                    b.Property<float>("Weight")
-                        .HasColumnType("real");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("HcpId");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("BaselineDetails", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
@@ -1320,25 +1221,6 @@ namespace Database.Migrations
                     b.Navigation("Clinic");
 
                     b.Navigation("ClinicSite");
-
-                    b.Navigation("Hcp");
-
-                    b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
-                {
-                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
-                        .WithMany()
-                        .HasForeignKey("HcpId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
 
                     b.Navigation("Hcp");
 

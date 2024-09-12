@@ -1,0 +1,208 @@
+﻿@using Services.Features.Consultation.Dto.BaselineDetails
+<MudStack Row>
+    <MudItem md="3">
+        <SfGrid DataSource="BaselineDetails" style="cursor:pointer">
+            <GridEvents RowSelected="RowSelected" TValue="BaselineDetailDto"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(BaselineDetailDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="150px"/>
+                <GridColumn Field="@nameof(BaselineDetailDto.DoctorName)" Format="g" Type="ColumnType.DateTime" HeaderText="Doctor Name"/>
+            </GridColumns>
+        </SfGrid>
+    </MudItem>
+    <MudItem md="9">
+        <DexForm Model="BaselineDetail" ColumnCount="3" OnValidSubmit="() => SaveDetail()">
+            <Fields>
+                <FormGroup ColumnCount="2" LabelText="Physical Measurements" ColumnSpacing="15px">
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Date)" IsEnabled="false" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Weight)" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Weight (kg)</label>
+                            <SfNumericTextBox Value="@BaselineDetail.Weight">
+                                <NumericTextBoxEvents TValue="float" ValueChange="@WeightValueChangeHandler"></NumericTextBoxEvents>
+                            </SfNumericTextBox>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Stone)" LabelText="Stone" ColumnSpan="1" IsEnabled="false"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Height)" LabelText="Height (cm)" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Height (cm)</label>
+                            <SfNumericTextBox Value="@BaselineDetail.Height">
+                                <NumericTextBoxEvents TValue="float" ValueChange="@HeightValueChangeHandler"></NumericTextBoxEvents>
+                            </SfNumericTextBox>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.HeightInFt)" LabelText="Ft." ColumnSpan="1" IsEnabled="false"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Bmi)" LabelText="BMI" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.BloodGroup)" LabelText="Blood Group" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.AbdominalCircumference)" LabelText="Abdominal Circumference (cm)" ColumnSpan="2"/>
+                </FormGroup>
+                <FormGroup ColumnCount="1" LabelText="Social History">
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.SmokerStatus)">
+                        <Template>
+                            <label class="e-form-label">Smoking</label>
+                            <SfCheckBox @bind-Checked="BaselineDetail.SmokerStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.SmokePerDay)">
+                        <Template>
+                            <label class="e-form-label">Smoke Per Day</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.SmokePerDay" Enabled="BaselineDetail.SmokerStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.ExSmokerYears)">
+                        <Template>
+                            <label class="e-form-label">Ex-Smoker (Years)</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.ExSmokerYears" Enabled="BaselineDetail.SmokerStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.ExSmokerYears)">
+                        <Template>
+                            <label class="e-form-label">Smoking Start Date</label>
+                            <SfDatePicker @bind-Value="@BaselineDetail.SmokingStartDate" Enabled="BaselineDetail.SmokerStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.DrinkingStatus)">
+                        <Template>
+                            <label class="e-form-label">Drinking</label>
+                            <SfCheckBox @bind-Checked="BaselineDetail.DrinkingStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.WeeklyAlcohol)">
+                        <Template>
+                            <label class="e-form-label">Weekly Alcohol</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.WeeklyAlcohol" Enabled="BaselineDetail.DrinkingStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.DrinkingStartDate)">
+                        <Template>
+                            <label class="e-form-label">Alcohol Start Date</label>
+                            <SfDatePicker @bind-Value="@BaselineDetail.DrinkingStartDate" Enabled="BaselineDetail.DrinkingStatus"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.FamilyCvdHistory)" LabelText="Family CVD History" EditorType="FormEditorType.Checkbox" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Lvh)" LabelText="LVH" EditorType="FormEditorType.Checkbox" ColumnSpan="1"/>
+                </FormGroup>
+                <FormGroup ColumnCount="2" LabelText="BP, Pulse and Other" ColumnSpacing="15px">
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Systolic)" LabelText="Systolic" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Diastolic)" LabelText="Diastolic" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Cholesterol)" LabelText="Cholesterol" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Ldl)" LabelText="LDL" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Hdl)" LabelText="HDL" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Pulse)" LabelText="Pulse"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.PulseRhythm)" LabelText="Pulse Rhythm"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Temperature)" LabelText="Temp (celsius)"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.PeakFlow)" LabelText="Peak Flow"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.RespiratoryRate)" LabelText="Respiratory Rate" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.CurrentOccupation)" LabelText="Current Occupation" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.SubtanceMisuse)" LabelText="Substance Misuse" EditorType="FormEditorType.TextArea" ColumnSpan="2"/>
+
+                </FormGroup>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Processing="_loading" Type="MudButtonType.Submit"/>
+                <DexLoadingButton Name="Save & Close" Processing="_loading" Click="() => SaveDetail(true)"/>
+                @if (_id != Guid.Empty)
+                {
+                    <DexSimpleButton Name="Delete" Click="() => Delete(_id)"/>
+                    <DexSimpleButton Name="New Detail" Click="NewDetail"/>
+                }
+
+            </Buttons>
+        </DexForm>
+    </MudItem>
+</MudStack>
+
+@code{
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    public CreateBaselineDetailDto BaselineDetail { get; set; } = new();
+    private List<BaselineDetailDto> BaselineDetails { get; set; } = new();
+    private bool _loading;
+    private Guid _id = Guid.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetBaselineDetails();
+    }
+
+    private void WeightValueChangeHandler(Syncfusion.Blazor.Inputs.ChangeEventArgs<float> args)
+    {
+        var kg = args.Value;
+        const double stone = 0.157473;
+        BaselineDetail.Weight = kg;
+        BaselineDetail.Stone += kg * stone;
+    }
+
+    private void HeightValueChangeHandler(Syncfusion.Blazor.Inputs.ChangeEventArgs<float> args)
+    {
+        var height = args.Value;
+        BaselineDetail.Height = height;
+        BaselineDetail.HeightInFt = (height / 2.54) / 12;
+    }
+
+
+    private async Task SaveDetail(bool isSaveAndClose = false)
+    {
+        var res = await UnitOfWork.Consultation.SaveBaselineDetail(_id, BaselineDetail);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            if (isSaveAndClose)
+            {
+                MudDialog.Close();
+            }
+            else
+            {
+                await GetBaselineDetails();
+            }
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        BaselineDetail = new();
+    }
+
+    private async Task GetBaselineDetails()
+    {
+        BaselineDetails = await UnitOfWork.Consultation.GetBaselineDetails();
+    }
+
+    public void RowSelected(RowSelectEventArgs<BaselineDetailDto> args)
+    {
+        if (args.Data.Id != Guid.Empty)
+        {
+            BaselineDetail = Mapper.Map<CreateBaselineDetailDto>(args.Data);
+            _id = args.Data.Id;
+        }
+
+        StateHasChanged();
+    }
+
+    private void NewDetail()
+    {
+        BaselineDetail = new();
+        _id = Guid.Empty;
+    }
+
+    private async Task Delete(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result!.Canceled && Convert.ToBoolean(result.Data!.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.DeleteBaselineDetail(_id);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessage(res.Messages.First());
+                await GetBaselineDetails();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}

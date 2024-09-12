@@ -12,7 +12,7 @@
     }
 </style>
 <link href="@_sfTheme" rel="stylesheet"/>
-<link  href="_content/Radzen.Blazor/css/default-base.css" rel="stylesheet">
+<link href="@_radzenTheme" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/syncfusion/custom-sf.css"/>
 
 <MudLayout>
@@ -62,6 +62,7 @@
     private bool _open = false;
     private bool _isDarkMode;
     private string _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap.css";
+    private string _radzenTheme = "_content/Radzen.Blazor/css/default-base.css";
 
     protected override async Task OnInitializedAsync()
     {
@@ -90,17 +91,20 @@
         }
     }
 
-    private void ThemeChange(bool obj)
+    private void ThemeChange(bool isDarkMode)
     {
-        if (obj)
+        if (isDarkMode)
         {
-            _isDarkMode = obj;
+            _isDarkMode = isDarkMode;
             _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap-dark.css";
+            _radzenTheme = "_content/Radzen.Blazor/css/dark-base.css";
+
         }
         else
         {
-            _isDarkMode = obj;
+            _isDarkMode = isDarkMode;
             _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap.css";
+            _radzenTheme = "_content/Radzen.Blazor/css/default-base.css";
         }
     }
 

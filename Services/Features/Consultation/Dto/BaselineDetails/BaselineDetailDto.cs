@@ -1,8 +1,10 @@
-﻿namespace Services.Features.Consultation.Dto.BaselineDetails;
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Services.Features.Consultation.Dto.BaselineDetails;
 
 public class BaselineDetailDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
 
     #region Physical Measurement
 
@@ -46,5 +48,6 @@ public class BaselineDetailDto
 
     #endregion
 
-    public int ConsultationDetailId { get; set; }
+    public string DoctorName { get; set; }
+    public Guid PatientId { get; set; }
 }

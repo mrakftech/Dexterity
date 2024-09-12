@@ -1,0 +1,38 @@
+﻿@using Services.Features.Consultation.Dto.BaselineDetails
+@using Services.Features.Consultation.Dto
+<DexDialog>
+    <DialogTitle>Baseline Details</DialogTitle>
+    <Content>
+
+        <InnerLayout DrawerWidth="150px" ShowHeader="false">
+            <NavigationItems>
+                <DexMenuItem Text="Baseline" Click="() => ClickChanged(0)"/>
+                <DexMenuItem Text="Graph"/>
+                <DexMenuItem Text="Peak View"/>
+                <DexMenuItem Text="CVD Risk"/>
+                <DexMenuItem Text="Centile Chart"/>
+                <DexMenuItem Text="Tracker"/>
+                <DexMenuItem Text="Medical Info"/>
+            </NavigationItems>
+            <DexContentTabs>
+                <MudTabs @ref="_tabs">
+                    <MudTabPanel Text="">
+                        <BaselineDetailForm/>
+                    </MudTabPanel>
+                </MudTabs>
+            </DexContentTabs>
+        </InnerLayout>
+
+    </Content>
+</DexDialog>
+
+@code {
+    MudTabs _tabs = new();
+
+
+    private void ClickChanged(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
+
+}

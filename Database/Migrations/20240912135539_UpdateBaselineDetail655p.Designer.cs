@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240912135539_UpdateBaselineDetail655p")]
+    partial class UpdateBaselineDetail655p
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -155,9 +158,11 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
                 {
-                    b.Property<Guid>("Id")
+                    b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<float>("AbdominalCircumference")
                         .HasColumnType("real");
@@ -191,9 +196,6 @@ namespace Database.Migrations
 
                     b.Property<bool>("FamilyCvdHistory")
                         .HasColumnType("bit");
-
-                    b.Property<Guid>("HcpId")
-                        .HasColumnType("uniqueidentifier");
 
                     b.Property<float>("Hdl")
                         .HasColumnType("real");
@@ -247,8 +249,6 @@ namespace Database.Migrations
                         .HasColumnType("real");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HcpId");
 
                     b.HasIndex("PatientId");
 
@@ -1328,19 +1328,11 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.BaselineDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
-                        .WithMany()
-                        .HasForeignKey("HcpId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
                         .WithMany()
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Hcp");
 
                     b.Navigation("Patient");
                 });

@@ -12,7 +12,9 @@ public interface IConsultationService
 
     #region Baseline Details
 
-    Task<List<BaselineDetailDto>> GetBaselineDetails(int consultationId);
+    Task<List<BaselineDetailDto>> GetBaselineDetails();
+    Task<IResult<Guid>> SaveBaselineDetail(Guid id, CreateBaselineDetailDto request);
+    Task<IResult<Guid>> DeleteBaselineDetail(Guid id);
 
     #endregion
 }

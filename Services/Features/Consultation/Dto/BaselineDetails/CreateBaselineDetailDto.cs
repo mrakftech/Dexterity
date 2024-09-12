@@ -1,19 +1,35 @@
-﻿namespace Services.Features.Consultation.Dto.BaselineDetails;
+﻿using System.ComponentModel.DataAnnotations;
+using Services.State;
+
+namespace Services.Features.Consultation.Dto.BaselineDetails;
 
 public class CreateBaselineDetailDto
 {
     #region Physical Measurement
 
-    public DateTime Date { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public DateTime Date { get; set; } = DateTime.Now;
+
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public float Weight { get; set; }
-    public float Stone { get; set; }
+
+    public double Stone { get; set; }
+
+
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public float Height { get; set; }
-    public string HeightInFt { get; set; }
+
+    public double HeightInFt { get; set; }
+
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public float Bmi { get; set; }
+
     public string BloodGroup { get; set; }
     public float AbdominalCircumference { get; set; }
 
     #endregion
+
     #region Social History
 
     public bool SmokerStatus { get; set; }
@@ -30,9 +46,15 @@ public class CreateBaselineDetailDto
 
     #region Bp, Pulse, and Other
 
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public int Systolic { get; set; }
+
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public int Diastolic { get; set; }
+
+    [Range(1, double.MaxValue, ErrorMessage = "Required")]
     public float Cholesterol { get; set; }
+
     public float Ldl { get; set; }
     public float Hdl { get; set; }
     public int Pulse { get; set; }
@@ -44,4 +66,7 @@ public class CreateBaselineDetailDto
     public string SubtanceMisuse { get; set; }
 
     #endregion
+
+    public Guid PatientId { get; set; } = ApplicationState.SelectedPatientId;
+    public Guid HcpId { get; set; } = ApplicationState.CurrentUser.UserId;
 }
