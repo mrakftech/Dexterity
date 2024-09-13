@@ -7,7 +7,7 @@
         <InnerLayout DrawerWidth="150px" ShowHeader="false">
             <NavigationItems>
                 <DexMenuItem Text="Baseline" Click="() => ClickChanged(0)"/>
-                <DexMenuItem Text="Graph"/>
+                <DexMenuItem Text="Graph"  Click="() => ClickChanged(1)"/>
                 <DexMenuItem Text="Peak View"/>
                 <DexMenuItem Text="CVD Risk"/>
                 <DexMenuItem Text="Centile Chart"/>
@@ -18,6 +18,9 @@
                 <MudTabs @ref="_tabs">
                     <MudTabPanel Text="">
                         <BaselineDetailForm/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <Graphs/>
                     </MudTabPanel>
                 </MudTabs>
             </DexContentTabs>

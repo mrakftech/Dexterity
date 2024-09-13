@@ -1,0 +1,73 @@
+﻿@using Position = MudBlazor.Position
+@using Services.Features.Consultation.Dto.BaselineDetails
+<MudChart
+    ChartType="_chartType"
+    ChartSeries="@_series"
+    XAxisLabels="@_xAxisLabels"
+    CanHideSeries="true"
+    LegendPosition="Position.Left"
+    ChartOptions="@_options"/>
+
+@code {
+    private ChartOptions _options = new() {LineStrokeWidth = 1, InterpolationOption = InterpolationOption.Straight};
+    private List<BaselineDetailDto> BaselineDetails { get; set; } = new();
+    private List<ChartSeries> _series = [];
+    private string[] _xAxisLabels = [];
+    private ChartType _chartType = ChartType.Line;
+
+    protected override async Task OnInitializedAsync()
+    {
+        BaselineDetails = await UnitOfWork.Consultation.GetBaselineDetails();
+        _xAxisLabels = BaselineDetails.Select(x => x.Date.Date.ToString("d")).ToArray();
+        var systolic = new ChartSeries
+        {
+            Name = nameof(BaselineDetailDto.Systolic),
+            Data = BaselineDetails.Select(x => (double) x.Systolic).ToArray()
+        };
+        var diatolic = new ChartSeries
+        {
+            Name = nameof(BaselineDetailDto.Diastolic),
+            Data = BaselineDetails.Select(x => (double) x.Diastolic).ToArray()
+        };
+        var cholestrol = new ChartSeries
+        {
+            Name = nameof(BaselineDetailDto.Cholesterol),
+            Data = BaselineDetails.Select(x => (double) x.Cholesterol).ToArray()
+        };
+        var wt = new ChartSeries
+        {
+            Name = nameof(BaselineDetailDto.Weight),
+            Data = BaselineDetails.Select(x => (double) x.Weight).ToArray()
+        };
+        var ht = new ChartSeries
+        {
+            Name = nameof(BaselineDetailDto.Height),
+            Data = BaselineDetails.Select(x => (double) x.Height).ToArray()
+        };
+        var bmi = new ChartSeries
+        {
+            Name = "BMI",
+            Data = BaselineDetails.Select(x => (double) x.Bmi).ToArray()
+        };
+        var smoke = new ChartSeries
+        {
+            Name = "Smoke",
+            Data = BaselineDetails.Select(x => (double) x.SmokePerDay).ToArray()
+        };
+        var alchol = new ChartSeries
+        {
+            Name = "Alchol",
+            Data = BaselineDetails.Select(x => (double) x.WeeklyAlcohol).ToArray()
+        };
+        _series.Add(systolic);
+        _series.Add(diatolic);
+        _series.Add(cholestrol);
+        _series.Add(wt);
+        _series.Add(ht);
+        _series.Add(bmi);
+        _series.Add(smoke);
+        _series.Add(alchol);
+    }
+
+
+}

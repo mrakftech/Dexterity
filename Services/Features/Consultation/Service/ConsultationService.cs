@@ -109,9 +109,20 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         {
             return await Result<Guid>.FailAsync("detail not found.");
         }
+
         context.BaselineDetails.Remove(baselineDetailInDb);
         await context.SaveChangesAsync();
         return await Result<Guid>.SuccessAsync("Details are deleted.");
+    }
 
+    public async Task<GraphDto> GetGraphs()
+    {
+        // var baselineDetails = await context.BaselineDetails
+        //     .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+        //     .ToListAsync();
+        // var dates = baselineDetails.Select(x => x.Date.ToString("d")).ToArray();
+        // var names = new[] {nameof(BaselineDetailDto.Systolic)};
+        // var values = baselineDetails.Select(x => x.Systolic).ToArray();
+        throw new NotImplementedException();
     }
 }

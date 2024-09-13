@@ -16,5 +16,8 @@ public interface IConsultationService
     Task<IResult<Guid>> SaveBaselineDetail(Guid id, CreateBaselineDetailDto request);
     Task<IResult<Guid>> DeleteBaselineDetail(Guid id);
 
+
+    Task<GraphDto> GetGraphs();
+
     #endregion
 }
