@@ -1,55 +1,57 @@
 ﻿@layout MainLayout
 @page "/consultation"
+@using Dexterity.Components.Pages.Consultation.AllConsultations.Dialogs
 @using Services.Features.PatientManagement.Dtos.Details
-@using Dexterity.Components.Pages.Consultation.Dialogs
 @using Services.Features.Consultation.Dto
-@using Dexterity.Components.Pages.Consultation.Components
+@using Domain.Entities.PatientManagement.Options
+@using Dexterity.Components.Pages.Consultation.Options
+@using Dexterity.Components.Pages.Consultation.AllConsultations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
-@if (ApplicationState.SelectedPatientId != Guid.Empty)
-{
+
     @if (!_loading)
     {
         <InnerLayout DrawerWidth="260px">
+            <TopBarItems>
+                <SfButton Content="@($"Tasks ({_taskCount})")"  @onclick="CheckTasks"/>
+                <SfButton style="color: crimson;font-weight: bolder" Content="@($"Sms ({_smsHistoryCount})")" @onclick="CheckSmsHistory" />
+                <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder" />
+            </TopBarItems>
             <NavigationItems>
                 <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient"/>
-                    <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
-                    <hr class="hr-custom"/>
-                    <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
-                    <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)"/>
-                    <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"/>
-                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)"/>
-                    <hr class="hr-custom"/>
-                    <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
+                    <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient" />
+                    <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal" />
+                    <hr class="hr-custom" />
+                    <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog" />
+                    <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)" />
+                    <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" />
+                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" />
+                    <hr class="hr-custom" />
+                    <DexMenuItem Text="Open Consultation" Icon="fas fa-users" />
                 </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1"/>
+                <hr class="hr-custom m-1" />
                 <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
                 </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1"/>
+                <hr class="hr-custom m-1" />
                 <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
                 </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1"/>
+                <hr class="hr-custom m-1" />
                 <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
                 </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1"/>
+                <hr class="hr-custom m-1" />
                 <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
                 </RadzenPanelMenuItem>
             </NavigationItems>
             <DexContentTabs>
-                <PatientConsultationCard Patient="Patient"/>
-                <ConsultationDetails RowSelected="RowSelectHandler"/>
+                <PatientConsultationCard Patient="Patient" />
+                <ConsultationDetails RowSelected="RowSelectHandler" />
             </DexContentTabs>
         </InnerLayout>
     }
-}
-else
-{
-    <PatientList SelectPatient="SelectPatient"/>
-}
+
 
 @code {
     public PatientSummaryDto Patient { get; set; } = new();
@@ -57,16 +59,31 @@ else
     private bool _loading;
     private int _consultationId = 0;
     private bool _isConsultationSelected;
+    private int _reminderCount;
+    private int _smsHistoryCount;
+    private int _taskCount;
 
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
         if (ApplicationState.SelectedPatientId != Guid.Empty)
         {
-            await GetPateintSummary(ApplicationState.SelectedPatientId);
+            _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
+            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatientId);
+            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatientId);
+            Patient = ApplicationState.SelectedPatientSummary;
+            StateHasChanged();
         }
-
+        else
+        {
+            NavigationManager.NavigateTo("/select-patient/consultation");
+        }
         _loading = false;
+    }
+
+    private async Task GetReminderCount()
+    {
+        _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
     }
 
     private void ClickChangedTab(int tabIndex)
@@ -74,39 +91,23 @@ else
         _tabs.ActivatePanel(tabIndex);
     }
 
-    private async Task GetPateintSummary(Guid patientId)
-    {
-        _loading = true;
-        var summary = await UnitOfWork.Patient.GetPatientSummary(patientId);
-        Patient = summary;
-        ApplicationState.SelectedPatientId = patientId;
-        ApplicationState.SelectedPatientName = Patient.Name;
-        _loading = false;
-    }
-
-    private async Task SelectPatient(Guid patientId)
-    {
-        await GetPateintSummary(patientId);
-        StateHasChanged();
-    }
-
     private void FindPatient()
     {
-        ApplicationState.SelectedPatientId = Guid.Empty;
+        NavigationManager.NavigateTo("/select-patient/consultation");
         StateHasChanged();
     }
 
     private async Task OpenPatientSummaryModal()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center };
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
 
     private async Task OpenBeginConsultationDialog()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center };
         await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
     }
 
@@ -123,8 +124,33 @@ else
             _consultationId = 0;
         }
 
-        //Snackbar.SuccessMessage(args.Data.Id.ToString());
         StateHasChanged();
+    }
+
+    private async Task CheckReminder()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogresult = await DialogService.ShowAsync<ReminderDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetReminderCount();
+        }
+    }
+
+    private async Task CheckSmsHistory()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        await DialogService.ShowAsync<SmsHistoryDialog>("", parameters, options);
+    }
+
+    private async Task CheckTasks()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        await DialogService.ShowAsync<TasksDialog>("", parameters, options);
     }
 
 }

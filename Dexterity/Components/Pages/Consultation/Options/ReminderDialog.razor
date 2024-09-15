@@ -1,0 +1,300 @@
+﻿@using Services.Features.UserAccounts.Dtos.User
+@using Shared.Constants.Module.Consultation
+@using Services.Features.Consultation.Dto.Reminder
+<DexDialog>
+    <DialogTitle>Reminders</DialogTitle>
+    <Content>
+        <DexForm ColumnCount="2" Model="Reminder" OnValidSubmit="SaveReminder">
+            <Fields>
+                <FormItem Field="@nameof(UpsertReminderDto.HcpId)" ColumnSpan="1" IsEnabled="false">
+                    <Template>
+                        <label class="e-form-label">HCP:</label>
+                        <SfDropDownList Enabled="false" TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares" @bind-Value="@Reminder.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(UpsertReminderDto.Priority)" ColumnSpan="1" EditorType="FormEditorType.DropDownList"/>
+                <FormItem Field="@nameof(UpsertReminderDto.Message)" ColumnSpan="2" EditorType="FormEditorType.TextArea"/>
+                <FormItem Field="@nameof(UpsertReminderDto.RemindMeIn)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Remind me in (Mints)</label>
+                        <SfNumericTextBox @bind-Value="@Reminder.RemindMeIn" Min="0" Max="60"/>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                @if (_reminderId > 0)
+                {
+                    <DexLoadingButton Name="Update" Click="SaveReminder"/>
+                    if (Reminder.IsActive)
+                    {
+                        <DexLoadingButton Name="Complete" Click="CompleteReminder"/>
+                    }
+
+                    <DexLoadingButton Name="Delete" Click="() => DeleteReminder(_reminderId)"/>
+                }
+                else
+                {
+                    <DexLoadingButton Name="New" Click="NewReminder"/>
+                }
+                <DexLoadingButton Name="Close" Click="CloseDialog"/>
+            </Buttons>
+        </DexForm>
+        <SfTab CssClass="mt-5">
+            <TabItems>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Active Reminders"/>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <SfGrid DataSource="ActiveReminders" class="mt-3">
+                            <GridEvents RowSelected="RowSelected" TValue="GetReminderDto"></GridEvents>
+                            <GridColumns>
+                                <GridColumn Field="@nameof(GetReminderDto.Priority)" HeaderText="" Width="20px">
+                                    <Template>
+                                        @{
+                                            var item = context as GetReminderDto;
+                                        }
+
+                                        @switch (item!.Priority)
+                                        {
+                                            case ReminderPriority.Low:
+                                                <span class="dot-info"></span>
+                                                break;
+                                            case ReminderPriority.Medium:
+                                                <span class="dot-success"></span>
+                                                break;
+                                            case ReminderPriority.High:
+                                                <span class="dot-danger"></span>
+                                                break;
+                                            default:
+                                                <span class="dot"></span>
+                                                break;
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Field="@nameof(GetReminderDto.Date)" HeaderText="Date"/>
+                                <GridColumn Field="@nameof(GetReminderDto.Message)" HeaderText="Message"/>
+                                <GridColumn Field="@nameof(GetReminderDto.DoctorName)" HeaderText="HCP"/>
+                            </GridColumns>
+
+                        </SfGrid>
+                    </ContentTemplate>
+                </TabItem>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="Completed Reminders"/>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <SfGrid DataSource="CompletedReminders" class="mt-3">
+                            <GridEvents RowSelected="RowSelected" TValue="GetReminderDto"></GridEvents>
+                            <GridColumns>
+                                <GridColumn Field="@nameof(GetReminderDto.Priority)" HeaderText="" Width="20px">
+                                    <Template>
+                                        @{
+                                            var item = context as GetReminderDto;
+                                        }
+
+                                        @switch (item!.Priority)
+                                        {
+                                            case ReminderPriority.Low:
+                                                <span class="dot-info"></span>
+                                                break;
+                                            case ReminderPriority.Medium:
+                                                <span class="dot-success"></span>
+                                                break;
+                                            case ReminderPriority.High:
+                                                <span class="dot-danger"></span>
+                                                break;
+                                            default:
+                                                <span class="dot"></span>
+                                                break;
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Field="@nameof(GetReminderDto.Date)" HeaderText="Date"/>
+                                <GridColumn Field="@nameof(GetReminderDto.Message)" HeaderText="Message"/>
+                                <GridColumn Field="@nameof(GetReminderDto.DoctorName)" HeaderText="HCP"/>
+                            </GridColumns>
+
+                        </SfGrid>
+                    </ContentTemplate>
+                </TabItem>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="All Reminders"/>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <SfGrid DataSource="AllReminders" class="mt-3">
+                            <GridEvents RowSelected="RowSelected" TValue="GetReminderDto"></GridEvents>
+                            <GridColumns>
+                                <GridColumn Field="@nameof(GetReminderDto.Priority)" HeaderText="" Width="20px">
+                                    <Template>
+                                        @{
+                                            var item = context as GetReminderDto;
+                                        }
+
+                                        @switch (item!.Priority)
+                                        {
+                                            case ReminderPriority.Low:
+                                                <span class="dot-info"></span>
+                                                break;
+                                            case ReminderPriority.Medium:
+                                                <span class="dot-success"></span>
+                                                break;
+                                            case ReminderPriority.High:
+                                                <span class="dot-danger"></span>
+                                                break;
+                                            default:
+                                                <span class="dot"></span>
+                                                break;
+                                        }
+                                    </Template>
+                                </GridColumn>
+                                <GridColumn Field="@nameof(GetReminderDto.Date)" HeaderText="Date"/>
+                                <GridColumn Field="@nameof(GetReminderDto.Message)" HeaderText="Message"/>
+                                <GridColumn Field="@nameof(GetReminderDto.DoctorName)" HeaderText="HCP"/>
+                            </GridColumns>
+
+                        </SfGrid>
+                    </ContentTemplate>
+                </TabItem>
+            </TabItems>
+        </SfTab>
+
+    </Content>
+</DexDialog>
+<style>
+    .dot {
+        height: 10px;
+        width: 10px;
+        background-color: #bbb;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .dot-info {
+        height: 10px;
+        width: 10px;
+        background-color: darkgreen;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .dot-success {
+        height: 10px;
+        width: 10px;
+        background-color: steelblue;
+        border-radius: 50%;
+        display: inline-block;
+    }
+
+    .dot-danger {
+        height: 10px;
+        width: 10px;
+        background-color: crimson;
+        border-radius: 50%;
+        display: inline-block;
+    }
+</style>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    private UpsertReminderDto Reminder { get; set; } = new();
+    private List<GetReminderDto> AllReminders { get; set; } = new();
+    private List<GetReminderDto> CompletedReminders { get; set; } = new();
+    private List<GetReminderDto> ActiveReminders { get; set; } = new();
+    private int _reminderId = 0;
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+        await GetReminders();
+    }
+
+    private async Task GetReminders()
+    {
+        var all = await UnitOfWork.Consultation.GetReminders();
+        AllReminders = all;
+        CompletedReminders = all.Where(x => x.IsActive == false).ToList();
+        ActiveReminders = all.Where(x => x.IsActive).ToList();
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User
+            .GeAlltDoctorsByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task SaveReminder()
+    {
+        var res = await UnitOfWork.Consultation.SaveReminders(_reminderId, Reminder);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetReminders();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+    public void RowSelected(RowSelectEventArgs<GetReminderDto> args)
+    {
+        if (args.Data.Id != 0)
+        {
+            Reminder = Mapper.Map<UpsertReminderDto>(args.Data);
+            _reminderId = args.Data.Id;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task DeleteReminder(int reminderId)
+    {
+        var res = await UnitOfWork.Consultation.DeleteReminder(reminderId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetReminders();
+            _reminderId = 0;
+            Reminder = new();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+    private void NewReminder()
+    {
+        _reminderId = 0;
+        Reminder = new();
+    }
+
+    private void CloseDialog()
+    {
+        MudDialog.Close();
+    }
+
+    private async Task CompleteReminder()
+    {
+        var res = await UnitOfWork.Consultation.CompleteReminder(_reminderId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetReminders();
+            _reminderId = 0;
+            Reminder = new();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

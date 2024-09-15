@@ -20,7 +20,11 @@
           <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
               <RadzenSidebarToggle Click="@(() => _open = !_open)"/>
               <RadzenLabel Text="@MenuTitle"/>
+              <div style="margin-left:80%">
+                  @TopBarItems
+              </div>
           </RadzenStack>
+        
       </RadzenHeader>
   }
     <RadzenSidebar @bind-Expanded="@_open" Style="@($"width:{DrawerWidth}")" >
@@ -46,5 +50,6 @@
     [Parameter] public bool ShowHeader { get; set; } = true;
     [Parameter] public bool ShowFooter{ get; set; } 
     [Parameter] public string MenuTitle { get; set; }
+    [Parameter] public RenderFragment TopBarItems { get; set; }
     bool _open = true;
 }

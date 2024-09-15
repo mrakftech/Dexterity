@@ -1,5 +1,6 @@
 ﻿using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Reminder;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
@@ -17,7 +18,11 @@ public interface IConsultationService
     Task<IResult<Guid>> DeleteBaselineDetail(Guid id);
 
 
-    Task<GraphDto> GetGraphs();
+    Task<List<GetReminderDto>> GetReminders();
+    Task<int> GetActiveRemindersCount();
+    Task<IResult> SaveReminders(int id,UpsertReminderDto request);
+    Task<IResult> CompleteReminder(int id);
+    Task<IResult> DeleteReminder(int id);
 
     #endregion
 }

@@ -110,6 +110,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <AdditionalFiles Include="Components\Pages\Consultation\AllConsultations\Dialogs\BeginConsultationDialog.razor" />
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\AddPatientHospitalModal.razor" />
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\Family\UpsertFamilyMemberModal.razor" />
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\Grouping\AddNewGroupModal.razor" />

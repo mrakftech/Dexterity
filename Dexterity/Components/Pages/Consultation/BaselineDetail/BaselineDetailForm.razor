@@ -17,7 +17,7 @@
                     <FormItem Field="@nameof(CreateBaselineDetailDto.Weight)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Weight (kg)</label>
-                            <SfNumericTextBox Value="@BaselineDetail.Weight">
+                            <SfNumericTextBox Value="@BaselineDetail.Weight" Min="0">
                                 <NumericTextBoxEvents TValue="float" ValueChange="@WeightValueChangeHandler"></NumericTextBoxEvents>
                             </SfNumericTextBox>
                         </Template>
@@ -26,12 +26,12 @@
                     <FormItem Field="@nameof(CreateBaselineDetailDto.Height)" LabelText="Height (cm)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Height (cm)</label>
-                            <SfNumericTextBox Value="@BaselineDetail.Height">
+                            <SfNumericTextBox Value="@BaselineDetail.Height" Min="0">
                                 <NumericTextBoxEvents TValue="float" ValueChange="@HeightValueChangeHandler"></NumericTextBoxEvents>
                             </SfNumericTextBox>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.HeightInFt)" LabelText="Ft." ColumnSpan="1" IsEnabled="false"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.HeightInFt)" LabelText="Ft." ColumnSpan="1" IsEnabled="false" />
                     <FormItem Field="@nameof(CreateBaselineDetailDto.Bmi)" LabelText="BMI" ColumnSpan="2"/>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.BloodGroup)" LabelText="Blood Group" ColumnSpan="2"/>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.AbdominalCircumference)" LabelText="Abdominal Circumference (cm)" ColumnSpan="2"/>
@@ -46,13 +46,13 @@
                     <FormItem Field="@nameof(CreateBaselineDetailDto.SmokePerDay)">
                         <Template>
                             <label class="e-form-label">Smoke Per Day</label>
-                            <SfNumericTextBox @bind-Value="@BaselineDetail.SmokePerDay" Enabled="BaselineDetail.SmokerStatus"/>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.SmokePerDay" Enabled="BaselineDetail.SmokerStatus" Min="0"/>
                         </Template>
                     </FormItem>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.ExSmokerYears)">
                         <Template>
                             <label class="e-form-label">Ex-Smoker (Years)</label>
-                            <SfNumericTextBox @bind-Value="@BaselineDetail.ExSmokerYears" Enabled="BaselineDetail.SmokerStatus"/>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.ExSmokerYears" Enabled="BaselineDetail.SmokerStatus" Min="0"/>
                         </Template>
                     </FormItem>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.ExSmokerYears)">
@@ -70,7 +70,7 @@
                     <FormItem Field="@nameof(CreateBaselineDetailDto.WeeklyAlcohol)">
                         <Template>
                             <label class="e-form-label">Weekly Alcohol</label>
-                            <SfNumericTextBox @bind-Value="@BaselineDetail.WeeklyAlcohol" Enabled="BaselineDetail.DrinkingStatus"/>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.WeeklyAlcohol" Enabled="BaselineDetail.DrinkingStatus" Min="0"/>
                         </Template>
                     </FormItem>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.DrinkingStartDate)">
@@ -83,16 +83,61 @@
                     <FormItem Field="@nameof(CreateBaselineDetailDto.Lvh)" LabelText="LVH" EditorType="FormEditorType.Checkbox" ColumnSpan="1"/>
                 </FormGroup>
                 <FormGroup ColumnCount="2" LabelText="BP, Pulse and Other" ColumnSpacing="15px">
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Systolic)" LabelText="Systolic" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Diastolic)" LabelText="Diastolic" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Cholesterol)" LabelText="Cholesterol" ColumnSpan="2"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Ldl)" LabelText="LDL" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Hdl)" LabelText="HDL" ColumnSpan="1"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Pulse)" LabelText="Pulse"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Systolic)" LabelText="Systolic" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Systolic</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Systolic"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Diastolic)" LabelText="Diastolic" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Diastolic</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Diastolic"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Cholesterol)" LabelText="Cholesterol" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Cholesterol</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Cholesterol"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Ldl)" LabelText="LDL" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">LDL</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Ldl"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Hdl)" LabelText="HDL" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">HDL</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Hdl"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Pulse)" LabelText="Pulse">
+                        <Template>
+                            <label class="e-form-label">Pulse</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Pulse"  Min="0"/>
+                        </Template>
+                    </FormItem>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.PulseRhythm)" LabelText="Pulse Rhythm"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.Temperature)" LabelText="Temp (celsius)"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.PeakFlow)" LabelText="Peak Flow"/>
-                    <FormItem Field="@nameof(CreateBaselineDetailDto.RespiratoryRate)" LabelText="Respiratory Rate" ColumnSpan="2"/>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.Temperature)" LabelText="Temp (celsius)">
+                        <Template>
+                            <label class="e-form-label">Temperature</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.Temperature"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.PeakFlow)" LabelText="Peak Flow">
+                        <Template>
+                            <label class="e-form-label">Peak Flow</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.PeakFlow"  Min="0"/>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(CreateBaselineDetailDto.RespiratoryRate)" LabelText="Respiratory Rate" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Respiratory Rate</label>
+                            <SfNumericTextBox @bind-Value="@BaselineDetail.RespiratoryRate"  Min="0"/>
+                        </Template>
+                    </FormItem>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.CurrentOccupation)" LabelText="Current Occupation" ColumnSpan="2"/>
                     <FormItem Field="@nameof(CreateBaselineDetailDto.SubtanceMisuse)" LabelText="Substance Misuse" EditorType="FormEditorType.TextArea" ColumnSpan="2"/>
 

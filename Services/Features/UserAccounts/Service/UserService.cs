@@ -356,7 +356,18 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             .Select(x => x.User)
             .ToListAsync();
 
-        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(user => mapper.Map<HealthcareDto>(user)).Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
+        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>).Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
+    }
+
+    public async Task<List<HealthcareDto>> GeAlltDoctorsByClinic(int clinicId)
+    {
+        var users = await context.UserClinics
+            .AsNoTracking()
+            .Where(x => x.ClinicId == clinicId)
+            .Select(x => x.User)
+            .ToListAsync();
+
+        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>).ToList();
     }
 
     #endregion

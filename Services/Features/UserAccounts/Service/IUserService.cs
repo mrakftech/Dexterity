@@ -44,6 +44,7 @@ public interface IUserService
     Task<IResult> DeleteClinic(int id);
     Task<List<HealthcareDto>> GetUsersByClinic(int clinicId);
     Task<List<HealthcareDto>> GetDoctors(int clinicId);
+    Task<List<HealthcareDto>> GeAlltDoctorsByClinic(int clinicId);
 
     #endregion
 }

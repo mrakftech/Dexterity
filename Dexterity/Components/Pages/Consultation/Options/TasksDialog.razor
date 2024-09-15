@@ -1,0 +1,74 @@
+﻿@using Domain.Entities.Messaging.UserTasks
+<DexDialog>
+    <DialogTitle>Tasks</DialogTitle>
+    <Content>
+        <DexGrid DataSource="Tasks" Loading="_userTaskLoading" Height="400px">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(UserTask.TaskDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Task Date" Width="80px"></GridColumn>
+                <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Subject" Width="100px"></GridColumn>
+                <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Description" Width="200px"></GridColumn>
+                <GridColumn HeaderText="Assigned By" Width="200px">
+                    <Template>
+                        @{
+                            var item = (context as UserTask);
+                            @if (item.AssignedBy != null)
+                            {
+                                <MudText Color="MudColor.Primary">
+                                    @item.AssignedBy.FullName
+                                </MudText>
+                            }
+                            else
+                            {
+                                <MudText Color="MudColor.Primary">
+                                    -
+                                </MudText>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="@nameof(UserTask.Status)" HeaderText="Status" Width="120px"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="200px">
+                    <Template>
+                        @{
+                            var item = (context as UserTask);
+                            @if (item.AssignedById == null)
+                            {
+                                @* <MudIconButton *@
+                                @*     Size="@MudSize.Small" *@
+                                @*     Icon="@MudIcons.Material.Outlined.Edit" *@
+                                @*     Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(item.Id)"/> *@
+                                @* <MudIconButton *@
+                                @*     Size="@MudSize.Small" *@
+                                @*     Icon="@MudIcons.Material.Outlined.Delete" *@
+                                @*     Color="MudColor.Error" OnClick="() => DeleteUserTask(item.Id)"/> *@
+                            }
+                            else
+                            {
+                                @* <InputSelect TValue="string" @onchange="e => ChangeStatus(e, item.Id)"> *@
+                                @*     @foreach (var item in UserTaskConstants.TaskStatusList) *@
+                                @*     { *@
+                                @*     <option value="@item.Name">@item.Name</option> *@
+                                @*     } *@
+                                @* </InputSelect> *@
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+
+            </DexGridColumns>
+        </DexGrid>
+    </Content>
+</DexDialog>
+
+@code {
+    public List<UserTask> Tasks { get; set; } = new();
+    private bool _userTaskLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userTaskLoading = true;
+        Tasks = await UnitOfWork.Messaging.GetUserTasksByPatient(ApplicationState.SelectedPatientId);
+        _userTaskLoading = false;
+    }
+
+}

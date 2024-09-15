@@ -2,6 +2,7 @@
 using Domain.Entities.Consultation;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Reminder;
 
 namespace Services.Features.Consultation.Mapping;
 
@@ -21,5 +22,14 @@ public class ConsultationMapping : Profile
         
         CreateMap<BaselineDetail, CreateBaselineDetailDto>().ReverseMap();
         CreateMap<BaselineDetailDto, CreateBaselineDetailDto>().ReverseMap();
+        
+        
+        CreateMap<Reminder, GetReminderDto>()
+            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
+            .ForMember(x => x.Date, c => c.MapFrom(m => m.Date.ToString("d")))
+            .ReverseMap();
+        CreateMap<Reminder, UpsertReminderDto>().ReverseMap();
+        CreateMap<GetReminderDto, UpsertReminderDto>().ReverseMap();
+
     }
 }

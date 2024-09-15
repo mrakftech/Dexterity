@@ -1,0 +1,22 @@
+﻿@layout MainLayout
+@page "/select-patient/{RedirectUrl}"
+<PatientList SelectPatient="SelectedPatient"/>
+
+@code {
+    [Parameter] public string RedirectUrl { get; set; }
+
+    private async Task SelectedPatient(Guid patientId)
+    {
+        await GetPateintSummary(patientId);
+        NavigationManager.NavigateTo($"/{RedirectUrl}");
+    }
+
+    private async Task GetPateintSummary(Guid patientId)
+    {
+        var summary = await UnitOfWork.Patient.GetPatientSummary(patientId);
+        ApplicationState.SelectedPatientId = patientId;
+        ApplicationState.SelectedPatientName = summary.Name;
+        ApplicationState.SelectedPatientSummary = summary;
+    }
+
+}

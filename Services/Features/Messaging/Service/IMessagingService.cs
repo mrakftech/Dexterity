@@ -12,6 +12,7 @@ public interface IMessagingService
     #region User Task
 
     public Task<List<UserTask>> GetUserTasksByPatient(Guid patientId);
+    public Task<int> GetUserTasksCountByPatient(Guid patientId);
     public Task<List<UserTask>> GetUserTaskList(string view = "All");
     public Task<IResult> SaveTask(Guid id, UserTaskDto dto);
     public Task<IResult> UpdateTaskStatus(Guid id, string status);
@@ -26,6 +27,7 @@ public interface IMessagingService
     public Task<IResult> SendSms(SendMessageDto request);
 
     public Task<List<SmsHistory>> GetSmsHistory(Guid patientId);
+    public Task<int> GetSmsHistoryCount(Guid patientId);
     public Task<List<SmsHistory>> FilterSmsHistory(Guid patientId, DateTime from, DateTime to);
     public Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory);
 

@@ -3,7 +3,6 @@ using ClickATell.Requests;
 using ClickATell.Services;
 using Database;
 using Domain.Entities.Messaging.UserTasks;
-using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Options;
 using Microsoft.EntityFrameworkCore;
 using PhoneNumbers;
@@ -17,7 +16,10 @@ using Shared.Wrapper;
 
 namespace Services.Features.Messaging.Service;
 
-public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsEndpoints smsEndpoints)
+public class MessagingService(
+    ApplicationDbContext context,
+    IMapper mapper,
+    SmsEndpoints smsEndpoints)
     : IMessagingService
 {
     #region User Tasks
@@ -25,9 +27,15 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsE
     public async Task<List<UserTask>> GetUserTasksByPatient(Guid patientId)
     {
         return await context.UserTasks
-            .Where(x => x.PatientId == patientId)
+            .Where(x => x.PatientId == patientId && x.Status == UserTaskConstants.TaskStatusConstant.Active)
             .OrderByDescending(x => x.TaskDate)
             .ToListAsync();
+    }
+
+    public async Task<int> GetUserTasksCountByPatient(Guid patientId)
+    {
+        return await context.UserTasks
+            .CountAsync(x => x.PatientId == patientId && x.Status == UserTaskConstants.TaskStatusConstant.Active);
     }
 
     public async Task<List<UserTask>> GetUserTaskList(string view = UserTaskConstants.All)
@@ -224,6 +232,11 @@ public class MessagingService(ApplicationDbContext context, IMapper mapper, SmsE
     {
         return await context.PatientSmsHistories.Where(x => x.PatientId == patientId)
             .ToListAsync();
+    }
+
+    public async Task<int> GetSmsHistoryCount(Guid patientId)
+    {
+        return await context.PatientSmsHistories.CountAsync(x => x.PatientId == patientId);
     }
 
     public async Task<List<SmsHistory>> GetSmsHistory(Guid patientId, DateTime from, DateTime to)

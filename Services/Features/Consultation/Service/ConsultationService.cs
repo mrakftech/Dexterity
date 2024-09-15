@@ -4,6 +4,7 @@ using Domain.Entities.Consultation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Reminder;
 using Services.State;
 using Shared.Wrapper;
 
@@ -115,14 +116,82 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         return await Result<Guid>.SuccessAsync("Details are deleted.");
     }
 
-    public async Task<GraphDto> GetGraphs()
+    #region Reminders
+
+    public async Task<List<GetReminderDto>> GetReminders()
     {
-        // var baselineDetails = await context.BaselineDetails
-        //     .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
-        //     .ToListAsync();
-        // var dates = baselineDetails.Select(x => x.Date.ToString("d")).ToArray();
-        // var names = new[] {nameof(BaselineDetailDto.Systolic)};
-        // var values = baselineDetails.Select(x => x.Systolic).ToArray();
-        throw new NotImplementedException();
+        var reminders = await context.Reminders
+            .Include(x => x.Hcp)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+        var mapped = mapper.Map<List<GetReminderDto>>(reminders);
+        return mapped;
     }
+
+    public async Task<int> GetActiveRemindersCount()
+    {
+        var reminders = await context.Reminders
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId && x.IsActive)
+            .ToListAsync();
+
+        return reminders.Count;
+    }
+
+    public async Task<IResult> SaveReminders(int id, UpsertReminderDto request)
+    {
+        if (id == 0)
+        {
+            request.IsActive = true;
+            var mappedData = mapper.Map<Reminder>(request);
+            await context.Reminders.AddAsync(mappedData);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Reminder added.");
+        }
+        else
+        {
+            var reminderInDb = await context.Reminders
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (reminderInDb is null)
+            {
+                return await Result<Guid>.FailAsync("reminder not found.");
+            }
+
+            reminderInDb = mapper.Map(request, reminderInDb);
+            context.Reminders.Update(reminderInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Reminder saved.");
+        }
+    }
+
+    public async Task<IResult> CompleteReminder(int id)
+    {
+        var reminderInDb = await context.Reminders.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (reminderInDb is null)
+        {
+            return await Result<Guid>.FailAsync("reminder not found.");
+        }
+
+        reminderInDb.IsActive = false;
+        context.ChangeTracker.Clear();
+        context.Reminders.Update(reminderInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Reminder mark as completed.");
+    }
+
+    public async Task<IResult> DeleteReminder(int id)
+    {
+        var reminderInDb = await context.Reminders.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (reminderInDb is null)
+        {
+            return await Result<Guid>.FailAsync("reminder not found.");
+        }
+
+        context.ChangeTracker.Clear();
+        context.Reminders.Remove(reminderInDb);
+        await context.SaveChangesAsync();
+        return await Result<Guid>.SuccessAsync("Reminder is deleted.");
+    }
+
+    #endregion
 }
