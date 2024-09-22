@@ -1,0 +1,56 @@
+﻿@using Services.Features.PatientManagement.Dtos.Allergies
+<DexDialog>
+    <DialogTitle>
+        Allergy
+    </DialogTitle>
+    <Content>
+        <DexForm Model="Allergy" OnValidSubmit="UpsertAllergy">
+            <Fields>
+                <FormItem Field="@nameof(UpsertAllergyDto.PatientName)" LabelText="Patient Name" IsEnabled="false"/>
+                <FormItem Field="@nameof(UpsertAllergyDto.Date)" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(UpsertAllergyDto.AllergyName)" LabelText="Allergy Name" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(UpsertAllergyDto.Notes)" EditorType="FormEditorType.TextArea"/>
+
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Processing="_processing" Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    public UpsertAllergyDto Allergy { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var allergy = await UnitOfWork.Patient.GetPatientAllergy(Id);
+            Allergy = Mapper.Map<UpsertAllergyDto>(allergy);
+        }
+    }
+
+    private async Task UpsertAllergy()
+    {
+        _processing = true;
+        await Task.Delay(1000);
+        var res = await UnitOfWork.Patient.UpsertPatientAllergy(Id, Allergy);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
+
+}

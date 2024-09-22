@@ -11,11 +11,13 @@ using Domain.Entities.Consultation;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
+using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.WaitingRoom;
 
@@ -32,6 +34,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
     public DbSet<AccountType> AccountTypes { get; set; }
+    public DbSet<PomrGroup> PomrGroups { get; set; }
 
     #endregion
 
@@ -62,6 +65,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PatientTransaction> PatientTransactions { get; set; }
     public DbSet<PatientAccount> PatientAccounts { get; set; }
     public DbSet<Hospital> Hospitals { get; set; }
+    public DbSet<PatientAllergy> PatientAllergies { get; set; }
+    public DbSet<PatientDrugAllergy> PatientDrugAllergies { get; set; }
+    
 
     #endregion
 
@@ -123,6 +129,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Scheduler"); });
         builder.Entity<AccountType>(entity => { entity.ToTable(name: "AccountTypes", "Setting"); });
+        builder.Entity<PomrGroup>(entity => { entity.ToTable(name: "PomrGroups", "Setting"); });
 
 
         builder.Entity<AppointmentCancellationReason>(entity =>
@@ -159,6 +166,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         builder.Entity<PatientTransaction>(entity => { entity.ToTable(name: "PatientTransactions", "PM"); });
         builder.Entity<PatientAccount>(entity => { entity.ToTable(name: "PatientAccounts", "PM"); });
         builder.Entity<Hospital>(entity => { entity.ToTable(name: "Hospitals", "PM"); });
+        builder.Entity<PatientAllergy>(entity => { entity.ToTable(name: "PatientAllergies", "PM"); });
+        builder.Entity<PatientDrugAllergy>(entity => { entity.ToTable(name: "PatientDrugAllergies", "PM"); });
 
 
         builder.Entity<ConsultationDetail>(entity => { entity.ToTable(name: "ConsultationDetails", "Consultation"); });

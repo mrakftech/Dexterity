@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 using Newtonsoft.Json;
 using Domain.Entities.PatientManagement;
+using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 
 namespace Database.Configurations
@@ -65,6 +66,10 @@ namespace Database.Configurations
                     v => JsonConvert.SerializeObject(v),
                     v => JsonConvert.DeserializeObject<PrivateHealthInsuranceDetail>(v)
                 );
+
+            builder.HasOne(a => a.PatientAccount)
+                .WithOne(b => b.Patient)
+                .HasForeignKey<PatientAccount>(b => b.PatientId);
 
         }
     }

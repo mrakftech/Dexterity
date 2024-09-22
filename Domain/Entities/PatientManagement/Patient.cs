@@ -1,4 +1,5 @@
 ﻿using Domain.Contracts;
+using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
@@ -62,6 +63,7 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public string PatientType { get; set; }
     public string Status { get; set; }
     public string Photo { get; set; }
+    public bool NkaFlag { get; set; } = true; //No Known Allergies
 
     public PatientAddress Address { get; set; } = new();
     public MedicalCardDetail MedicalCardDetails { get; set; } = new();
@@ -85,9 +87,8 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
 
-    public PatientAccount PatientAccount { get; set; } = new() {Type = PatientAccountType.Personal, Balance = 500};
+    public PatientAccount PatientAccount { get; set; } = new();
     public virtual ICollection<PatientHospital> Hospitals { get; set; }
     public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
     public virtual ICollection<WaitingAppointment> WaitingAppointments { get; set; }
-
 }

@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
+using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Templates;
 using Services.Features.Settings.Dtos;
 using Shared.Constants.Module;
@@ -68,6 +69,15 @@ public interface ISettingService
     public Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes);
     public Task<IResult> SaveAccountType(int id, AccountTypeDto request);
     public Task<IResult> DeleteAccountType(int id);
+
+    #endregion
+
+    #region Pomr Group
+
+    public Task<PomrGroup> GetPomrGroup(int id);
+    public Task<List<PomrGroup>> GetAllPomrGroups();
+    public Task<IResult> SavePomrGroup(int id, PomrGroup request);
+    public Task<IResult> DeletePomrGroup(int id);
 
     #endregion
 }

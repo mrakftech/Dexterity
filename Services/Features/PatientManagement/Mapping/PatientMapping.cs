@@ -1,6 +1,7 @@
 using AutoMapper;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
@@ -10,6 +11,7 @@ using Domain.Entities.PatientManagement.Options;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.Allergies;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
@@ -107,6 +109,19 @@ public class PatientMapping : Profile
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
             .ForMember(x => x.Status, c => c.MapFrom(m => m.IsResolved == true ? "Resolved" : "Pending"))
             .ReverseMap();
+        #endregion
+
+        #region Allergy
+        CreateMap<PatientAllergy, PatientAllergyDto>()
+            .ReverseMap();
+        CreateMap<PatientAllergyDto, UpsertAllergyDto>()
+            .ReverseMap();
+        CreateMap<PatientAllergy, UpsertAllergyDto>()
+            .ReverseMap();
+        
+        CreateMap<DrugAllergyDto, PatientDrugAllergy>().ReverseMap();
+        CreateMap<UpsertDrugAllergyDto, PatientDrugAllergy>().ReverseMap();
+        CreateMap<DrugAllergyDto, UpsertDrugAllergyDto>().ReverseMap();
         #endregion
     }
 }

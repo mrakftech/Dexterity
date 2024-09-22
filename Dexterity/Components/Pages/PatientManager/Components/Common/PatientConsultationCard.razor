@@ -1,4 +1,5 @@
-﻿@using Services.Features.PatientManagement.Dtos.Details
+﻿@using Dexterity.Components.Pages.PatientManager.Components.Allergies
+@using Services.Features.PatientManagement.Dtos.Details
 <RadzenRow >
     <RadzenCard Variant="RadVariant.Filled" class="" Style="width: 100%">
         <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="6rem">
@@ -40,10 +41,18 @@
                     <b>@Patient.Type</b>
                 </RadzenText>
             </RadzenStack>
+            <RadzenStack Gap="0">
+                <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0"></RadzenText>
+
+               
+            </RadzenStack>
         </RadzenStack>
     </RadzenCard>
 </RadzenRow>
 
 @code{
+
     [Parameter] public PatientSummaryDto Patient { get; set; } = new();
+
+
 }

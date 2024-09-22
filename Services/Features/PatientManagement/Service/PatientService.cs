@@ -6,6 +6,7 @@ using Services.State;
 using Shared.Helper;
 using Shared.Wrapper;
 using Domain.Entities.PatientManagement.Alert;
+using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
@@ -14,6 +15,7 @@ using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.Allergies;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
@@ -90,6 +92,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             .Include(patient => patient.Hcp)
             .Include(x => x.Hospitals)
             .Include(x => x.FamilyMembers)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == patientId);
         var hostpitals = await context.PatientHospitals.Include(x => x.Hospital).Where(x => x.PatientId == patientId)
             .ToListAsync();
@@ -118,6 +121,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             GmsNumber = patient.MedicalCardDetails.GmsPatientNumber,
             GmsReviewDate = patient.MedicalCardDetails.GmsReviewDate.ToString("d"),
             GmsDistance = patient.MedicalCardDetails.GmsDistanceCode,
+            NkaFlag = patient.NkaFlag,
             Hospitals = hospitals,
             FamilyMembers = families
         };
@@ -125,6 +129,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
         return summary;
     }
+
 
     public async Task<IResult> CreatePatient(UpsertPatientDto request)
     {
@@ -650,6 +655,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         {
             return new GroupDto();
         }
+
         var mappedData = mapper.Map<GroupDto>(patientGroup.Group);
         return patientGroup != null ? mappedData : new GroupDto();
     }
@@ -816,9 +822,11 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                     previousBalance += request.Amount;
                     chargedTransaction.IsDeleted = true;
                 }
+
                 await context.SaveChangesAsync();
                 await AddSinglePayment(request);
             }
+
             return await Result.SuccessAsync("Charged has been added.");
         }
         catch (Exception e)
@@ -969,6 +977,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             {
                 patientAccount.Balance += amount;
             }
+
             context.ChangeTracker.Clear();
             context.PatientAccounts.Update(patientAccount);
             context.SaveChanges();
@@ -1052,15 +1061,15 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> CreateGroupAlerts(CreatePatientGroupAlertDto request)
     {
         foreach (var alert in request.SelectedPatients.Select(item => new PatientAlert
-        {
-            Details = request.Details,
-            Type = request.AlertType.ToString(),
-            Severity = request.Severity.ToString(),
-            AlertCategoryId = request.AlertCategoryId,
-            CreatedBy = ApplicationState.CurrentUser.UserId,
-            CreatedDate = DateTime.Now,
-            PatientId = item.Id
-        }))
+                 {
+                     Details = request.Details,
+                     Type = request.AlertType.ToString(),
+                     Severity = request.Severity.ToString(),
+                     AlertCategoryId = request.AlertCategoryId,
+                     CreatedBy = ApplicationState.CurrentUser.UserId,
+                     CreatedDate = DateTime.Now,
+                     PatientId = item.Id
+                 }))
         {
             await context.PatientAlerts.AddAsync(alert);
         }
@@ -1068,6 +1077,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Group Alerts has been saved.");
     }
+
     public async Task<IResult> ResolveGroupAlerts(List<GetGroupAlertDto> groupAlerts)
     {
         foreach (var item in groupAlerts)
@@ -1079,10 +1089,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                 context.PatientAlerts.Update(alertInDb);
             }
         }
+
         await context.SaveChangesAsync();
 
         return await Result.SuccessAsync("Selected Alerts has been resolved.");
     }
+
     public async Task<IResult> DeleteGroupAlerts(List<GetGroupAlertDto> groupAlerts)
     {
         foreach (var item in groupAlerts)
@@ -1092,6 +1104,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             var data = mapper.Map<PatientAlert>(alertInDb);
             context.PatientAlerts.Remove(data);
         }
+
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Selected Alerts has been deleted.");
     }
@@ -1110,6 +1123,168 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    #endregion
+
+    #region Allergies
+
+    public async Task<List<PatientAllergyDto>> GetPatientAllergies()
+    {
+        var list = await context.PatientAllergies.AsNoTracking()
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+        var data = mapper.Map<List<PatientAllergyDto>>(list);
+        return data;
+    }
+
+    public async Task<PatientAllergyDto> GetPatientAllergy(int id)
+    {
+        var allergyInDb = await context.PatientAllergies.FirstOrDefaultAsync(x => x.Id == id);
+        if (allergyInDb is null)
+        {
+            return new PatientAllergyDto();
+        }
+
+        var mapped = mapper.Map<PatientAllergyDto>(allergyInDb);
+        return mapped;
+    }
+
+    public async Task<IResult> UpsertPatientAllergy(int id, UpsertAllergyDto allergy)
+    {
+        try
+        {
+            if (id == 0)
+            {
+                var data = mapper.Map<PatientAllergy>(allergy);
+                await context.PatientAllergies.AddAsync(data);
+                await context.SaveChangesAsync();
+            }
+            else
+            {
+                var allergyInDb = await context.PatientAllergies.FirstOrDefaultAsync(x => x.Id == id);
+                allergyInDb = mapper.Map(allergy, allergyInDb);
+                context.PatientAllergies.Update(allergyInDb);
+                await context.SaveChangesAsync();
+            }
+            await UpdatePatientNka();
+            return await Result.SuccessAsync("Allergy has been recorded.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> RemovePatientAllergy(int id)
+    {
+        var allergyInDb = await context.PatientAllergies.FirstOrDefaultAsync(x => x.Id == id);
+        if (allergyInDb is null)
+        {
+            return await Result.FailAsync("item not found");
+        }
+
+        context.PatientAllergies.Remove(allergyInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Allergy has been deleted.");
+    }
+
+
+    public async Task<List<DrugAllergyDto>> GetPatientDrugAllergies()
+    {
+        var list = await context.PatientDrugAllergies.AsNoTracking()
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+        var data = mapper.Map<List<DrugAllergyDto>>(list);
+        return data;
+    }
+
+    public async Task<IResult> UpsertPatientDrugAllergy(int id, UpsertDrugAllergyDto allergy)
+    {
+        try
+        {
+            if (id == 0)
+            {
+                var data = mapper.Map<PatientDrugAllergy>(allergy);
+                await context.PatientDrugAllergies.AddAsync(data);
+                await context.SaveChangesAsync();
+                await UpdatePatientNka();
+            }
+            else
+            {
+                var allergyInDb = await context.PatientDrugAllergies.FirstOrDefaultAsync(x => x.Id == id);
+                allergyInDb = mapper.Map(allergy, allergyInDb);
+                context.PatientDrugAllergies.Update(allergyInDb);
+                await context.SaveChangesAsync();
+            }
+
+            return await Result.SuccessAsync("Allergy has been recorded.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<DrugAllergyDto> GetPatientDrugAllergy(int id)
+    {
+        var allergyInDb = await context.PatientDrugAllergies.FirstOrDefaultAsync(x => x.Id == id);
+        if (allergyInDb is null)
+        {
+            return new DrugAllergyDto();
+        }
+
+        var mapped = mapper.Map<DrugAllergyDto>(allergyInDb);
+        return mapped;
+    }
+
+    public async Task<IResult> RemovePatientDrugAllergy(int id)
+    {
+        var allergyInDb = await context.PatientDrugAllergies.FirstOrDefaultAsync(x => x.Id == id);
+        if (allergyInDb is null)
+        {
+            return await Result.FailAsync("item not found");
+        }
+
+        context.PatientDrugAllergies.Remove(allergyInDb);
+        await context.SaveChangesAsync();
+        await UpdatePatientNka();
+        return await Result.SuccessAsync("Allergy has been deleted.");
+    }
+
+    private async Task UpdatePatientNka()
+    {
+        try
+        {
+            var patient = await context.Patients.AsNoTracking()
+                .Include(x=>x.PatientAccount)
+                .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatientId);
+
+            var allergyCount = await context.PatientAllergies.CountAsync(x =>
+                x.PatientId == ApplicationState.SelectedPatientId);
+
+            var drugAllergyCount = await context.PatientDrugAllergies.CountAsync(x =>
+                x.PatientId == ApplicationState.SelectedPatientId);
+
+            if (allergyCount > 0 || drugAllergyCount >0)
+            {
+                patient.NkaFlag = false;
+            }
+            else
+            {
+                patient.NkaFlag = true;
+            }
+
+            patient.PatientAccount!.PatientId = ApplicationState.SelectedPatientId;
+            context.ChangeTracker.Clear();
+            context.Patients.Update(patient);
+            await context.SaveChangesAsync();
+
+        }
+        catch (Exception e)
+        {
+            await Result.FailAsync(e.Message);
+        }
+    }
 
     #endregion
 }

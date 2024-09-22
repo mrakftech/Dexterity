@@ -1,10 +1,12 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
+using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
+using Services.State;
 using Shared.Constants.Module;
 using Shared.Wrapper;
 using AccountType = Domain.Entities.Settings.Account.AccountType;
@@ -324,17 +326,17 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         {
             case TransactionActionType.Charge:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionActionType.Charge)
+                    .Where(x => x.IsActive && x.Type == TransactionActionType.Charge)
                     .ToListAsync();
                 break;
             case TransactionActionType.Payment:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionActionType.Payment)
+                    .Where(x => x.IsActive && x.Type == TransactionActionType.Payment)
                     .ToListAsync();
                 break;
             case TransactionActionType.StrikeOff:
                 list = await context.AccountTypes
-                    .Where(x => x.IsActive && x.Type==TransactionActionType.StrikeOff)
+                    .Where(x => x.IsActive && x.Type == TransactionActionType.StrikeOff)
                     .ToListAsync();
                 break;
             default:
@@ -343,10 +345,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                     .ToListAsync();
                 break;
         }
-        
-        
-        
-        
+
+
         var mapped = mapper.Map<List<AccountTypeDto>>(list);
         return mapped;
     }
@@ -381,12 +381,12 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 context.AccountTypes.Update(accountInDb);
                 await context.SaveChangesAsync();
             }
-
         }
         catch (Exception e)
         {
             return await Result.FailAsync(e.Message);
         }
+
         return await Result.SuccessAsync("Account added.");
     }
 
@@ -398,6 +398,53 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.AccountTypes.Remove(accountInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Account deleted.");
+    }
+
+    #endregion
+
+    #region Pomr Group
+
+    public async Task<PomrGroup> GetPomrGroup(int id)
+    {
+        var pomrGroup = await context.PomrGroups.FirstOrDefaultAsync(x => x.Id == id);
+        return pomrGroup ?? new PomrGroup();
+    }
+
+    public async Task<List<PomrGroup>> GetAllPomrGroups()
+    {
+        return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId).ToListAsync();
+    }
+
+    public async Task<IResult> SavePomrGroup(int id, PomrGroup request)
+    {
+        if (id == 0)
+        {
+            request.ClinicId = ApplicationState.CurrentUser.ClinicId;
+            await context.PomrGroups.AddAsync(request);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            var pomrGroup = await context.PomrGroups.FirstOrDefaultAsync(x => x.Id == id);
+            if (pomrGroup is null)
+                return await Result.FailAsync("POMR Group is not found");
+            pomrGroup.Name = request.Name;
+            context.PomrGroups.Update(pomrGroup);
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("POMR group saved.");
+    }
+
+    public async Task<IResult> DeletePomrGroup(int id)
+    {
+        var pomrGroup = await context.PomrGroups.FirstOrDefaultAsync(x => x.Id == id);
+        if (pomrGroup is null)
+            return await Result.FailAsync("POMR Group is not found");
+
+        context.PomrGroups.Remove(pomrGroup);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("POMR group deleted.");
     }
 
     #endregion

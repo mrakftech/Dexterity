@@ -19,6 +19,9 @@
             <RadzenPanelMenuItem Text="Types">
                 <DexMenuItem Text="Account Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(5))"/>
             </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Other Types">
+                <DexMenuItem Text="POMR Groups" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(6))"/>
+            </RadzenPanelMenuItem>
         </NavigationItems>
 
         <DexContentTabs>
@@ -40,6 +43,9 @@
                 </MudTabPanel>
                 <MudTabPanel >
                     <AccountTypeTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <PomrGroupTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

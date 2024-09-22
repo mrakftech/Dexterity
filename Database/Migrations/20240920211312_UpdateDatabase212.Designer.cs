@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240920211312_UpdateDatabase212")]
+    partial class UpdateDatabase212
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -478,28 +481,6 @@ namespace Database.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Notes")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PatientAllergies", "PM");
-                });
-
-            modelBuilder.Entity("Domain.Entities.PatientManagement.Allergies.PatientDrugAllergy", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("Date")
-                        .HasColumnType("datetime2");
-
                     b.Property<string>("DrugAllergyName")
                         .HasColumnType("nvarchar(max)");
 
@@ -509,12 +490,20 @@ namespace Database.Migrations
                     b.Property<string>("DrugType")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsDrugAllergy")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.ToTable("PatientDrugAllergies", "PM");
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientAllergies", "PM");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>
@@ -1095,26 +1084,6 @@ namespace Database.Migrations
                     b.ToTable("AccountTypes", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.PomrGroup", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ClinicId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("PomrGroups", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.Clinic", b =>
                 {
                     b.Property<int>("Id")
@@ -1553,6 +1522,17 @@ namespace Database.Migrations
                         .IsRequired();
 
                     b.Navigation("AlertCategory");
+
+                    b.Navigation("Patient");
+                });
+
+            modelBuilder.Entity("Domain.Entities.PatientManagement.Allergies.PatientAllergy", b =>
+                {
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Patient");
                 });

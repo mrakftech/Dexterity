@@ -2,6 +2,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
+using Services.Features.PatientManagement.Dtos.Allergies;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
@@ -135,6 +136,22 @@ public interface IPatientService
     public Task<IResult> DeleteGroupAlerts(List<GetGroupAlertDto> groupAlerts);
     public Task<IResult> ResolveGroupAlerts(List<GetGroupAlertDto> groupAlerts);
     public Task<List<GetGroupAlertDto>> GetAllPatientAlerts();
+
+    #endregion
+
+    #region Allergies
+    public Task<List<PatientAllergyDto>> GetPatientAllergies();
+    public Task<PatientAllergyDto> GetPatientAllergy(int id);
+    public Task<IResult> UpsertPatientAllergy(int id, UpsertAllergyDto allergy);
+    public Task<IResult> RemovePatientAllergy(int id);
+    
+    
+    public Task<DrugAllergyDto> GetPatientDrugAllergy(int id);
+
+    public Task<List<DrugAllergyDto>> GetPatientDrugAllergies();
+    public Task<IResult> UpsertPatientDrugAllergy(int id, UpsertDrugAllergyDto allergy);
+
+    public Task<IResult> RemovePatientDrugAllergy(int id);
 
     #endregion
 }

@@ -1,0 +1,55 @@
+﻿@using Domain.Entities.Settings.Consultation
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="PomrGroup" OnValidSubmit="SavePomrGroup">
+            <Fields>
+                <FormItem Field="@nameof(@PomrGroup.Name)" LabelText="Name"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private PomrGroup PomrGroup { get; set; } = new();
+    private bool _processing;
+    private string _title;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            PomrGroup = await UnitOfWork.Setting.GetPomrGroup(Id);
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
+        }
+    }
+
+    private async Task SavePomrGroup()
+    {
+        _processing = true;
+
+        var res = await UnitOfWork.Setting.SavePomrGroup(Id, PomrGroup);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+}

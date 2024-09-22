@@ -1,0 +1,119 @@
+﻿@using Services.Features.PatientManagement.Dtos.Allergies
+<DexDialog>
+    <DialogTitle>
+        Allergies/Drug Allergies
+    </DialogTitle>
+    <Content>
+        <TabTitle>
+            <ActionButtons>
+                <DexSimpleButton Name="Record Allergy" Class="m-3" Click="() => OpenAllergyFormDialog(0)"/>
+                <DexSimpleButton Name="Record Drug Allergy" Click="() => OpenDrugAllergyFormDialog(0)"/>
+            </ActionButtons>
+        </TabTitle>
+        <DexGrid DataSource="@Allergies" Height="200px">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(PatientAllergyDto.Date)" HeaderText="ALLERGIES" Width="110"> </GridColumn>
+                <GridColumn Field="@nameof(PatientAllergyDto.AllergyName)" HeaderText="" Width="110"> </GridColumn>
+                <GridColumn Field="@nameof(PatientAllergyDto.Notes)" HeaderText="" Width="110"> </GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                        var item = (context as PatientAllergyDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenAllergyFormDialog(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteAllergy(item.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+        <div class="mt-3">
+            <DexGrid DataSource="@DrugAllergies" Height="200px">
+                <DexGridColumns>
+                    <GridColumn Field="@nameof(DrugAllergyDto.Date)" HeaderText="DRUG ALLERGIES" Width="110"> </GridColumn>
+                    <GridColumn Field="@nameof(DrugAllergyDto.DrugAllergyName)" HeaderText="" Width="110"> </GridColumn>
+                    <GridColumn Field="@nameof(DrugAllergyDto.Notes)" HeaderText="" Width="110"> </GridColumn>
+                    <GridColumn HeaderText="Actions" Width="120">
+                        <Template>
+                            @{
+                            var item = (context as DrugAllergyDto);
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenDrugAllergyFormDialog(item.Id)"/>
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteDrugAllergy(item.Id)"/>
+                            }
+                        </Template>
+                    </GridColumn>
+                </DexGridColumns>
+            </DexGrid>
+        </div>
+        @if (ApplicationState.SelectedPatientSummary.NkaFlag)
+        {
+            <MudText Color="Color.Secondary" Class="text-bold">Flag with NKA</MudText>
+        }
+    </Content>
+</DexDialog>
+
+@code {
+    private List<PatientAllergyDto> Allergies { get; set; } = new();
+    private List<DrugAllergyDto> DrugAllergies { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAllergies();
+    }
+
+    private async Task GetAllergies()
+    {
+        Allergies = await UnitOfWork.Patient.GetPatientAllergies();
+        DrugAllergies = await UnitOfWork.Patient.GetPatientDrugAllergies();
+    }
+
+
+    private async Task OpenAllergyFormDialog(int id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AllergyFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetAllergies();
+        }
+    }
+
+    private async Task DeleteAllergy(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Patient.RemovePatientAllergy(id);
+            Snackbar.SuccessMessage(userRes.Messages.First());
+            await GetAllergies();
+        }
+    }
+    private async Task OpenDrugAllergyFormDialog(int id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<DrugAllergyFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetAllergies();
+        }
+    }
+
+    private async Task DeleteDrugAllergy(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Patient.RemovePatientDrugAllergy(id);
+            Snackbar.SuccessMessage(userRes.Messages.First());
+            await GetAllergies();
+        }
+    }
+
+}

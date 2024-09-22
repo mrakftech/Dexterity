@@ -3,54 +3,63 @@
 @using Dexterity.Components.Pages.Consultation.AllConsultations.Dialogs
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Consultation.Dto
-@using Domain.Entities.PatientManagement.Options
 @using Dexterity.Components.Pages.Consultation.Options
+@using Dexterity.Components.Pages.PatientManager.Components.Allergies
 @using Dexterity.Components.Pages.Consultation.AllConsultations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
-    @if (!_loading)
-    {
-        <InnerLayout DrawerWidth="260px">
-            <TopBarItems>
-                <SfButton Content="@($"Tasks ({_taskCount})")"  @onclick="CheckTasks"/>
-                <SfButton style="color: crimson;font-weight: bolder" Content="@($"Sms ({_smsHistoryCount})")" @onclick="CheckSmsHistory" />
-                <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder" />
-            </TopBarItems>
-            <NavigationItems>
-                <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient" />
-                    <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal" />
-                    <hr class="hr-custom" />
-                    <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog" />
-                    <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)" />
-                    <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" />
-                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" />
-                    <hr class="hr-custom" />
-                    <DexMenuItem Text="Open Consultation" Icon="fas fa-users" />
-                </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1" />
-                <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
-                </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1" />
-                <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
-                </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1" />
-                <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
-                </RadzenPanelMenuItem>
-                <hr class="hr-custom m-1" />
-                <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                    <DexMenuItem Text="Find Patient" Icon="fas fa-users" />
-                </RadzenPanelMenuItem>
-            </NavigationItems>
-            <DexContentTabs>
-                <PatientConsultationCard Patient="Patient" />
-                <ConsultationDetails RowSelected="RowSelectHandler" />
-            </DexContentTabs>
-        </InnerLayout>
-    }
+@if (!_loading)
+{
+    <InnerLayout DrawerWidth="260px">
+        <TopBarItems>
+            @if (Patient.NkaFlag)
+            {
+                <SfButton Content="Allergies/Drug Allergies" @onclick="OpenAllergyDialog" CssClass="mr-3"/>
+            }
+            else
+            {
+                <DexSimpleButton Color="MudColor.Secondary" Name="Allergies/Drug Allergies" Class="mr-3" Click="OpenAllergyDialog"/>
+            }
+            <SfButton Content="Refresh" @onclick="GetPatientSummary"/>
+            <SfButton Content="@($"Tasks ({_taskCount})")" @onclick="CheckTasks"/>
+            <SfButton style="color: crimson;font-weight: bolder" Content="@($"Sms ({_smsHistoryCount})")" @onclick="CheckSmsHistory"/>
+            <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder"/>
+        </TopBarItems>
+        <NavigationItems>
+            <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient"/>
+                <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
+                <hr class="hr-custom"/>
+                <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
+                <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)"/>
+                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"/>
+                <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)"/>
+                <hr class="hr-custom"/>
+                <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1"/>
+            <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1"/>
+            <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1"/>
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1"/>
+            <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            </RadzenPanelMenuItem>
+        </NavigationItems>
+        <DexContentTabs>
+            <PatientConsultationCard Patient="Patient"/>
+            <ConsultationDetails RowSelected="RowSelectHandler"/>
+        </DexContentTabs>
+    </InnerLayout>
+}
 
 
 @code {
@@ -71,14 +80,21 @@
             _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
             _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatientId);
             _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatientId);
-            Patient = ApplicationState.SelectedPatientSummary;
+            await GetPatientSummary();
             StateHasChanged();
         }
         else
         {
             NavigationManager.NavigateTo("/select-patient/consultation");
         }
+
         _loading = false;
+    }
+
+    private async Task GetPatientSummary()
+    {
+        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
+        ApplicationState.SelectedPatientSummary = Patient;
     }
 
     private async Task GetReminderCount()
@@ -100,14 +116,14 @@
     private async Task OpenPatientSummaryModal()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
 
     private async Task OpenBeginConsultationDialog()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
     }
 
@@ -130,7 +146,7 @@
     private async Task CheckReminder()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<ReminderDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (!result.Canceled)
@@ -142,15 +158,29 @@
     private async Task CheckSmsHistory()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<SmsHistoryDialog>("", parameters, options);
     }
 
     private async Task CheckTasks()
     {
         var parameters = new DialogParameters();
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<TasksDialog>("", parameters, options);
+    }
+
+
+    private async Task OpenAllergyDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AllergiesDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (result.Canceled)
+        {
+            await GetPatientSummary();
+            StateHasChanged();
+        }
     }
 
 }

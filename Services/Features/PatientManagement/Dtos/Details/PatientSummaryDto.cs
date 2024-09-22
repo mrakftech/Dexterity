@@ -31,6 +31,7 @@ public class PatientSummaryDto
     public string GmsNumber { get; set; }
     public string GmsReviewDate { get; set; }
     public string GmsDistance { get; set; }
+    public bool NkaFlag { get; set; }  
 
     public List<PatientHospitalDto> Hospitals { get; set; } = new();
     public string HospitalNumber { get; set; } 
