@@ -47,7 +47,7 @@
     private async Task BeginConsultation()
     {
         _loading = true;
-        var res = await UnitOfWork.Consultation.BeginConsultation(0, ConsultationDto);
+        var res = await UnitOfWork.Consultation.BeginConsultation(ConsultationDto);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

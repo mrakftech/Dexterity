@@ -13,6 +13,7 @@ public class ConsultationMapping : Profile
         CreateMap<ConsultationDetail, GetConsultationDetailDto>()
             .ForMember(x => x.Date, c => c.MapFrom(m => m.ConsultationDate.ToString("g")))
             .ForMember(x => x.Hcp, c => c.MapFrom(m => m.Hcp.FullName))
+            .ForMember(x => x.IsFinish, c => c.MapFrom(m => m.IsFinished))
             .ForMember(x => x.Type, c => c.MapFrom(m => m.ConsultationType))
             .ReverseMap();
 
@@ -28,7 +29,9 @@ public class ConsultationMapping : Profile
             .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ForMember(x => x.Date, c => c.MapFrom(m => m.Date.ToString("d")))
             .ReverseMap();
+
         CreateMap<Reminder, UpsertReminderDto>().ReverseMap();
+
         CreateMap<GetReminderDto, UpsertReminderDto>().ReverseMap();
 
     }

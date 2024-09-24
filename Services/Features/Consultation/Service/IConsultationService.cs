@@ -7,8 +7,11 @@ namespace Services.Features.Consultation.Service;
 
 public interface IConsultationService
 {
-    Task<IResult> BeginConsultation(int id, BeginConsultationDto request);
+    Task<IResult> BeginConsultation(BeginConsultationDto request);
+    Task<IResult> EditConsultation(int id, EditConsultationDto request);
     Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId);
+    Task<EditConsultationDto> GetConsultationDetail(int id);
+    Task<IResult> FinishConsultation(int id);
 
 
     #region Baseline Details

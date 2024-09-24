@@ -6,4 +6,5 @@ public class GetConsultationDetailDto
     public string Date { get; set; }
     public string Type { get; set; }
     public string Hcp { get; set; }
+    public bool  IsFinish { get; set; }
 }

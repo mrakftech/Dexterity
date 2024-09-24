@@ -31,9 +31,11 @@
                 <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
-                <DexMenuItem Text="Edit Details" Icon="fas fa-users" Disabled="@(!_isConsultationSelected)"/>
-                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"/>
-                <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)"/>
+                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" Click="() => EditBeginConsultationDialog(_consultationId)"/>
+                @if (!_isConsultationFinish)
+                {
+                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" Click="() => FinishConsultationDialog(_consultationId)"/>
+                }
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
             </RadzenPanelMenuItem>
@@ -56,7 +58,7 @@
         </NavigationItems>
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
-            <ConsultationDetails RowSelected="RowSelectHandler"/>
+            <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler"/>
         </DexContentTabs>
     </InnerLayout>
 }
@@ -67,10 +69,12 @@
     readonly MudTabs _tabs = new();
     private bool _loading;
     private int _consultationId = 0;
+    private bool _isConsultationFinish;
     private bool _isConsultationSelected;
     private int _reminderCount;
     private int _smsHistoryCount;
     private int _taskCount;
+    private List<GetConsultationDetailDto> Consultations { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -81,6 +85,7 @@
             _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatientId);
             _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatientId);
             await GetPatientSummary();
+            await GetConsultations();
             StateHasChanged();
         }
         else
@@ -89,6 +94,11 @@
         }
 
         _loading = false;
+    }
+
+    private async Task GetConsultations()
+    {
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatientId);
     }
 
     private async Task GetPatientSummary()
@@ -124,7 +134,39 @@
     {
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetConsultations();
+        }
+    }
+
+    private async Task EditBeginConsultationDialog(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
+        await GetConsultations();
+    }
+
+    private async Task FinishConsultationDialog(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to complete this Consultation?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Consultation.FinishConsultation(id);
+            if (userRes.Succeeded)
+            {
+                
+                var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+                await DialogService.ShowAsync<FinishConsultationDialog>("",new DialogParameters() , options);
+            }
+        }
     }
 
     public void RowSelectHandler(RowSelectEventArgs<GetConsultationDetailDto> args)
@@ -133,6 +175,7 @@
         {
             _isConsultationSelected = true;
             _consultationId = args.Data.Id;
+            _isConsultationFinish = args.Data.IsFinish;
         }
         else
         {

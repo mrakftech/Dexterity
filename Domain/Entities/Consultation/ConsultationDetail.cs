@@ -22,4 +22,7 @@ public class ConsultationDetail
     
     public Guid PatientId { get; set; }
     public Patient Patient { get; set; }
+
+    public bool IsFinished { get; set; }
+
 }

@@ -81,18 +81,7 @@
 </RadzenRow>
 @code{
     [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
-    private List<GetConsultationDetailDto> Consultations { get; set; } = new();
+    [Parameter] public List<GetConsultationDetailDto> Consultations { get; set; } = new();
 
-    protected override async Task OnInitializedAsync()
-    {
-        if (ApplicationState.SelectedPatientId != Guid.Empty)
-        {
-            await GetConsultations(ApplicationState.SelectedPatientId);
-        }
-
-    }
-    private async Task GetConsultations(Guid selectedPatientId)
-    {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(selectedPatientId);
-    }
+    
 }

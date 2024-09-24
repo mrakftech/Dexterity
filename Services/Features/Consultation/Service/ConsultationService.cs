@@ -15,6 +15,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
     public async Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId)
     {
         var consultations = await context.ConsultationDetails
+            .AsNoTracking()
             .Include(x => x.Hcp)
             .Where(x => x.PatientId == patientId)
             .ToListAsync();
@@ -23,27 +24,23 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         return mappedData;
     }
 
-    public async Task<IResult> BeginConsultation(int id, BeginConsultationDto request)
+    public async Task<IResult> BeginConsultation(BeginConsultationDto request)
     {
         try
         {
-            if (id == 0)
+            var consultation = new ConsultationDetail()
             {
-                var consultation = new ConsultationDetail()
-                {
-                    ConsultationDate = request.ConsultationDate,
-                    ClinicSiteId = request.ClinicSiteId,
-                    ConsultationClass = request.ConsultationClass,
-                    PatientId = ApplicationState.SelectedPatientId,
-                    HcpId = ApplicationState.CurrentUser.UserId,
-                    ConsultationType = request.ConsultationType
-                };
-                context.ConsultationDetails.Add(consultation);
-                await context.SaveChangesAsync();
-                return await Result.SuccessAsync("Consultation has been added.");
-            }
+                ConsultationDate = request.ConsultationDate,
+                ClinicSiteId = request.ClinicSiteId,
+                ConsultationClass = request.ConsultationClass,
+                PatientId = ApplicationState.SelectedPatientId,
+                HcpId = ApplicationState.CurrentUser.UserId,
+                ConsultationType = request.ConsultationType
+            };
+            context.ConsultationDetails.Add(consultation);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Consultation has been added.");
 
-            return await Result.SuccessAsync("");
         }
         catch (Exception e)
         {
@@ -51,6 +48,51 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         }
     }
 
+    public async Task<IResult> EditConsultation(int id, EditConsultationDto request)
+    {
+        var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == id);
+        if (consultation is null)
+            return await Result.FailAsync("Consultation not found");
+
+        consultation.ConsultationDate = request.ConsultationDate;
+        consultation.ConsultationClass = request.ConsultationClass;
+        consultation.Pomr = request.Pomr;
+        consultation.ConsultationType = request.ConsultationType;
+        consultation.ClinicSiteId = request.ClinicSiteId;
+
+        context.ConsultationDetails.Update(consultation);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Consultation has been saved.");
+
+
+    }
+    public async Task<EditConsultationDto> GetConsultationDetail(int id)
+    {
+        var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (consultation is null)
+            return new EditConsultationDto();
+
+        return new EditConsultationDto()
+        {
+            ConsultationDate = consultation.ConsultationDate,
+            ClinicSiteId = consultation.ClinicSiteId,
+            ConsultationClass = consultation.ConsultationClass,
+            ConsultationType=consultation.ConsultationType,
+            Pomr=consultation.Pomr,
+        };
+
+    }
+    public async Task<IResult> FinishConsultation(int id)
+    {
+        var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (consultation is null)
+            return await Result.FailAsync("Consultation not found.");
+
+        consultation.IsFinished = true;
+        context.ConsultationDetails.Update(consultation);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Consultation has been finished.");
+    }
 
     public async Task<List<BaselineDetailDto>> GetBaselineDetails()
     {
@@ -192,6 +234,10 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         await context.SaveChangesAsync();
         return await Result<Guid>.SuccessAsync("Reminder is deleted.");
     }
+
+  
+
+
 
     #endregion
 }

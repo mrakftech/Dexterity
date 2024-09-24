@@ -79,6 +79,14 @@ namespace Dexterity
 #endif
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddMauiBlazorWebView();
+        
+            builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
+                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")),
+                     ServiceLifetime.Transient
+                )
+                .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
+            builder.Services.AddRepositories();
+            builder.Services.AddExternalApis();
             builder.Services.AddMudServices(configuration =>
             {
                 configuration.SnackbarConfiguration.PositionClass = Defaults.Classes.Position.BottomCenter;
@@ -87,23 +95,6 @@ namespace Dexterity
                 configuration.SnackbarConfiguration.VisibleStateDuration = 3000;
                 configuration.SnackbarConfiguration.ShowCloseIcon = false;
             });
-            builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")),
-                     ServiceLifetime.Transient
-                )
-                .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
-            builder.Services.AddRepositories();
-            builder.Services.AddExternalApis();
-            builder.Services.AddMudServicesWithExtensions(c =>
-            {
-                c.WithDefaultDialogOptions(ex =>
-                {
-                    ex.Position = DialogPosition.BottomRight;
-                    
-                    
-                });
-            });
-
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
