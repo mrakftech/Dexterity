@@ -338,11 +338,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         foreach (var user in users)
         {
             var data = mapper.Map<HealthcareDto>(user);
-            //Excluding logged in user.
-            if (data.Id != ApplicationState.CurrentUser.UserId)
-            {
-                list.Add(data);
-            }
+            list.Add(data);
         }
 
         return list;

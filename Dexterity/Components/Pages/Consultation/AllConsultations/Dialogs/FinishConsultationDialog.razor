@@ -1,14 +1,80 @@
-﻿<DexDialog>
+﻿@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Dexterity.Components.Pages.Messaging.Dialogs.UserTasks
+@using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
+@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
     <DialogTitle>Consultation Finished</DialogTitle>
     <Content>
         <p>
             Consultation is completed. if you wish to charge the patient Now or Reschedule future appointment, click on below items.
         </p>
         <MudList T="string">
-            <MudListItem Text="Charge Patient" />
-            <MudListItem Text="Schedule Appointment" />
-            <MudListItem Text="Transfer Patient" />
-            <MudListItem Text="Add Task" />
+            <MudListItem Text="Charge Patient" OnClick="OpenChargeDialog" SecondaryText="Allows the direct charging of the just seen patient"/>
+            <MudListItem Text="Schedule Appointment" OnClick="@(() => NewAppointment(DateTime.Now.AddDays(2)))" SecondaryText="Allows the direct recalling of an appointment
+for the just seen patient."/>
+            <MudListItem Text="Transfer Appointment" SecondaryText="Allows the direct re-adding of a just seen
+patient back into the waiting room to see another health care
+professional, perhaps for a blood test or investigation that is required." OnClick="@(() => NewAppointment(DateTime.Now))"/>
+            <MudListItem Text="Add Task" OnClick="OpenTasksDialog" SecondaryText="Allows the healthcare professional to record a user task
+relating to this patient or any other topic of choice"/>
         </MudList>
     </Content>
 </DexDialog>
+
+@code{
+
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+    private List<PatientListDto> PatientList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+        await GetPatients();
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User
+            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task GetPatients()
+    {
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private async Task OpenChargeDialog(MouseEventArgs obj)
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<AddChargeModal>("", parameters, options);
+    }
+
+    private async Task NewAppointment(DateTime dateTime)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("StartDate", dateTime);
+        parameters.Add("PatientList", PatientList);
+        parameters.Add("HealthCares", HealthCares);
+        parameters.Add("HcpId", ApplicationState.CurrentUser.UserId);
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatientId);
+        parameters.Add("SelectedPatientName", ApplicationState.SelectedPatientName);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task OpenTasksDialog(MouseEventArgs obj)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatientId);
+        parameters.Add("SelectedPatientName", ApplicationState.SelectedPatientName);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertUserTaskDialog>("", parameters, options);
+    }
+
+}

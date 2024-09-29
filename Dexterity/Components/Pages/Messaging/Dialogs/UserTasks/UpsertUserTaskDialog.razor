@@ -24,17 +24,31 @@
                     <FormItem Field="@nameof(UserTaskDto.EndTime)" LabelText="End Time" EditorType="FormEditorType.TimePicker" ColumnSpan="1"/>
                     <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
                         <Template>
-                            <SfDropDownList  Enabled="@(Id != Guid.Empty)" TValue="string" TItem="UserTaskConstants.TaskStatus" Placeholder="Status" DataSource="@UserTaskConstants.TaskStatusList"
+                            <SfDropDownList Enabled="@(Id != Guid.Empty)" TValue="string" TItem="UserTaskConstants.TaskStatus" Placeholder="Status" DataSource="@UserTaskConstants.TaskStatusList"
                                             @bind-Value="@UserTask.Status">
                                 <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
-                        <Template>
-                            <PatientAutoComplete PatientList="Patients" OnChangePatient="ChangePatient"/>
-                        </Template>
-                    </FormItem>
+                    @if (SelectedPatientId != Guid.Empty)
+                    {
+                        <FormItem Field="@nameof(UserTaskDto.PatientId)" LabelText="Selected Patient" ColumnSpan="2">
+                            <Template>
+                                <label class="e-form-label">Selected Patient:</label>
+                                
+                                <SfTextBox @bind-Value="@SelectedPatientName" Enabled="false"/>
+                            </Template>
+                        </FormItem>
+                    }
+                    else
+                    {
+                        <FormItem Field="@nameof(UserTaskDto.Status)" LabelText="Status" ColumnSpan="2">
+                            <Template>
+                                <PatientAutoComplete PatientList="Patients" OnChangePatient="ChangePatient"/>
+                            </Template>
+                        </FormItem>
+                    }
+
                     <FormItem Field="@nameof(UserTaskDto.Subject)"/>
                     <FormItem Field="@nameof(UserTaskDto.Location)"/>
                     <FormItem Field="@nameof(UserTaskDto.Description)" EditorType="FormEditorType.TextArea"/>
@@ -81,6 +95,8 @@
 @code {
     [CascadingParameter] public MudDialogInstance MudDilaog { get; set; }
     [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid SelectedPatientId { get; set; }
+    [Parameter] public string SelectedPatientName { get; set; }
     private List<PatientListDto> Patients { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private UserTaskDto UserTask { get; set; } = new();
@@ -101,6 +117,7 @@
         else
         {
             _title = "New Task";
+            UserTask.PatientId = SelectedPatientId;
         }
 
         await GetPatients();

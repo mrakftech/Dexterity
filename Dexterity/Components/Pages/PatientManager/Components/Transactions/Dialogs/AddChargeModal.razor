@@ -26,13 +26,13 @@
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(ChargeDto.ChargeTo)" LabelText="Charge To" ColumnSpan="1" />
-                <FormItem Field="@nameof(ChargeDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker" />
-                <FormItem Field="@nameof(@ChargeDto.Amount)" LabelText="Amount" />
-                <FormItem Field="@nameof(@ChargeDto.Description)" LabelText="Description" EditorType="FormEditorType.TextArea" />
-                <FormItem Field="@nameof(@ChargeDto.MakePayment)" LabelText="Make Payment" EditorType="FormEditorType.Checkbox" />
-                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.PaidAmount)" LabelText="Amount" />
-                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.IsPrinted)" LabelText="Print" EditorType="FormEditorType.Checkbox" />
+                <FormItem Field="@nameof(ChargeDto.ChargeTo)" LabelText="Charge To" ColumnSpan="1"/>
+                <FormItem Field="@nameof(ChargeDto.Date)" LabelText="Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(@ChargeDto.Amount)" LabelText="Amount"/>
+                <FormItem Field="@nameof(@ChargeDto.Description)" LabelText="Description" EditorType="FormEditorType.TextArea"/>
+                <FormItem Field="@nameof(@ChargeDto.MakePayment)" LabelText="Make Payment" EditorType="FormEditorType.Checkbox"/>
+                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.PaidAmount)" LabelText="Amount"/>
+                <FormItem IsEnabled="Charge.MakePayment" Field="@nameof(@ChargeDto.IsPrinted)" LabelText="Print" EditorType="FormEditorType.Checkbox"/>
             </Fields>
             <Buttons>
                 <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
@@ -43,7 +43,7 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public GetPatientAccountDto PatientAccount { get; set; }
+    private GetPatientAccountDto PatientAccount { get; set; }= new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private List<AccountTypeDto> ChargeTypes { get; set; } = new();
     private ChargeDto Charge { get; set; } = new();
@@ -51,8 +51,14 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await GetAccountDetails();
         await GetHealthCares();
         await GetChargeTypes();
+    }
+
+    private async Task GetAccountDetails()
+    {
+        PatientAccount = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatientId);
     }
 
     private async Task GetHealthCares()

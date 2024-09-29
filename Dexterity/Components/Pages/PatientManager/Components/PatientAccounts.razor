@@ -149,7 +149,6 @@ else
     private async Task ChargeModal()
     {
         var parameters = new DialogParameters();
-        parameters.Add("PatientAccount", AccountDto);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<AddChargeModal>("", parameters, options);
         var res = await dialogresult.Result;

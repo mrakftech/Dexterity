@@ -21,11 +21,25 @@
         <Content>
             <DexForm Model="@Appointment" OnValidSubmit="SaveAppointment" ColumnCount="2">
                 <Fields>
-                    <FormItem Field="@nameof(AppointmentDto.PatientId)" ColumnSpan="2">
-                        <Template>
-                            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-                        </Template>
-                    </FormItem>
+
+                    @if (SelectedPatientId != Guid.Empty)
+                    {
+                        <FormItem Field="@nameof(AppointmentDto.PatientId)" LabelText="" ColumnSpan="2">
+                            <Template>
+                                <label class="e-form-label">Selected Patient:</label>
+                                <SfTextBox @bind-Value="@SelectedPatientName" Enabled="false"/>
+                            </Template>
+                        </FormItem>
+                    }
+                    else
+                    {
+                        <FormItem Field="@nameof(AppointmentDto.PatientId)" ColumnSpan="2">
+                            <Template>
+                                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+                            </Template>
+                        </FormItem>
+                    }
+
                     <FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="2">
                         <Template>
                             <label class="e-form-label">Start Time:</label>
@@ -99,6 +113,8 @@ else
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
     [Parameter] public Guid HcpId { get; set; }
+    [Parameter] public Guid SelectedPatientId { get; set; }
+    [Parameter] public string SelectedPatientName { get; set; }
     [Parameter] public DateTime StartDate { get; set; }
     [Parameter] public List<PatientListDto> PatientList { get; set; }
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
@@ -123,6 +139,8 @@ else
             _title = "New Appointment";
             Appointment.StartTime = StartDate;
             Appointment.HcpId = HcpId;
+            Appointment.PatientId = SelectedPatientId;
+            Appointment.PatientName = SelectedPatientName;
         }
         else
         {
@@ -184,7 +202,7 @@ else
         }
         else
         {
-            Appointment.PatientId=Guid.Empty;
+            Appointment.PatientId = Guid.Empty;
             MudDialog.StateHasChanged();
         }
     }

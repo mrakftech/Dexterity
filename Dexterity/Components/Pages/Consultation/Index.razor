@@ -147,8 +147,12 @@
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
-        await GetConsultations();
+        var dialogresult = await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetConsultations();
+        }
     }
 
     private async Task FinishConsultationDialog(int id)
