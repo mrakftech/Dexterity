@@ -17,7 +17,6 @@ public static class ApplicationState
     {
         public static string MeetingName { get; set; }
         public static string MeetingLink { get; set; }
-        public static List<PatientListDto> PatientList { get; set; } = new();
     }
 
 }

@@ -12,6 +12,7 @@ namespace Dexterity
                 blazorWebView.RootComponents[0].Parameters = new Dictionary<string, object>
                 {
                     { "StartPath", startPath },
+
                 };
             }
         }

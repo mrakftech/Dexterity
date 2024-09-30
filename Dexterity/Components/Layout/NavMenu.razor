@@ -1,4 +1,5 @@
-﻿<MudNavMenu Style="margin-top: 30px;">
+﻿@using Dexterity.Components.Pages.Messaging.Dialogs
+<MudNavMenu Style="margin-top: 30px;">
     <MudItem Style="margin-left:0px">
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-home" IconColor="MudColor.Info" Href="/home">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Dashboard</MudText>
@@ -21,12 +22,6 @@
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-message-dots" IconColor="MudColor.Info" Href="/messaging">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Messaging</MudText>
         </MudNavLink>
-        @if (string.IsNullOrWhiteSpace(ApplicationState.Telehealth.MeetingLink))
-        {
-            <MudNavLink Icon="fas fa-tv" IconColor="MudColor.Info" OnClick="OpenVideoLinkModal">
-                <MudText Color="MudColor.Info" Align="MudAlign.Left">Telehealth</MudText>
-            </MudNavLink>
-        }
         <MudNavLink Match="NavLinkMatch.All" Icon="fas fa-gear" IconColor="MudColor.Info" Href="/settings">
             <MudText Color="MudColor.Info" Align="MudAlign.Left">Settings</MudText>
         </MudNavLink>
@@ -35,35 +30,8 @@
     <MudSpacer/>
 </MudNavMenu>
 
+<TelehealthDialog/>
+
 @code {
-
-    private void OpenVideoLinkModal()
-    {
-        var counterWindow = new Window
-        {
-            Page = new MainPage("/telehealth"),
-            Width = 500,
-            Height = 500,
-            Title = $"Meeting",
-        };
-
-        Application.Current.OpenWindow(counterWindow);
-        // var parameters = new DialogParameters { };
-        //
-        // var options = new DialogOptionsEx
-        // {
-        //     Resizeable = false,
-        //     DragMode = MudDialogDragMode.None,
-        //     CloseButton = true,
-        //     FullWidth = true,
-        //     MinimizeButton = true,
-        //     JsRuntime = JsRuntime,
-        //     Position = DialogPosition.CenterRight,
-        //     Animation = AnimationType.SlideIn,
-        //     AnimationDuration = TimeSpan.FromMilliseconds(500),
-        //     FullHeight = true
-        // };
-        // var dialog = await DialogService.ShowEx<TelehealthDialog>("", parameters, options);
-    }
 
 }

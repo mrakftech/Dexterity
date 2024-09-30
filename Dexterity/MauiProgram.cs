@@ -60,9 +60,9 @@ namespace Dexterity
                         {
                             case Microsoft.UI.Windowing.OverlappedPresenter overlappedPresenter:
                                 overlappedPresenter.SetBorderAndTitleBar(true, true);
-                                //overlappedPresenter.Maximize();
-                                //overlappedPresenter.IsResizable = false;
-                            //    overlappedPresenter.IsMaximizable = true;
+                                overlappedPresenter.Maximize();
+                                overlappedPresenter.IsResizable = false;
+                                overlappedPresenter.IsMaximizable = true;
 
                                 break;
                         }
@@ -114,7 +114,6 @@ namespace Dexterity
                     await roomEndpoints.DeleteRoom(ApplicationState.Telehealth.MeetingName);
                     ApplicationState.Telehealth.MeetingName = string.Empty;
                     ApplicationState.Telehealth.MeetingLink = string.Empty;
-                    ApplicationState.Telehealth.PatientList = new();
 
                 }
             }).GetAwaiter().GetResult();
