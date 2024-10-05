@@ -26,7 +26,7 @@ public interface IConsultationService
     #region Notes
     Task<List<HealthCode>> GetHealthCodes();
     Task<List<ConsultationNoteDto>> GetConsultationNotes();
-    Task<List<ConsultationNoteDto>> GetActiveDiagonsis();
+    Task<List<ConsultationNoteDto>> GetActiveDiagonsisByPatient();
     Task<List<ConsultationNoteDto>> GetPastMedicalHistory();
     Task<IResult> UpsertConsultationNote(int id, UpsertConsultationNoteDto request);
     Task<UpsertConsultationNoteDto> GetConsultationEditNote(int id);

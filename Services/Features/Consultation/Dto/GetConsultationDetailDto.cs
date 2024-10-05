@@ -1,4 +1,6 @@
-﻿namespace Services.Features.Consultation.Dto;
+﻿using Services.Features.Consultation.Dto.Notes;
+
+namespace Services.Features.Consultation.Dto;
 
 public class GetConsultationDetailDto
 {
@@ -7,4 +9,7 @@ public class GetConsultationDetailDto
     public string Type { get; set; }
     public string Hcp { get; set; }
     public bool  IsFinish { get; set; }
+
+    public List<ConsultationNoteDto> ActiveDiagnosisNotes { get; set; }
+    public List<ConsultationNoteDto> PastHistoryNotes { get; set; }
 }

@@ -252,7 +252,7 @@
     private async Task GetConsultationNotes()
     {
         PastMedicalHistory = await UnitOfWork.Consultation.GetPastMedicalHistory();
-        ActiveDiagnosis = await UnitOfWork.Consultation.GetActiveDiagonsis();
+        ActiveDiagnosis = await UnitOfWork.Consultation.GetActiveDiagonsisByPatient();
         StateHasChanged();
     }
 

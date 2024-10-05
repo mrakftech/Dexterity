@@ -16,14 +16,29 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
 {
     public async Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId)
     {
+        var list = new List<GetConsultationDetailDto>();
         var consultations = await context.ConsultationDetails
             .AsNoTracking()
             .Include(x => x.Hcp)
             .Where(x => x.PatientId == patientId)
             .ToListAsync();
 
-        var mappedData = mapper.Map<List<GetConsultationDetailDto>>(consultations);
-        return mappedData;
+        foreach (var item in consultations)
+        {
+            var activeDiagnosisNotes = await GetActiveDiagonsisByConsultationId(item.Id);
+            var data = new GetConsultationDetailDto()
+            {
+                Id = item.Id,
+                Date = item.ConsultationDate.ToString("d"),
+                Type = item.ConsultationType,
+                IsFinish = item.IsFinished,
+                Hcp = item.Hcp.FullName,
+                ActiveDiagnosisNotes = activeDiagnosisNotes
+            };
+            list.Add(data);
+        }
+
+        return list;
     }
 
     public async Task<IResult> BeginConsultation(BeginConsultationDto request)
@@ -166,11 +181,11 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         return await context.HealthConditionCodes.ToListAsync();
     }
 
-
     public async Task<List<ConsultationNoteDto>> GetConsultationNotes()
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
+            .Include(x => x.ConsultationDetail)
             .Include(x => x.ConsultationDetail.Hcp)
             .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId)
             .ToListAsync();
@@ -178,12 +193,25 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         return mapped;
     }
 
-    public async Task<List<ConsultationNoteDto>> GetActiveDiagonsis()
+    public async Task<List<ConsultationNoteDto>> GetActiveDiagonsisByPatient()
+    {
+        var notes = await context.ConsultationNotes
+            .Include(x => x.HealthCode)
+            .Include(x => x.ConsultationDetail)
+            .Include(x => x.ConsultationDetail.Hcp)
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsActiveCondition)
+            .AsNoTracking()
+            .ToListAsync();
+        var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
+        return mapped;
+    }
+
+    private async Task<List<ConsultationNoteDto>> GetActiveDiagonsisByConsultationId(int consulataionId)
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
             .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsActiveCondition)
+            .Where(x => x.ConsultationDetailId == consulataionId && x.IsActiveCondition)
             .AsNoTracking()
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
@@ -195,7 +223,8 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
             .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsPastHistory || x.IsScoialHistory ||
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsPastHistory ||
+                        x.IsScoialHistory ||
                         x.IsFamilyHistory)
             .AsNoTracking()
             .ToListAsync();

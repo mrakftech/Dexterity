@@ -1,12 +1,40 @@
-﻿@using Services.Features.Consultation.Dto
+﻿@using Services.Features.Consultation.Dto.Notes
+@using Services.Features.Consultation.Dto
 
 <SfGrid DataSource="@Consultations" Height="350px">
     <GridEvents RowSelected="RowSelected" TValue="GetConsultationDetailDto"></GridEvents>
     <GridTemplates>
         <DetailTemplate>
             @{
-            var con = (context as GetConsultationDetailDto);
+                var con = (context as GetConsultationDetailDto);
+                <SfGrid DataSource="con.ActiveDiagnosisNotes" Height="100px">
+                    <GridColumns>
+                        <GridColumn Field="@nameof(ConsultationNoteDto.HealthCode.Code)" HeaderText="NOTES"  Width="120px">
+                            <Template>
+                                @{
+                                var item = (context as ConsultationNoteDto);
+                                <div class="ml-3" style="font-weight: bolder;">
+                                    <span class="fas fa-notes-medical"> </span>
+                                    @item.HealthCode.Code
+                                </div>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="" >
+                            <Template>
+                                @{
+                                    var item = (context as ConsultationNoteDto);
+                                    <div class="ml-3">
+                                        @item.Notes
+                                    </div>
+                                }
+                            </Template>
+                        </GridColumn>
+
+                    </GridColumns>
+                </SfGrid>
             }
+
         </DetailTemplate>
         <EmptyRecordTemplate>
             <span>No records to display, create new alert</span>
@@ -18,8 +46,21 @@
         <GridColumn Field="@nameof(GetConsultationDetailDto.Type)" HeaderText="Type"/>
     </GridColumns>
 </SfGrid>
+<style type="text/css" class="cssStyles">
+    .detailtable td {
+        font-size: 13px;
+        padding: 4px;
+        max-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    
+</style>
 
 @code {
+
     [Parameter] public List<GetConsultationDetailDto> Consultations { get; set; } = new();
     [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
 
