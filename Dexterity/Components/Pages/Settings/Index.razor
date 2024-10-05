@@ -21,6 +21,7 @@
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Other Types">
                 <DexMenuItem Text="POMR Groups" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(6))"/>
+                <DexMenuItem Text="Note Template" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
             </RadzenPanelMenuItem>
         </NavigationItems>
 
@@ -46,6 +47,9 @@
                 </MudTabPanel>
                 <MudTabPanel >
                     <PomrGroupTab/>
+                </MudTabPanel>
+                <MudTabPanel >
+                    <NoteTemplateTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

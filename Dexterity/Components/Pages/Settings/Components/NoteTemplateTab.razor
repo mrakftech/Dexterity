@@ -1,0 +1,90 @@
+﻿@using Dexterity.Components.Pages.Settings.Dialogs.NoteTemplate
+@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings.Consultation
+<TabTitle Title="Note Templates">
+    <ActionButtons>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertNoteTemplateModal(0)" Variant="Variant.Filled">Add Note Template</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetNoteTemplates" Variant="Variant.Filled">Load Templates</MudButton>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="NoteTemplates" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(NoteTemplateDto.Note)" HeaderText="Note" Width="400px"></GridColumn>
+            <GridColumn Field="@nameof(NoteTemplateDto.HealthCodeId)" HeaderText="Diagnosis Code" Width="100px">
+                <Template>
+                    @{
+                        var item = (context as NoteTemplateDto);
+                        <span>@item!.HealthCode.Code</span>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as NoteTemplateDto);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => UpsertNoteTemplateModal(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteNoteTemplate(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+
+@code{
+
+    private List<NoteTemplateDto> NoteTemplates { get; set; } = new();
+
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetNoteTemplates();
+    }
+
+    private async Task GetNoteTemplates()
+    {
+        _processing = true;
+        NoteTemplates = await UnitOfWork.Setting.GetAllNoteTemplates();
+        _processing = false;
+    }
+
+    private async Task UpsertNoteTemplateModal(int id)
+    {
+        var title = id == 0 ? "New Template" : "Edit Template";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<NoteTemplateFormDialog>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetNoteTemplates();
+        }
+    }
+
+    private async Task DeleteNoteTemplate(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteNoteTemplate(id);
+            if (res.Succeeded)
+            {
+                await GetNoteTemplates();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}

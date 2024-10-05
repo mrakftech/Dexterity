@@ -1,6 +1,6 @@
 ﻿@using Services.Features.Consultation.Dto.BaselineDetails
 <DexSimpleButton Name="Add New Baseline Detail" Click="AddNewBaselineDetail" Class="m-2"/>
-<DexGrid DataSource="BaselineDetails" Height="300px">
+<DexGrid DataSource="BaselineDetails" Height="250px">
     <DexGridColumns>
         <GridColumn Field="@nameof(BaselineDetailDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="150px"></GridColumn>
         <GridColumn Field="@nameof(BaselineDetailDto.Systolic)" HeaderText="BP">

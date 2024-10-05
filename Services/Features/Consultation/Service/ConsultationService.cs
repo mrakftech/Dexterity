@@ -1,9 +1,11 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Consultation;
+using Domain.Entities.Settings.Consultation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.State;
 using Shared.Wrapper;
@@ -40,7 +42,6 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
             context.ConsultationDetails.Add(consultation);
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("Consultation has been added.");
-
         }
         catch (Exception e)
         {
@@ -63,9 +64,8 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         context.ConsultationDetails.Update(consultation);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Consultation has been saved.");
-
-
     }
+
     public async Task<EditConsultationDto> GetConsultationDetail(int id)
     {
         var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
@@ -77,11 +77,11 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
             ConsultationDate = consultation.ConsultationDate,
             ClinicSiteId = consultation.ClinicSiteId,
             ConsultationClass = consultation.ConsultationClass,
-            ConsultationType=consultation.ConsultationType,
-            Pomr=consultation.Pomr,
+            ConsultationType = consultation.ConsultationType,
+            Pomr = consultation.Pomr,
         };
-
     }
+
     public async Task<IResult> FinishConsultation(int id)
     {
         var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
@@ -157,6 +157,108 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         await context.SaveChangesAsync();
         return await Result<Guid>.SuccessAsync("Details are deleted.");
     }
+
+
+    #region Notes
+
+    public async Task<List<HealthCode>> GetHealthCodes()
+    {
+        return await context.HealthConditionCodes.ToListAsync();
+    }
+
+
+    public async Task<List<ConsultationNoteDto>> GetConsultationNotes()
+    {
+        var notes = await context.ConsultationNotes
+            .Include(x => x.HealthCode)
+            .Include(x => x.ConsultationDetail.Hcp)
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+        var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
+        return mapped;
+    }
+
+    public async Task<List<ConsultationNoteDto>> GetActiveDiagonsis()
+    {
+        var notes = await context.ConsultationNotes
+            .Include(x => x.HealthCode)
+            .Include(x => x.ConsultationDetail.Hcp)
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsActiveCondition)
+            .AsNoTracking()
+            .ToListAsync();
+        var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
+        return mapped;
+    }
+
+    public async Task<List<ConsultationNoteDto>> GetPastMedicalHistory()
+    {
+        var notes = await context.ConsultationNotes
+            .Include(x => x.HealthCode)
+            .Include(x => x.ConsultationDetail.Hcp)
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatientId && x.IsPastHistory || x.IsScoialHistory ||
+                        x.IsFamilyHistory)
+            .AsNoTracking()
+            .ToListAsync();
+        var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
+        return mapped;
+    }
+
+    public async Task<IResult> UpsertConsultationNote(int id, UpsertConsultationNoteDto request)
+    {
+        try
+        {
+            if (id == 0)
+            {
+                var note = mapper.Map<ConsultationNote>(request);
+                await context.ConsultationNotes.AddAsync(note);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Note has been added.");
+            }
+            else
+            {
+                var noteInDb = await context.ConsultationNotes.FirstOrDefaultAsync(x => x.Id == id);
+                noteInDb = mapper.Map(request, noteInDb);
+                context.ConsultationNotes.Update(noteInDb);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Note has been updated.");
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<ConsultationNoteDto> GetConsultationNote(int id)
+    {
+        var note = await context.ConsultationNotes
+            .Include(x => x.HealthCode)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        return note is null ? new ConsultationNoteDto() : mapper.Map<ConsultationNoteDto>(note);
+    }
+
+    public async Task<UpsertConsultationNoteDto> GetConsultationEditNote(int id)
+    {
+        var note = await context.ConsultationNotes
+            .FirstOrDefaultAsync(x => x.Id == id);
+        return note is null ? new UpsertConsultationNoteDto() : mapper.Map<UpsertConsultationNoteDto>(note);
+    }
+
+    public async Task<IResult<int>> DeleteConsultationNote(int id)
+    {
+        var note = await context.ConsultationNotes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (note is null)
+        {
+            return await Result<int>.FailAsync("detail not found.");
+        }
+
+        context.ConsultationNotes.Remove(note);
+        await context.SaveChangesAsync();
+        return await Result<int>.SuccessAsync("note deleted.");
+    }
+
+    #endregion
 
     #region Reminders
 
@@ -234,10 +336,6 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         await context.SaveChangesAsync();
         return await Result<Guid>.SuccessAsync("Reminder is deleted.");
     }
-
-  
-
-
 
     #endregion
 }

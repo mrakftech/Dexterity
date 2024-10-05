@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Account;
+using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Services.Features.Settings.Dtos;
 
@@ -17,5 +18,8 @@ public class SettingMapping : Profile
         CreateMap<AccountType, AccountTypeDto>()
             .ForMember(x => x.TransactionType, c => c.MapFrom(m => m.Type.ToString()))
             .ReverseMap();
+        
+        CreateMap<NoteTemplate, NoteTemplateDto>().ReverseMap();
+
     }
 }

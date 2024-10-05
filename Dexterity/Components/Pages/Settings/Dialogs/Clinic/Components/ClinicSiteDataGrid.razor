@@ -1,7 +1,7 @@
 ﻿@using Services.Features.Settings.Dtos
 <TabTitle Title="Clinic Sites">
     <ActionButtons>
-        <DexSimpleButton FullWidth="false"  Name="Add Clinic Site" Click="()=>OpenUpsertClinicSiteModal(0)"></DexSimpleButton>
+        <DexSimpleButton FullWidth="false" Name="Add Clinic Site" Click="() => OpenUpsertClinicSiteModal(0)"></DexSimpleButton>
     </ActionButtons>
 </TabTitle>
 <DexGrid DataSource="ClinicSites" Height="300px">
@@ -10,9 +10,9 @@
         <GridColumn HeaderText="Actions" Width="120">
             <Template>
                 @{
-                var clinic = (context as ClinicSiteDto);
-                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenUpsertClinicSiteModal(clinic.Id)" />
-                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteClinicSite(clinic.Id)" />
+                    var clinic = (context as ClinicSiteDto);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => OpenUpsertClinicSiteModal(clinic.Id)"/>
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteClinicSite(clinic.Id)"/>
                 }
             </Template>
         </GridColumn>
@@ -25,11 +25,16 @@
     [Parameter] public int ClinicId { get; set; }
     private List<ClinicSiteDto> ClinicSites { get; set; } = new();
 
+    protected override async Task OnInitializedAsync()
+    {
+        await GetClinicSites();
+    }
+
     private async Task OpenUpsertClinicSiteModal(int id)
     {
         var title = id == 0 ? "New Clinic Site" : "Edit Clinic Site";
-        var parameters = new DialogParameters { { "Id", id }, { "ClinicId", ClinicId } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}, {"ClinicId", ClinicId}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertClinicSiteModal>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
@@ -37,6 +42,7 @@
             await GetClinicSites();
         }
     }
+
     private async Task DeleteClinicSite(int id)
     {
         var parameters = new DialogParameters();
@@ -51,8 +57,10 @@
             Snackbar.SuccessMessage(response.Messages.First());
         }
     }
+
     private async Task GetClinicSites()
     {
         ClinicSites = await UnitOfWork.Setting.GetClinicSites();
     }
+
 }

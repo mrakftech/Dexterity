@@ -5,6 +5,8 @@
 @using Services.Features.Consultation.Dto
 @using Dexterity.Components.Pages.Consultation.Options
 @using Dexterity.Components.Pages.PatientManager.Components.Allergies
+@using Dexterity.Components.Pages.Consultation.Notes
+@using Services.Features.Consultation.Dto.Notes
 @using Dexterity.Components.Pages.Consultation.AllConsultations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
@@ -40,12 +42,11 @@
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
-            </RadzenPanelMenuItem>
-            <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            @* <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")"> *@
+            @*     <DexMenuItem Text="Find Patient" Icon="fas fa-users"/> *@
+            @* </RadzenPanelMenuItem> *@
+            <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-notes-medical")">
+                <DexMenuItem Text="Save Note" Icon="fas fa-note" Disabled="@(!_isConsultationSelected)" Click="OpenUpsertNotesDialog"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
@@ -58,7 +59,7 @@
         </NavigationItems>
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
-            <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler"/>
+            <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
         </DexContentTabs>
     </InnerLayout>
 }
@@ -66,6 +67,9 @@
 
 @code {
     public PatientSummaryDto Patient { get; set; } = new();
+    private List<GetConsultationDetailDto> Consultations { get; set; } = new();
+    private List<ConsultationNoteDto> PastMedicalHistory { get; set; } = new();
+    private List<ConsultationNoteDto> ActiveDiagnosis { get; set; } = new();
     readonly MudTabs _tabs = new();
     private bool _loading;
     private int _consultationId = 0;
@@ -74,7 +78,6 @@
     private int _reminderCount;
     private int _smsHistoryCount;
     private int _taskCount;
-    private List<GetConsultationDetailDto> Consultations { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -86,6 +89,7 @@
             _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatientId);
             await GetPatientSummary();
             await GetConsultations();
+            await GetConsultationNotes();
             StateHasChanged();
         }
         else
@@ -96,25 +100,19 @@
         _loading = false;
     }
 
-    private async Task GetConsultations()
+
+    private void ClickChangedTab(int tabIndex)
     {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatientId);
+        _tabs.ActivatePanel(tabIndex);
     }
+
+
+    #region Patient
 
     private async Task GetPatientSummary()
     {
         Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
         ApplicationState.SelectedPatientSummary = Patient;
-    }
-
-    private async Task GetReminderCount()
-    {
-        _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
-    }
-
-    private void ClickChangedTab(int tabIndex)
-    {
-        _tabs.ActivatePanel(tabIndex);
     }
 
     private void FindPatient()
@@ -128,6 +126,15 @@
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
+    }
+
+    #endregion
+
+    #region Consultation
+
+    private async Task GetConsultations()
+    {
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatientId);
     }
 
     private async Task OpenBeginConsultationDialog()
@@ -166,9 +173,8 @@
             var userRes = await UnitOfWork.Consultation.FinishConsultation(id);
             if (userRes.Succeeded)
             {
-                
                 var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
-                await DialogService.ShowAsync<FinishConsultationDialog>("",new DialogParameters() , options);
+                await DialogService.ShowAsync<FinishConsultationDialog>("", new DialogParameters(), options);
             }
         }
     }
@@ -188,6 +194,15 @@
         }
 
         StateHasChanged();
+    }
+
+    #endregion
+
+    #region Others
+
+    private async Task GetReminderCount()
+    {
+        _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
     }
 
     private async Task CheckReminder()
@@ -229,5 +244,38 @@
             StateHasChanged();
         }
     }
+
+    #endregion
+
+    #region Notes
+
+    private async Task GetConsultationNotes()
+    {
+        PastMedicalHistory = await UnitOfWork.Consultation.GetPastMedicalHistory();
+        ActiveDiagnosis = await UnitOfWork.Consultation.GetActiveDiagonsis();
+        StateHasChanged();
+    }
+
+    private async Task OpenUpsertNotesDialog()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ConsultationId", _consultationId);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<UpsertNoteFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (result.Canceled)
+        {
+            await GetConsultations();
+            await GetConsultationNotes();
+        }
+    }
+
+    #endregion
+
 
 }

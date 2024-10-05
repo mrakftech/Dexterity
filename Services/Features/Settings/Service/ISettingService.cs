@@ -80,4 +80,13 @@ public interface ISettingService
     public Task<IResult> DeletePomrGroup(int id);
 
     #endregion
+
+    #region Note Template
+
+    public Task<NoteTemplateDto> GetNoteTemplate(int id);
+    public Task<List<NoteTemplateDto>> GetAllNoteTemplates();
+    public Task<IResult> SaveNoteTemplate(int id, NoteTemplateDto request);
+    public Task<IResult> DeleteNoteTemplate(int id);
+
+    #endregion
 }

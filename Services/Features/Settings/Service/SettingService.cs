@@ -448,4 +448,58 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    #region Note Template
+
+    public async Task<NoteTemplateDto> GetNoteTemplate(int id)
+    {
+        var noteTemplate = await context.NoteTemplates.Include(x => x.HealthCode).FirstOrDefaultAsync(x => x.Id == id);
+        return mapper.Map<NoteTemplateDto>(noteTemplate) ?? new NoteTemplateDto();
+    }
+
+    public async Task<List<NoteTemplateDto>> GetAllNoteTemplates()
+    {
+        var list= await context.NoteTemplates
+            .Include(x => x.HealthCode)
+            .ToListAsync();
+
+        return mapper.Map<List<NoteTemplateDto>>(list);
+    }
+
+    public async Task<IResult> SaveNoteTemplate(int id, NoteTemplateDto request)
+    {
+        var noteTemplate = mapper.Map<NoteTemplate>(request);
+        
+        if (id == 0)
+        {
+            await context.NoteTemplates.AddAsync(noteTemplate);
+            await context.SaveChangesAsync();
+        }
+        else
+        {
+            var template = await context.NoteTemplates.FirstOrDefaultAsync(x => x.Id == id);
+            if (template is null)
+                return await Result.FailAsync("Note Template is not found");
+            template.Note = noteTemplate.Note;
+            template.IsActive = noteTemplate.IsActive;
+            template.HealthCodeId= noteTemplate.HealthCodeId;
+            context.NoteTemplates.Update(template);
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("Note Template saved.");
+    }
+
+    public async Task<IResult> DeleteNoteTemplate(int id)
+    {
+        var noteTemplate = await context.NoteTemplates.FirstOrDefaultAsync(x => x.Id == id);
+        if (noteTemplate is null)
+            return await Result.FailAsync("Note Template is not found");
+
+        context.NoteTemplates.Remove(noteTemplate);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Note Template deleted.");
+    }
+
+    #endregion
 }

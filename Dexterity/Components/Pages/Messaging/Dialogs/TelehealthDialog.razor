@@ -2,7 +2,7 @@
 @using Icons = MudBlazor.Icons
 @using global::Services.Features.Messaging.Dtos.Sms
 @layout BlankLayout
-<SfSpeedDial @ref="_speedDial" CssClass="popupSpeedDial" OpenIconCss="fas fa-tv" Content="Telehealth" >
+<SfSpeedDial @ref="_speedDial" CssClass="popupSpeedDial" OpenIconCss="fas fa-tv" Content="Telehealth" Opened="OpeningTeleHealth">
     <PopupTemplate>
         <div class="speeddial-form">
             @if (_loadComponent)
@@ -93,7 +93,11 @@
     private bool _open;
     private void ToggleOpen() => _open = !_open;
 
-    protected override async Task OnInitializedAsync()
+    // protected override async Task OnInitializedAsync()
+    // {
+    //  
+    // }
+    private async Task OpeningTeleHealth(SpeedDialOpenCloseEventArgs obj)
     {
         if (string.IsNullOrWhiteSpace(ApplicationState.Telehealth.MeetingLink))
         {
@@ -110,7 +114,6 @@
             _meetingLink = ApplicationState.Telehealth.MeetingLink;
         }
     }
-
     private async Task CreateMeetingLink()
     {
         ApplicationState.Telehealth.MeetingName = CryptographyHelper.GetUniqueKey(25);
@@ -172,6 +175,7 @@
         }
     }
 
- 
+
+   
 
 }

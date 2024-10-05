@@ -24,6 +24,38 @@ namespace Database;
 
 public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options)
 {
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        var builder = new ConfigurationBuilder();
+
+        IConfiguration configuration =
+            builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
+
+        optionsBuilder.UseSqlServer(configuration["ConnectionStrings:AppConnection"] ?? string.Empty)
+            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
+
+        base.OnConfiguring(optionsBuilder);
+    }
+
+    protected override void OnModelCreating(ModelBuilder builder)
+    {
+        base.OnModelCreating(builder);
+        SchemaConfigurations.Configure(builder);
+        builder.ApplyConfiguration(new PatientConfiguration());
+        builder.ApplyConfiguration(new UserConfiguration());
+        builder.ApplyConfiguration(new AppointmentConfiguration());
+        builder.ApplyConfiguration(new WaitingAppointmentConfiguration());
+        builder.ApplyConfiguration(new HealthCodeConfiguration());
+
+        foreach (var property in builder.Model.GetEntityTypes()
+                     .SelectMany(t => t.GetProperties())
+                     .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
+        {
+            property.SetColumnType("decimal(18,2)");
+        }
+
+    }
+
     #region Settings
 
     public DbSet<SmsTemplate> SmsTemplates { get; set; }
@@ -34,7 +66,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<AppointmentCancellationReason> AppointmentCancellationReasons { get; set; }
     public DbSet<AccountType> AccountTypes { get; set; }
     public DbSet<PomrGroup> PomrGroups { get; set; }
-    public DbSet<HealthCode> Icpc { get; set; }
+    public DbSet<HealthCode> HealthConditionCodes { get; set; }
+    public DbSet<NoteTemplate> NoteTemplates { get; set; }
 
     #endregion
 
@@ -67,7 +100,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Hospital> Hospitals { get; set; }
     public DbSet<PatientAllergy> PatientAllergies { get; set; }
     public DbSet<PatientDrugAllergy> PatientDrugAllergies { get; set; }
-    
 
     #endregion
 
@@ -86,36 +118,4 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ConsultationNote> ConsultationNotes { get; set; }
 
     #endregion
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        var builder = new ConfigurationBuilder();
-
-        IConfiguration configuration =
-            builder.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true).Build();
-
-        optionsBuilder.UseSqlServer(configuration["ConnectionStrings:AppConnection"] ?? string.Empty)
-            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking);
-
-        base.OnConfiguring(optionsBuilder);
-    }
-
-    protected override void OnModelCreating(ModelBuilder builder)
-    {
-        base.OnModelCreating(builder);
-        SchemaConfigurations.Configure(builder);
-        builder.ApplyConfiguration(new PatientConfiguration());
-        builder.ApplyConfiguration(new UserConfiguration());
-        builder.ApplyConfiguration(new AppointmentConfiguration());
-        builder.ApplyConfiguration(new WaitingAppointmentConfiguration());
-        builder.ApplyConfiguration(new HealthCodeConfiguration());
-        
-        foreach (var property in builder.Model.GetEntityTypes()
-                     .SelectMany(t => t.GetProperties())
-                     .Where(p => p.ClrType == typeof(decimal) || p.ClrType == typeof(decimal?)))
-        {
-            property.SetColumnType("decimal(18,2)");
-        }
-       
-    }
 }

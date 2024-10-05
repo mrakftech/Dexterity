@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
+using Microsoft.VisualBasic;
 
 namespace Domain.Entities.Consultation;
 
@@ -24,5 +25,8 @@ public class ConsultationDetail
     public Patient Patient { get; set; }
 
     public bool IsFinished { get; set; }
+
+    public virtual ICollection<ConsultationNote> Notes { get; set; }
+
 
 }

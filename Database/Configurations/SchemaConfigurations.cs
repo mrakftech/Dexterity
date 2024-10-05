@@ -41,7 +41,8 @@ public static class SchemaConfigurations
         builder.Entity<AppointmentCancellationReason>(entity => { entity.ToTable(name: "AppointmentCancellationReasons", "Setting"); });
         builder.Entity<AccountType>(entity => { entity.ToTable(name: "AccountTypes", "Setting"); });
         builder.Entity<PomrGroup>(entity => { entity.ToTable(name: "PomrGroups", "Setting"); });
-        builder.Entity<HealthCode>(entity => { entity.ToTable(name: "ICPC2", "Setting"); });
+        builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
+        builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
         
         
          builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
@@ -63,9 +64,9 @@ public static class SchemaConfigurations
         builder.Entity<PatientDrugAllergy>(entity => { entity.ToTable(name: "PatientDrugAllergies", "PM"); });
 
 
-        builder.Entity<ConsultationDetail>(entity => { entity.ToTable(name: "ConsultationDetails", "Consultation"); });
+        builder.Entity<ConsultationDetail>(entity => { entity.ToTable(name: "Details", "Consultation"); });
         builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
-        builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "ConsultationNotes", "Consultation"); });
+        builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
     }
 }

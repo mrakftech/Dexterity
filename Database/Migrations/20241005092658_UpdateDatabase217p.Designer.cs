@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005092658_UpdateDatabase217p")]
+    partial class UpdateDatabase217p
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -295,7 +298,7 @@ namespace Database.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Details", "Consultation");
+                    b.ToTable("ConsultationDetails", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationNote", b =>
@@ -345,7 +348,7 @@ namespace Database.Migrations
 
                     b.HasIndex("HealthCodeId");
 
-                    b.ToTable("Notes", "Consultation");
+                    b.ToTable("ConsultationNotes", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Reminder", b =>
@@ -1167,7 +1170,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HeathCodes", "Setting");
+                    b.ToTable("ICPC2", "Setting");
 
                     b.HasData(
                         new

@@ -6,6 +6,5 @@ public class HealthCode
     public string Code { get; set; }
     public string Chapter { get; set; }
     public string Description { get; set; }
-    
 
 }

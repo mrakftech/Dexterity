@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241005053638_UpdateDatabase1035a")]
+    partial class UpdateDatabase1035a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -295,7 +298,7 @@ namespace Database.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Details", "Consultation");
+                    b.ToTable("ConsultationDetails", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationNote", b =>
@@ -312,8 +315,8 @@ namespace Database.Migrations
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("HealthCodeId")
-                        .HasColumnType("int");
+                    b.Property<string>("DiagnosisCode")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActiveCondition")
                         .HasColumnType("bit");
@@ -343,9 +346,7 @@ namespace Database.Migrations
 
                     b.HasIndex("ConsultationDetailId");
 
-                    b.HasIndex("HealthCodeId");
-
-                    b.ToTable("Notes", "Consultation");
+                    b.ToTable("ConsultationNotes", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Reminder", b =>
@@ -1148,6 +1149,25 @@ namespace Database.Migrations
                     b.ToTable("AccountTypes", "Setting");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Consultation.DiagnosisCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ICD10", "Setting");
+                });
+
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.HealthCode", b =>
                 {
                     b.Property<int>("Id")
@@ -1167,7 +1187,7 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("HeathCodes", "Setting");
+                    b.ToTable("ICPC2", "Setting");
 
                     b.HasData(
                         new
@@ -1838,19 +1858,19 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("HealthCodeId")
-                        .HasColumnType("int");
+                    b.Property<string>("Icd10")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Icpc")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Note")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("HealthCodeId");
 
                     b.ToTable("NoteTemplates", "Setting");
                 });
@@ -2254,13 +2274,7 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.Consultation.HealthCode", "HealthCode")
-                        .WithMany()
-                        .HasForeignKey("HealthCodeId");
-
                     b.Navigation("ConsultationDetail");
-
-                    b.Navigation("HealthCode");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Reminder", b =>
@@ -2477,15 +2491,6 @@ namespace Database.Migrations
                     b.Navigation("Clinic");
 
                     b.Navigation("Hcp");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.NoteTemplate", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Consultation.HealthCode", "HealthCode")
-                        .WithMany()
-                        .HasForeignKey("HealthCodeId");
-
-                    b.Navigation("HealthCode");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Hospital.ClinicSite", b =>

@@ -1,0 +1,86 @@
+﻿@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings.Consultation
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="NoteTemplate" OnValidSubmit="SaveNoteTemplate">
+            <Fields>
+                <FormItem Field="@nameof(NoteTemplate.HealthCodeId)" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">ICPC-2 OR ICD-10</label>
+                        <SfAutoComplete  TValue="string" TItem="HealthCode" Placeholder="ICPC-2 OR ICD-10" DataSource="@HealthCodes" >
+                            <AutoCompleteFieldSettings Value="Code" Text="Code"/>
+                            <AutoCompleteEvents TValue="string" TItem="HealthCode" ValueChange="ChangeHealthCode"></AutoCompleteEvents>
+                        </SfAutoComplete>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(NoteTemplate.HealthCodeId)" ColumnSpan="3">
+                    <Template>
+                        <label class="e-form-label">Description</label>
+                        <DexInputBox @bind-FieldDataSource="_healthCodeDescription"/>
+                    </Template>
+                </FormItem>
+                <FormItem ColumnSpan="4" Field="@nameof(NoteTemplate.Note)" EditorType="FormEditorType.TextArea">
+                </FormItem>
+                <FormItem Field="@nameof(NoteTemplate.IsActive)" EditorType="FormEditorType.Checkbox"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private NoteTemplateDto NoteTemplate { get; set; } = new();
+    private List<HealthCode> HealthCodes { get; set; } = new();
+    private bool _processing;
+    private string _title;
+    private string _healthCodeDescription = "No Codes selected";
+
+    protected override async Task OnInitializedAsync()
+    {
+        HealthCodes = await UnitOfWork.Consultation.GetHealthCodes();
+        if (Id > 0)
+        {
+            NoteTemplate = await UnitOfWork.Setting.GetNoteTemplate(Id);
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
+        }
+    }
+
+    private async Task SaveNoteTemplate()
+    {
+        _processing = true;
+
+        var res = await UnitOfWork.Setting.SaveNoteTemplate(Id, NoteTemplate);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+    private void ChangeHealthCode(ChangeEventArgs<string, HealthCode> args)
+    {
+        if (args.ItemData is not null)
+        {
+            var healthCode = args.ItemData;
+            _healthCodeDescription = healthCode.Description;
+            NoteTemplate.HealthCodeId = healthCode.Id;
+        }
+    }
+
+}
