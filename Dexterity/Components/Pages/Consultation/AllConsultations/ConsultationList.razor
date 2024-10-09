@@ -10,9 +10,9 @@
                 <SfGrid DataSource="con.ActiveDiagnosisNotes" Height="100px">
                     <GridColumns>
                         <GridColumn Field="@nameof(ConsultationNoteDto.HealthCode.Code)" HeaderText="NOTES"  Width="120px">
-                            <Template>
+                            <Template Context="noteContext">
                                 @{
-                                var item = (context as ConsultationNoteDto);
+                                var item = (noteContext as ConsultationNoteDto);
                                 <div class="ml-3" style="font-weight: bolder;">
                                     <span class="fas fa-notes-medical"> </span>
                                     @item.HealthCode.Code
@@ -21,9 +21,9 @@
                             </Template>
                         </GridColumn>
                         <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="" >
-                            <Template>
+                            <Template Context="noteContext">
                                 @{
-                                    var item = (context as ConsultationNoteDto);
+                                    var item = (noteContext as ConsultationNoteDto);
                                     <div class="ml-3">
                                         @item.Notes
                                     </div>

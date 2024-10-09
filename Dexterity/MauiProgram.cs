@@ -32,6 +32,7 @@ namespace Dexterity
             
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
+           
             SyncfusionLicenseProvider
                 .RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
             builder.Services.AddBlazorContextMenu(options =>
@@ -99,7 +100,6 @@ namespace Dexterity
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();
 #endif
-
             return builder.Build();
         }
 
