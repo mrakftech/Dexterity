@@ -45,7 +45,9 @@
     </MudDrawer>
     <MudMainContent Class="">
         <MudContainer Class="mt-2" MaxWidth="MaxWidth.ExtraExtraLarge">
-            @Body
+            <CascadingValue Value="hubConnection">
+                @Body
+            </CascadingValue>
         </MudContainer>
     </MudMainContent>
 
@@ -56,16 +58,40 @@
 <MudDialogProvider BackdropClick="false"/>
 <MudSnackbarProvider/>
 <RadzenComponents/>
+<audio id="notification" src="assets/media/notification.mp3"></audio>
 @code {
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
     private bool _open = false;
     private bool _isDarkMode;
     private string _sfTheme = "_content/Syncfusion.Blazor.Themes/bootstrap.css";
     private string _radzenTheme = "_content/Radzen.Blazor/css/default-base.css";
-
+    private HubConnection hubConnection;
+    public bool IsConnected => hubConnection.State == HubConnectionState.Connected;
+  
     protected override async Task OnInitializedAsync()
     {
-
+        hubConnection = new HubConnectionBuilder().WithUrl($"https://localhost:7177/chatHub").Build();
+        await hubConnection.StartAsync();
+        hubConnection.On<string, Guid, Guid>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
+        {
+            if (ApplicationState.CurrentUser.UserId== receiverUserId)
+            {
+                JsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                SnackBarBlazor.Add(message, Severity.Info, config =>
+                {
+                    config.VisibleStateDuration = 10000;
+                    config.HideTransitionDuration = 500;
+                    config.ShowTransitionDuration = 500;
+                    config.Action = "Chat?";
+                    config.ActionColor = Color.Info;
+                    config.Onclick = snackbar =>
+                    {
+                        NavigationManager.NavigateTo($"chat/{senderUserId}");
+                        return Task.CompletedTask;
+                    };
+                });
+            }
+        });
         await CheckPasswordReset();
     }
 

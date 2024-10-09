@@ -2,8 +2,9 @@
 using ClickATell.Requests;
 using ClickATell.Services;
 using Database;
-using Domain.Entities.Messaging.UserTasks;
+using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Options;
+using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using PhoneNumbers;
 using Services.Features.Messaging.Dtos.Sms;
@@ -148,7 +149,7 @@ public class MessagingService(
 
     #endregion
 
-    #region Messaging
+    #region Sms
 
     public async Task<IResult> SendBulkSms(BulkSmsDto request)
     {
@@ -257,6 +258,62 @@ public class MessagingService(
         await context.PatientSmsHistories.AddAsync(smsHistory);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync();
+    }
+
+    #endregion
+
+    #region Instant Messaging
+
+    public async Task<IResult> SaveMessageAsync(ChatMessage message)
+    {
+        try
+        {
+            message.CreatedDate = DateTime.Now;
+            message.FromUserId = message.FromUserId;
+            message.ToUserId = message.ToUserId;
+            await context.ChatMessages.AddAsync(message);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("");
+        }
+        catch (Exception e)
+        {
+            return await Result.SuccessAsync(e.Message);
+        }
+       
+    }
+
+    public async Task<List<ChatMessage>> GetConversationAsync(Guid contactId)
+    {
+        var userId = ApplicationState.CurrentUser.UserId;
+        return await context.ChatMessages
+            .Where(h => (h.FromUserId == contactId && h.ToUserId == userId) ||
+                        (h.FromUserId == userId && h.ToUserId == contactId))
+            .OrderBy(a => a.CreatedDate)
+            .Include(a => a.FromUser)
+            .Include(a => a.ToUser)
+            .Select(x => new ChatMessage
+            {
+                FromUserId = x.FromUserId,
+                Message = x.Message,
+                CreatedDate = x.CreatedDate,
+                Id = x.Id,
+                ToUserId = x.ToUserId,
+                ToUser = x.ToUser,
+                FromUser = x.FromUser
+            }).ToListAsync();
+    }
+
+    public async Task<List<User>> GetUsersAsync()
+    {
+        //Getting user from selected Clinic
+        return context.Users.Where(x =>
+                x.Id != ApplicationState.CurrentUser.UserId && x.ClinicIdentity == ApplicationState.CurrentUser.ClinicId)
+            .ToList();
+    }
+
+    public async Task<User> GetUserDetailsAsync(Guid userId)
+    {
+        return await context.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
     }
 
     #endregion

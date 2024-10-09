@@ -33,7 +33,7 @@ public class DatabaseSeeder(
         SeedAppointmentCancelReasons();
         SeedAlertCategory();
         SeedFakePatientData();
-        //  SeedFakeUserData();
+        SeedFakeUserData();
     }
 
     private void SeedAlertCategory()
@@ -96,9 +96,6 @@ public class DatabaseSeeder(
         {
             await using var context = await contextFactory.CreateDbContextAsync();
 
-            if (context.Users.Any())
-                return;
-
             var userTypes = UserTypeConstants.UserTypes as IEnumerable<string>;
             var roleIds = context.Roles.Select(x => x.Id).ToList();
             if (context.Users.Count() == 2)
@@ -117,6 +114,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.IsActive, true)
+                    .RuleFor(x => x.ClinicIdentity, 1)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
                 var users = fakeUsers.Generate(10);
@@ -126,7 +124,7 @@ public class DatabaseSeeder(
                 {
                     var userClinic = new UserClinic()
                     {
-                        ClinicId = 10000,
+                        ClinicId = 1,
                         UserId = item.Id
                     };
                     await context.UserClinics.AddAsync(userClinic);
@@ -273,6 +271,7 @@ public class DatabaseSeeder(
                     IsActive = true,
                     Mcn = "00000000",
                     Ban = "00000000",
+                    ClinicIdentity = 1,
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
@@ -290,6 +289,7 @@ public class DatabaseSeeder(
                     Phone = "123589641",
                     Mcn = "00000000",
                     Ban = "00000000",
+                    ClinicIdentity = 1,
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
                     WorkingDays = new List<int> {1, 2, 3},

@@ -141,7 +141,7 @@
     private string _message = string.Empty;
     private List<string> _messages = new List<string>();
 
-    private HubConnection? _hubConnection;
+    private HubConnection _hubConnection;
 
     protected override async Task OnInitializedAsync()
     {
@@ -156,7 +156,7 @@
 
             await _hubConnection.StartAsync();
         }
-        catch (Exception e)
+        catch (Exception )
         {
             // Some error handling.
         }

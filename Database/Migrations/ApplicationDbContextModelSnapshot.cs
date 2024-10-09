@@ -386,7 +386,36 @@ namespace Database.Migrations
                     b.ToTable("Reminders", "Consultation");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Messaging.UserTasks.UserTask", b =>
+            modelBuilder.Entity("Domain.Entities.Messaging.ChatMessage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("FromUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ToUserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FromUserId");
+
+                    b.HasIndex("ToUserId");
+
+                    b.ToTable("ChatMessages", "Messaging");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.UserTask", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -2025,6 +2054,9 @@ namespace Database.Migrations
                     b.Property<int?>("ClinicId")
                         .HasColumnType("int");
 
+                    b.Property<int>("ClinicIdentity")
+                        .HasColumnType("int");
+
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -2282,7 +2314,24 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Messaging.UserTasks.UserTask", b =>
+            modelBuilder.Entity("Domain.Entities.Messaging.ChatMessage", b =>
+                {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "FromUser")
+                        .WithMany("ChatMessagesFromUsers")
+                        .HasForeignKey("FromUserId")
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAccounts.User", "ToUser")
+                        .WithMany("ChatMessagesToUsers")
+                        .HasForeignKey("ToUserId")
+                        .IsRequired();
+
+                    b.Navigation("FromUser");
+
+                    b.Navigation("ToUser");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.UserTask", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.User", "AssignedBy")
                         .WithMany()
@@ -2615,6 +2664,10 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>
                 {
+                    b.Navigation("ChatMessagesFromUsers");
+
+                    b.Navigation("ChatMessagesToUsers");
+
                     b.Navigation("Patients");
 
                     b.Navigation("UserClinics");

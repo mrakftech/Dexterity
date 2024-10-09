@@ -1,4 +1,5 @@
 using Domain.Contracts;
+using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement;
 
 namespace Domain.Entities.UserAccounts;
@@ -7,6 +8,8 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
 {
     public User()
     {
+        ChatMessagesFromUsers = new HashSet<ChatMessage>();
+        ChatMessagesToUsers = new HashSet<ChatMessage>();
     }
     public Guid Id { get; set; } = Guid.NewGuid();
     public string FirstName { get; set; }
@@ -54,10 +57,13 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public TimeSpan StartHour { get; set; }
     public TimeSpan EndHour { get; set; }
     public List<int> WorkingDays { get; set; }
+    
+    public int ClinicIdentity { get; set; }
 
 
     public virtual ICollection<UserClinic> UserClinics { get; set; }
     public virtual ICollection<Patient> Patients { get; set; }
 
-
+    public virtual ICollection<ChatMessage> ChatMessagesFromUsers { get; set; } 
+    public virtual ICollection<ChatMessage> ChatMessagesToUsers { get; set; }
 }

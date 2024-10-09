@@ -1,12 +1,12 @@
 ﻿using Database.Configurations;
 using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.Appointments;
-using Domain.Entities.Messaging.UserTasks;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Domain.Entities.Consultation;
+using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
@@ -19,6 +19,7 @@ using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.WaitingRoom;
+using System.Reflection.Emit;
 
 namespace Database;
 
@@ -53,6 +54,17 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             property.SetColumnType("decimal(18,2)");
         }
+        builder.Entity<ChatMessage>(entity =>
+        {
+            entity.HasOne(d => d.FromUser)
+                .WithMany(p => p.ChatMessagesFromUsers)
+                .HasForeignKey(d => d.FromUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+            entity.HasOne(d => d.ToUser)
+                .WithMany(p => p.ChatMessagesToUsers)
+                .HasForeignKey(d => d.ToUserId)
+                .OnDelete(DeleteBehavior.ClientSetNull);
+        });
 
     }
 
@@ -77,6 +89,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<User> Users { get; set; }
     public DbSet<UserClinic> UserClinics { get; set; }
     public DbSet<UserTask> UserTasks { get; set; }
+    public DbSet<ChatMessage> ChatMessages { get; set; }
     public DbSet<PermissionClaim> PermissionClaims { get; set; }
 
     #endregion

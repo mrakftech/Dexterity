@@ -1,6 +1,7 @@
-﻿using Domain.Entities.Messaging.UserTasks;
+﻿using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Options;
+using Domain.Entities.UserAccounts;
 using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Shared.Wrapper;
@@ -30,6 +31,16 @@ public interface IMessagingService
     public Task<int> GetSmsHistoryCount(Guid patientId);
     public Task<List<SmsHistory>> FilterSmsHistory(Guid patientId, DateTime from, DateTime to);
     public Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory);
+
+    #endregion
+
+    #region Instant Messsaging
+
+    public Task<List<User>> GetUsersAsync();
+    public Task<User> GetUserDetailsAsync(Guid userId);
+    public Task<IResult> SaveMessageAsync(ChatMessage message);
+    public Task<List<ChatMessage>> GetConversationAsync(Guid contactId);
+
 
     #endregion
 }

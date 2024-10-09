@@ -108,7 +108,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 request.RoleId = request.RoleId;
                 request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
                 request.CreatedBy = ApplicationState.CurrentUser.UserId;
-
+                request.ClinicId = ApplicationState.CurrentUser.ClinicId;
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
                 user.WorkingDays = request.WorkingDays;

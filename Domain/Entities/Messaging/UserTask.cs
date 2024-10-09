@@ -3,7 +3,7 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Messaging.UserTasks;
+namespace Domain.Entities.Messaging;
 
 public class UserTask : IBaseId
 {

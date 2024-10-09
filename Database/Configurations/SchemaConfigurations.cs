@@ -1,7 +1,7 @@
 ﻿using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.Appointments;
 using Domain.Entities.Consultation;
-using Domain.Entities.Messaging.UserTasks;
+using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
@@ -31,6 +31,7 @@ public static class SchemaConfigurations
 
 
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
+        builder.Entity<ChatMessage>(entity => { entity.ToTable(name: "ChatMessages", "Messaging"); });
 
 
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
