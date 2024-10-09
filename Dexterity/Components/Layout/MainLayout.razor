@@ -77,19 +77,7 @@
             if (ApplicationState.CurrentUser.UserId== receiverUserId)
             {
                 JsRuntime.InvokeAsync<string>("PlayAudio", "notification");
-                SnackBarBlazor.Add(message, Severity.Info, config =>
-                {
-                    config.VisibleStateDuration = 10000;
-                    config.HideTransitionDuration = 500;
-                    config.ShowTransitionDuration = 500;
-                    config.Action = "Chat?";
-                    config.ActionColor = Color.Info;
-                    config.Onclick = snackbar =>
-                    {
-                        NavigationManager.NavigateTo($"chat/{senderUserId}");
-                        return Task.CompletedTask;
-                    };
-                });
+                Snackbar.SuccessMessage(message);
             }
         });
         await CheckPasswordReset();

@@ -10,6 +10,7 @@ using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
+using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;

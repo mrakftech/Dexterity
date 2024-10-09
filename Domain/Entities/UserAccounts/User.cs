@@ -51,19 +51,16 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public bool IsDeleted { get; set; } = false;
     public bool IsActive { get; set; } = false;
     public bool IsBlocked { get; set; } = false;
-    public Role Role { get; set; }
-    public Guid RoleId { get; set; }
+    
 
     public TimeSpan StartHour { get; set; }
     public TimeSpan EndHour { get; set; }
     public List<int> WorkingDays { get; set; }
     
-    public int ClinicIdentity { get; set; }
-
-
+    public Role Role { get; set; }
+    public Guid RoleId { get; set; }
     public virtual ICollection<UserClinic> UserClinics { get; set; }
     public virtual ICollection<Patient> Patients { get; set; }
-
     public virtual ICollection<ChatMessage> ChatMessagesFromUsers { get; set; } 
     public virtual ICollection<ChatMessage> ChatMessagesToUsers { get; set; }
 }

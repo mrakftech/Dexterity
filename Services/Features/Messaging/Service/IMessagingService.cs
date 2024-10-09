@@ -36,7 +36,6 @@ public interface IMessagingService
 
     #region Instant Messsaging
 
-    public Task<List<User>> GetUsersAsync();
     public Task<User> GetUserDetailsAsync(Guid userId);
     public Task<IResult> SaveMessageAsync(ChatMessage message);
     public Task<List<ChatMessage>> GetConversationAsync(Guid contactId);

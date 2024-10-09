@@ -7,7 +7,7 @@ namespace Domain.Entities.Settings.Hospital
         public int Id { get; set; }
         public string Name { get; set; }
 
-        public Clinic Clinic { get; set; }
+        public Clinic.Clinic Clinic { get; set; }
         public int ClinicId { get; set; }
 
         public virtual ICollection<Appointment> Appointments { get; set; }

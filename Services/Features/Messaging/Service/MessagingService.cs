@@ -303,13 +303,6 @@ public class MessagingService(
             }).ToListAsync();
     }
 
-    public async Task<List<User>> GetUsersAsync()
-    {
-        //Getting user from selected Clinic
-        return context.Users.Where(x =>
-                x.Id != ApplicationState.CurrentUser.UserId && x.ClinicIdentity == ApplicationState.CurrentUser.ClinicId)
-            .ToList();
-    }
 
     public async Task<User> GetUserDetailsAsync(Guid userId)
     {

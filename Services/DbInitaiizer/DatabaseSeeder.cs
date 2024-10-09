@@ -5,6 +5,7 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.Settings;
+using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -114,7 +115,6 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.IsActive, true)
-                    .RuleFor(x => x.ClinicIdentity, 1)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
                 var users = fakeUsers.Generate(10);
@@ -271,7 +271,6 @@ public class DatabaseSeeder(
                     IsActive = true,
                     Mcn = "00000000",
                     Ban = "00000000",
-                    ClinicIdentity = 1,
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
@@ -289,7 +288,6 @@ public class DatabaseSeeder(
                     Phone = "123589641",
                     Mcn = "00000000",
                     Ban = "00000000",
-                    ClinicIdentity = 1,
                     UserType = UserTypeConstants.Doctor,
                     PasswordHash = passHash,
                     WorkingDays = new List<int> {1, 2, 3},

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Account;
+using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Services.Features.Settings.Dtos;

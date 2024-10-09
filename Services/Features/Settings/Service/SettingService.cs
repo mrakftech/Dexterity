@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
+using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Hospital;
 using Domain.Entities.Settings.Templates;

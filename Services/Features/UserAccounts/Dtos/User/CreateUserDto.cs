@@ -44,7 +44,5 @@ public class CreateUserDto
 
     [NotEmpty(ErrorMessage = "Required")] public Guid RoleId { get; set; }
 
-    public int ClinicId { get; set; } 
-
     public int OtherField { get; set; }
 }
