@@ -26,4 +26,6 @@ public class UserResponseDto
     public List<int> WorkingDays { get; set; }
     public TimeSpan StartHour { get; set; }
     public TimeSpan EndHour { get; set; }
+    public bool IsOnline { get; set; }
+
 }

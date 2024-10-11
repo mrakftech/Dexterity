@@ -94,6 +94,15 @@
     color: white !important;
 }
 
+.mud-list .mud-list-item-clickable:active {
+    background-color: lightslategray !important;
+    color: white !important;
+}
+.mud-list-item-clickable:focus:not(.mud-selected-item), .mud-list-item-clickable:active {
+    background-color: lightslategray !important;
+    color: white !important;
+    font-weight: bolder;
+}
 .mud-tabs-panels {
     background-color: transparent !important;
 }

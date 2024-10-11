@@ -9,11 +9,13 @@ using Microsoft.EntityFrameworkCore;
 using PhoneNumbers;
 using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
+using Services.Features.UserAccounts.Dtos.User;
 using Services.State;
 using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Helper;
 using Shared.Wrapper;
+using Syncfusion.Blazor.Kanban.Internal;
 
 namespace Services.Features.Messaging.Service;
 
@@ -260,10 +262,22 @@ public class MessagingService(
         return await Result.SuccessAsync();
     }
 
+
+
     #endregion
 
     #region Instant Messaging
+    public async Task<List<UserResponseDto>> GetUsers()
+    {
+        var users = await context.UserClinics
+            .AsNoTracking()
+            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            .Select(x => x.User)
+            .ToListAsync();
+        var allUsers = users.Where(user => user.Id != ApplicationState.CurrentUser.UserId).ToList();
 
+        return mapper.Map<List<UserResponseDto>>(allUsers);
+    }
     public async Task<IResult> SaveMessageAsync(ChatMessage message)
     {
         try
@@ -279,7 +293,6 @@ public class MessagingService(
         {
             return await Result.SuccessAsync(e.Message);
         }
-       
     }
 
     public async Task<List<ChatMessage>> GetConversationAsync(Guid contactId)

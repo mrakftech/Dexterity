@@ -1,0 +1,246 @@
+﻿@layout MainLayout
+@using Dexterity.Extensions
+@using Services.Features.UserAccounts.Dtos.User
+@using Domain.Entities.UserAccounts
+<DexDialog>
+    <DialogTitle>Instant Messaging</DialogTitle>
+    <Content>
+        <div class="d-flex flex-grow-1 flex-row m-3">
+            <MudPaper Elevation="25" Class="py-4 flex-grow-1">
+                <MudToolBar Dense="true">
+                    @if (ContactId == Guid.Empty)
+                    {
+                        <MudIcon Icon="@MudIcons.Material.Outlined.Person" Style="margin-right:10px"></MudIcon>
+                        <MudText Typo="Typo.h6">chat</MudText>
+                    }
+                    else
+                    {
+                        <MudIcon Icon="@MudIcons.Material.Outlined.ChatBubble" Style="margin-right:10px"></MudIcon>
+                        <MudText Typo="Typo.h6">@ContactName</MudText>
+                    }
+                </MudToolBar>
+                <div class="d-flex flex-column px-4" style="max-height:65vh;min-height:65vh; overflow:auto;"
+                     id="chatContainer">
+                    @foreach (var message in _messages)
+                    {
+                        if (message.FromUserId == ApplicationState.CurrentUser.UserId)
+                        {
+                            <div class="d-flex flex-row my-4">
+                                <div class="mr-4">
+                                    <MudAvatar Color="Color.Secondary"
+                                               Style="height:50px; width:50px;">
+                                        @message.FromUser.Email.ToUpper().FirstOrDefault()
+                                    </MudAvatar>
+                                </div>
+                                <div>
+                                    <MudText Typo="Typo.body1">@message.FromUser.Email</MudText>
+                                    <MudText Typo="Typo.caption"
+                                             Style="font-size: xx-small!important;">
+                                        @message.CreatedDate.ToString("dd MMM, yyyy hh:mm tt")
+                                    </MudText>
+                                    <MudText Typo="Typo.body2"
+                                             Style=" padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                        @message.Message
+                                    </MudText>
+                                </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="d-flex flex-row my-4 ">
+                                <div class="mr-4">
+                                    <MudAvatar Color="Color.Secondary"
+                                               Style="height:50px; width:50px;">
+                                        @message.FromUser.Email.ToUpper().FirstOrDefault()
+                                    </MudAvatar>
+                                </div>
+                                <div>
+                                    <MudText Typo="Typo.body1">@message.FromUser.Email</MudText>
+                                    <MudText Typo="Typo.caption"
+                                             Style="font-size: xx-small!important;">
+                                        @message.CreatedDate.ToString("dd MMM, yyyy hh:mm tt")
+                                    </MudText>
+                                    <MudText Typo="Typo.body2"
+                                             Style=" padding: 15px;background-color: var(--mud-palette-background-grey);border-radius: 5px;margin-top:5px">
+                                        @message.Message
+                                    </MudText>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+                <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
+                    <MudTextField T="string" Placeholder="Enter your message..." Class="mt-n2 mx-4"
+                                  @bind-Value="CurrentMessage" For="@(() => CurrentMessage)"/>
+                    <MudButton OnClick="SubmitAsync" StartIcon="@MudIcons.Material.Outlined.Send" Color="Color.Primary"
+                               ButtonType="MudButtonType.Button">
+                        Send
+                    </MudButton>
+                </MudPaper>
+            </MudPaper>
+            <MudPaper Elevation="25" Class="pa-3 ml-6" MinWidth="350px">
+                <MudToolBar Dense="true">
+                    <MudText Typo="Typo.h6" Inline="true" Class="mr-2">#</MudText>
+                    <MudText Typo="Typo.h6">contacts</MudText>
+                </MudToolBar>
+                <div class="d-flex flex-column px-4" style="max-height:70vh;min-height:70vh; overflow:scroll;">
+                    <MudList T="string">
+                        @foreach (var user in ChatUsers)
+                        {
+                            <MudListItem T="string" Class="pa-0 px-2" OnClick="@(() => LoadUserChat(user.Id))" Style="height: 50px">
+                                <div class="d-flex flex-row mt-n1 mb-n1">
+                                    <div class="mr-4">
+                                        <MudBadge Color="@(GetUserStatusBadgeColor(user.IsOnline))" Overlap="true" Bordered="true" Dot="true">
+                                            @if (user.Id == ContactId)
+                                            {
+                                                <MudAvatar Color="Color.Secondary">
+                                                    @user.FullName.ToUpper().FirstOrDefault()
+                                                </MudAvatar>
+                                            }
+                                            else
+                                            {
+                                                <MudAvatar Color="Color.Dark">
+                                                    @user.FullName.ToUpper().FirstOrDefault()
+                                                </MudAvatar>
+                                            }
+                                        </MudBadge>
+                                    </div>
+                                    <div>
+                                        <MudText Typo="Typo.body2" Class="mt-3 mb-n2">@user.FullName</MudText>
+                                    </div>
+                                </div>
+                            </MudListItem>
+                        }
+                    </MudList>
+                </div>
+
+            </MudPaper>
+        </div>
+    </Content>
+</DexDialog>
+
+@code{
+    [CascadingParameter] public HubConnection HubConnection { get; set; }
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+
+    [Parameter] public List<UserResponseDto> ChatUsers { get; set; } = new();
+
+    private string CurrentMessage { get; set; }
+    private Guid CurrentUserId { get; set; }
+    private string CurrentUserName { get; set; }
+    private string ContactName { get; set; }
+    private Guid ContactId { get; set; }
+
+    private List<ChatMessage> _messages = new();
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        HubConnection = HubConnection.TryInitialize(NavigationManager);
+        if (HubConnection.State == HubConnectionState.Disconnected)
+        {
+            await HubConnection.StartAsync();
+            // Snackbar.SuccessMessage($"Connection has been made.{HubConnection.ConnectionId}");
+        }
+
+        HubConnection.On<Guid>(ApplicationConstants.SignalR.ConnectUser, (userId) =>
+        {
+            var connectedUser = ChatUsers.Find(x => x.Id.Equals(userId));
+            if (connectedUser is {IsOnline: false})
+            {
+                connectedUser.IsOnline = true;
+                // Snackbar.SuccessMessage($"{connectedUser.FullName} Logged In.");
+                MudDialog.StateHasChanged();
+                StateHasChanged();
+            }
+        });
+        HubConnection.On<Guid>(ApplicationConstants.SignalR.DisconnectUser, (userId) =>
+        {
+            var disconnectedUser = ChatUsers.Find(x => x.Id.Equals(userId));
+            if (disconnectedUser is {IsOnline: true})
+            {
+                disconnectedUser.IsOnline = false;
+                Snackbar.SuccessMessage($"{disconnectedUser.FullName} Logged Out.");
+                MudDialog.StateHasChanged();
+                StateHasChanged();
+            }
+        });
+        HubConnection.On<ChatMessage, string>("ReceiveMessage", async (message, userName) =>
+        {
+            if ((ContactId == message.ToUserId && CurrentUserId == message.FromUserId) || (ContactId == message.FromUserId && CurrentUserId == message.ToUserId))
+            {
+                if ((ContactId == message.ToUserId && CurrentUserId == message.FromUserId))
+                {
+                    _messages.Add(new ChatMessage {Message = message.Message, CreatedDate = message.CreatedDate, FromUser = new User() {Email = CurrentUserName}});
+                    await HubConnection.SendAsync("ChatNotificationAsync", $"New Message From {userName}", ContactId, CurrentUserId);
+                }
+                else if ((ContactId == message.FromUserId && CurrentUserId == message.ToUserId))
+                {
+                    _messages.Add(new ChatMessage {Message = message.Message, CreatedDate = message.CreatedDate, FromUser = new User() {Email = ContactName}});
+                }
+
+                await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
+                MudDialog.StateHasChanged();
+                StateHasChanged();
+            }
+        });
+        await GetUsersAsync();
+        CurrentUserId = ApplicationState.CurrentUser.UserId;
+        CurrentUserName = ApplicationState.CurrentUser.Name;
+        if (ContactId != Guid.Empty)
+        {
+            await LoadUserChat(ContactId);
+        }
+
+        await HubConnection.SendAsync(ApplicationConstants.SignalR.PingRequest, CurrentUserId);
+    }
+
+    private async Task SubmitAsync()
+    {
+        if (!string.IsNullOrEmpty(CurrentMessage) && ContactId != Guid.Empty)
+        {
+            var chatHistory = new ChatMessage()
+            {
+                Message = CurrentMessage,
+                ToUserId = ContactId,
+                CreatedDate = DateTime.Now,
+                FromUserId = CurrentUserId,
+            };
+            await UnitOfWork.Messaging.SaveMessageAsync(chatHistory);
+            await HubConnection.SendAsync("SendMessageAsync", chatHistory, CurrentUserName);
+            CurrentMessage = string.Empty;
+        }
+    }
+
+    async Task LoadUserChat(Guid userId)
+    {
+        var contact = await UnitOfWork.Messaging.GetUserDetailsAsync(userId);
+        ContactId = contact.Id;
+        ContactName = contact.FullName;
+        _messages = new List<ChatMessage>();
+        _messages = await UnitOfWork.Messaging.GetConversationAsync(ContactId);
+    }
+
+
+    private Color GetUserStatusBadgeColor(bool isOnline)
+    {
+        switch (isOnline)
+        {
+            case false:
+                return Color.Error;
+            case true:
+                return Color.Success;
+        }
+    }
+
+    private async Task GetUsersAsync()
+    {
+        ChatUsers = await UnitOfWork.Messaging.GetUsers();
+    }
+
+}

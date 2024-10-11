@@ -39,7 +39,7 @@
                             <label>Select Practice:</label>
                             <SfDropDownList TValue="int" Placeholder="Select Practice" TItem="UserClinic"
                                             @bind-Value="@_clinicId" DataSource="@_clinics">
-                                <DropDownListFieldSettings Value="Id" Text="Clinic.Name"></DropDownListFieldSettings>
+                                <DropDownListFieldSettings Value="ClinicId" Text="Clinic.Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                             <DexLoadingButton Name="Proceed" Processing="_processing" Click="NavigateToDashboard"></DexLoadingButton>
                         </MudItem>
