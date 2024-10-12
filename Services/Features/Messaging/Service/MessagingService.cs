@@ -285,6 +285,7 @@ public class MessagingService(
             message.CreatedDate = DateTime.Now;
             message.FromUserId = message.FromUserId;
             message.ToUserId = message.ToUserId;
+            context.ChangeTracker.Clear();
             await context.ChatMessages.AddAsync(message);
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("");
@@ -304,6 +305,7 @@ public class MessagingService(
             .OrderBy(a => a.CreatedDate)
             .Include(a => a.FromUser)
             .Include(a => a.ToUser)
+            .AsNoTracking()
             .Select(x => new ChatMessage
             {
                 FromUserId = x.FromUserId,

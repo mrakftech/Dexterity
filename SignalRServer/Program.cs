@@ -18,8 +18,6 @@ if (app.Environment.IsDevelopment())
 {
 }
 app.UseRouting();
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapHub<ChatHub>("/chatHub");
-});
+app.MapHub<ChatHub>("/chatHub");
+
 app.Run();
