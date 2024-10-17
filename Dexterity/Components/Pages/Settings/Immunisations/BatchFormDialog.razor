@@ -1,0 +1,81 @@
+﻿@using Domain.Entities.Settings.Drugs
+@using Domain.Entities.Settings.Immunisations
+<DexDialog>
+    <DialogTitle>Batch Details</DialogTitle>
+    <Content>
+        <DexForm Model="Batch" ColumnCount="2" OnValidSubmit="SaveBatchDetails">
+            <Fields>
+                <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.Expiry)" EditorType="FormEditorType.DatePicker" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.BatchCount)" LabelText="Batch Count" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.Remaining)" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Drug" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">Drugs</label>
+                        <SfAutoComplete TValue="string" TItem="Drug" Placeholder="Select a Drug" DataSource="@Drugs">
+                            <AutoCompleteFieldSettings Value="GenericName" Text="GenericName"/>
+                            <AutoCompleteEvents TValue="string" TItem="Drug" ValueChange="OnChangeDrug"></AutoCompleteEvents>
+                        </SfAutoComplete>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.TradeName)" LabelText="Trade Name" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.ManfactureName)" LabelText="Manufacture Name" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    [Parameter] public int ShotId { get; set; }
+    [Parameter] public string BatchNumber { get; set; }
+    public UpsertBatchDto Batch { get; set; } = new();
+    private List<Drug> Drugs { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id == 0)
+        {
+            Batch.BatchNumber = BatchNumber;
+            Batch.ShotId = ShotId;
+        }
+
+        await GetDrugs();
+    }
+
+    private async Task GetDrugs()
+    {
+        Drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
+    }
+
+    private void OnChangeDrug(ChangeEventArgs<string, Drug> args)
+    {
+        if (args.ItemData is not null)
+        {
+            var drug = args.ItemData;
+            Batch.TradeName = drug.TradeName;
+            Batch.ManfactureName = drug.Manufacture;
+            Batch.DrugId = drug.Id;
+        }
+    }
+
+    private async Task SaveBatchDetails()
+    {
+        var res = await UnitOfWork.Setting.UpsertBatch(Id, Batch);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

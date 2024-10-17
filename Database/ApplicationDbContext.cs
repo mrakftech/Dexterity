@@ -17,10 +17,11 @@ using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Hospital;
 using Domain.Entities.WaitingRoom;
 using System.Reflection.Emit;
 using Domain.Entities.Settings.Clinic;
+using Domain.Entities.Settings.Consultation.Immunisation;
+using Domain.Entities.Settings.Drugs;
 
 namespace Database;
 
@@ -81,6 +82,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PomrGroup> PomrGroups { get; set; }
     public DbSet<HealthCode> HealthConditionCodes { get; set; }
     public DbSet<NoteTemplate> NoteTemplates { get; set; }
+    public DbSet<Drug> Drugs { get; set; }
 
     #endregion
 
@@ -130,6 +132,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<BaselineDetail> BaselineDetails { get; set; }
     public DbSet<Reminder> Reminders { get; set; }
     public DbSet<ConsultationNote> ConsultationNotes { get; set; }
+
+    public DbSet<Shot> Shots { get; set; }
+    public DbSet<BatchDetail> BatchDetails { get; set; }
+    public DbSet<ShotBatchDetail> ShotBatchDetails { get; set; }
 
     #endregion
 }

@@ -1,5 +1,5 @@
 ﻿using Domain.Entities.PatientManagement;
-using Domain.Entities.Settings.Hospital;
+using Domain.Entities.Settings.Clinic;
 using Domain.Entities.UserAccounts;
 using Microsoft.VisualBasic;
 

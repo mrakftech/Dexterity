@@ -1,11 +1,18 @@
 ﻿@layout MainLayout
 @page "/settings"
-@using Dexterity.Components.Pages.Settings.Components
+@using Dexterity.Components.Pages.Settings.Account
+@using Dexterity.Components.Pages.Settings.PomrGroup
+@using Dexterity.Components.Pages.Settings.NoteTemplate
+@using Dexterity.Components.Pages.Settings.Immunisations
+@using Dexterity.Components.Pages.Settings.Appointment
+@using Dexterity.Components.Pages.Settings.Clinic
+@using Dexterity.Components.Pages.Settings.SmsTemplate
+@using Dexterity.Components.Pages.Settings.Drugs
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
 <MudItem md="12" Class="vertical-space">
-    <InnerLayout >
+    <InnerLayout ShowHeader="false">
         <NavigationItems>
             <RadzenPanelMenuItem Text="Categories & Templates">
                 <DexMenuItem Text="Sms Templates" Icon="fas fa-comment-sms" Click="@(() => ClickChanged(0))"/>
@@ -23,45 +30,63 @@
                 <DexMenuItem Text="POMR Groups" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(6))"/>
                 <DexMenuItem Text="Note Template" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
             </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Immunisations">
+                <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Admin Drugs">
+                <DexMenuItem Text="Drug Management" Icon="fas fa-pills" Click="@(() => ClickChanged(9))"/>
+            </RadzenPanelMenuItem>
         </NavigationItems>
-
         <DexContentTabs>
-            <MudTabs @ref="tabs">
-                <MudTabPanel >
+            <MudTabs @ref="_tabs" Rounded="true" PanelClass="flex-grow-1">
+                <MudTabPanel>
                     <SmsTemplateTab/>
                 </MudTabPanel>
-                <MudTabPanel >
+                <MudTabPanel>
                     <EmailTemplateTab/>
                 </MudTabPanel>
-                <MudTabPanel >
+                <MudTabPanel>
                     <ClinicTab/>
                 </MudTabPanel>
-                <MudTabPanel >
+                <MudTabPanel>
                     <AppointmentTypeTab/>
                 </MudTabPanel>
-                <MudTabPanel >
-                    <AppointmentCancelReasonTab/>
+                <MudTabPanel>
+                    <CancelReasonTab/>
                 </MudTabPanel>
-                <MudTabPanel >
-                    <AccountTypeTab/>
+                <MudTabPanel>
+                    <AppoitmentTypeTab/>
                 </MudTabPanel>
-                <MudTabPanel >
+                <MudTabPanel>
                     <PomrGroupTab/>
                 </MudTabPanel>
-                <MudTabPanel >
+                <MudTabPanel>
                     <NoteTemplateTab/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <Shots/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <DrugManagement/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>
     </InnerLayout>
 </MudItem>
+<style>
+    .e-menu-wrapper, .e-menu-container {
+        background-image: linear-gradient(to top, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%) !important;
+        color: #ffffff !important;
+        box-shadow: var(--rz-header-shadow);
+    }
+</style>
 
 @code {
-    MudTabs tabs;
+    MudTabs _tabs;
 
     private void ClickChanged(int tabIndex)
     {
-        tabs.ActivatePanel(tabIndex);
+        _tabs.ActivatePanel(tabIndex);
     }
 
 }

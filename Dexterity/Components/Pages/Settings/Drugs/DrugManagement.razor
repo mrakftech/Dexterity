@@ -1,0 +1,68 @@
+﻿@using Domain.Entities.Settings.Drugs
+@using TextAlign = Syncfusion.Blazor.Grids.TextAlign
+
+<TabTitle Title="Drugs" Icon="drug-management.png">
+    <ActionButtons>
+        <DexSimpleButton Name="Add New Drug" Click="()=>DrugForm(0)" />
+    </ActionButtons>
+</TabTitle>
+<DexGrid DataSource="_drugs">
+    <DexGridColumns>
+        <GridColumn Field="TradeName" HeaderText="Trade Name" Width="150"></GridColumn>
+        <GridColumn Field="GenericName" HeaderText="Generic Name" Width="150"></GridColumn>
+        <GridColumn Field="GenericName" HeaderText="Generic Name" Width="150"></GridColumn>
+        <GridColumn Field="Manufacture" HeaderText="Manufacture" Width="150"></GridColumn>
+        @*      <GridColumn Field="Category" HeaderText="Category" Width="150"></GridColumn>
+        <GridColumn Field="PackSize" HeaderText="Pack Size" Width="100" TextAlign="TextAlign.Right"></GridColumn>
+        <GridColumn Field="IngredientCostPrice" HeaderText="Cost Price" Format="C2" Width="120" TextAlign="TextAlign.Right"></GridColumn>
+        <GridColumn Field="ItemPrice" HeaderText="Item Price" Format="C2" Width="120" TextAlign="TextAlign.Right"></GridColumn>
+        <GridColumn Field="VAT" HeaderText="VAT (%)" Width="80" TextAlign="TextAlign.Right"></GridColumn> *@
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as Drug);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => DrugForm(item.Id)" />
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteDrug(item.Id)" />
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<Drug> _drugs = new();
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDrugs();
+    }
+    private async Task GetDrugs()
+    {
+        _drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
+    }
+
+    private async Task DrugForm(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var dialogresult = await DialogService.ShowAsync<DrugFormDialog>("", parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetDrugs();
+        }
+    }
+    private async Task DeleteDrug(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteDrugAsync(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetDrugs();
+        }
+    }
+
+}

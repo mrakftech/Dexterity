@@ -2,6 +2,7 @@
 using Database;
 using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
@@ -367,4 +368,5 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
     }
 
     #endregion
+
 }

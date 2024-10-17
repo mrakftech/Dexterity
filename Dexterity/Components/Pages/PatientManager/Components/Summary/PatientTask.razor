@@ -1,5 +1,4 @@
-﻿@using Services.Features.UserAccounts.Dtos.User
-<TabTitle Title="Patient Tasks"></TabTitle>
+﻿<TabTitle Title="Patient Tasks"></TabTitle>
 <DexGrid DataSource="UserTasks" Loading="_loading" Height="400px">
     <DexGridColumns>
         <GridColumn Field="@nameof(UserTask.TaskDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Created Date" Width="120px"></GridColumn>

@@ -2,6 +2,9 @@
 using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Consultation.Immunisation;
+using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Immunisations;
 using Domain.Entities.Settings.Templates;
 using Services.Features.Settings.Dtos;
 using Shared.Constants.Module;
@@ -65,6 +68,7 @@ public interface ISettingService
     #endregion
 
     #region Account Types
+
     public Task<AccountTypeDto> GetAccountType(int id);
     public Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes);
     public Task<IResult> SaveAccountType(int id, AccountTypeDto request);
@@ -87,6 +91,37 @@ public interface ISettingService
     public Task<List<NoteTemplateDto>> GetAllNoteTemplates();
     public Task<IResult> SaveNoteTemplate(int id, NoteTemplateDto request);
     public Task<IResult> DeleteNoteTemplate(int id);
+
+    #endregion
+
+    #region Immunisations
+
+    #region Shot
+
+    Task<List<Shot>> GetShotsList();
+    Task<ShotDto> GetShotsDetail(int id);
+    Task<IResult> SaveShot(Shot shot);
+    Task<IResult> DeleteShot(int id);
+    Task<IResult> DeleteBatchFromShot(int batchId);
+
+    #endregion
+
+    #region Batch
+
+    Task<IResult> FindBatch(FindBatchDto findBatch);
+    Task<IResult> UpsertBatch(int id, UpsertBatchDto batch);
+    Task<IResult> DeleteBatch(int id);
+
+    #endregion
+
+    #endregion
+
+    #region Drug
+
+    Task<IEnumerable<Drug>> GetAllDrugsAsync();
+    Task<Result<Drug>> GetDrugByIdAsync(int id);
+    Task<IResult> UpsertDrugAsync(int id, Drug drug);
+    Task<IResult> DeleteDrugAsync(int id);
 
     #endregion
 }

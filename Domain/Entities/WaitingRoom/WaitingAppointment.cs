@@ -1,7 +1,6 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Clinic;
-using Domain.Entities.Settings.Hospital;
 
 namespace Domain.Entities.WaitingRoom;
 

@@ -12,7 +12,7 @@
         </NavigationItems>
         
         <DexContentTabs>
-                <MudTabs @ref="tabs" >
+                <MudTabs @ref="_tabs" >
                     <MudTabPanel Text="" >
                         <UserList/>
                     </MudTabPanel>
@@ -23,10 +23,10 @@
         </DexContentTabs>
     </InnerLayout>
 @code {
-    MudTabs tabs;
+    MudTabs _tabs;
     private void ClickChanged(int tabIndex)
     {
-        tabs.ActivatePanel(tabIndex);
+        _tabs.ActivatePanel(tabIndex);
     }
     
 

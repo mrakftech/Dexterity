@@ -1,0 +1,80 @@
+﻿@using Domain.Entities.Settings.Consultation
+<TabTitle Title="POMR Groups" Icon="carrier-group.png">
+    <ActionButtons>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertPomrGroupModal(0)" Variant="Variant.Filled">Add New POMR Group</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetPomrGroups" Variant="Variant.Filled">Load POMR Groups</MudButton>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="PomrGroups" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(PomrGroup.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as PomrGroup);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary"
+                                       OnClick="() => UpsertPomrGroupModal(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeletePomrGroup(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+
+@code{
+
+    private List<PomrGroup> PomrGroups { get; set; } = new();
+    
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPomrGroups();
+    }
+
+    private async Task GetPomrGroups()
+    {
+        _processing = true;
+        PomrGroups = await UnitOfWork.Setting.GetAllPomrGroups();
+        _processing = false;
+    }
+
+    private async Task UpsertPomrGroupModal(int id)
+    {
+        var title = id == 0 ? "New Group" : "Edit Group";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<PomrGroupFormDialog>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetPomrGroups();
+        }
+    }
+
+    private async Task DeletePomrGroup(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeletePomrGroup(id);
+            if (res.Succeeded)
+            {
+                await GetPomrGroups();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}

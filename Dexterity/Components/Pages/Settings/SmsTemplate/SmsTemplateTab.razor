@@ -1,0 +1,74 @@
+﻿@using Domain.Entities.Settings.Templates
+<TabTitle Title="SMS Template" Icon="sms-templates.png">
+    <ActionButtons>
+        <MudStack Row >
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small"  OnClick="() => UpsertSmsTemplateModal(Guid.Empty)" Variant="Variant.Filled">Add Sms Template</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetTemplates" Variant="Variant.Filled">Load Sms Templates</MudButton>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+<DexGrid DataSource="SmsTemplateList" Loading="@_processing" >
+    <DexGridColumns>
+        <GridColumn Field="@nameof(SmsTemplate.Name)" HeaderText="Name" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(SmsTemplate.Content)" HeaderText="Content" Width="120px"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var template = (context as SmsTemplate);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                   Color="MudColor.Primary"
+                                   OnClick="() => UpsertSmsTemplateModal(template.Id)" />
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                   Color="MudColor.Error" OnClick="() => DeleteTemplate(template.Id)" />
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code{
+
+    private List<SmsTemplate> SmsTemplateList { get; set; } = new();
+    
+    private bool _processing;
+    private async Task GetTemplates()
+    {
+        _processing = true;
+        SmsTemplateList = await UnitOfWork.Setting.GetSmsTemplates();
+        _processing = false;
+
+    }
+
+    private async Task UpsertSmsTemplateModal(Guid id)
+    {
+        var title = id == Guid.Empty ? "New Template" : "Edit Template";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<SmsTemplateFormDialog>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetTemplates();
+        }
+    }
+
+    private async Task DeleteTemplate(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteSmsTemplate(id);
+            if (res.Succeeded)
+            {
+                await GetTemplates();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+}

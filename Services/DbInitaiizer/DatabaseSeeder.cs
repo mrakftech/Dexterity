@@ -6,7 +6,6 @@ using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Clinic;
-using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;

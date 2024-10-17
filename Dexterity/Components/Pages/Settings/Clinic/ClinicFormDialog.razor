@@ -1,0 +1,63 @@
+﻿@using Services.Features.Settings.Dtos
+<DexDialog>
+    <DialogTitle>@_title</DialogTitle>
+    <Content>
+        <DexForm Model="ClinicDto" OnValidSubmit="SaveClinic">
+            <Fields>
+                <FormItem Field="@nameof(ClinicDto.Name)" LabelText="Name"></FormItem>
+                <FormItem Field="@nameof(ClinicDto.Address)" LabelText="Address"></FormItem>
+                <FormItem Field="@nameof(ClinicDto.Contact)" LabelText="Contact"></FormItem>
+                <FormItem Field="@nameof(ClinicDto.Id)">
+                    <Template >
+                        @if (Id > 0)
+                        {
+                            <ClinicSiteDataGrid ClinicId="Id"/>
+                        }
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private ClinicDto ClinicDto { get; set; } = new();
+    private bool _processing;
+    private string _title;
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var s = await UnitOfWork.Setting.GetClinic(Id);
+            ClinicDto = s.Data;
+            _title = "Edit";
+        }
+        else
+        {
+            _title = "New";
+        }
+    }
+
+    private async Task SaveClinic()
+    {
+        _processing = true;
+        var res = await UnitOfWork.Setting.SaveClinic(Id, ClinicDto);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+}

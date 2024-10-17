@@ -1,0 +1,74 @@
+﻿@using Services.Features.Settings.Dtos
+<TabTitle Title="Clinics" Icon="clinic.png">
+    <ActionButtons>
+        <MudStack Row>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => OpenUpsertClinicModal(0)">Add New Clinic</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetClinics" Variant="Variant.Filled">Load Clinics</MudButton>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+<MudItem >
+    <DexGrid DataSource="ClinicList" Loading="@_processing">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(ClinicDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(ClinicDto.Address)" HeaderText="Address" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="80">
+                <Template>
+                    @{
+                    var item = (context as ClinicDto);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                   Color="MudColor.Primary"
+                                   OnClick="() => OpenUpsertClinicModal(item.Id)"/>
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                   Color="MudColor.Error" OnClick="() => DeleteClinic(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+@code {
+    private List<ClinicDto> ClinicList { get; set; } = new();
+    
+    private bool _processing;
+
+    private async Task GetClinics()
+    {
+        _processing = true;
+        ClinicList = await UnitOfWork.Setting.GetClinics();
+        _processing = false;
+    }
+
+    private async Task DeleteClinic(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteClinic(id);
+            if (res.Succeeded)
+            {
+                await GetClinics();
+            }
+            else
+            {
+                Snackbar.FailMessge(res.Messages.First());
+            }
+        }
+    }
+
+    private async Task OpenUpsertClinicModal(int id)
+    {
+        var title = id == 0 ? "New Clinic" : "Edit Clinic";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<ClinicFormDialog>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetClinics();
+        }
+    }
+
+}

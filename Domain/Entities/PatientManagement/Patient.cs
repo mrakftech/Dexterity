@@ -5,7 +5,6 @@ using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.Settings.Clinic;
-using Domain.Entities.Settings.Hospital;
 using Domain.Entities.UserAccounts;
 using Domain.Entities.WaitingRoom;
 using Shared.Constants.Module;

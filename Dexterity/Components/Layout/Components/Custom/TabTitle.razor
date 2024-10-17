@@ -1,12 +1,22 @@
-﻿<SfAppBar ColorMode="AppBarColor.Light">
-    <span class="regular text-bold"> @Title</span>
+﻿<SfAppBar ColorMode="AppBarColor.Light" >
+    @if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <img src="@($"assets/images/menu-items/{Icon}")" width="32" height="32" />
+    }
+    <span class="regular text-bold ml-3"> @Title</span>
     <AppBarSpacer></AppBarSpacer>
     @ActionButtons
 </SfAppBar>
 
+<style>
+   
+</style>
 @code {
     [Parameter] public string Title { get; set; }
     [Parameter] public string MarginTop { get; set; } = "3%";
     [Parameter] public RenderFragment ActionButtons { get; set; }
+    [Parameter]
+    public string Icon { get; set; } = "";
+
 
 }

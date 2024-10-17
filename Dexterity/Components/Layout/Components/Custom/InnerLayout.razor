@@ -20,21 +20,21 @@
           <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0">
               <RadzenSidebarToggle Click="@(() => _open = !_open)"/>
               <RadzenLabel Text="@MenuTitle"/>
-
               <div style="margin-left:60%">
                   @TopBarItems
               </div>
           </RadzenStack>
-        
       </RadzenHeader>
   }
-    <RadzenSidebar @bind-Expanded="@_open" Style="@($"width:{DrawerWidth}")" >
+    <RadzenSidebar @bind-Expanded="@_open" Style="@($"width:{@DrawerWidth}")" >
         <RadzenPanelMenu>
             @NavigationItems
         </RadzenPanelMenu>
     </RadzenSidebar>
+
     <RadzenBody Style="background-color: var(--rz-body-background-color)!important;">
         @DexContentTabs
+
     </RadzenBody>
     @if (ShowFooter)
     {

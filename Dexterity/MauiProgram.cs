@@ -7,14 +7,12 @@ using Dexterity.UiServices;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
-using MudBlazor.Extensions;
 using MudBlazor.Services;
 using Radzen;
 using Services.DbInitaiizer;
 using Services.State;
 using Syncfusion.Blazor;
 using Syncfusion.Licensing;
-using DialogPosition = MudBlazor.DialogPosition;
 
 namespace Dexterity
 {

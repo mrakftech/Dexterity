@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Settings.Clinic;
-using Domain.Entities.Settings.Hospital;
 
 namespace Domain.Entities.UserAccounts;
 

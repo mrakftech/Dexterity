@@ -114,7 +114,17 @@
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\AddPatientHospitalModal.razor" />
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\Family\UpsertFamilyMemberModal.razor" />
       <AdditionalFiles Include="Components\Pages\PatientManager\Components\Form\Dialogs\Grouping\AddNewGroupModal.razor" />
-      <AdditionalFiles Include="Components\Pages\Settings\Dialogs\SmsTemplate\UpsertSmsTemplateModal.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Account\AccountTypeFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Appointment\CancelReasonFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Appointment\AppointmentTypeFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Clinic\PartialViews\ClinicSiteDataGrid.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Clinic\ClinicFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Clinic\ClinicSiteFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Immunisations\BatchFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\Immunisations\Shots.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\NoteTemplate\NoteTemplateFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\PomrGroup\PomrGroupFormDialog.razor" />
+      <AdditionalFiles Include="Components\Pages\Settings\SmsTemplate\EmailTemplateFormDialog.razor" />
     </ItemGroup>
 
     <ItemGroup>

@@ -1,5 +1,9 @@
-﻿<SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})" AllowPaging="true">
-    <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+﻿<SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})" AllowPaging="ShowPager">
+    @if (ShowPager)
+    {
+
+        <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+    }
     <GridTemplates>
         @DexRowTemplate
     </GridTemplates>
@@ -23,4 +27,5 @@
     [Parameter] public RenderFragment DexGridColumns { get; set; }
     [Parameter] public RenderFragment DexRowTemplate { get; set; }
     [Parameter] public RenderFragment DexTemplates { get; set; }
+    [Parameter] public bool ShowPager { get; set; } = true;
 }

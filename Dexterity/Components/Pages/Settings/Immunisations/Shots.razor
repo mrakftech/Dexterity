@@ -1,0 +1,242 @@
+﻿@using Domain.Entities.Settings.Consultation.Immunisation
+@using Domain.Entities.Settings.Immunisations
+@layout MainLayout
+<TabTitle Title="Shots" Icon="flu-shot.png">
+</TabTitle>
+<MudStack Row>
+    <MudItem md="2">
+        <SfGrid DataSource="ShotsList" AllowPaging="false" Height="800px">
+            <GridEvents RowSelected="RowSelected" TValue="Shot"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(Shot.Name)" HeaderText="Shots" Width="120px"/>
+            </GridColumns>
+        </SfGrid>
+    </MudItem>
+    <MudItem md="10">
+        <MudStack Spacing="2">
+            <MudItem md="12">
+                <DexForm Model="Shot" ColumnCount="2" OnValidSubmit="SaveShot">
+                    <Fields>
+                        <FormGroup ColumnCount="1" LabelText="Basic Info">
+                            <FormItem Field="@nameof(Shot.Name)" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.Dose)" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.Method)" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="_isFieldsEnable"></FormItem>
+                        </FormGroup>
+                        <FormGroup ColumnCount="2" LabelText="Interval Detail" ColumnSpacing="20px">
+                            <FormItem Field="@nameof(Shot.IntervalType)" LabelText="Interval Type" ColumnSpan="2" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.ClaimForm)" LabelText="Claim Form" ColumnSpan="2" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.Comment)" ColumnSpan="2" EditorType="FormEditorType.TextArea" IsEnabled="_isFieldsEnable"></FormItem>
+                        </FormGroup>
+                    </Fields>
+                    <Buttons>
+                        @if (_shotId > 0)
+                        {
+                            <DexLoadingButton Name="Save" Processing="_loading" Type="MudButtonType.Submit"/>
+                            <DexLoadingButton Name="Delete" Click="DeleteShot"/>
+                            <DexLoadingButton Name="Create New" Click="ResetForm"/>
+                        }
+                        else
+                        {
+                            <DexLoadingButton Name="Add" Processing="_loading" Type="MudButtonType.Submit"/>
+                        }
+                    </Buttons>
+                </DexForm>
+            </MudItem>
+            <MudItem md="4">
+                @if (_shotId > 0)
+                {
+                    <DexForm Model="FindBatch" OnValidSubmit="FindingBatch">
+                        <Fields>
+                            <FormItem Field="@nameof(FindBatchDto.BatchNumber)"
+                                      LabelText="Batch Number"
+                                      ColumnSpan="2"/>
+                        </Fields>
+                        <Buttons>
+                            <DexLoadingButton Name="Add Batch" Type="MudButtonType.Submit"/>
+                        </Buttons>
+                    </DexForm>
+                }
+            </MudItem>
+            <MudItem md="12">
+                <DexGrid DataSource="BatchDetails" Height="200px">
+                    <DexGridColumns>
+                        <GridColumn Field="@nameof(BatchDetail.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="g" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px"></GridColumn>
+                        <GridColumn HeaderText="Actions" Width="120">
+                            <Template>
+                                @{
+                                    var item = (context as BatchDetail);
+                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditBatch(item!.Id)"/>
+                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </DexGridColumns>
+                </DexGrid>
+            </MudItem>
+        </MudStack>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<Shot> ShotsList { get; set; } = new();
+    private List<BatchDetail> BatchDetails { get; set; } = new();
+    private Shot Shot { get; set; } = new();
+    private FindBatchDto FindBatch { get; set; } = new();
+    private bool _isFieldsEnable;
+    private bool _loading;
+    private int _shotId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (_shotId == 0)
+        {
+            _isFieldsEnable = true;
+        }
+
+        await GetShots();
+    }
+
+    #region Shots
+
+    private async Task GetShots()
+    {
+        ShotsList = await UnitOfWork.Setting.GetShotsList();
+    }
+
+    private async Task SaveShot()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Setting.SaveShot(Shot);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+
+        await GetShots();
+        ResetForm();
+        _loading = false;
+    }
+
+    private async Task RowSelected(RowSelectEventArgs<Shot> shot)
+    {
+        if (shot.Data is not null)
+        {
+            _shotId = shot.Data.Id;
+            await GetSelectedShotDetails(_shotId);
+        }
+    }
+
+    private async Task GetSelectedShotDetails(int shotId)
+    {
+        var shotDetails = await UnitOfWork.Setting.GetShotsDetail(shotId);
+        Shot = shotDetails.Shot;
+        BatchDetails = shotDetails.BatchDetails;
+        FindBatch.ShotId = _shotId;
+    }
+
+    private void ResetForm()
+    {
+        _isFieldsEnable = true;
+        Shot = new Shot();
+        _shotId = 0;
+        FindBatch = new FindBatchDto();
+    }
+
+    private async Task DeleteShot()
+    {
+        if (_shotId > 0)
+        {
+            var parameters = new DialogParameters();
+            var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+            var result = await dialogresult.Result;
+            if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+            {
+                var userRes = await UnitOfWork.Setting.DeleteShot(_shotId);
+                Snackbar.SuccessMessage(userRes.Messages.First());
+                Shot = new Shot();
+                await GetShots();
+                StateHasChanged();
+            }
+        }
+    }
+
+    #endregion
+
+    #region Batch
+
+    private async Task FindingBatch()
+    {
+        var res = await UnitOfWork.Setting.FindBatch(FindBatch);
+        if (res.Succeeded)
+        {
+            await GetSelectedShotDetails(_shotId);
+        }
+        else
+        {
+            var parameters = new DialogParameters();
+            parameters.Add("ShotId", _shotId);
+            parameters.Add("BatchNumber", FindBatch.BatchNumber);
+            var options = new DialogOptions()
+            {
+                CloseButton = true,
+                MaxWidth = MaxWidth.Small,
+                FullWidth = true,
+                Position = DialogPosition.Center
+            };
+            var dialogresult = await DialogService.ShowAsync<BatchFormDialog>("", parameters, options);
+            var result = await dialogresult.Result;
+            if (!result.Canceled)
+            {
+                await GetSelectedShotDetails(_shotId);
+            }
+        }
+    }
+
+    private async Task EditBatch(int id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        parameters.Add("ShotId", _shotId);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<BatchFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetShots();
+        }
+    }
+
+    private async Task DeleteBatch(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteBatchFromShot(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetSelectedShotDetails(_shotId);
+        }
+    }
+
+    #endregion
+
+}

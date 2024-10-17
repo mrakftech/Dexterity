@@ -3,7 +3,9 @@ using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Hospital;
+using Domain.Entities.Settings.Consultation.Immunisation;
+using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Immunisations;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
@@ -460,7 +462,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<NoteTemplateDto>> GetAllNoteTemplates()
     {
-        var list= await context.NoteTemplates
+        var list = await context.NoteTemplates
             .Include(x => x.HealthCode)
             .ToListAsync();
 
@@ -470,7 +472,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> SaveNoteTemplate(int id, NoteTemplateDto request)
     {
         var noteTemplate = mapper.Map<NoteTemplate>(request);
-        
+
         if (id == 0)
         {
             await context.NoteTemplates.AddAsync(noteTemplate);
@@ -483,7 +485,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 return await Result.FailAsync("Note Template is not found");
             template.Note = noteTemplate.Note;
             template.IsActive = noteTemplate.IsActive;
-            template.HealthCodeId= noteTemplate.HealthCodeId;
+            template.HealthCodeId = noteTemplate.HealthCodeId;
             context.NoteTemplates.Update(template);
             await context.SaveChangesAsync();
         }
@@ -501,6 +503,249 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Note Template deleted.");
     }
+
+    #endregion
+
+    #region Drug
+
+    public async Task<IEnumerable<Drug>> GetAllDrugsAsync()
+    {
+        return await context.Drugs.ToListAsync();
+    }
+
+    public async Task<Result<Drug>> GetDrugByIdAsync(int id)
+    {
+        var drugInDb = await context.Drugs.FindAsync(id);
+        if (drugInDb is not null)
+        {
+            return await Result<Drug>.SuccessAsync(drugInDb);
+        }
+
+        return await Result<Drug>.FailAsync("Drug not found");
+    }
+
+    public async Task<IResult> UpsertDrugAsync(int id, Drug drug)
+    {
+        if (id == 0)
+        {
+            context.Drugs.Add(drug);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Drug added");
+        }
+
+        var drugInDb = await context.Drugs.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (drugInDb is null)
+        {
+            return await Result<Drug>.FailAsync("Drug not found");
+        }
+
+        drugInDb = drug;
+        context.ChangeTracker.Clear();
+        context.Drugs.Update(drugInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug saved");
+    }
+
+    public async Task<IResult> DeleteDrugAsync(int id)
+    {
+        var drug = await context.Drugs.FindAsync(id);
+        if (drug == null)
+        {
+            return await Result.FailAsync("Drug not found");
+        }
+
+        context.Drugs.Remove(drug);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug deleted");
+    }
+
+    private async Task<bool> DrugExistsAsync(int id)
+    {
+        return await context.Drugs.AnyAsync(e => e.Id == id);
+    }
+
+    #endregion
+
+
+    #region Immunisations
+
+    #region Shot
+
+    public async Task<List<Shot>> GetShotsList()
+    {
+        return await context.Shots.ToListAsync();
+    }
+
+    public async Task<ShotDto> GetShotsDetail(int id)
+    {
+        var shotInDb = await context.Shots.FirstOrDefaultAsync(x => x.Id == id);
+        var batchDetails = await context.ShotBatchDetails
+            .Where(x => x.ShotId == id)
+            .Select(x => x.BatchDetail)
+            .ToListAsync();
+
+        if (shotInDb is not null)
+        {
+            return new ShotDto()
+            {
+                BatchDetails = batchDetails,
+                Shot = shotInDb
+            };
+        }
+
+        return new ShotDto();
+    }
+
+    public async Task<IResult> SaveShot(Shot shot)
+    {
+        try
+        {
+            if (shot.Id == 0)
+            {
+                await context.Shots.AddAsync(shot);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Shot added.");
+            }
+
+            var shotInDb = await context.Shots.AsNoTracking().FirstOrDefaultAsync(x => x.Id == shot.Id);
+            if (shotInDb is null)
+            {
+                return await Result.FailAsync("shot not found");
+            }
+
+            shotInDb = shot;
+            context.ChangeTracker.Clear();
+            context.Shots.Update(shotInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Shot saved.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> DeleteShot(int id)
+    {
+        var shot = await context.Shots.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (shot is null) return await Result.FailAsync("Error occured while deleting Shot");
+        context.ChangeTracker.Clear();
+        context.Shots.Remove(shot);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Shot has been deleted");
+    }
+
+
+    public async Task<IResult> DeleteBatchFromShot(int batchId)
+    {
+        var batchInDb = await context.ShotBatchDetails.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.BatchDetailId == batchId);
+        if (batchInDb is null)
+        {
+            return await Result.FailAsync("Batch not found");
+        }
+
+        context.ShotBatchDetails.Remove(batchInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Batch has been removed.");
+    }
+
+    #endregion
+
+
+    #region Batch
+
+    public async Task<IResult> FindBatch(FindBatchDto findBatch)
+    {
+        var batchInDb = await context.BatchDetails
+            .FirstOrDefaultAsync(x => x.BatchNumber == findBatch.BatchNumber && x.IsActive);
+
+        if (batchInDb is null)
+        {
+            return await Result.FailAsync("Batch not found");
+        }
+
+        var shotBatchDetails = new ShotBatchDetail()
+        {
+            ShotId = findBatch.ShotId,
+            BatchDetailId = batchInDb.Id
+        };
+        await context.ShotBatchDetails.AddAsync(shotBatchDetails);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Batch has been added under shot ");
+    }
+
+    public async Task<IResult> UpsertBatch(int id, UpsertBatchDto batch)
+    {
+        try
+        {
+            if (id == 0)
+            {
+                var newBatch = new BatchDetail()
+                {
+                    BatchNumber = batch.BatchNumber,
+                    BatchCount = batch.BatchCount,
+                    Expiry = batch.Expiry,
+                    Remaining = batch.Remaining,
+                    IsActive = batch.IsActive,
+                    TradeName = batch.TradeName,
+                    ManfactureName = batch.ManfactureName,
+                };
+                await context.BatchDetails.AddAsync(newBatch);
+                await context.SaveChangesAsync();
+
+                var shotBatchDetails = new ShotBatchDetail()
+                {
+                    ShotId = batch.ShotId,
+                    BatchDetailId = newBatch.Id
+                };
+                await context.ShotBatchDetails.AddAsync(shotBatchDetails);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Batch has been added under shot ");
+            }
+
+            var batchInDb = await context.BatchDetails.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (batchInDb is null)
+            {
+                return await Result.FailAsync("Batch not found");
+            }
+
+            batchInDb.BatchNumber = batch.BatchNumber;
+            batchInDb.BatchCount = batch.BatchCount;
+            batchInDb.Expiry = batch.Expiry;
+            batchInDb.Remaining = batch.Remaining;
+            batchInDb.IsActive = batch.IsActive;
+            batchInDb.TradeName = batch.TradeName;
+            batchInDb.ManfactureName = batch.ManfactureName;
+            context.ChangeTracker.Clear();
+            context.BatchDetails.Update(batchInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Batch has been saved ");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> DeleteBatch(int id)
+    {
+        var batchInDb = await context.BatchDetails.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (batchInDb is null)
+        {
+            return await Result.FailAsync("Batch not found");
+        }
+
+        context.BatchDetails.Remove(batchInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Batch has been removed.");
+    }
+
+    #endregion
 
     #endregion
 }

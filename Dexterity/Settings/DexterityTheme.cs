@@ -1,6 +1,5 @@
 ﻿using MudBlazor;
 using Button = MudBlazor.Button;
-using Colors = MudBlazor.Colors;
 
 namespace Dexterity.Settings
 {

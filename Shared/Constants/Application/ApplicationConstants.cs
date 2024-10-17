@@ -28,7 +28,7 @@ public static class ApplicationConstants
     }
     public static class SignalR
     {
-        public const string Host = "https://localhost:7177";
+        public const string Host = "http://localhost:5000";
         public const string HubUrl = "/chatHub";
         public const string SendUpdateDashboard = "UpdateDashboardAsync";
         public const string ReceiveUpdateDashboard = "UpdateDashboard";

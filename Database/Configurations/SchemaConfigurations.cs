@@ -1,5 +1,4 @@
-﻿using Database.Configurations.AppointmentFluentApi;
-using Domain.Entities.Appointments;
+﻿using Domain.Entities.Appointments;
 using Domain.Entities.Consultation;
 using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Alert;
@@ -12,7 +11,8 @@ using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Hospital;
+using Domain.Entities.Settings.Consultation.Immunisation;
+using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -23,7 +23,7 @@ public static class SchemaConfigurations
 {
     public static void Configure(ModelBuilder builder)
     {
-        
+
 
         builder.Entity<User>(entity => { entity.ToTable(name: "Users", "Identity"); });
         builder.Entity<Role>(entity => { entity.ToTable(name: "Roles", "Identity"); });
@@ -45,9 +45,10 @@ public static class SchemaConfigurations
         builder.Entity<PomrGroup>(entity => { entity.ToTable(name: "PomrGroups", "Setting"); });
         builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
         builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
-        
-        
-         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
+        builder.Entity<Drug>(entity => { entity.ToTable(name: "Drugs", "Setting"); });
+
+
+        builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PM"); });
         builder.Entity<PatientOccupation>(
             entity => { entity.ToTable(name: "PatientOccupations", "PM"); });
@@ -70,5 +71,8 @@ public static class SchemaConfigurations
         builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
+        builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Consultation"); });
+        builder.Entity<BatchDetail>(entity => { entity.ToTable(name: "BatchDetails", "Consultation"); });
+        builder.Entity<ShotBatchDetail>(entity => { entity.ToTable(name: "ShotBatchDetails", "Consultation"); });
     }
 }

@@ -1,8 +1,6 @@
 ﻿using Services.Features.Appointments.Dtos;
 using Syncfusion.Blazor.Data;
 using Syncfusion.Blazor;
-using Microsoft.AspNetCore.Components;
-using Services.Contracts.Repositroy;
 
 namespace Services.Features.Appointments.Service
 {
