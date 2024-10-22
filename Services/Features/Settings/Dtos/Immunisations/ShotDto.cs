@@ -1,6 +1,6 @@
-﻿using Domain.Entities.Settings.Consultation.Immunisation;
+﻿using Domain.Entities.Settings.Immunisation;
 
-namespace Domain.Entities.Settings.Immunisations
+namespace Services.Features.Settings.Dtos.Immunisations
 {
     public class ShotDto
     {

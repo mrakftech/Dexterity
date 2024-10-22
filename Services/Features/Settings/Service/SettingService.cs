@@ -3,12 +3,12 @@ using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Immunisations;
+using Domain.Entities.Settings.Immunisation;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
+using Services.Features.Settings.Dtos.Immunisations;
 using Services.State;
 using Shared.Constants.Module;
 using Shared.Wrapper;
@@ -566,7 +566,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-
     #region Immunisations
 
     #region Shot
@@ -636,7 +635,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Shot has been deleted");
     }
 
-
     public async Task<IResult> DeleteBatchFromShot(int batchId)
     {
         var batchInDb = await context.ShotBatchDetails.AsNoTracking()
@@ -651,15 +649,10 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Batch has been removed.");
     }
 
-    #endregion
-
-
-    #region Batch
-
-    public async Task<IResult> FindBatch(FindBatchDto findBatch)
+    public async Task<IResult> AssignBatchToShot(AssignShotToBatchDto assignShotToBatch)
     {
         var batchInDb = await context.BatchDetails
-            .FirstOrDefaultAsync(x => x.BatchNumber == findBatch.BatchNumber && x.IsActive);
+            .FirstOrDefaultAsync(x => x.BatchNumber == assignShotToBatch.BatchNumber && x.IsActive);
 
         if (batchInDb is null)
         {
@@ -668,7 +661,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
         var shotBatchDetails = new ShotBatchDetail()
         {
-            ShotId = findBatch.ShotId,
+            ShotId = assignShotToBatch.ShotId,
             BatchDetailId = batchInDb.Id
         };
         await context.ShotBatchDetails.AddAsync(shotBatchDetails);
@@ -676,7 +669,11 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Batch has been added under shot ");
     }
 
-    public async Task<IResult> UpsertBatch(int id, UpsertBatchDto batch)
+    #endregion
+
+    #region Batch
+
+    public async Task<IResult> UpdateBatch(int id, UpsertBatchDto batch)
     {
         try
         {
@@ -689,46 +686,63 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                     Expiry = batch.Expiry,
                     Remaining = batch.Remaining,
                     IsActive = batch.IsActive,
-                    TradeName = batch.TradeName,
                     ManfactureName = batch.ManfactureName,
+                    TradeName = batch.TradeName,
+                    DrugId = batch.DrugId
                 };
                 await context.BatchDetails.AddAsync(newBatch);
                 await context.SaveChangesAsync();
-
-                var shotBatchDetails = new ShotBatchDetail()
-                {
-                    ShotId = batch.ShotId,
-                    BatchDetailId = newBatch.Id
-                };
-                await context.ShotBatchDetails.AddAsync(shotBatchDetails);
-                await context.SaveChangesAsync();
-                return await Result.SuccessAsync("Batch has been added under shot ");
+                return await Result.SuccessAsync("Batch has been added");
             }
-
-            var batchInDb = await context.BatchDetails.AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == id);
-            if (batchInDb is null)
+            else
             {
-                return await Result.FailAsync("Batch not found");
-            }
+                var batchInDb = await context.BatchDetails.AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == id);
+                if (batchInDb is null)
+                {
+                    return await Result.FailAsync("Batch not found");
+                }
 
-            batchInDb.BatchNumber = batch.BatchNumber;
-            batchInDb.BatchCount = batch.BatchCount;
-            batchInDb.Expiry = batch.Expiry;
-            batchInDb.Remaining = batch.Remaining;
-            batchInDb.IsActive = batch.IsActive;
-            batchInDb.TradeName = batch.TradeName;
-            batchInDb.ManfactureName = batch.ManfactureName;
-            context.ChangeTracker.Clear();
-            context.BatchDetails.Update(batchInDb);
-            await context.SaveChangesAsync();
-            return await Result.SuccessAsync("Batch has been saved ");
+                batchInDb.BatchNumber = batch.BatchNumber;
+                batchInDb.BatchCount = batch.BatchCount;
+                batchInDb.Expiry = batch.Expiry;
+                batchInDb.Remaining = batch.Remaining;
+                batchInDb.IsActive = batch.IsActive;
+                batchInDb.TradeName = batch.TradeName;
+                batchInDb.ManfactureName = batch.ManfactureName;
+                context.ChangeTracker.Clear();
+                context.BatchDetails.Update(batchInDb);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Batch has been saved ");
+            }
         }
         catch (Exception e)
         {
             Console.WriteLine(e);
             return await Result.FailAsync(e.Message);
         }
+    }
+
+    public async Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id)
+    {
+        var batchInDb = await context.BatchDetails.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (batchInDb is null)
+        {
+            return await Result<UpsertBatchDto>.FailAsync("Batch not found");
+        }
+
+        var data = new UpsertBatchDto()
+        {
+            BatchNumber = batchInDb.BatchNumber,
+            Expiry = batchInDb.Expiry,
+            BatchCount = batchInDb.BatchCount,
+            Remaining = batchInDb.Remaining,
+            IsActive = batchInDb.IsActive,
+            ManfactureName = batchInDb.ManfactureName,
+            TradeName = batchInDb.TradeName
+        };
+        return await Result<UpsertBatchDto>.SuccessAsync(data);
     }
 
     public async Task<IResult> DeleteBatch(int id)
@@ -743,6 +757,95 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.BatchDetails.Remove(batchInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Batch has been removed.");
+    }
+
+    public async Task<List<BatchDetail>> GetBatches()
+    {
+        var list = await context.BatchDetails.ToListAsync();
+        return list;
+    }
+
+    #endregion
+
+    #region Courses
+
+    public async Task<List<Course>> GetCourses()
+    {
+        return await context.Courses.ToListAsync();
+    }
+
+    public async Task<CourseDto> GetCourse(int courseId)
+    {
+        var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+        var shots = await context.ShotCourses
+            .Where(x => x.CourseId == courseId)
+            .Select(x => x.Shot)
+            .ToListAsync();
+
+        return new CourseDto()
+        {
+            Course = courseInDb,
+            Shots = shots
+        };
+    }
+
+    public async Task<IResult> SaveCourse(int courseId, Course course)
+    {
+        try
+        {
+            if (courseId == 0)
+            {
+                await context.Courses.AddAsync(course);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Course has been added.");
+            }
+
+            var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+            courseInDb.IsActive = course.IsActive;
+            courseInDb.Name = course.Name;
+            context.Courses.Update(courseInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Course has been saved.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    private async Task ClearShotList(int courseId)
+    {
+        var cleanPreviousData =
+            await context.ShotCourses.AsNoTracking().Where(x => x.CourseId == courseId).ToListAsync();
+        context.ChangeTracker.Clear();
+        context.ShotCourses.RemoveRange(cleanPreviousData);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task<IResult> AddShotInCourse(int courseId, List<int> shotIds)
+    {
+        await ClearShotList(courseId);
+        var list = shotIds.Select((item, index) => new ShotCourse()
+                {CourseId = courseId, ShotId = item, Order = index + 1})
+            .ToList();
+        context.ChangeTracker.Clear();
+        context.ShotCourses.AddRange(list);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Shot(s) has been saved.");
+    }
+
+    public async Task<List<Shot>> GetSelectedShot(int courseId)
+    {
+        return await context.ShotCourses.Where(x => x.CourseId == courseId).Select(x => x.Shot).ToListAsync();
+    }
+
+    public async Task<IResult> DeleteCourse(int id)
+    {
+        var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == id);
+        context.Courses.Remove(courseInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Course has been deleted.");
     }
 
     #endregion

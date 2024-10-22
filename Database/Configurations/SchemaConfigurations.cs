@@ -11,8 +11,8 @@ using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Immunisation;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -46,8 +46,18 @@ public static class SchemaConfigurations
         builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
         builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
         builder.Entity<Drug>(entity => { entity.ToTable(name: "Drugs", "Setting"); });
+        builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Setting"); });
+        builder.Entity<BatchDetail>(entity => { entity.ToTable(name: "BatchDetails", "Setting"); });
+        builder.Entity<ShotBatchDetail>(entity => { entity.ToTable(name: "ShotBatchDetails", "Setting"); });
+        builder.Entity<Course>(entity => { entity.ToTable(name: "Courses", "Setting"); });
+        builder.Entity<ShotCourse>(entity => { entity.ToTable(name: "ShotCourses", "Setting"); });
 
-
+        
+        
+        
+        
+        
+        
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PM"); });
         builder.Entity<PatientOccupation>(
@@ -71,8 +81,6 @@ public static class SchemaConfigurations
         builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
-        builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Consultation"); });
-        builder.Entity<BatchDetail>(entity => { entity.ToTable(name: "BatchDetails", "Consultation"); });
-        builder.Entity<ShotBatchDetail>(entity => { entity.ToTable(name: "ShotBatchDetails", "Consultation"); });
+     
     }
 }

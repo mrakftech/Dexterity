@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿    namespace Domain.Entities.Settings.Immunisation;
 
-namespace Domain.Entities.Settings.Consultation.Immunisation
-{
     public class ShotBatchDetail
     {
         public int Id { get; set; }
@@ -14,4 +8,3 @@ namespace Domain.Entities.Settings.Consultation.Immunisation
         public Shot Shot { get; set; }
         public int ShotId { get; set; }
     }
-}

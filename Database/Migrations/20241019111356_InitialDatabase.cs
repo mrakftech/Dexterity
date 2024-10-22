@@ -110,6 +110,50 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Drugs",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    TradeName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AmFam = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Barcode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GenericName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Manufacture = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Category = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PackSize = table.Column<int>(type: "int", nullable: false),
+                    PackSizeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PackSizeUnits = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NoteAutUse = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Agent = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IngredientCostPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    MaxRrp = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Vat = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    Strength = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    GasCharge = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PoisonClass = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProductAuthortext = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ItemPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
+                    UomSize = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DrugCats = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Warnings = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ingrd1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Ingrd2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Atc1 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Atc2 = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Dentist = table.Column<bool>(type: "bit", nullable: false),
+                    ColourCode = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Form = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedAt = table.Column<DateTime>(type: "datetime2", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Drugs", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "EmailTemplates",
                 schema: "Setting",
                 columns: table => new
@@ -252,6 +296,28 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Shots",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Dose = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Method = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IntervalType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IntervalMin = table.Column<int>(type: "int", nullable: false),
+                    IntervalMax = table.Column<int>(type: "int", nullable: false),
+                    Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ClaimForm = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shots", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "SmsTemplates",
                 schema: "Setting",
                 columns: table => new
@@ -283,6 +349,34 @@ namespace Database.Migrations
                         column: x => x.ClinicId,
                         principalSchema: "Setting",
                         principalTable: "Clinic",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "BatchDetails",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BatchNumber = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Expiry = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TradeName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ManfactureName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    BatchCount = table.Column<int>(type: "int", nullable: false),
+                    Remaining = table.Column<int>(type: "int", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    DrugId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_BatchDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_BatchDetails_Drugs_DrugId",
+                        column: x => x.DrugId,
+                        principalSchema: "Setting",
+                        principalTable: "Drugs",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -371,6 +465,35 @@ namespace Database.Migrations
                         column: x => x.RoleId,
                         principalSchema: "Identity",
                         principalTable: "Roles",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ShotBatchDetails",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BatchDetailId = table.Column<int>(type: "int", nullable: false),
+                    ShotId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShotBatchDetails", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ShotBatchDetails_BatchDetails_BatchDetailId",
+                        column: x => x.BatchDetailId,
+                        principalSchema: "Setting",
+                        principalTable: "BatchDetails",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ShotBatchDetails_Shots_ShotId",
+                        column: x => x.ShotId,
+                        principalSchema: "Setting",
+                        principalTable: "Shots",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -1283,6 +1406,12 @@ namespace Database.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_BatchDetails_DrugId",
+                schema: "Setting",
+                table: "BatchDetails",
+                column: "DrugId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_ChatMessages_FromUserId",
                 schema: "Messaging",
                 table: "ChatMessages",
@@ -1452,6 +1581,18 @@ namespace Database.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_ShotBatchDetails_BatchDetailId",
+                schema: "Setting",
+                table: "ShotBatchDetails",
+                column: "BatchDetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ShotBatchDetails_ShotId",
+                schema: "Setting",
+                table: "ShotBatchDetails",
+                column: "ShotId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserClinics_ClinicId",
                 schema: "Identity",
                 table: "UserClinics",
@@ -1604,6 +1745,10 @@ namespace Database.Migrations
                 schema: "Consultation");
 
             migrationBuilder.DropTable(
+                name: "ShotBatchDetails",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
                 name: "SmsTemplates",
                 schema: "Setting");
 
@@ -1644,8 +1789,20 @@ namespace Database.Migrations
                 schema: "PM");
 
             migrationBuilder.DropTable(
+                name: "BatchDetails",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
+                name: "Shots",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
                 name: "Appointments",
                 schema: "Scheduler");
+
+            migrationBuilder.DropTable(
+                name: "Drugs",
+                schema: "Setting");
 
             migrationBuilder.DropTable(
                 name: "AppointmentTypes",

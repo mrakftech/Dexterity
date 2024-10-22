@@ -1,8 +1,8 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Settings.Immunisations;
+namespace Services.Features.Settings.Dtos.Immunisations;
 
-public class FindBatchDto
+public class AssignShotToBatchDto
 {
     [Required(ErrorMessage = "Batch number is required")] public string BatchNumber { get; set; }
     public int ShotId { get; set; }

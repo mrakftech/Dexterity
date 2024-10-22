@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using MudBlazor;
 using MudBlazor.Services;
+using MudExtensions.Services;
 using Radzen;
 using Services.DbInitaiizer;
 using Services.State;
@@ -94,6 +95,7 @@ namespace Dexterity
                 configuration.SnackbarConfiguration.VisibleStateDuration = 3000;
                 configuration.SnackbarConfiguration.ShowCloseIcon = false;
             });
+            builder.Services.AddMudExtensions();
 #if DEBUG
             builder.Services.AddBlazorWebViewDeveloperTools();
             builder.Logging.AddDebug();

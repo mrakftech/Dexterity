@@ -1199,6 +1199,27 @@ namespace Database.Migrations
                     b.ToTable("Clinic", "Setting");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Clinic.ClinicSite", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ClinicId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ClinicId");
+
+                    b.ToTable("ClinicSites", "Setting");
+                });
+
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.HealthCode", b =>
                 {
                     b.Property<int>("Id")
@@ -1881,107 +1902,6 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.BatchDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BatchCount")
-                        .HasColumnType("int");
-
-                    b.Property<string>("BatchNumber")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("DrugId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("Expiry")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("ManfactureName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Remaining")
-                        .HasColumnType("int");
-
-                    b.Property<string>("TradeName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("BatchDetails", "Consultation");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.Shot", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("ClaimForm")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Comment")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Dose")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("IntervalMax")
-                        .HasColumnType("int");
-
-                    b.Property<int>("IntervalMin")
-                        .HasColumnType("int");
-
-                    b.Property<string>("IntervalType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Method")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Shots", "Consultation");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.ShotBatchDetail", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("BatchDetailId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShotId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("BatchDetailId");
-
-                    b.HasIndex("ShotId");
-
-                    b.ToTable("ShotBatchDetails", "Consultation");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.NoteTemplate", b =>
                 {
                     b.Property<int>("Id")
@@ -2136,7 +2056,7 @@ namespace Database.Migrations
                     b.ToTable("Drugs", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Hospital.ClinicSite", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.BatchDetail", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2144,17 +2064,145 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClinicId")
+                    b.Property<int>("BatchCount")
                         .HasColumnType("int");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("BatchNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("DrugId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("Expiry")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("ManfactureName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Remaining")
+                        .HasColumnType("int");
+
+                    b.Property<string>("TradeName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ClinicId");
+                    b.HasIndex("DrugId");
 
-                    b.ToTable("ClinicSites", "Setting");
+                    b.ToTable("BatchDetails", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.Course", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Courses", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.Shot", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ClaimForm")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Comment")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Dose")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("IntervalMax")
+                        .HasColumnType("int");
+
+                    b.Property<int>("IntervalMin")
+                        .HasColumnType("int");
+
+                    b.Property<string>("IntervalType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Method")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Shots", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.ShotBatchDetail", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("BatchDetailId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShotId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BatchDetailId");
+
+                    b.HasIndex("ShotId");
+
+                    b.ToTable("ShotBatchDetails", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.ShotCourse", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ShotId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CourseId");
+
+                    b.HasIndex("ShotId");
+
+                    b.ToTable("ShotCourses", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.EmailTemplate", b =>
@@ -2405,7 +2453,7 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.Hospital.ClinicSite", "ClinicSite")
+                    b.HasOne("Domain.Entities.Settings.Clinic.ClinicSite", "ClinicSite")
                         .WithMany("Appointments")
                         .HasForeignKey("ClinicSiteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2455,7 +2503,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.Hospital.ClinicSite", "ClinicSite")
+                    b.HasOne("Domain.Entities.Settings.Clinic.ClinicSite", "ClinicSite")
                         .WithMany()
                         .HasForeignKey("ClinicSiteId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -2730,23 +2778,15 @@ namespace Database.Migrations
                     b.Navigation("Hcp");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.ShotBatchDetail", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Clinic.ClinicSite", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.BatchDetail", "BatchDetail")
+                    b.HasOne("Domain.Entities.Settings.Clinic.Clinic", "Clinic")
                         .WithMany()
-                        .HasForeignKey("BatchDetailId")
+                        .HasForeignKey("ClinicId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.Shot", "Shot")
-                        .WithMany()
-                        .HasForeignKey("ShotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("BatchDetail");
-
-                    b.Navigation("Shot");
+                    b.Navigation("Clinic");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.NoteTemplate", b =>
@@ -2758,15 +2798,53 @@ namespace Database.Migrations
                     b.Navigation("HealthCode");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Hospital.ClinicSite", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.BatchDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.Clinic.Clinic", "Clinic")
+                    b.HasOne("Domain.Entities.Settings.Drugs.Drug", "Drug")
                         .WithMany()
-                        .HasForeignKey("ClinicId")
+                        .HasForeignKey("DrugId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Clinic");
+                    b.Navigation("Drug");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.ShotBatchDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Immunisation.BatchDetail", "BatchDetail")
+                        .WithMany()
+                        .HasForeignKey("BatchDetailId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Settings.Immunisation.Shot", "Shot")
+                        .WithMany()
+                        .HasForeignKey("ShotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("BatchDetail");
+
+                    b.Navigation("Shot");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Immunisation.ShotCourse", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Immunisation.Course", "Course")
+                        .WithMany()
+                        .HasForeignKey("CourseId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Settings.Immunisation.Shot", "Shot")
+                        .WithMany()
+                        .HasForeignKey("ShotId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Course");
+
+                    b.Navigation("Shot");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
@@ -2872,7 +2950,7 @@ namespace Database.Migrations
                     b.Navigation("WaitingAppointments");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Hospital.ClinicSite", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Clinic.ClinicSite", b =>
                 {
                     b.Navigation("Appointments");
                 });

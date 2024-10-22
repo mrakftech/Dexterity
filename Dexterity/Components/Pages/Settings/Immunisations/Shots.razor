@@ -1,6 +1,5 @@
-﻿@using Domain.Entities.Settings.Consultation.Immunisation
-@using Domain.Entities.Settings.Immunisations
-@layout MainLayout
+﻿@using Domain.Entities.Settings.Immunisation
+@using Services.Features.Settings.Dtos.Immunisations
 <TabTitle Title="Shots" Icon="flu-shot.png">
 </TabTitle>
 <MudStack Row>
@@ -19,12 +18,32 @@
                     <Fields>
                         <FormGroup ColumnCount="1" LabelText="Basic Info">
                             <FormItem Field="@nameof(Shot.Name)" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.Dose)" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.Method)" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.Dose)" IsEnabled="_isFieldsEnable">
+                                <Template>
+                                    <SfDropDownList TValue="string" TItem="Dose" Placeholder="Dose" DataSource="@SettingConstants.Doses" @bind-Value="Shot.Dose">
+                                        <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(Shot.Method)" IsEnabled="_isFieldsEnable">
+                                <Template>
+                                    <SfDropDownList TValue="string" TItem="DoseMethod" Placeholder="Method" DataSource="@SettingConstants.Methods" @bind-Value="Shot.Method">
+                                        <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
                             <FormItem Field="@nameof(Shot.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="_isFieldsEnable"></FormItem>
                         </FormGroup>
                         <FormGroup ColumnCount="2" LabelText="Interval Detail" ColumnSpacing="20px">
-                            <FormItem Field="@nameof(Shot.IntervalType)" LabelText="Interval Type" ColumnSpan="2" IsEnabled="_isFieldsEnable"></FormItem>
+                            <FormItem Field="@nameof(Shot.IntervalType)" LabelText="Interval Type" ColumnSpan="2" IsEnabled="_isFieldsEnable">
+                                <Template>
+                                    <label class="e-form-label">Interval Type</label>
+                                    <SfDropDownList TValue="int" TItem="IntervalType" Placeholder="Select a interval type" DataSource="@SettingConstants.IntervalTypes">
+                                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                        <DropDownListEvents TValue="int" TItem="IntervalType" ValueChange="OnIntervalTypeValueChange"></DropDownListEvents>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
                             <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
                             <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
                             <FormItem Field="@nameof(Shot.ClaimForm)" LabelText="Claim Form" ColumnSpan="2" IsEnabled="_isFieldsEnable"></FormItem>
@@ -40,7 +59,7 @@
                         }
                         else
                         {
-                            <DexLoadingButton Name="Add" Processing="_loading" Type="MudButtonType.Submit"/>
+                            <DexLoadingButton Name="Add Shot" Processing="_loading" Type="MudButtonType.Submit"/>
                         }
                     </Buttons>
                 </DexForm>
@@ -48,23 +67,37 @@
             <MudItem md="4">
                 @if (_shotId > 0)
                 {
-                    <DexForm Model="FindBatch" OnValidSubmit="FindingBatch">
+                    <DexForm Model="AssignShotToBatch" OnValidSubmit="AssignBatchToShot">
                         <Fields>
-                            <FormItem Field="@nameof(FindBatchDto.BatchNumber)"
-                                      LabelText="Batch Number"
-                                      ColumnSpan="2"/>
+                            <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" ColumnSpan="2">
+                                <Template>
+                                    <label class="e-form-label">Select Batch:</label>
+                                    <SfAutoComplete TValue="string" TItem="BatchDetail" Placeholder="Batch Number" DataSource="@_batchList">
+                                        <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
+                                        <AutoCompleteEvents TValue="string" TItem="BatchDetail" ValueChange="OnChangeBatch"></AutoCompleteEvents>
+                                    </SfAutoComplete>
+                                </Template>
+                            </FormItem>
                         </Fields>
                         <Buttons>
-                            <DexLoadingButton Name="Add Batch" Type="MudButtonType.Submit"/>
+                            @if (!_isBatchFound)
+                            {
+                                <DexLoadingButton Name="Create New Batch" Click="() => UpsertBatch(0)"/>
+                            }
+                            else
+                            {
+                                <DexLoadingButton Name="Assign Batch" Type="MudButtonType.Submit"/>
+                            }
+                            <DexLoadingButton Name="Search Batch" Click="SearchBatch"/>
                         </Buttons>
                     </DexForm>
                 }
             </MudItem>
             <MudItem md="12">
-                <DexGrid DataSource="BatchDetails" Height="200px">
+                <DexGrid DataSource="ShotBatchDetails" Height="200px">
                     <DexGridColumns>
                         <GridColumn Field="@nameof(BatchDetail.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="g" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
                         <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
                         <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
                         <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
@@ -73,7 +106,6 @@
                             <Template>
                                 @{
                                     var item = (context as BatchDetail);
-                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditBatch(item!.Id)"/>
                                     <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
                                 }
                             </Template>
@@ -87,12 +119,14 @@
 
 @code {
     private List<Shot> ShotsList { get; set; } = new();
-    private List<BatchDetail> BatchDetails { get; set; } = new();
+    private List<BatchDetail> ShotBatchDetails { get; set; } = new();
     private Shot Shot { get; set; } = new();
-    private FindBatchDto FindBatch { get; set; } = new();
+    private AssignShotToBatchDto AssignShotToBatch { get; set; } = new();
     private bool _isFieldsEnable;
+    private bool _isBatchFound;
     private bool _loading;
     private int _shotId;
+    private List<BatchDetail> _batchList = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -102,6 +136,7 @@
         }
 
         await GetShots();
+        await GetBatches();
     }
 
     #region Shots
@@ -142,8 +177,8 @@
     {
         var shotDetails = await UnitOfWork.Setting.GetShotsDetail(shotId);
         Shot = shotDetails.Shot;
-        BatchDetails = shotDetails.BatchDetails;
-        FindBatch.ShotId = _shotId;
+        ShotBatchDetails = shotDetails.BatchDetails;
+        AssignShotToBatch.ShotId = _shotId;
     }
 
     private void ResetForm()
@@ -151,7 +186,7 @@
         _isFieldsEnable = true;
         Shot = new Shot();
         _shotId = 0;
-        FindBatch = new FindBatchDto();
+        AssignShotToBatch = new AssignShotToBatchDto();
     }
 
     private async Task DeleteShot()
@@ -176,39 +211,30 @@
 
     #region Batch
 
-    private async Task FindingBatch()
+    private async Task GetBatches()
     {
-        var res = await UnitOfWork.Setting.FindBatch(FindBatch);
+        _batchList = await UnitOfWork.Setting.GetBatches();
+    }
+
+    private async Task AssignBatchToShot()
+    {
+        var res = await UnitOfWork.Setting.AssignBatchToShot(AssignShotToBatch);
         if (res.Succeeded)
         {
+            Snackbar.SuccessMessage(res.Messages.First());
             await GetSelectedShotDetails(_shotId);
         }
         else
         {
-            var parameters = new DialogParameters();
-            parameters.Add("ShotId", _shotId);
-            parameters.Add("BatchNumber", FindBatch.BatchNumber);
-            var options = new DialogOptions()
-            {
-                CloseButton = true,
-                MaxWidth = MaxWidth.Small,
-                FullWidth = true,
-                Position = DialogPosition.Center
-            };
-            var dialogresult = await DialogService.ShowAsync<BatchFormDialog>("", parameters, options);
-            var result = await dialogresult.Result;
-            if (!result.Canceled)
-            {
-                await GetSelectedShotDetails(_shotId);
-            }
+            Snackbar.FailMessge(res.Messages.First());
         }
     }
 
-    private async Task EditBatch(int id)
+    private async Task UpsertBatch(int id)
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        parameters.Add("ShotId", _shotId);
+        parameters.Add("BatchNumber", AssignShotToBatch.BatchNumber);
         var options = new DialogOptions()
         {
             CloseButton = true,
@@ -220,7 +246,8 @@
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
-            await GetShots();
+            await GetSelectedShotDetails(_shotId);
+            await GetBatches();
         }
     }
 
@@ -237,6 +264,47 @@
         }
     }
 
+    private void OnChangeBatch(ChangeEventArgs<string, BatchDetail> args)
+    {
+        if (!args.IsInteracted)
+        {
+            _isBatchFound = false;
+            AssignShotToBatch.BatchNumber = args.Value;
+        }
+        else if (args.ItemData is not null)
+        {
+            var batchDetail = args.ItemData;
+            AssignShotToBatch.BatchNumber = batchDetail.BatchNumber;
+            _isBatchFound = true;
+        }
+        else
+        {
+            _isBatchFound = false;
+        }
+    }
+
+    private void OnIntervalTypeValueChange(ChangeEventArgs<int, IntervalType> args)
+    {
+        if (args.ItemData is null) return;
+        var intervaltype = args.ItemData;
+        Shot.IntervalMax = intervaltype.Max;
+        Shot.IntervalMin = intervaltype.Min;
+    }
+
     #endregion
+
+    private async Task SearchBatch()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        await DialogService.ShowAsync<SearchBatchDialog>("", parameters, options);
+    }
+
 
 }

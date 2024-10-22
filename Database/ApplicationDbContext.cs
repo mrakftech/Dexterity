@@ -20,8 +20,8 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.WaitingRoom;
 using System.Reflection.Emit;
 using Domain.Entities.Settings.Clinic;
-using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Immunisation;
 
 namespace Database;
 
@@ -136,6 +136,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Shot> Shots { get; set; }
     public DbSet<BatchDetail> BatchDetails { get; set; }
     public DbSet<ShotBatchDetail> ShotBatchDetails { get; set; }
-
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<ShotCourse> ShotCourses { get; set; }
     #endregion
 }

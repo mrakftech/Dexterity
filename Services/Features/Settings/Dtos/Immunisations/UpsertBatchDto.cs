@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Settings.Immunisations;
+namespace Services.Features.Settings.Dtos.Immunisations;
 
 public class UpsertBatchDto
 {
@@ -12,5 +12,5 @@ public class UpsertBatchDto
     public int Remaining { get; set; }
     public bool IsActive { get; set; }
     public int DrugId { get; set; }
-    public int ShotId { get; set; }
+    public int DrugName { get; set; }
 }

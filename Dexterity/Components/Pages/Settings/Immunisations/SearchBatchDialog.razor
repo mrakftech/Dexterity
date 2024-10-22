@@ -1,0 +1,51 @@
+﻿@using Domain.Entities.Settings.Immunisation
+<DexDialog>
+    <DialogTitle>Search Batch</DialogTitle>
+    <Content>
+        <DexGrid DataSource="BatchList">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(BatchDetail.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                        var item = (context as BatchDetail);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </Content>
+</DexDialog>
+
+@code{
+    private List<BatchDetail> BatchList { get; set; } = new();
+    protected override async void OnInitialized()
+    {
+        await GetBatches();
+    }
+
+    private async Task GetBatches()
+    {
+        BatchList = await UnitOfWork.Setting.GetBatches();
+        StateHasChanged();
+    }
+
+    private async Task DeleteBatch(int id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteBatch(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetBatches();
+        }
+    }
+}

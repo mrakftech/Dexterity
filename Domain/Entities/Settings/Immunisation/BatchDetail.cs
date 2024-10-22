@@ -1,4 +1,6 @@
-﻿namespace Domain.Entities.Settings.Consultation.Immunisation
+﻿using Domain.Entities.Settings.Drugs;
+
+namespace Domain.Entities.Settings.Immunisation
 {
     public class BatchDetail
     {
@@ -11,5 +13,6 @@
         public int Remaining { get; set; }
         public bool IsActive { get; set; }
         public int DrugId { get; set; }
+        public Drug Drug { get; set; }
     }
 }

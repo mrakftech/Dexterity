@@ -2,11 +2,11 @@
 using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Immunisations;
+using Domain.Entities.Settings.Immunisation;
 using Domain.Entities.Settings.Templates;
 using Services.Features.Settings.Dtos;
+using Services.Features.Settings.Dtos.Immunisations;
 using Shared.Constants.Module;
 using Shared.Wrapper;
 
@@ -103,14 +103,27 @@ public interface ISettingService
     Task<IResult> SaveShot(Shot shot);
     Task<IResult> DeleteShot(int id);
     Task<IResult> DeleteBatchFromShot(int batchId);
+    Task<IResult> AssignBatchToShot(AssignShotToBatchDto assignShotToBatch);
 
     #endregion
 
     #region Batch
 
-    Task<IResult> FindBatch(FindBatchDto findBatch);
-    Task<IResult> UpsertBatch(int id, UpsertBatchDto batch);
+    Task<List<BatchDetail>> GetBatches();
+    Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id);
+    Task<IResult> UpdateBatch(int id, UpsertBatchDto batch);
     Task<IResult> DeleteBatch(int id);
+
+    #endregion
+
+    #region Courses
+
+    Task<List<Course>> GetCourses();
+    Task<CourseDto> GetCourse(int courseId);
+    Task<IResult> SaveCourse(int courseId, Course course);
+    Task<IResult> AddShotInCourse(int courseId, List<int> shotIds);
+    Task<List<Shot>> GetSelectedShot(int courseId);
+    Task<IResult> DeleteCourse(int id);
 
     #endregion
 

@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Consultation.Immunisation;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Notes;

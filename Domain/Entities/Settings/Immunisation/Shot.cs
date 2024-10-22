@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Settings.Consultation.Immunisation
+namespace Domain.Entities.Settings.Immunisation
 {
     public class Shot
     {
