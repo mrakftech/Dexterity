@@ -127,6 +127,17 @@ public interface ISettingService
 
     #endregion
 
+    #region Immunisation Setup
+
+    Task<List<ImmunisationSetup>> GetImmunisationSetups();
+    Task<ImmunisationSetupDto> GetImmunisationSetup(int setupId);
+    Task<IResult> SaveImmunisationSetup(int setupId, ImmunisationSetup setup);
+    Task<IResult> AddCourseInSchedule(int setupId, List<int> courseIds);
+    Task<List<Course>> GetSelectedCourse(int setupId);
+    Task<IResult> DeleteImmunisationSetup(int setupId);
+
+    #endregion
+
     #endregion
 
     #region Drug

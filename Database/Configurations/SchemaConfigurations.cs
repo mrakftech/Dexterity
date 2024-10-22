@@ -51,6 +51,8 @@ public static class SchemaConfigurations
         builder.Entity<ShotBatchDetail>(entity => { entity.ToTable(name: "ShotBatchDetails", "Setting"); });
         builder.Entity<Course>(entity => { entity.ToTable(name: "Courses", "Setting"); });
         builder.Entity<ShotCourse>(entity => { entity.ToTable(name: "ShotCourses", "Setting"); });
+        builder.Entity<ImmunisationSetup>(entity => { entity.ToTable(name: "ImmunisationSetups", "Setting"); });
+        builder.Entity<CourseSchedule>(entity => { entity.ToTable(name: "CourseSchedules", "Setting"); });
 
         
         

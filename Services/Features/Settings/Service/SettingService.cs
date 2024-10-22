@@ -508,6 +508,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #region Drug
 
+ 
+
     public async Task<IEnumerable<Drug>> GetAllDrugsAsync()
     {
         return await context.Drugs.ToListAsync();
@@ -848,6 +850,90 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Course has been deleted.");
     }
 
+    #endregion
+
+    #region Immunisation Setup
+
+    public async Task<List<ImmunisationSetup>> GetImmunisationSetups()
+    {
+        return await context.ImmunisationSetups.ToListAsync();
+    }
+
+    public async Task<ImmunisationSetupDto> GetImmunisationSetup(int setupId)
+    {
+        var setupInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == setupId);
+        var shots = await context.CourseSchedules
+            .Where(x => x.ImmunisationSetupId == setupId)
+            .Select(x => x.Course)
+            .ToListAsync();
+
+        return new ImmunisationSetupDto()
+        {
+            Immunisation = setupInDb,
+            Courses = shots
+        };
+    }
+
+    public async Task<IResult> SaveImmunisationSetup(int setupId, ImmunisationSetup setup)
+    {
+        try
+        {
+            if (setupId == 0)
+            {
+                await context.ImmunisationSetups.AddAsync(setup);
+                await context.SaveChangesAsync();
+                return await Result.SuccessAsync("Course has been added.");
+            }
+
+            var courseInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == setupId);
+            courseInDb.IsActive = setup.IsActive;
+            courseInDb.Name = setup.Name;
+            courseInDb.IsDefualt = setup.IsDefualt;
+            courseInDb.IsChildhood = setup.IsChildhood;
+            context.ImmunisationSetups.Update(courseInDb);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Course has been saved.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> AddCourseInSchedule(int setupId, List<int> courseIds)
+    {
+        await ClearCourseList(setupId);
+        var list = courseIds.Select((item, index) => new CourseSchedule()
+                {ImmunisationSetupId = setupId, CourseId = item, Order = index + 1})
+            .ToList();
+        context.ChangeTracker.Clear();
+        context.CourseSchedules.AddRange(list);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Course(s) has been saved.");
+    }
+
+   
+    public async Task<List<Course>> GetSelectedCourse(int setupId)
+    {
+        return await context.CourseSchedules.Where(x => x.ImmunisationSetupId == setupId).Select(x => x.Course).ToListAsync();
+    }
+
+    public async Task<IResult> DeleteImmunisationSetup(int id)
+    {
+        var courseInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == id);
+        context.ImmunisationSetups.Remove(courseInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Immunisation Setup has been deleted.");
+    }
+    private async Task ClearCourseList(int setupId)
+    {
+        var cleanPreviousData =
+            await context.CourseSchedules.AsNoTracking().Where(x => x.CourseId == setupId).ToListAsync();
+        context.ChangeTracker.Clear();
+        context.CourseSchedules.RemoveRange(cleanPreviousData);
+        await context.SaveChangesAsync();
+    }
     #endregion
 
     #endregion

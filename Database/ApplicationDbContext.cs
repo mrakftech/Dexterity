@@ -138,5 +138,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ShotBatchDetail> ShotBatchDetails { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<ShotCourse> ShotCourses { get; set; }
+    
+    public DbSet<ImmunisationSetup> ImmunisationSetups { get; set; }
+    public DbSet<CourseSchedule> CourseSchedules { get; set; }
     #endregion
 }
