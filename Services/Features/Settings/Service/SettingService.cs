@@ -3,8 +3,8 @@ using Database;
 using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Immunisation;
 using Domain.Entities.Settings.Templates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
@@ -508,8 +508,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #region Drug
 
- 
-
     public async Task<IEnumerable<Drug>> GetAllDrugsAsync()
     {
         return await context.Drugs.ToListAsync();
@@ -655,6 +653,11 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         var batchInDb = await context.BatchDetails
             .FirstOrDefaultAsync(x => x.BatchNumber == assignShotToBatch.BatchNumber && x.IsActive);
+        var checkBatchInShot = await context.ShotBatchDetails.AnyAsync(x => x.BatchDetailId == batchInDb.Id);
+        if (checkBatchInShot)
+        {
+            return await Result.FailAsync("Batch already exists.");
+        }
 
         if (batchInDb is null)
         {
@@ -675,25 +678,21 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #region Batch
 
-    public async Task<IResult> UpdateBatch(int id, UpsertBatchDto batch)
+    public async Task<IResult> UpsertBatch(int id, int shotId, UpsertBatchDto batch)
     {
         try
         {
             if (id == 0)
             {
-                var newBatch = new BatchDetail()
-                {
-                    BatchNumber = batch.BatchNumber,
-                    BatchCount = batch.BatchCount,
-                    Expiry = batch.Expiry,
-                    Remaining = batch.Remaining,
-                    IsActive = batch.IsActive,
-                    ManfactureName = batch.ManfactureName,
-                    TradeName = batch.TradeName,
-                    DrugId = batch.DrugId
-                };
+                var newBatch = mapper.Map<BatchDetail>(batch);
                 await context.BatchDetails.AddAsync(newBatch);
                 await context.SaveChangesAsync();
+                var assignShotToBatch = new AssignShotToBatchDto()
+                {
+                    BatchNumber = newBatch.BatchNumber,
+                    ShotId = shotId,
+                };
+                await AssignBatchToShot(assignShotToBatch);
                 return await Result.SuccessAsync("Batch has been added");
             }
             else
@@ -704,14 +703,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 {
                     return await Result.FailAsync("Batch not found");
                 }
-
-                batchInDb.BatchNumber = batch.BatchNumber;
-                batchInDb.BatchCount = batch.BatchCount;
-                batchInDb.Expiry = batch.Expiry;
-                batchInDb.Remaining = batch.Remaining;
-                batchInDb.IsActive = batch.IsActive;
-                batchInDb.TradeName = batch.TradeName;
-                batchInDb.ManfactureName = batch.ManfactureName;
+                batchInDb = mapper.Map(batch, batchInDb);
                 context.ChangeTracker.Clear();
                 context.BatchDetails.Update(batchInDb);
                 await context.SaveChangesAsync();
@@ -727,23 +719,16 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id)
     {
-        var batchInDb = await context.BatchDetails.AsNoTracking()
+        var batchInDb = await context.BatchDetails
+            .Include(x=>x.Drug)
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
         if (batchInDb is null)
         {
             return await Result<UpsertBatchDto>.FailAsync("Batch not found");
         }
 
-        var data = new UpsertBatchDto()
-        {
-            BatchNumber = batchInDb.BatchNumber,
-            Expiry = batchInDb.Expiry,
-            BatchCount = batchInDb.BatchCount,
-            Remaining = batchInDb.Remaining,
-            IsActive = batchInDb.IsActive,
-            ManfactureName = batchInDb.ManfactureName,
-            TradeName = batchInDb.TradeName
-        };
+        var data = mapper.Map<UpsertBatchDto>(batchInDb);
         return await Result<UpsertBatchDto>.SuccessAsync(data);
     }
 
@@ -913,10 +898,11 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Course(s) has been saved.");
     }
 
-   
+
     public async Task<List<Course>> GetSelectedCourse(int setupId)
     {
-        return await context.CourseSchedules.Where(x => x.ImmunisationSetupId == setupId).Select(x => x.Course).ToListAsync();
+        return await context.CourseSchedules.Where(x => x.ImmunisationSetupId == setupId).Select(x => x.Course)
+            .ToListAsync();
     }
 
     public async Task<IResult> DeleteImmunisationSetup(int id)
@@ -926,6 +912,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Immunisation Setup has been deleted.");
     }
+
     private async Task ClearCourseList(int setupId)
     {
         var cleanPreviousData =
@@ -934,6 +921,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.CourseSchedules.RemoveRange(cleanPreviousData);
         await context.SaveChangesAsync();
     }
+
     #endregion
 
     #endregion

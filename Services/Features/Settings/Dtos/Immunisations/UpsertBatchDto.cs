@@ -11,6 +11,7 @@ public class UpsertBatchDto
     public int BatchCount { get; set; }
     public int Remaining { get; set; }
     public bool IsActive { get; set; }
+    public bool BatchCompleteWhenZero { get; set; }
     public int DrugId { get; set; }
-    public int DrugName { get; set; }
+    public string DrugName { get; set; }
 }

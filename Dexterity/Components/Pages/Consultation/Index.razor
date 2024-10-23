@@ -1,13 +1,13 @@
 ﻿@layout MainLayout
 @page "/consultation"
-@using Dexterity.Components.Pages.Consultation.AllConsultations.Dialogs
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Consultation.Dto
 @using Dexterity.Components.Pages.Consultation.Options
 @using Dexterity.Components.Pages.PatientManager.Components.Allergies
 @using Dexterity.Components.Pages.Consultation.Notes
 @using Services.Features.Consultation.Dto.Notes
-@using Dexterity.Components.Pages.Consultation.AllConsultations
+@using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
+@using Dexterity.Components.Pages.Consultation.MainDetails
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
 @if (!_loading)
@@ -49,8 +49,8 @@
                 <DexMenuItem Text="Save Note" Icon="fas fa-note" Disabled="@(!_isConsultationSelected)" Click="OpenUpsertNotesDialog"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")">
+                <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">

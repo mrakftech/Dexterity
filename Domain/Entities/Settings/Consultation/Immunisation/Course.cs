@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Domain.Entities.Settings.Immunisation;
+namespace Domain.Entities.Settings.Consultation.Immunisation;
 
 public class Course
 {

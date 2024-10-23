@@ -1,4 +1,4 @@
-﻿using Domain.Entities.Settings.Immunisation;
+﻿using Domain.Entities.Settings.Consultation.Immunisation;
 
 namespace Services.Features.Settings.Dtos.Immunisations;
 

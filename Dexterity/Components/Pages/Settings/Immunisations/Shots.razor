@@ -1,4 +1,4 @@
-﻿@using Domain.Entities.Settings.Immunisation
+﻿@using Domain.Entities.Settings.Consultation.Immunisation
 @using Services.Features.Settings.Dtos.Immunisations
 <TabTitle Title="Shots" Icon="flu-shot.png">
 </TabTitle>
@@ -53,13 +53,13 @@
                     <Buttons>
                         @if (_shotId > 0)
                         {
-                            <DexLoadingButton Name="Save" Processing="_loading" Type="MudButtonType.Submit"/>
+                            <DexLoadingButton Name="Save Shot" Processing="_loading" Type="MudButtonType.Submit"/>
                             <DexLoadingButton Name="Delete" Click="DeleteShot"/>
                             <DexLoadingButton Name="Create New" Click="ResetForm"/>
                         }
                         else
                         {
-                            <DexLoadingButton Name="Add Shot" Processing="_loading" Type="MudButtonType.Submit"/>
+                            <DexLoadingButton Name="Save Shot" Processing="_loading" Type="MudButtonType.Submit"/>
                         }
                     </Buttons>
                 </DexForm>
@@ -101,12 +101,28 @@
                         <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
                         <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
                         <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px">
+                            <Template>
+                                @{
+                                    var item = (context as BatchDetail);
+                                    @if (item!.IsActive)
+                                    {
+                                        <MudText Color="MudColor.Primary"> Yes</MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="MudColor.Error"> No</MudText>
+                                    }
+                                }
+                            </Template>
+                            
+                        </GridColumn>
                         <GridColumn HeaderText="Actions" Width="120">
                             <Template>
                                 @{
                                     var item = (context as BatchDetail);
                                     <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
+                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertBatch(item!.Id)"/>
                                 }
                             </Template>
                         </GridColumn>
@@ -234,7 +250,7 @@
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        parameters.Add("BatchNumber", AssignShotToBatch.BatchNumber);
+        parameters.Add("AssignShotToBatch", AssignShotToBatch);
         var options = new DialogOptions()
         {
             CloseButton = true,

@@ -2,8 +2,8 @@
 using Domain.Entities.Messaging;
 using Domain.Entities.Settings;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Immunisation;
 using Domain.Entities.Settings.Templates;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
@@ -111,7 +111,7 @@ public interface ISettingService
 
     Task<List<BatchDetail>> GetBatches();
     Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id);
-    Task<IResult> UpdateBatch(int id, UpsertBatchDto batch);
+    Task<IResult> UpsertBatch(int id,int shotId, UpsertBatchDto batch);
     Task<IResult> DeleteBatch(int id);
 
     #endregion

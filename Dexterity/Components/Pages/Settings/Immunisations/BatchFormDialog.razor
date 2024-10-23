@@ -1,37 +1,48 @@
-﻿@using Domain.Entities.Settings.Drugs
-@using Domain.Entities.Settings.Immunisation
+﻿@using Domain.Entities.Settings.Consultation.Immunisation
+@using Domain.Entities.Settings.Drugs
 @using Services.Features.Settings.Dtos.Immunisations
 <DexDialog>
     <DialogTitle>Batch Details</DialogTitle>
     <Content>
         <DexForm Model="Batch" ColumnCount="2" OnValidSubmit="SaveBatchDetails">
             <Fields>
-                <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="1" ></FormItem>
-                @* <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="2"> *@
-                @*     <Template> *@
-                @*         <label class="e-form-label">Drugs</label> *@
-                @*         <SfAutoComplete TValue="string" TItem="BatchDetail" Placeholder="Batch Number" DataSource="@_batchList" > *@
-                @*             <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/> *@
-                @*             <AutoCompleteEvents TValue="string" TItem="BatchDetail" ValueChange="OnChangeBatch"></AutoCompleteEvents> *@
-                @*         </SfAutoComplete> *@
-                @*     </Template> *@
-                @* </FormItem> *@
-                <FormItem Field="@nameof(UpsertBatchDto.Expiry)" EditorType="FormEditorType.DatePicker" ColumnSpan="1"></FormItem>
+                @if (Id > 0)
+                {
+                    <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Selected Batch Number" ColumnSpan="1" IsEnabled="false"></FormItem>
+                    <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Select Batch</label>
+                            <SfAutoComplete TValue="string" TItem="BatchDetail" Placeholder="Batch Number" DataSource="@_batchList">
+                                <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
+                                <AutoCompleteEvents TValue="string" TItem="BatchDetail" ValueChange="OnChangeBatch"></AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </Template>
+                    </FormItem>
+                }
+                else
+                {
+                    <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="1"></FormItem>
+                }
+                <FormItem Field="@nameof(UpsertBatchDto.Expiry)" EditorType="FormEditorType.DatePicker" ColumnSpan="2"></FormItem>
                 <FormItem Field="@nameof(UpsertBatchDto.BatchCount)" LabelText="Batch Count" ColumnSpan="1"></FormItem>
                 <FormItem Field="@nameof(UpsertBatchDto.Remaining)" ColumnSpan="1"></FormItem>
-                @* <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Selected Batch Number" ColumnSpan="1" IsEnabled="false"></FormItem> *@
+                @if (Id > 0)
+                {
+                    <FormItem Field="@nameof(UpsertBatchDto.DrugName)" LabelText="Selected Drug" ColumnSpan="2" IsEnabled="false"></FormItem>
+                }
                 <FormItem Field="@nameof(UpsertBatchDto.DrugId)" LabelText="Drug" ColumnSpan="2">
                     <Template>
                         <label class="e-form-label">Drugs</label>
-                        <SfAutoComplete TValue="string" TItem="Drug" Placeholder="Select a Drug" DataSource="@Drugs" >
+                        <SfAutoComplete TValue="string" TItem="Drug" Placeholder="Select a Drug" DataSource="@Drugs">
                             <AutoCompleteFieldSettings Value="GenericName" Text="GenericName"/>
                             <AutoCompleteEvents TValue="string" TItem="Drug" ValueChange="OnChangeDrug"></AutoCompleteEvents>
                         </SfAutoComplete>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(UpsertBatchDto.TradeName)" LabelText="Trade Name" ColumnSpan="1"></FormItem>
-                <FormItem Field="@nameof(UpsertBatchDto.ManfactureName)" LabelText="Manufacture Name" ColumnSpan="1"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.TradeName)" LabelText="Trade Name" ColumnSpan="1" IsEnabled="false"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.ManfactureName)" LabelText="Manufacture Name" ColumnSpan="1" IsEnabled="false"></FormItem>
                 <FormItem Field="@nameof(UpsertBatchDto.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox"></FormItem>
+                <FormItem Field="@nameof(UpsertBatchDto.BatchCompleteWhenZero)" LabelText="Complete Batch when zero remaining" EditorType="FormEditorType.Checkbox"></FormItem>
             </Fields>
             <Buttons>
                 <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
@@ -43,7 +54,7 @@
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public int Id { get; set; }
-    [Parameter] public string BatchNumber { get; set; }
+    [Parameter] public AssignShotToBatchDto AssignShotToBatch { get; set; } = new();
     public UpsertBatchDto Batch { get; set; } = new();
     private List<Drug> Drugs { get; set; } = new();
     private List<BatchDetail> _batchList = new();
@@ -52,7 +63,7 @@
     {
         if (Id == 0)
         {
-            Batch.BatchNumber = BatchNumber;
+            Batch.BatchNumber = AssignShotToBatch.BatchNumber;
         }
         else
         {
@@ -63,11 +74,13 @@
         await GetDrugs();
         await GetBatches();
     }
+
     private async Task GetBatches()
     {
         _batchList = await UnitOfWork.Setting.GetBatches();
         StateHasChanged();
     }
+
     private async Task GetDrugs()
     {
         Drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
@@ -91,7 +104,7 @@
 
     private async Task SaveBatchDetails()
     {
-        var res = await UnitOfWork.Setting.UpdateBatch(Id, Batch);
+        var res = await UnitOfWork.Setting.UpsertBatch(Id, AssignShotToBatch.ShotId, Batch);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

@@ -20,8 +20,8 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.WaitingRoom;
 using System.Reflection.Emit;
 using Domain.Entities.Settings.Clinic;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Immunisation;
 
 namespace Database;
 
