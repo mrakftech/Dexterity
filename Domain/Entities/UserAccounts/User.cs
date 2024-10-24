@@ -1,4 +1,5 @@
 using Domain.Contracts;
+using Domain.Entities.Consultation;
 using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement;
 
@@ -63,4 +64,5 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public virtual ICollection<Patient> Patients { get; set; }
     public virtual ICollection<ChatMessage> ChatMessagesFromUsers { get; set; } 
     public virtual ICollection<ChatMessage> ChatMessagesToUsers { get; set; }
+    public virtual ICollection<AdministerShot> AdministerShots { get; set; }
 }

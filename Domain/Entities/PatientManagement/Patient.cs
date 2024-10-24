@@ -1,10 +1,12 @@
 ﻿using Domain.Contracts;
+using Domain.Entities.Consultation;
 using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.Settings.Clinic;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.UserAccounts;
 using Domain.Entities.WaitingRoom;
 using Shared.Constants.Module;
@@ -91,4 +93,5 @@ public class Patient : IBaseId, IBaseActionOn, IBaseActionBy
     public virtual ICollection<PatientHospital> Hospitals { get; set; }
     public virtual ICollection<FamilyMember> FamilyMembers { get; set; }
     public virtual ICollection<WaitingAppointment> WaitingAppointments { get; set; }
+    public virtual ICollection<ImmunisationSchedule> ImmunisationSchedules { get; set; }
 }

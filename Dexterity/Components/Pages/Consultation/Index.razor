@@ -8,6 +8,7 @@
 @using Services.Features.Consultation.Dto.Notes
 @using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
 @using Dexterity.Components.Pages.Consultation.MainDetails
+@using Dexterity.Components.Pages.Consultation.Immunisations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
 @if (!_loading)
@@ -28,7 +29,8 @@
             <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder"/>
         </TopBarItems>
         <NavigationItems>
-            <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
+            <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")" Click="() => ClickChangedTab(0)">
+                <DexMenuItem Text="Home" Icon="fa-home"/>
                 <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient"/>
                 <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
                 <hr class="hr-custom"/>
@@ -49,8 +51,8 @@
                 <DexMenuItem Text="Save Note" Icon="fas fa-note" Disabled="@(!_isConsultationSelected)" Click="OpenUpsertNotesDialog"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")">
-                <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left"/>
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")" Click="() => ClickChangedTab(1)">
+                <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerShotDialog" Disabled="@(!_isConsultationSelected)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
@@ -59,7 +61,14 @@
         </NavigationItems>
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
-            <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
+            <MudTabs @ref="_tabs">
+                <MudTabPanel Text="">
+                    <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <ImmunisationsScreen/>
+                </MudTabPanel>
+            </MudTabs>
         </DexContentTabs>
     </InnerLayout>
 }
@@ -70,7 +79,7 @@
     private List<GetConsultationDetailDto> Consultations { get; set; } = new();
     private List<ConsultationNoteDto> PastMedicalHistory { get; set; } = new();
     private List<ConsultationNoteDto> ActiveDiagnosis { get; set; } = new();
-    readonly MudTabs _tabs = new();
+    MudTabs _tabs = new();
     private bool _loading;
     private int _consultationId = 0;
     private bool _isConsultationFinish;
@@ -81,6 +90,7 @@
 
     protected override async Task OnInitializedAsync()
     {
+        ClickChangedTab(0);
         _loading = true;
         if (ApplicationState.SelectedPatientId != Guid.Empty)
         {
@@ -277,5 +287,26 @@
 
     #endregion
 
+    #region Immunisations
+
+    private async Task OpenAdministerShotDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<AddAdministerSchedule>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (result.Canceled)
+        {
+            //await GetConsultations();
+            //await GetConsultationNotes();
+        }
+    }
+
+    #endregion
 
 }

@@ -17,13 +17,13 @@ namespace Database.Migrations
                 name: "Setting");
 
             migrationBuilder.EnsureSchema(
+                name: "Consultation");
+
+            migrationBuilder.EnsureSchema(
                 name: "PM");
 
             migrationBuilder.EnsureSchema(
                 name: "Scheduler");
-
-            migrationBuilder.EnsureSchema(
-                name: "Consultation");
 
             migrationBuilder.EnsureSchema(
                 name: "Messaging");
@@ -107,6 +107,23 @@ namespace Database.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Clinic", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Courses",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    Order = table.Column<int>(type: "int", nullable: false),
+                    AssignedShots = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Courses", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,6 +244,24 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ImmunisationSetups",
+                schema: "Setting",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    IsDefualt = table.Column<bool>(type: "bit", nullable: false),
+                    IsChildhood = table.Column<bool>(type: "bit", nullable: false),
+                    AssignedCourses = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImmunisationSetups", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PatientAllergies",
                 schema: "PM",
                 columns: table => new
@@ -303,14 +338,15 @@ namespace Database.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Dose = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Method = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Dose = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Method = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
-                    IntervalType = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    IntervalType = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IntervalMin = table.Column<int>(type: "int", nullable: false),
                     IntervalMax = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ClaimForm = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                    ClaimForm = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Order = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -367,6 +403,7 @@ namespace Database.Migrations
                     BatchCount = table.Column<int>(type: "int", nullable: false),
                     Remaining = table.Column<int>(type: "int", nullable: false),
                     IsActive = table.Column<bool>(type: "bit", nullable: false),
+                    BatchCompleteWhenZero = table.Column<bool>(type: "bit", nullable: false),
                     DrugId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -470,7 +507,7 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "ShotBatchDetails",
+                name: "AssignedBatchToShots",
                 schema: "Setting",
                 columns: table => new
                 {
@@ -481,16 +518,16 @@ namespace Database.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ShotBatchDetails", x => x.Id);
+                    table.PrimaryKey("PK_AssignedBatchToShots", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_ShotBatchDetails_BatchDetails_BatchDetailId",
+                        name: "FK_AssignedBatchToShots_BatchDetails_BatchDetailId",
                         column: x => x.BatchDetailId,
                         principalSchema: "Setting",
                         principalTable: "BatchDetails",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_ShotBatchDetails_Shots_ShotId",
+                        name: "FK_AssignedBatchToShots_Shots_ShotId",
                         column: x => x.ShotId,
                         principalSchema: "Setting",
                         principalTable: "Shots",
@@ -875,6 +912,34 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "ImmunisationSchedule",
+                schema: "Consultation",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ScheduleDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ImmunisationSetupId = table.Column<int>(type: "int", nullable: false),
+                    PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ImmunisationSchedule", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_ImmunisationSchedule_ImmunisationSetups_ImmunisationSetupId",
+                        column: x => x.ImmunisationSetupId,
+                        principalSchema: "Setting",
+                        principalTable: "ImmunisationSetups",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_ImmunisationSchedule_Patients_PatientId",
+                        column: x => x.PatientId,
+                        principalSchema: "PM",
+                        principalTable: "Patients",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PatientAccounts",
                 schema: "PM",
                 columns: table => new
@@ -1230,6 +1295,50 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AdministerShots",
+                schema: "Consultation",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    DueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    GivenDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Side = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ImmunisationScheduleId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
+                    ShotId = table.Column<int>(type: "int", nullable: true),
+                    ConsultationDetailId = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AdministerShots", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_AdministerShots_Details_ConsultationDetailId",
+                        column: x => x.ConsultationDetailId,
+                        principalSchema: "Consultation",
+                        principalTable: "Details",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AdministerShots_ImmunisationSchedule_ImmunisationScheduleId",
+                        column: x => x.ImmunisationScheduleId,
+                        principalSchema: "Consultation",
+                        principalTable: "ImmunisationSchedule",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AdministerShots_Shots_ShotId",
+                        column: x => x.ShotId,
+                        principalSchema: "Setting",
+                        principalTable: "Shots",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_AdministerShots_Users_HcpId",
+                        column: x => x.HcpId,
+                        principalSchema: "Identity",
+                        principalTable: "Users",
+                        principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "PatientTransactions",
                 schema: "PM",
                 columns: table => new
@@ -1364,6 +1473,30 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_AdministerShots_ConsultationDetailId",
+                schema: "Consultation",
+                table: "AdministerShots",
+                column: "ConsultationDetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdministerShots_HcpId",
+                schema: "Consultation",
+                table: "AdministerShots",
+                column: "HcpId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdministerShots_ImmunisationScheduleId",
+                schema: "Consultation",
+                table: "AdministerShots",
+                column: "ImmunisationScheduleId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AdministerShots_ShotId",
+                schema: "Consultation",
+                table: "AdministerShots",
+                column: "ShotId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Appointments_AppointmentTypeId",
                 schema: "Scheduler",
                 table: "Appointments",
@@ -1392,6 +1525,18 @@ namespace Database.Migrations
                 schema: "Scheduler",
                 table: "Appointments",
                 column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AssignedBatchToShots_BatchDetailId",
+                schema: "Setting",
+                table: "AssignedBatchToShots",
+                column: "BatchDetailId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AssignedBatchToShots_ShotId",
+                schema: "Setting",
+                table: "AssignedBatchToShots",
+                column: "ShotId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BaselineDetails_HcpId",
@@ -1469,6 +1614,18 @@ namespace Database.Migrations
                 name: "IX_GroupPatients_PatientId",
                 schema: "PM",
                 table: "GroupPatients",
+                column: "PatientId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImmunisationSchedule_ImmunisationSetupId",
+                schema: "Consultation",
+                table: "ImmunisationSchedule",
+                column: "ImmunisationSetupId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_ImmunisationSchedule_PatientId",
+                schema: "Consultation",
+                table: "ImmunisationSchedule",
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
@@ -1581,18 +1738,6 @@ namespace Database.Migrations
                 column: "PatientId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_ShotBatchDetails_BatchDetailId",
-                schema: "Setting",
-                table: "ShotBatchDetails",
-                column: "BatchDetailId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ShotBatchDetails_ShotId",
-                schema: "Setting",
-                table: "ShotBatchDetails",
-                column: "ShotId");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_UserClinics_ClinicId",
                 schema: "Identity",
                 table: "UserClinics",
@@ -1661,7 +1806,15 @@ namespace Database.Migrations
                 schema: "Setting");
 
             migrationBuilder.DropTable(
+                name: "AdministerShots",
+                schema: "Consultation");
+
+            migrationBuilder.DropTable(
                 name: "AppointmentCancellationReasons",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
+                name: "AssignedBatchToShots",
                 schema: "Setting");
 
             migrationBuilder.DropTable(
@@ -1671,6 +1824,10 @@ namespace Database.Migrations
             migrationBuilder.DropTable(
                 name: "ChatMessages",
                 schema: "Messaging");
+
+            migrationBuilder.DropTable(
+                name: "Courses",
+                schema: "Setting");
 
             migrationBuilder.DropTable(
                 name: "DoctorVisitCards",
@@ -1745,10 +1902,6 @@ namespace Database.Migrations
                 schema: "Consultation");
 
             migrationBuilder.DropTable(
-                name: "ShotBatchDetails",
-                schema: "Setting");
-
-            migrationBuilder.DropTable(
                 name: "SmsTemplates",
                 schema: "Setting");
 
@@ -1763,6 +1916,18 @@ namespace Database.Migrations
             migrationBuilder.DropTable(
                 name: "WaitingAppointments",
                 schema: "Scheduler");
+
+            migrationBuilder.DropTable(
+                name: "ImmunisationSchedule",
+                schema: "Consultation");
+
+            migrationBuilder.DropTable(
+                name: "BatchDetails",
+                schema: "Setting");
+
+            migrationBuilder.DropTable(
+                name: "Shots",
+                schema: "Setting");
 
             migrationBuilder.DropTable(
                 name: "Groups",
@@ -1789,16 +1954,12 @@ namespace Database.Migrations
                 schema: "PM");
 
             migrationBuilder.DropTable(
-                name: "BatchDetails",
-                schema: "Setting");
-
-            migrationBuilder.DropTable(
-                name: "Shots",
-                schema: "Setting");
-
-            migrationBuilder.DropTable(
                 name: "Appointments",
                 schema: "Scheduler");
+
+            migrationBuilder.DropTable(
+                name: "ImmunisationSetups",
+                schema: "Setting");
 
             migrationBuilder.DropTable(
                 name: "Drugs",

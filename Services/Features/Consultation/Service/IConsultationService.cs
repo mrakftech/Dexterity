@@ -1,4 +1,5 @@
-﻿using Domain.Entities.Settings.Consultation;
+﻿using Domain.Entities.Consultation;
+using Domain.Entities.Settings.Consultation;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Notes;
@@ -37,6 +38,12 @@ public interface IConsultationService
 
     #endregion
 
+    #region Immunisations
+    Task<IResult> SaveImmunisationSchedule(ImmunisationSchedule request);
+    Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId);
+
+    #endregion
+
     #region Reminder
 
     Task<List<GetReminderDto>> GetReminders();
@@ -46,5 +53,4 @@ public interface IConsultationService
     Task<IResult> DeleteReminder(int id);
 
     #endregion
-
 }

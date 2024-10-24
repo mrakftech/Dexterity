@@ -578,7 +578,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<ShotDto> GetShotsDetail(int id)
     {
         var shotInDb = await context.Shots.FirstOrDefaultAsync(x => x.Id == id);
-        var batchDetails = await context.ShotBatchDetails
+        var batchDetails = await context.AssignedBatchToShots
             .Where(x => x.ShotId == id)
             .Select(x => x.BatchDetail)
             .ToListAsync();
@@ -637,14 +637,14 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteBatchFromShot(int batchId)
     {
-        var batchInDb = await context.ShotBatchDetails.AsNoTracking()
+        var batchInDb = await context.AssignedBatchToShots.AsNoTracking()
             .FirstOrDefaultAsync(x => x.BatchDetailId == batchId);
         if (batchInDb is null)
         {
             return await Result.FailAsync("Batch not found");
         }
 
-        context.ShotBatchDetails.Remove(batchInDb);
+        context.AssignedBatchToShots.Remove(batchInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Batch has been removed.");
     }
@@ -653,7 +653,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         var batchInDb = await context.BatchDetails
             .FirstOrDefaultAsync(x => x.BatchNumber == assignShotToBatch.BatchNumber && x.IsActive);
-        var checkBatchInShot = await context.ShotBatchDetails.AnyAsync(x => x.BatchDetailId == batchInDb.Id);
+        var checkBatchInShot = await context.AssignedBatchToShots.AnyAsync(x =>
+            x.BatchDetailId == batchInDb.Id && x.ShotId == assignShotToBatch.ShotId);
         if (checkBatchInShot)
         {
             return await Result.FailAsync("Batch already exists.");
@@ -664,12 +665,12 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             return await Result.FailAsync("Batch not found");
         }
 
-        var shotBatchDetails = new ShotBatchDetail()
+        var shotBatchDetails = new AssignedBatchToShot()
         {
             ShotId = assignShotToBatch.ShotId,
             BatchDetailId = batchInDb.Id
         };
-        await context.ShotBatchDetails.AddAsync(shotBatchDetails);
+        await context.AssignedBatchToShots.AddAsync(shotBatchDetails);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Batch has been added under shot ");
     }
@@ -680,11 +681,24 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> UpsertBatch(int id, int shotId, UpsertBatchDto batch)
     {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
         try
         {
             if (id == 0)
             {
-                var newBatch = mapper.Map<BatchDetail>(batch);
+                var newBatch = new BatchDetail()
+                {
+                    BatchNumber = batch.BatchNumber,
+                    IsActive = batch.IsActive,
+                    BatchCompleteWhenZero = batch.BatchCompleteWhenZero,
+                    BatchCount = batch.BatchCount,
+                    DrugId = batch.DrugId,
+                    ManfactureName = batch.ManfactureName,
+                    TradeName = batch.TradeName,
+                    Remaining = batch.Remaining,
+                    Expiry = batch.Expiry
+                };
                 await context.BatchDetails.AddAsync(newBatch);
                 await context.SaveChangesAsync();
                 var assignShotToBatch = new AssignShotToBatchDto()
@@ -693,6 +707,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                     ShotId = shotId,
                 };
                 await AssignBatchToShot(assignShotToBatch);
+                await transaction.CommitAsync();
                 return await Result.SuccessAsync("Batch has been added");
             }
             else
@@ -703,6 +718,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 {
                     return await Result.FailAsync("Batch not found");
                 }
+
                 batchInDb = mapper.Map(batch, batchInDb);
                 context.ChangeTracker.Clear();
                 context.BatchDetails.Update(batchInDb);
@@ -712,6 +728,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         }
         catch (Exception e)
         {
+            await transaction.RollbackAsync();
             Console.WriteLine(e);
             return await Result.FailAsync(e.Message);
         }
@@ -720,7 +737,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id)
     {
         var batchInDb = await context.BatchDetails
-            .Include(x=>x.Drug)
+            .Include(x => x.Drug)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
         if (batchInDb is null)
@@ -764,15 +781,10 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<CourseDto> GetCourse(int courseId)
     {
         var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
-        var shots = await context.ShotCourses
-            .Where(x => x.CourseId == courseId)
-            .Select(x => x.Shot)
-            .ToListAsync();
-
         return new CourseDto()
         {
             Course = courseInDb,
-            Shots = shots
+            Shots = courseInDb.AssignedShots
         };
     }
 
@@ -801,31 +813,29 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         }
     }
 
-    private async Task ClearShotList(int courseId)
-    {
-        var cleanPreviousData =
-            await context.ShotCourses.AsNoTracking().Where(x => x.CourseId == courseId).ToListAsync();
-        context.ChangeTracker.Clear();
-        context.ShotCourses.RemoveRange(cleanPreviousData);
-        await context.SaveChangesAsync();
-    }
 
-    public async Task<IResult> AddShotInCourse(int courseId, List<int> shotIds)
+    public async Task<IResult> AddShotInCourse(int courseId, List<Shot> shots)
     {
-        await ClearShotList(courseId);
-        var list = shotIds.Select((item, index) => new ShotCourse()
-                {CourseId = courseId, ShotId = item, Order = index + 1})
-            .ToList();
+        var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
         context.ChangeTracker.Clear();
-        context.ShotCourses.AddRange(list);
+        var index = 1;
+        shots.ForEach(s =>
+        {
+            s.Order = index;
+            index++;
+        });
+        courseInDb.AssignedShots = shots;
+        context.Courses.Update(courseInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Shot(s) has been saved.");
     }
 
     public async Task<List<Shot>> GetSelectedShot(int courseId)
     {
-        return await context.ShotCourses.Where(x => x.CourseId == courseId).Select(x => x.Shot).ToListAsync();
+        var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
+        return courseInDb.AssignedShots ?? [];
     }
+
 
     public async Task<IResult> DeleteCourse(int id)
     {
@@ -847,15 +857,10 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<ImmunisationSetupDto> GetImmunisationSetup(int setupId)
     {
         var setupInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == setupId);
-        var shots = await context.CourseSchedules
-            .Where(x => x.ImmunisationSetupId == setupId)
-            .Select(x => x.Course)
-            .ToListAsync();
-
         return new ImmunisationSetupDto()
         {
             Immunisation = setupInDb,
-            Courses = shots
+            Courses = setupInDb.AssignedCourses
         };
     }
 
@@ -886,23 +891,26 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<IResult> AddCourseInSchedule(int setupId, List<int> courseIds)
+    public async Task<IResult> AddCourseInSchedule(int setupId, List<Course> courses)
     {
-        await ClearCourseList(setupId);
-        var list = courseIds.Select((item, index) => new CourseSchedule()
-                {ImmunisationSetupId = setupId, CourseId = item, Order = index + 1})
-            .ToList();
+        var setupInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == setupId);
+        if (setupInDb == null)
+        {
+            return await Result.FailAsync("U=Imunisation setup not found");
+        }
+
+        setupInDb.AssignedCourses = courses;
         context.ChangeTracker.Clear();
-        context.CourseSchedules.AddRange(list);
+        context.ImmunisationSetups.Update(setupInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Course(s) has been saved.");
     }
 
 
-    public async Task<List<Course>> GetSelectedCourse(int setupId)
+    public async Task<List<Course>> GetSelectedCourses(int setupId)
     {
-        return await context.CourseSchedules.Where(x => x.ImmunisationSetupId == setupId).Select(x => x.Course)
-            .ToListAsync();
+        var setupInDb = await context.ImmunisationSetups.FirstOrDefaultAsync(x => x.Id == setupId);
+        return setupInDb.AssignedCourses ?? [];
     }
 
     public async Task<IResult> DeleteImmunisationSetup(int id)
@@ -911,15 +919,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.ImmunisationSetups.Remove(courseInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Immunisation Setup has been deleted.");
-    }
-
-    private async Task ClearCourseList(int setupId)
-    {
-        var cleanPreviousData =
-            await context.CourseSchedules.AsNoTracking().Where(x => x.CourseId == setupId).ToListAsync();
-        context.ChangeTracker.Clear();
-        context.CourseSchedules.RemoveRange(cleanPreviousData);
-        await context.SaveChangesAsync();
     }
 
     #endregion

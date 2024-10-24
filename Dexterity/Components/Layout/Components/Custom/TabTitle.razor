@@ -1,7 +1,7 @@
-﻿<SfAppBar ColorMode="AppBarColor.Light" >
+﻿<SfAppBar ColorMode="AppBarColor.Light" CssClass="mt-3 mb-3">
     @if (!string.IsNullOrWhiteSpace(Icon))
     {
-        <img src="@($"assets/images/menu-items/{Icon}")" width="32" height="32" />
+        <img src="@($"assets/images/menu-items/{Icon}")" width="42" height="42" alt=""/>
     }
     <span class="regular text-bold ml-3"> @Title</span>
     <AppBarSpacer></AppBarSpacer>

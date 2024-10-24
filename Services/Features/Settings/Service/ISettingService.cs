@@ -121,10 +121,9 @@ public interface ISettingService
     Task<List<Course>> GetCourses();
     Task<CourseDto> GetCourse(int courseId);
     Task<IResult> SaveCourse(int courseId, Course course);
-    Task<IResult> AddShotInCourse(int courseId, List<int> shotIds);
+    Task<IResult> AddShotInCourse(int courseId, List<Shot> shots);
     Task<List<Shot>> GetSelectedShot(int courseId);
     Task<IResult> DeleteCourse(int id);
-
     #endregion
 
     #region Immunisation Setup
@@ -132,8 +131,8 @@ public interface ISettingService
     Task<List<ImmunisationSetup>> GetImmunisationSetups();
     Task<ImmunisationSetupDto> GetImmunisationSetup(int setupId);
     Task<IResult> SaveImmunisationSetup(int setupId, ImmunisationSetup setup);
-    Task<IResult> AddCourseInSchedule(int setupId, List<int> courseIds);
-    Task<List<Course>> GetSelectedCourse(int setupId);
+    Task<IResult> AddCourseInSchedule(int setupId, List<Course> courses);
+    Task<List<Course>> GetSelectedCourses(int setupId);
     Task<IResult> DeleteImmunisationSetup(int setupId);
 
     #endregion

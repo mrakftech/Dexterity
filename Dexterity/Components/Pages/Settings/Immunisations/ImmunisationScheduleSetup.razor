@@ -1,6 +1,4 @@
-﻿@using Domain.Entities.Settings.Consultation.Immunisation
-@using Syncfusion.Blazor.Lists
-<style>
+﻿<style>
     .e-listview.e-lib {
         box-shadow: 0 1px 4px #ddd;
         border-bottom: 1px solid #ddd;
@@ -204,7 +202,7 @@
         _scheduleSetup.IsActive = immunisationSetup.IsActive;
         _scheduleSetup.IsDefualt = immunisationSetup.IsDefualt;
         _scheduleSetup.IsChildhood = immunisationSetup.IsChildhood;
-        _selectedCourse = await UnitOfWork.Setting.GetSelectedCourse(immunisationSetup.Id);
+        _selectedCourse = await UnitOfWork.Setting.GetSelectedCourses(immunisationSetup.Id);
         _destinationList = _selectedCourse;
     }
 
@@ -233,7 +231,7 @@
 
     private async Task SelectCourse()
     {
-        var res = await UnitOfWork.Setting.AddCourseInSchedule(_scheduleSetup.Id, _selectedCourse.Select(x => x.Id).ToList());
+        var res = await UnitOfWork.Setting.AddCourseInSchedule(_scheduleSetup.Id, _selectedCourse);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

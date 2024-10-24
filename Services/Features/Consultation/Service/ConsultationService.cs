@@ -2,6 +2,7 @@
 using Database;
 using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Consultation.Immunisation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
@@ -368,4 +369,67 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
 
     #endregion
 
+    #region Immunisations
+
+    public async Task<IResult> SaveImmunisationSchedule(ImmunisationSchedule request)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        try
+        {
+            await context.ImmunisationSchedules.AddAsync(request);
+            var administerShots = await AddAdministerShots(request.ImmunisationSetupId, request.Id);
+            await context.AdministerShots.AddRangeAsync(administerShots);
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return await Result<Guid>.SuccessAsync("Schecdule has been saved.");
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            return await Result<Guid>.FailAsync(e.Message);
+        }
+    }
+
+    private async Task<List<AdministerShot>> AddAdministerShots(int setupId, Guid scheduleId)
+    {
+        var shotList = new List<Shot>();
+        var administerShots = new List<AdministerShot>();
+        var setup = await context
+            .ImmunisationSetups
+            .FirstOrDefaultAsync(x => x.Id == setupId);
+        var courses = setup.AssignedCourses;
+        foreach (var item in courses)
+        {
+            var shots = item.AssignedShots;
+            if (shots is not null)
+            {
+                shotList.AddRange(shots);
+            }
+        }
+
+        foreach (var item in shotList)
+        {
+            var newAdministerShot = new AdministerShot()
+            {
+                HcpId = ApplicationState.CurrentUser.UserId,
+                ImmunisationScheduleId = scheduleId,
+                ShotId = item.Id,
+                ConsultationDetailId = 1,
+            };
+            administerShots.Add(newAdministerShot);
+        }
+
+        return administerShots;
+    }
+
+    public async Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId)
+    {
+        var list = await context.ImmunisationSchedules
+            .Include(x => x.ImmunisationSetup)
+            .Where(x => x.PatientId == patientId)
+            .ToListAsync();
+        return list;
+    }
+
+    #endregion
 }

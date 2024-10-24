@@ -135,11 +135,12 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Shot> Shots { get; set; }
     public DbSet<BatchDetail> BatchDetails { get; set; }
-    public DbSet<ShotBatchDetail> ShotBatchDetails { get; set; }
+    public DbSet<AssignedBatchToShot> AssignedBatchToShots { get; set; }
     public DbSet<Course> Courses { get; set; }
-    public DbSet<ShotCourse> ShotCourses { get; set; }
     
+    public DbSet<ImmunisationSchedule> ImmunisationSchedules { get; set; }
     public DbSet<ImmunisationSetup> ImmunisationSetups { get; set; }
-    public DbSet<CourseSchedule> CourseSchedules { get; set; }
+    public DbSet<AdministerShot> AdministerShots { get; set; }
+    
     #endregion
 }

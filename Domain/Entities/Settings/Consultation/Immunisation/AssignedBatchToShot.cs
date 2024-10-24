@@ -1,6 +1,6 @@
 ﻿    namespace Domain.Entities.Settings.Consultation.Immunisation;
 
-    public class ShotBatchDetail
+    public class AssignedBatchToShot
     {
         public int Id { get; set; }
         public BatchDetail BatchDetail { get; set; }

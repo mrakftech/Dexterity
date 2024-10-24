@@ -7,4 +7,6 @@ public class ImmunisationSetup
     public bool IsActive { get; set; }
     public bool IsDefualt { get; set; }
     public bool IsChildhood { get; set; }
+
+    public List<Course> AssignedCourses { get; set; }
 }

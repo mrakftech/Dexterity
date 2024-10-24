@@ -1,0 +1,56 @@
+﻿@using Domain.Entities.Consultation
+<TabTitle Title="Immunisations" Icon="vaccine.png"></TabTitle>
+
+<MudStack Row >
+    <MudItem md="2">
+        <SfGrid DataSource="@_immunisationsSchedules" Height="350px">
+            <GridEvents TValue="ImmunisationSchedule"></GridEvents>
+            <GridTemplates>
+                <DetailTemplate>
+                    @{
+                        var con = (context as ImmunisationSchedule);
+                        <SfListBox DataSource="@con.ImmunisationSetup.AssignedCourses" TValue="Course" TItem="Course">
+                            <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
+                        </SfListBox>
+                    }
+
+                </DetailTemplate>
+                <EmptyRecordTemplate>
+                    <span>No records to display, create new schedule</span>
+                </EmptyRecordTemplate>
+            </GridTemplates>
+            <GridColumns>
+                <GridColumn Field="@nameof(ImmunisationSchedule.ImmunisationSetup.Name)" HeaderText="Schedule">
+                    <Template>
+                        @{
+                            var con = (context as ImmunisationSchedule);
+                            <span>@con!.ImmunisationSetup.Name</span>
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
+    </MudItem>
+    <MudItem md="10">
+        <DexGrid>
+            <DexGridColumns>
+                
+            </DexGridColumns>
+        </DexGrid>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<ImmunisationSchedule> _immunisationsSchedules = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetImmunisationSchedules();
+    }
+
+    private async Task GetImmunisationSchedules()
+    {
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
+    }
+
+}

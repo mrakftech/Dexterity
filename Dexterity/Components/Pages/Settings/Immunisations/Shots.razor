@@ -218,6 +218,7 @@
                 Snackbar.SuccessMessage(userRes.Messages.First());
                 Shot = new Shot();
                 await GetShots();
+                ResetForm();
                 StateHasChanged();
             }
         }
@@ -277,6 +278,7 @@
             var res = await UnitOfWork.Setting.DeleteBatchFromShot(id);
             Snackbar.SuccessMessage(res.Messages.First());
             await GetSelectedShotDetails(_shotId);
+            
         }
     }
 
@@ -305,6 +307,7 @@
         var intervaltype = args.ItemData;
         Shot.IntervalMax = intervaltype.Max;
         Shot.IntervalMin = intervaltype.Min;
+        Shot.IntervalType = intervaltype.Name;
     }
 
     #endregion

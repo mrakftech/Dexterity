@@ -1,0 +1,101 @@
+﻿@using Domain.Entities.Consultation
+@using Syncfusion.Blazor.Lists
+<DexDialog>
+    <DialogTitle>Add Schedule</DialogTitle>
+    <Content>
+        <RadzenCard Variant="RadVariant.Outlined" class="" Style="width: 100%;">
+            <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="10rem">
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@ApplicationState.SelectedPatientSummary.Name</b>
+                    </RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@ApplicationState.SelectedPatientSummary.Address</b>
+                    </RadzenText>
+                </RadzenStack>
+                <RadzenStack Gap="0">
+                    <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Date Of Birth</RadzenText>
+                    <RadzenText TextStyle="TextStyle.Body1">
+                        <b>@ApplicationState.SelectedPatientSummary.DateOfBirth (@ApplicationState.SelectedPatientSummary.Age)</b>
+                    </RadzenText>
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenCard>
+        <DexForm Model="_immunisationSchedule" ColumnCount="2" OnValidSubmit="SaveSchedule">
+            <Fields>
+                <FormItem Field="@nameof(ImmunisationSchedule.ScheduleDate)" LabelText="Schedule Date" EditorType="FormEditorType.DatePicker" ColumnSpan="1"/>
+                <FormItem Field="@nameof(ImmunisationSchedule.Id)">
+                    <Template>
+                        <label class="e-form-label">Select Schedule</label>
+                        <SfDropDownList TValue="string" TItem="ImmunisationSetup" Placeholder="Select a Schedule" DataSource="@_setups" ColumnSpan="1">
+                            <DropDownListFieldSettings Value="Name" Text="Name"/>
+                            <DropDownListEvents TValue="string" TItem="ImmunisationSetup" ValueChange="OnChangeSetup"></DropDownListEvents>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ImmunisationSchedule.ImmunisationSetupId)" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">Course</label>
+                        <SfListView DataSource="@_courses" Height="150px">
+                            <ListViewFieldSettings Id="Id" Text="Name" TValue="Course"></ListViewFieldSettings>
+                            <ListViewEvents TValue="Course" Clicked="@(e => OnCourseSelected(e))"></ListViewEvents>
+                        </SfListView>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Schedule" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
+    private List<ImmunisationSetup> _setups = new();
+    private List<Course> _courses = new();
+    private ImmunisationSchedule _immunisationSchedule = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCourseSchedules();
+    }
+
+    private async Task GetCourseSchedules()
+    {
+        _setups = await UnitOfWork.Setting.GetImmunisationSetups();
+    }
+
+    private async Task OnChangeSetup(ChangeEventArgs<string, ImmunisationSetup> args)
+    {
+        if (args.ItemData is null) return;
+        var immunisationSetup = args.ItemData;
+        _immunisationSchedule.ImmunisationSetupId = immunisationSetup.Id;
+        _immunisationSchedule.PatientId = ApplicationState.SelectedPatientId;
+        _courses = await UnitOfWork.Setting.GetSelectedCourses(immunisationSetup.Id);
+    }
+
+
+    private async Task OnCourseSelected(ClickEventArgs<Course> args)
+    {
+        if (args.ItemData is null) return;
+        var course = args.ItemData;
+        var shots = await UnitOfWork.Setting.GetSelectedShot(course.Id);
+    }
+
+    private async Task SaveSchedule()
+    {
+        var res = await UnitOfWork.Consultation.SaveImmunisationSchedule(_immunisationSchedule);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDiloag.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

@@ -29,6 +29,7 @@ namespace Database.Configurations
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v),
                     v => JsonConvert.DeserializeObject<PatientAddress>(v)
+                   
                 );
 
 
