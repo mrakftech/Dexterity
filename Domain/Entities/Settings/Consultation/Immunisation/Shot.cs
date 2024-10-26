@@ -20,7 +20,5 @@ namespace Domain.Entities.Settings.Consultation.Immunisation
         public int IntervalMax { get; set; } = 120;
         public string Comment { get; set; }
         public string ClaimForm { get; set; }
-        public int Order { get; set; }
-
     }
 }

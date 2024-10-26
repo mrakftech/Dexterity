@@ -92,27 +92,27 @@
 
 <MudItem md="4">
 
-    <SfDropDownList TValue="string" TItem="ImmunisationSetup" Placeholder="Select a Schedule" DataSource="@_setups" CssClass="mt-3">
+    <SfDropDownList TValue="string" TItem="Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram" Placeholder="Select a Schedule" DataSource="@_setups" CssClass="mt-3">
         <DropDownListFieldSettings Value="Name" Text="Name"/>
-        <DropDownListEvents TValue="string" TItem="ImmunisationSetup" ValueChange="OnChangeSetup"></DropDownListEvents>
+        <DropDownListEvents TValue="string" TItem="Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram" ValueChange="OnChangeSetup"></DropDownListEvents>
     </SfDropDownList>
 
-    <DexForm Model="_scheduleSetup" OnValidSubmit="SaveCourse" ColumnCount="3">
+    <DexForm Model="_scheduleProgram" OnValidSubmit="SaveCourse" ColumnCount="3">
         <Fields>
-            <FormItem Field="@nameof(ImmunisationSetup.Name)" LabelText="Title" ColumnSpan="3"/>
-            <FormItem Field="@nameof(ImmunisationSetup.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active" ColumnSpan="1"/>
-            <FormItem Field="@nameof(ImmunisationSetup.IsDefualt)" EditorType="FormEditorType.Checkbox" LabelText="Default" ColumnSpan="1"/>
-            <FormItem Field="@nameof(ImmunisationSetup.IsChildhood)" EditorType="FormEditorType.Checkbox" LabelText="Childhood" ColumnSpan="1"/>
+            <FormItem Field="@nameof(Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram.Name)" LabelText="Title" ColumnSpan="3"/>
+            <FormItem Field="@nameof(Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active" ColumnSpan="1"/>
+            <FormItem Field="@nameof(Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram.IsDefualt)" EditorType="FormEditorType.Checkbox" LabelText="Default" ColumnSpan="1"/>
+            <FormItem Field="@nameof(Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram.IsChildhood)" EditorType="FormEditorType.Checkbox" LabelText="Childhood" ColumnSpan="1"/>
         </Fields>
         <Buttons>
 
-            <button type="submit" class="e-btn">@(_scheduleSetup.Id > 0 ? "Update" : "Add New")</button>
+            <button type="submit" class="e-btn">@(_scheduleProgram.Id > 0 ? "Update" : "Add New")</button>
             <button class="e-btn" @onclick="ClearForm">Clear</button>
         </Buttons>
     </DexForm>
 </MudItem>
 <MudGrid>
-    @if (_scheduleSetup.Id > 0)
+    @if (_scheduleProgram.Id > 0)
     {
         <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
             <div id="container">
@@ -165,8 +165,8 @@
 </MudGrid>
 
 @code {
-    private List<ImmunisationSetup> _setups = new();
-    private ImmunisationSetup _scheduleSetup = new();
+    private List<Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram> _setups = new();
+    private Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram _scheduleProgram = new();
     List<Course> _allCourses = [];
     List<Course> _selectedCourse = [];
 
@@ -190,25 +190,25 @@
 
     private async Task GetImmunisationsSetup()
     {
-        _setups = await UnitOfWork.Setting.GetImmunisationSetups();
+        _setups = await UnitOfWork.Setting.GetImmunisationPrograms();
     }
 
-    private async Task OnChangeSetup(ChangeEventArgs<string, ImmunisationSetup> args)
+    private async Task OnChangeSetup(ChangeEventArgs<string, Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram> args)
     {
         if (args.ItemData is null) return;
         var immunisationSetup = args.ItemData;
-        _scheduleSetup.Id = immunisationSetup.Id;
-        _scheduleSetup.Name = immunisationSetup.Name;
-        _scheduleSetup.IsActive = immunisationSetup.IsActive;
-        _scheduleSetup.IsDefualt = immunisationSetup.IsDefualt;
-        _scheduleSetup.IsChildhood = immunisationSetup.IsChildhood;
+        _scheduleProgram.Id = immunisationSetup.Id;
+        _scheduleProgram.Name = immunisationSetup.Name;
+        _scheduleProgram.IsActive = immunisationSetup.IsActive;
+        _scheduleProgram.IsDefualt = immunisationSetup.IsDefualt;
+        _scheduleProgram.IsChildhood = immunisationSetup.IsChildhood;
         _selectedCourse = await UnitOfWork.Setting.GetSelectedCourses(immunisationSetup.Id);
         _destinationList = _selectedCourse;
     }
 
     private async Task SaveCourse()
     {
-        var res = await UnitOfWork.Setting.SaveImmunisationSetup(_scheduleSetup.Id, _scheduleSetup);
+        var res = await UnitOfWork.Setting.SaveImmunisationProgram(_scheduleProgram.Id, _scheduleProgram);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -224,14 +224,14 @@
 
     private async Task ClearForm()
     {
-        _scheduleSetup = new ImmunisationSetup();
+        _scheduleProgram = new Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram();
         await GetImmunisationsSetup();
     }
 
 
     private async Task SelectCourse()
     {
-        var res = await UnitOfWork.Setting.AddCourseInSchedule(_scheduleSetup.Id, _selectedCourse);
+        var res = await UnitOfWork.Setting.AddCourseInSchedule(_scheduleProgram.Id, _selectedCourse.Select(x => x.Id).ToList());
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

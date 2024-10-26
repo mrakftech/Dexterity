@@ -230,7 +230,7 @@
 
     private async Task SelectCourse()
     {
-        var res = await UnitOfWork.Setting.AddShotInCourse(_course.Id, _selectedShots);
+        var res = await UnitOfWork.Setting.AddShotInCourse(_course.Id, _selectedShots.Select(x => x.Id).ToList());
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -255,8 +255,6 @@
                     }
 
                     _selectedShots.Add(_sourceItemSelected);
-                    // _allShots.RemoveAt(_allShots.FindIndex(e => e.Id == _sourceItemSelected.Id));
-                    //_sourceList = [.._allShots];
                     _destinationList = [.._selectedShots];
                     _sourceItemSelected = null;
                 }
