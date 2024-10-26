@@ -781,7 +781,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<CourseDto> GetCourse(int courseId)
     {
         var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
-        var shots = await context.AssigendShotToCourses
+        var shots = await context.AssignedShotToCourses
             .Where(x => x.CourseId == courseId)
             .Select(x => x.Shot)
             .ToListAsync();
@@ -819,14 +819,14 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     }
 
 
-    public async Task<IResult> AddShotInCourse(int courseId, List<int> shotIds)
+    public async Task<IResult> AssignedShotToCourse(int courseId, List<int> shotIds)
     {
         await ClearShotList(courseId);
-        var list = shotIds.Select((item, index) => new AssigendShotToCourse()
+        var list = shotIds.Select((item, index) => new AssignedShotToCourse()
                 {CourseId = courseId, ShotId = item, Order = index + 1})
             .ToList();
         context.ChangeTracker.Clear();
-        context.AssigendShotToCourses.AddRange(list);
+        context.AssignedShotToCourses.AddRange(list);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Shot(s) has been saved.");
     }
@@ -834,16 +834,17 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     private async Task ClearShotList(int courseId)
     {
         var cleanPreviousData =
-            await context.AssigendShotToCourses.AsNoTracking().Where(x => x.CourseId == courseId).ToListAsync();
+            await context.AssignedShotToCourses.AsNoTracking().Where(x => x.CourseId == courseId).ToListAsync();
         context.ChangeTracker.Clear();
-        context.AssigendShotToCourses.RemoveRange(cleanPreviousData);
+        context.AssignedShotToCourses.RemoveRange(cleanPreviousData);
         await context.SaveChangesAsync();
     }
 
-    public async Task<List<Shot>> GetSelectedShot(int courseId)
+    public async Task<List<Shot>> GetAssignedShotToCourse(int courseId)
     {
-        return await context.AssigendShotToCourses
+        return await context.AssignedShotToCourses
             .Where(x => x.CourseId == courseId)
+            .OrderBy(x => x.Order)
             .Select(x => x.Shot)
             .ToListAsync();
     }
@@ -859,7 +860,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-    #region Immunisation Setup
+    #region Immunisation Programs
 
     public async Task<List<ImmunisationProgram>> GetImmunisationPrograms()
     {
@@ -908,7 +909,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         }
     }
 
-    public async Task<IResult> AddCourseInSchedule(int programId, List<int> courseIds)
+    public async Task<IResult> AssignedCourseToSchedule(int programId, List<int> courseIds)
     {
         await ClearCourseList(programId);
         var list = courseIds.Select((item, index) => new AssignedCourseToProgram()
@@ -921,10 +922,11 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     }
 
 
-    public async Task<List<Course>> GetSelectedCourses(int programId)
+    public async Task<List<Course>> GetAssignedCoursesOfProgram(int programId)
     {
         return await context.AssignedCourseToPrograms
             .Where(x => x.ImmunisationProgramId == programId)
+            .OrderBy(x => x.Order)
             .Select(x => x.Course)
             .ToListAsync();
     }

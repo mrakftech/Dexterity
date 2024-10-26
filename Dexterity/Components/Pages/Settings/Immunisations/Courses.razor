@@ -201,7 +201,7 @@
         _course.Id = course.Id;
         _course.Name = course.Name;
         _course.IsActive = course.IsActive;
-        _selectedShots = await UnitOfWork.Setting.GetSelectedShot(course.Id);
+        _selectedShots = await UnitOfWork.Setting.GetAssignedShotToCourse(course.Id);
         _destinationList = _selectedShots;
     }
 
@@ -230,7 +230,7 @@
 
     private async Task SelectCourse()
     {
-        var res = await UnitOfWork.Setting.AddShotInCourse(_course.Id, _selectedShots.Select(x => x.Id).ToList());
+        var res = await UnitOfWork.Setting.AssignedShotToCourse(_course.Id, _selectedShots.Select(x => x.Id).ToList());
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

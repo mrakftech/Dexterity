@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities.Settings.Consultation.Immunisation;
 
-public class AssigendShotToCourse
+public class AssignedShotToCourse
 {
     public int Id { get; set; }
     public Course Course { get; set; }

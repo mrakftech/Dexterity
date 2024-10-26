@@ -202,7 +202,7 @@
         _scheduleProgram.IsActive = immunisationSetup.IsActive;
         _scheduleProgram.IsDefualt = immunisationSetup.IsDefualt;
         _scheduleProgram.IsChildhood = immunisationSetup.IsChildhood;
-        _selectedCourse = await UnitOfWork.Setting.GetSelectedCourses(immunisationSetup.Id);
+        _selectedCourse = await UnitOfWork.Setting.GetAssignedCoursesOfProgram(immunisationSetup.Id);
         _destinationList = _selectedCourse;
     }
 
@@ -231,7 +231,7 @@
 
     private async Task SelectCourse()
     {
-        var res = await UnitOfWork.Setting.AddCourseInSchedule(_scheduleProgram.Id, _selectedCourse.Select(x => x.Id).ToList());
+        var res = await UnitOfWork.Setting.AssignedCourseToSchedule(_scheduleProgram.Id, _selectedCourse.Select(x => x.Id).ToList());
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

@@ -1,6 +1,4 @@
 ﻿using Domain.Entities.Appointments;
-using Domain.Entities.Messaging;
-using Domain.Entities.Settings;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
@@ -121,8 +119,8 @@ public interface ISettingService
     Task<List<Course>> GetCourses();
     Task<CourseDto> GetCourse(int courseId);
     Task<IResult> SaveCourse(int courseId, Course course);
-    Task<IResult> AddShotInCourse(int courseId, List<int> shotIds);
-    Task<List<Shot>> GetSelectedShot(int courseId);
+    Task<IResult> AssignedShotToCourse(int courseId, List<int> shotIds);
+    Task<List<Shot>> GetAssignedShotToCourse(int courseId);
     Task<IResult> DeleteCourse(int id);
     #endregion
 
@@ -131,8 +129,8 @@ public interface ISettingService
     Task<List<ImmunisationProgram>> GetImmunisationPrograms();
     Task<ImmunisationSetupDto> GetImmunisationProgram(int programId);
     Task<IResult> SaveImmunisationProgram(int setupId, ImmunisationProgram program);
-    Task<IResult> AddCourseInSchedule(int programId, List<int> courseIds);
-    Task<List<Course>> GetSelectedCourses(int programId);
+    Task<IResult> AssignedCourseToSchedule(int programId, List<int> courseIds);
+    Task<List<Course>> GetAssignedCoursesOfProgram(int programId);
     Task<IResult> DeleteImmunisationProgram(int setupId);
 
     #endregion

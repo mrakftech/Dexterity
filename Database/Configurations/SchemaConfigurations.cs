@@ -62,7 +62,7 @@ public static class SchemaConfigurations
         {
             entity.ToTable(name: "AssignedCourseToPrograms", "Setting");
         });
-        builder.Entity<AssigendShotToCourse>(entity => { entity.ToTable(name: "AssigendShotToCourses", "Setting"); });
+        builder.Entity<AssignedShotToCourse>(entity => { entity.ToTable(name: "AssignedShotToCourses", "Setting"); });
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });

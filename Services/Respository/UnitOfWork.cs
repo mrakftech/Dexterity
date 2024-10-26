@@ -26,13 +26,14 @@ public sealed class UnitOfWork(
     : IUnitOfWork
 {
     private bool _disposed;
+
     public IConsultationService Consultation
     {
         get
         {
             if (consultation == null)
             {
-                consultation = new ConsultationService(context,mapper,patient);
+                consultation = new ConsultationService(context, mapper, patient, setting);
             }
 
             return consultation;

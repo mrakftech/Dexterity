@@ -42,7 +42,6 @@ public interface IConsultationService
     Task<IResult> SaveImmunisationSchedule(ImmunisationSchedule request);
     Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId);
     Task<List<AdministerShot>> GetAdministerShots(Guid scheduleId);
-    
 
     #endregion
 

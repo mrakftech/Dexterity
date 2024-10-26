@@ -90,7 +90,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<BatchDetail> BatchDetails { get; set; }
     public DbSet<AssignedBatchToShot> AssignedBatchToShots { get; set; }
     public DbSet<AssignedCourseToProgram> AssignedCourseToPrograms { get; set; }
-    public DbSet<AssigendShotToCourse> AssigendShotToCourses { get; set; }
+    public DbSet<AssignedShotToCourse> AssignedShotToCourses { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<ImmunisationProgram> ImmunisationPrograms { get; set; }
 

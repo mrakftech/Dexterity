@@ -9,14 +9,17 @@ using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.PatientManagement.Service;
+using Services.Features.Settings.Service;
 using Services.State;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
 
-public class ConsultationService(ApplicationDbContext context, IMapper mapper, IPatientService patientService)
+public class ConsultationService(ApplicationDbContext context, IMapper mapper, IPatientService patientService,ISettingService settingService)
     : IConsultationService
 {
+    #region Consultation Details
+
     public async Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId)
     {
         var list = new List<GetConsultationDetailDto>();
@@ -112,6 +115,10 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         return await Result.SuccessAsync("Consultation has been finished.");
     }
 
+    #endregion
+
+    #region Baseline Details
+
     public async Task<List<BaselineDetailDto>> GetBaselineDetails()
     {
         var baselineDetails = await context.BaselineDetails
@@ -176,6 +183,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         return await Result<Guid>.SuccessAsync("Details are deleted.");
     }
 
+    #endregion
 
     #region Notes
 
@@ -381,6 +389,8 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         try
         {
             await context.ImmunisationSchedules.AddAsync(request);
+            
+            //adding not administered Shot
             var administerShots = await AddAdministerShots(request.ImmunisationProgramId, request.Id);
             await context.AdministerShots.AddRangeAsync(administerShots);
             await context.SaveChangesAsync();
@@ -394,46 +404,49 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         }
     }
 
-    private async Task<List<AdministerShot>> AddAdministerShots(int? setupId, Guid scheduleId)
+    private async Task<List<AdministerShot>> AddAdministerShots(int? programId, Guid scheduleId)
     {
         var shotList = new List<Shot>();
+        
         var administerShots = new List<AdministerShot>();
-        // var setup = await context
-        //     .ImmunisationPrograms
-        //     .FirstOrDefaultAsync(x => x.Id == setupId);
-        // var courses = setup.AssignedCourses;
-        // foreach (var item in courses.OrderBy(x => x.Order))
-        // {
-        //     var shots = item.AssignedShots;
-        //     if (shots is not null)
-        //     {
-        //         shotList.AddRange(shots);
-        //     }
-        // }
-        //
-        // var dueDate = new DateTime();
-        // foreach (var item in shotList.OrderBy(x => x.Order))
-        // {
-        //     var newAdministerShot = new AdministerShot()
-        //     {
-        //         ImmunisationScheduleId = scheduleId,
-        //         ShotId = item.Id,
-        //         GivenDate = null
-        //     };
-        //
-        //     if (item.IntervalType == "From Birth")
-        //     {
-        //         var dob = await patientService.GetPatientDob(ApplicationState.SelectedPatientId);
-        //         newAdministerShot.DueDate = dob.AddDays(item.IntervalMin);
-        //     }
-        //     else
-        //     {
-        //         newAdministerShot.DueDate = dueDate.AddDays(item.IntervalMin);
-        //     }
-        //
-        //     dueDate = newAdministerShot.DueDate;
-        //     administerShots.Add(newAdministerShot);
-        // }
+        
+        var program = await context
+            .ImmunisationPrograms
+            .FirstOrDefaultAsync(x => x.Id == programId);
+        
+        var courses = await settingService.GetAssignedCoursesOfProgram(program.Id);
+        foreach (var item in courses)
+        {
+            var shots = await settingService.GetAssignedShotToCourse(item.Id);
+            if (shots is not null)
+            {
+                shotList.AddRange(shots);
+            }
+        }
+        
+        var dueDate = new DateTime();
+        foreach (var item in shotList)
+        {
+            var newAdministerShot = new AdministerShot()
+            {
+                ImmunisationScheduleId = scheduleId,
+                ShotId = item.Id,
+                GivenDate = null
+            };
+        
+            if (item.IntervalType == "From Birth")
+            {
+                var dob = await patientService.GetPatientDob(ApplicationState.SelectedPatientId);
+                newAdministerShot.DueDate = dob.AddDays(item.IntervalMin);
+            }
+            else
+            {
+                newAdministerShot.DueDate = dueDate.AddDays(item.IntervalMin);
+            }
+        
+            dueDate = newAdministerShot.DueDate;
+            administerShots.Add(newAdministerShot);
+        }
 
         return administerShots;
     }

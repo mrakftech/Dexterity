@@ -19,6 +19,7 @@ public class AdministerShot
     public Shot Shot { get; set; }
     public int? ShotId { get; set; }
     
+    
     public ConsultationDetail ConsultationDetail { get; set; }
     public int? ConsultationDetailId { get; set; }
 }
