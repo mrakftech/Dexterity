@@ -18,6 +18,7 @@ public static class SettingConstants
 
     public static List<DoseMethod> Methods { get; set; } =
     [
+        new DoseMethod(1, "Oral"),
         new DoseMethod(1, "IM"),
         new DoseMethod(1, "IV"),
         new DoseMethod(2, "INJ/IM/SC"),

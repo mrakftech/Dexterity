@@ -44,6 +44,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
+    public async Task<DateTime> GetPatientDob(Guid id)
+    {
+        var patientInDb = await context.Patients.FirstOrDefaultAsync(x => x.Id == id);
+        return patientInDb.DateOfBirth;
+    }
+
     public async Task<IResult> QuickCreatePatient(QuickAddPatientDto request, CancellationToken cancellationToken)
     {
         try

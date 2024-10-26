@@ -56,35 +56,14 @@ public static class SchemaConfigurations
         builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Setting"); });
         builder.Entity<BatchDetail>(entity => { entity.ToTable(name: "BatchDetails", "Setting"); });
         builder.Entity<Course>(entity => { entity.ToTable(name: "Courses", "Setting"); });
-        builder.Entity<ImmunisationSetup>(entity => { entity.ToTable(name: "ImmunisationSetups", "Setting"); });
+        builder.Entity<ImmunisationProgram>(entity => { entity.ToTable(name: "ImmunisationPrograms", "Setting"); });
         builder.Entity<AssignedBatchToShot>(entity => { entity.ToTable(name: "AssignedBatchToShots", "Setting"); });
-        builder
-            .Entity<ImmunisationSetup>(entity =>
-            {
-                entity.Property(x => x.AssignedCourses)
-                    .HasConversion(
-                        v => JsonConvert.SerializeObject(v),
-                        v => JsonConvert.DeserializeObject<List<Course>>(v),
-                        new ValueComparer<List<Course>>(
-                            (c1, c2) => c1.SequenceEqual(c2),
-                            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                            c => c.ToList()
-                        ));
-            });
+        builder.Entity<AssignedCourseToProgram>(entity =>
+        {
+            entity.ToTable(name: "AssignedCourseToPrograms", "Setting");
+        });
+        builder.Entity<AssigendShotToCourse>(entity => { entity.ToTable(name: "AssigendShotToCourses", "Setting"); });
 
-        builder
-            .Entity<Course>(entity =>
-            {
-                entity.Property(x => x.AssignedShots)
-                    .HasConversion(
-                        v => JsonConvert.SerializeObject(v),
-                        v => JsonConvert.DeserializeObject<List<Shot>>(v),
-                        new ValueComparer<List<Shot>>(
-                            (c1, c2) => c1.SequenceEqual(c2),
-                            c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                            c => c.ToList()
-                        ));
-            });
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
         builder.Entity<PatientContact>(entity => { entity.ToTable(name: "PatientContacts", "PM"); });
@@ -108,7 +87,7 @@ public static class SchemaConfigurations
         builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
-        
+
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });
         builder.Entity<ImmunisationSchedule>()
@@ -116,7 +95,7 @@ public static class SchemaConfigurations
             .WithMany(d => d.ImmunisationSchedules)
             .HasForeignKey(e => e.PatientId)
             .OnDelete(DeleteBehavior.NoAction);
-        
+
         builder.Entity<AdministerShot>(entity => { entity.ToTable(name: "AdministerShots", "Consultation"); });
         builder.Entity<AdministerShot>()
             .HasOne(e => e.Hcp)

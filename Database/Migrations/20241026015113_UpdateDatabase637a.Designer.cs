@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241026015113_UpdateDatabase637a")]
+    partial class UpdateDatabase637a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1968,32 +1971,6 @@ namespace Database.Migrations
                         });
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssigendShotToCourse", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ShotId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("ShotId");
-
-                    b.ToTable("AssigendShotToCourses", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssignedBatchToShot", b =>
                 {
                     b.Property<int>("Id")
@@ -2015,32 +1992,6 @@ namespace Database.Migrations
                     b.HasIndex("ShotId");
 
                     b.ToTable("AssignedBatchToShots", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssignedCourseToProgram", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("CourseId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ImmunisationProgramId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("Order")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CourseId");
-
-                    b.HasIndex("ImmunisationProgramId");
-
-                    b.ToTable("AssignedCourseToPrograms", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.BatchDetail", b =>
@@ -2093,12 +2044,18 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AssignedShots")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -2112,6 +2069,9 @@ namespace Database.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("AssignedCourses")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
@@ -2168,6 +2128,9 @@ namespace Database.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -2957,25 +2920,6 @@ namespace Database.Migrations
                     b.Navigation("Clinic");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssigendShotToCourse", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.Shot", "Shot")
-                        .WithMany()
-                        .HasForeignKey("ShotId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("Shot");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssignedBatchToShot", b =>
                 {
                     b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.BatchDetail", "BatchDetail")
@@ -2993,25 +2937,6 @@ namespace Database.Migrations
                     b.Navigation("BatchDetail");
 
                     b.Navigation("Shot");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.AssignedCourseToProgram", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.Course", "Course")
-                        .WithMany()
-                        .HasForeignKey("CourseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram", "ImmunisationProgram")
-                        .WithMany()
-                        .HasForeignKey("ImmunisationProgramId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Course");
-
-                    b.Navigation("ImmunisationProgram");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.BatchDetail", b =>

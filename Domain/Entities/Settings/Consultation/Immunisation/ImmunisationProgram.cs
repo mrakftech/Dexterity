@@ -1,6 +1,6 @@
 ﻿namespace Domain.Entities.Settings.Consultation.Immunisation;
 
-public class ImmunisationSetup
+public class ImmunisationProgram
 {
     public int Id { get; set; }
     public string Name { get; set; }
@@ -8,5 +8,4 @@ public class ImmunisationSetup
     public bool IsDefualt { get; set; }
     public bool IsChildhood { get; set; }
 
-    public List<Course> AssignedCourses { get; set; }
 }

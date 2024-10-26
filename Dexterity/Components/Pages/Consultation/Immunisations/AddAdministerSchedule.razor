@@ -28,13 +28,13 @@
                 <FormItem Field="@nameof(ImmunisationSchedule.Id)">
                     <Template>
                         <label class="e-form-label">Select Schedule</label>
-                        <SfDropDownList TValue="string" TItem="ImmunisationSetup" Placeholder="Select a Schedule" DataSource="@_setups" ColumnSpan="1">
+                        <SfDropDownList TValue="string" TItem="ImmunisationProgram" Placeholder="Select a Schedule" DataSource="@_programs" ColumnSpan="1">
                             <DropDownListFieldSettings Value="Name" Text="Name"/>
-                            <DropDownListEvents TValue="string" TItem="ImmunisationSetup" ValueChange="OnChangeSetup"></DropDownListEvents>
+                            <DropDownListEvents TValue="string" TItem="ImmunisationProgram" ValueChange="OnChangeSetup"></DropDownListEvents>
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(ImmunisationSchedule.ImmunisationSetupId)" ColumnSpan="2">
+                <FormItem Field="@nameof(ImmunisationSchedule.ImmunisationProgramId)" ColumnSpan="2">
                     <Template>
                         <label class="e-form-label">Course</label>
                         <SfListView DataSource="@_courses" Height="150px">
@@ -53,7 +53,7 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
-    private List<ImmunisationSetup> _setups = new();
+    private List<ImmunisationProgram> _programs = new();
     private List<Course> _courses = new();
     private ImmunisationSchedule _immunisationSchedule = new();
 
@@ -64,14 +64,14 @@
 
     private async Task GetCourseSchedules()
     {
-        _setups = await UnitOfWork.Setting.GetImmunisationSetups();
+        _programs = await UnitOfWork.Setting.GetImmunisationPrograms();
     }
 
-    private async Task OnChangeSetup(ChangeEventArgs<string, ImmunisationSetup> args)
+    private async Task OnChangeSetup(ChangeEventArgs<string, ImmunisationProgram> args)
     {
         if (args.ItemData is null) return;
         var immunisationSetup = args.ItemData;
-        _immunisationSchedule.ImmunisationSetupId = immunisationSetup.Id;
+        _immunisationSchedule.ImmunisationProgramId = immunisationSetup.Id;
         _immunisationSchedule.PatientId = ApplicationState.SelectedPatientId;
         _courses = await UnitOfWork.Setting.GetSelectedCourses(immunisationSetup.Id);
     }

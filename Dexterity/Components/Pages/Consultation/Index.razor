@@ -8,6 +8,7 @@
 @using Services.Features.Consultation.Dto.Notes
 @using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
 @using Dexterity.Components.Pages.Consultation.MainDetails
+@using Domain.Entities.Consultation
 @using Dexterity.Components.Pages.Consultation.Immunisations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
@@ -66,7 +67,7 @@
                     <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
                 </MudTabPanel>
                 <MudTabPanel Text="">
-                    <ImmunisationsScreen/>
+                    <ImmunisationsScreen ImmunisationsSchedules="_immunisationsSchedules"/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>
@@ -79,6 +80,8 @@
     private List<GetConsultationDetailDto> Consultations { get; set; } = new();
     private List<ConsultationNoteDto> PastMedicalHistory { get; set; } = new();
     private List<ConsultationNoteDto> ActiveDiagnosis { get; set; } = new();
+    private List<ImmunisationSchedule> _immunisationsSchedules = [];
+
     MudTabs _tabs = new();
     private bool _loading;
     private int _consultationId = 0;
@@ -100,6 +103,7 @@
             await GetPatientSummary();
             await GetConsultations();
             await GetConsultationNotes();
+            await GetImmunisationSchedules();
             StateHasChanged();
         }
         else
@@ -302,9 +306,13 @@
         var result = await dialogresult.Result;
         if (result.Canceled)
         {
-            //await GetConsultations();
-            //await GetConsultationNotes();
+            await GetImmunisationSchedules();
         }
+    }
+
+    private async Task GetImmunisationSchedules()
+    {
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
     }
 
     #endregion

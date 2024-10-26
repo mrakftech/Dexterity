@@ -32,7 +32,7 @@ public sealed class UnitOfWork(
         {
             if (consultation == null)
             {
-                consultation = new ConsultationService(context,mapper);
+                consultation = new ConsultationService(context,mapper,patient);
             }
 
             return consultation;

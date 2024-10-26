@@ -8,12 +8,14 @@ using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
+using Services.Features.PatientManagement.Service;
 using Services.State;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
 
-public class ConsultationService(ApplicationDbContext context, IMapper mapper) : IConsultationService
+public class ConsultationService(ApplicationDbContext context, IMapper mapper, IPatientService patientService)
+    : IConsultationService
 {
     public async Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId)
     {
@@ -292,6 +294,8 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
 
     #region Reminders
 
+
+
     public async Task<List<GetReminderDto>> GetReminders()
     {
         var reminders = await context.Reminders
@@ -377,7 +381,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         try
         {
             await context.ImmunisationSchedules.AddAsync(request);
-            var administerShots = await AddAdministerShots(request.ImmunisationSetupId, request.Id);
+            var administerShots = await AddAdministerShots(request.ImmunisationProgramId, request.Id);
             await context.AdministerShots.AddRangeAsync(administerShots);
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -390,34 +394,46 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
         }
     }
 
-    private async Task<List<AdministerShot>> AddAdministerShots(int setupId, Guid scheduleId)
+    private async Task<List<AdministerShot>> AddAdministerShots(int? setupId, Guid scheduleId)
     {
         var shotList = new List<Shot>();
         var administerShots = new List<AdministerShot>();
-        var setup = await context
-            .ImmunisationSetups
-            .FirstOrDefaultAsync(x => x.Id == setupId);
-        var courses = setup.AssignedCourses;
-        foreach (var item in courses)
-        {
-            var shots = item.AssignedShots;
-            if (shots is not null)
-            {
-                shotList.AddRange(shots);
-            }
-        }
-
-        foreach (var item in shotList)
-        {
-            var newAdministerShot = new AdministerShot()
-            {
-                HcpId = ApplicationState.CurrentUser.UserId,
-                ImmunisationScheduleId = scheduleId,
-                ShotId = item.Id,
-                ConsultationDetailId = 1,
-            };
-            administerShots.Add(newAdministerShot);
-        }
+        // var setup = await context
+        //     .ImmunisationPrograms
+        //     .FirstOrDefaultAsync(x => x.Id == setupId);
+        // var courses = setup.AssignedCourses;
+        // foreach (var item in courses.OrderBy(x => x.Order))
+        // {
+        //     var shots = item.AssignedShots;
+        //     if (shots is not null)
+        //     {
+        //         shotList.AddRange(shots);
+        //     }
+        // }
+        //
+        // var dueDate = new DateTime();
+        // foreach (var item in shotList.OrderBy(x => x.Order))
+        // {
+        //     var newAdministerShot = new AdministerShot()
+        //     {
+        //         ImmunisationScheduleId = scheduleId,
+        //         ShotId = item.Id,
+        //         GivenDate = null
+        //     };
+        //
+        //     if (item.IntervalType == "From Birth")
+        //     {
+        //         var dob = await patientService.GetPatientDob(ApplicationState.SelectedPatientId);
+        //         newAdministerShot.DueDate = dob.AddDays(item.IntervalMin);
+        //     }
+        //     else
+        //     {
+        //         newAdministerShot.DueDate = dueDate.AddDays(item.IntervalMin);
+        //     }
+        //
+        //     dueDate = newAdministerShot.DueDate;
+        //     administerShots.Add(newAdministerShot);
+        // }
 
         return administerShots;
     }
@@ -425,11 +441,17 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper) :
     public async Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId)
     {
         var list = await context.ImmunisationSchedules
-            .Include(x => x.ImmunisationSetup)
+            .Include(x => x.ImmunisationProgram)
             .Where(x => x.PatientId == patientId)
             .ToListAsync();
         return list;
     }
-
+    public async Task<List<AdministerShot>> GetAdministerShots(Guid scheduleId)
+    {
+        return await context.AdministerShots
+            .Include(x=>x.Hcp)
+            .Include(x=>x.Shot)
+            .Where(x => x.ImmunisationScheduleId == scheduleId).ToListAsync();
+    }
     #endregion
 }

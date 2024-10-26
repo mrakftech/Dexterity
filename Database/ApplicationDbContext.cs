@@ -56,6 +56,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         {
             property.SetColumnType("decimal(18,2)");
         }
+
         builder.Entity<ChatMessage>(entity =>
         {
             entity.HasOne(d => d.FromUser)
@@ -67,7 +68,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
                 .HasForeignKey(d => d.ToUserId)
                 .OnDelete(DeleteBehavior.ClientSetNull);
         });
-
     }
 
     #region Settings
@@ -83,6 +83,18 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<HealthCode> HealthConditionCodes { get; set; }
     public DbSet<NoteTemplate> NoteTemplates { get; set; }
     public DbSet<Drug> Drugs { get; set; }
+
+    #region Immunisations
+
+    public DbSet<Shot> Shots { get; set; }
+    public DbSet<BatchDetail> BatchDetails { get; set; }
+    public DbSet<AssignedBatchToShot> AssignedBatchToShots { get; set; }
+    public DbSet<AssignedCourseToProgram> AssignedCourseToPrograms { get; set; }
+    public DbSet<AssigendShotToCourse> AssigendShotToCourses { get; set; }
+    public DbSet<Course> Courses { get; set; }
+    public DbSet<ImmunisationProgram> ImmunisationPrograms { get; set; }
+
+    #endregion
 
     #endregion
 
@@ -132,15 +144,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<BaselineDetail> BaselineDetails { get; set; }
     public DbSet<Reminder> Reminders { get; set; }
     public DbSet<ConsultationNote> ConsultationNotes { get; set; }
-
-    public DbSet<Shot> Shots { get; set; }
-    public DbSet<BatchDetail> BatchDetails { get; set; }
-    public DbSet<AssignedBatchToShot> AssignedBatchToShots { get; set; }
-    public DbSet<Course> Courses { get; set; }
-    
     public DbSet<ImmunisationSchedule> ImmunisationSchedules { get; set; }
-    public DbSet<ImmunisationSetup> ImmunisationSetups { get; set; }
     public DbSet<AdministerShot> AdministerShots { get; set; }
-    
+
     #endregion
 }

@@ -20,6 +20,7 @@ public interface IPatientService
     public Task<List<PatientListDto>> GetPatients();
 
     public Task<PatientDto> GetPatient(Guid id);
+    public Task<DateTime> GetPatientDob(Guid id);
     public Task<IResult> QuickCreatePatient(QuickAddPatientDto dto, CancellationToken cancellationToken);
     public Task<IResult> CreatePatient(UpsertPatientDto request);
     public Task<IResult> UpdatePatient(Guid id, UpsertPatientDto request);

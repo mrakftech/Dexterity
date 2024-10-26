@@ -1,17 +1,17 @@
 ﻿@using Domain.Entities.Consultation
 <TabTitle Title="Immunisations" Icon="vaccine.png"></TabTitle>
 
-<MudStack Row >
+<MudStack Row>
     <MudItem md="2">
-        <SfGrid DataSource="@_immunisationsSchedules" Height="350px">
-            <GridEvents TValue="ImmunisationSchedule"></GridEvents>
+        <SfGrid DataSource="@ImmunisationsSchedules" Height="350px">
+            <GridEvents TValue="ImmunisationSchedule" RowSelected="SelectSchedule"></GridEvents>
             <GridTemplates>
                 <DetailTemplate>
                     @{
-                        var con = (context as ImmunisationSchedule);
-                        <SfListBox DataSource="@con.ImmunisationSetup.AssignedCourses" TValue="Course" TItem="Course">
-                            <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
-                        </SfListBox>
+                        @* var con = context as ImmunisationSchedule; *@
+                        @* <SfListBox DataSource="@con!.ImmunisationProgram.AssignedCourses" TValue="Course" TItem="Course"> *@
+                        @*     <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings> *@
+                        @* </SfListBox> *@
                     }
 
                 </DetailTemplate>
@@ -20,11 +20,11 @@
                 </EmptyRecordTemplate>
             </GridTemplates>
             <GridColumns>
-                <GridColumn Field="@nameof(ImmunisationSchedule.ImmunisationSetup.Name)" HeaderText="Schedule">
+                <GridColumn Field="@nameof(ImmunisationSchedule.ImmunisationProgram.Name)" HeaderText="Schedule">
                     <Template>
                         @{
-                            var con = (context as ImmunisationSchedule);
-                            <span>@con!.ImmunisationSetup.Name</span>
+                            var con = context as ImmunisationSchedule;
+                            <span>@con!.ImmunisationProgram.Name</span>
                         }
                     </Template>
                 </GridColumn>
@@ -32,25 +32,99 @@
         </SfGrid>
     </MudItem>
     <MudItem md="10">
-        <DexGrid>
-            <DexGridColumns>
-                
-            </DexGridColumns>
-        </DexGrid>
+        <SfGrid DataSource="_administerShots">
+            <GridEvents TValue="AdministerShot" OnRecordDoubleClick="OpenAdministerShotDialog"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(AdministerShot.DueDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Due Date" Width="100px"/>
+                <GridColumn Field="@nameof(AdministerShot.GivenDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Given Date" Width="100px">
+                    <Template>
+                        @{
+                            var con = context as AdministerShot;
+                            if (con.GivenDate is null)
+                            {
+                                <span>-</span>
+                            }
+                            else
+                            {
+                                <span>@con!.GivenDate</span>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="@nameof(AdministerShot.Shot.Name)" HeaderText="Shot" Width="400px">
+                    <Template>
+                        @{
+                            var con = context as AdministerShot;
+                            <span>@con!.Shot.Name</span>
+                        }
+                    </Template>
+                </GridColumn>
+                <GridColumn Field="@nameof(AdministerShot.Hcp.FullName)" HeaderText="Administer By">
+                    <Template>
+                        @{
+                            var con = context as AdministerShot;
+                            if (con!.Hcp is null)
+                            {
+                                <span>-</span>
+                            }
+                            else
+                            {
+                                <span>@con!.Hcp.FullName</span>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+            </GridColumns>
+        </SfGrid>
     </MudItem>
 </MudStack>
 
 @code {
-    private List<ImmunisationSchedule> _immunisationsSchedules = [];
+    [Parameter] public List<ImmunisationSchedule> ImmunisationsSchedules { get; set; }
+    private List<AdministerShot> _administerShots = [];
+    private Guid _scheduleId = Guid.Empty;
 
     protected override async Task OnInitializedAsync()
     {
         await GetImmunisationSchedules();
     }
 
+    private async Task GetAdministerShots(Guid scheduleId)
+    {
+        _administerShots = await UnitOfWork.Consultation.GetAdministerShots(scheduleId);
+    }
+
     private async Task GetImmunisationSchedules()
     {
-        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
+        ImmunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
+    }
+
+    private async Task SelectSchedule(RowSelectEventArgs<ImmunisationSchedule> args)
+    {
+        if (args.Data is not null)
+        {
+            _scheduleId = args.Data.Id;
+            await GetAdministerShots(_scheduleId);
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenAdministerShotDialog(RecordDoubleClickEventArgs<AdministerShot> args)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("AdministerShotDto", args.RowData);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<AdministerShotDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (result.Canceled)
+        {
+            await GetAdministerShots(_scheduleId);
+        }
     }
 
 }
