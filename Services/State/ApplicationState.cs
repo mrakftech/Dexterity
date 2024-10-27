@@ -9,6 +9,7 @@ public static class ApplicationState
     public static bool IsLoggedIn { get; set; }
 
     public static Guid SelectedPatientId { get; set; }
+    public static int SelectedConsultationId { get; set; }
     public static string SelectedPatientName { get; set; }
     public static PatientSummaryDto SelectedPatientSummary { get; set; }
 

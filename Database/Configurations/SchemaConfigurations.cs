@@ -54,15 +54,12 @@ public static class SchemaConfigurations
 
         //Immuisation 
         builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Setting"); });
-        builder.Entity<BatchDetail>(entity => { entity.ToTable(name: "BatchDetails", "Setting"); });
+        builder.Entity<Batch>(entity => { entity.ToTable(name: "Batches", "Setting"); });
         builder.Entity<Course>(entity => { entity.ToTable(name: "Courses", "Setting"); });
         builder.Entity<ImmunisationProgram>(entity => { entity.ToTable(name: "ImmunisationPrograms", "Setting"); });
-        builder.Entity<AssignedBatchToShot>(entity => { entity.ToTable(name: "AssignedBatchToShots", "Setting"); });
-        builder.Entity<AssignedCourseToProgram>(entity =>
-        {
-            entity.ToTable(name: "AssignedCourseToPrograms", "Setting");
-        });
-        builder.Entity<AssignedShotToCourse>(entity => { entity.ToTable(name: "AssignedShotToCourses", "Setting"); });
+        builder.Entity<ShotBatch>(entity => { entity.ToTable(name: "ShotBatches", "Setting"); });
+        builder.Entity<ProgramCourse>(entity => { entity.ToTable(name: "ProgramCourses", "Setting"); });
+        builder.Entity<CourseShot>(entity => { entity.ToTable(name: "CourseShots", "Setting"); });
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
@@ -87,6 +84,7 @@ public static class SchemaConfigurations
         builder.Entity<BaselineDetail>(entity => { entity.ToTable(name: "BaselineDetails", "Consultation"); });
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
+        builder.Entity<Reaction>(entity => { entity.ToTable(name: "Reactions", "Consultation"); });
 
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });

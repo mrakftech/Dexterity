@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
-namespace Services.Configurations.Attributes;
+namespace Shared.Attributes;
 
 public class GmsNumberAttribute : ValidationAttribute
 {

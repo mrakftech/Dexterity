@@ -103,9 +103,9 @@
             <FormItem Field="@nameof(Course.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active"/>
         </Fields>
         <Buttons>
-            <button type="submit" class="e-btn">@(_course.Id > 0 ? "Update" : "Add New")</button>
+            <button type="submit" class="e-btn">@(_course.Id != Guid.Empty ? "Update" : "Add New")</button>
             <button class="e-btn" @onclick="ClearForm">Clear</button>
-            @if (_course.Id > 0)
+            @if (_course.Id != Guid.Empty)
             {
                 <button type="button" class="e-btn" @onclick="DeleteCourse">Delete</button>
             }
@@ -113,7 +113,7 @@
     </DexForm>
 </MudItem>
 <MudGrid>
-    @if (_course.Id > 0)
+    @if (_course.Id != Guid.Empty)
     {
         <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
             <div id="container">

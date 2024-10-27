@@ -6,6 +6,7 @@ using Domain.Entities.Settings.Consultation.Immunisation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.PatientManagement.Service;
@@ -15,7 +16,11 @@ using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
 
-public class ConsultationService(ApplicationDbContext context, IMapper mapper, IPatientService patientService,ISettingService settingService)
+public class ConsultationService(
+    ApplicationDbContext context,
+    IMapper mapper,
+    IPatientService patientService,
+    ISettingService settingService)
     : IConsultationService
 {
     #region Consultation Details
@@ -51,7 +56,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
     {
         try
         {
-            var consultation = new ConsultationDetail()
+            var consultation = new ConsultationDetail
             {
                 ConsultationDate = request.ConsultationDate,
                 ClinicSiteId = request.ClinicSiteId,
@@ -302,8 +307,6 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
 
     #region Reminders
 
-
-
     public async Task<List<GetReminderDto>> GetReminders()
     {
         var reminders = await context.Reminders
@@ -389,7 +392,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         try
         {
             await context.ImmunisationSchedules.AddAsync(request);
-            
+
             //adding not administered Shot
             var administerShots = await AddAdministerShots(request.ImmunisationProgramId, request.Id);
             await context.AdministerShots.AddRangeAsync(administerShots);
@@ -404,16 +407,16 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         }
     }
 
-    private async Task<List<AdministerShot>> AddAdministerShots(int? programId, Guid scheduleId)
+    private async Task<List<AdministerShot>> AddAdministerShots(Guid? programId, Guid scheduleId)
     {
         var shotList = new List<Shot>();
-        
+
         var administerShots = new List<AdministerShot>();
-        
+
         var program = await context
             .ImmunisationPrograms
             .FirstOrDefaultAsync(x => x.Id == programId);
-        
+
         var courses = await settingService.GetAssignedCoursesOfProgram(program.Id);
         foreach (var item in courses)
         {
@@ -423,17 +426,20 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
                 shotList.AddRange(shots);
             }
         }
-        
+
         var dueDate = new DateTime();
         foreach (var item in shotList)
         {
-            var newAdministerShot = new AdministerShot()
+            var newAdministerShot = new AdministerShot();
+            var shotBatch = await settingService.GetShotBatchByShotId(item.Id);
+            if (shotBatch is not null)
             {
-                ImmunisationScheduleId = scheduleId,
-                ShotId = item.Id,
-                GivenDate = null
-            };
-        
+                newAdministerShot.ImmunisationScheduleId = scheduleId;
+                newAdministerShot.ShotBatchId = shotBatch.Id;
+                newAdministerShot.GivenDate = null;
+                newAdministerShot.IsDue = true;
+            }
+
             if (item.IntervalType == "From Birth")
             {
                 var dob = await patientService.GetPatientDob(ApplicationState.SelectedPatientId);
@@ -443,7 +449,7 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
             {
                 newAdministerShot.DueDate = dueDate.AddDays(item.IntervalMin);
             }
-        
+
             dueDate = newAdministerShot.DueDate;
             administerShots.Add(newAdministerShot);
         }
@@ -451,20 +457,228 @@ public class ConsultationService(ApplicationDbContext context, IMapper mapper, I
         return administerShots;
     }
 
-    public async Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId)
+    public async Task<List<ImmunisationScheduleDto>> GetImmunisationSchedule(Guid patientId)
     {
-        var list = await context.ImmunisationSchedules
+        var list = new List<ImmunisationScheduleDto>();
+        var immunisationSchedules = await context.ImmunisationSchedules
             .Include(x => x.ImmunisationProgram)
             .Where(x => x.PatientId == patientId)
             .ToListAsync();
+        foreach (var item in immunisationSchedules)
+        {
+            var courses = await settingService.GetAssignedCoursesOfProgram((Guid) item.ImmunisationProgramId!);
+            var model = new ImmunisationScheduleDto()
+            {
+                Id = item.Id,
+                ImmunisationProgram = item.ImmunisationProgram,
+                ImmunisationProgramId = item.ImmunisationProgramId,
+                Courses = courses
+            };
+            list.Add(model);
+        }
+
         return list;
     }
+
     public async Task<List<AdministerShot>> GetAdministerShots(Guid scheduleId)
     {
         return await context.AdministerShots
-            .Include(x=>x.Hcp)
-            .Include(x=>x.Shot)
-            .Where(x => x.ImmunisationScheduleId == scheduleId).ToListAsync();
+            .Include(x => x.Hcp)
+            .Include(x => x.ShotBatch)
+            .Include(x => x.ShotBatch.Shot)
+            .Include(x => x.ShotBatch.Batch)
+            .Where(x => x.ImmunisationScheduleId == scheduleId && x.IsDue && x.IsCancelled == false)
+            .OrderByDescending(x => x.DueDate).ToListAsync();
     }
+
+    public async Task<AdministerShotDto> GetAdministerShot(Guid id)
+    {
+        var administerShot = await context.AdministerShots
+            .Include(x => x.ShotBatch)
+            .Include(x => x.ShotBatch.Shot)
+            .Include(x => x.ShotBatch.Batch)
+            .OrderByDescending(x => x.DueDate)
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        var model = new AdministerShotDto
+        {
+            DueDate = administerShot.DueDate,
+            Side = administerShot.Side,
+            IsFirstShot = administerShot.IsFirstShot,
+        };
+        if (administerShot.ShotBatch is not null)
+        {
+            var shot = administerShot.ShotBatch.Shot;
+            var batch = administerShot.ShotBatch.Batch;
+            if (shot is not null)
+            {
+                var batches = await settingService.GetAssignedBatches(shot.Id);
+                model.ShotName = administerShot.ShotBatch.Shot.Name;
+                model.ShotDose = administerShot.ShotBatch.Shot.Dose;
+                model.ShotMethod = administerShot.ShotBatch.Shot.Method;
+                model.ShotComment = administerShot.ShotBatch.Shot.Comment;
+                model.Batches = batches;
+            }
+
+            if (batch is not null)
+            {
+                model.BatchId = administerShot.ShotBatch.Batch.Id;
+                model.BatchNumber = administerShot.ShotBatch.Batch.BatchNumber;
+                model.ManfactureName = administerShot.ShotBatch.Batch.ManfactureName;
+                model.TradeName = administerShot.ShotBatch.Batch.TradeName;
+                model.Remaining = administerShot.ShotBatch.Batch.Remaining;
+                model.Expiry = administerShot.ShotBatch.Batch.Expiry;
+                model.IsBacthExpired = CheckBatchExpired(model.Expiry);
+            }
+        }
+
+        return model;
+    }
+
+    private static bool CheckBatchExpired(DateTime expiry)
+    {
+        return DateTime.Now.Date > expiry.Date;
+    }
+
+    public async Task<IResult> GivenAdministerShot(Guid id, AdministerShotDto request)
+    {
+        try
+        {
+            var administerShotInDb = await context.AdministerShots
+                .Include(x => x.ShotBatch)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (administerShotInDb is null)
+            {
+                return await Result.FailAsync("Administer not found.");
+            }
+
+            administerShotInDb.GivenDate = request.GivenDate;
+            administerShotInDb.Side = request.Side;
+            administerShotInDb.HcpId = request.HcpId;
+            administerShotInDb.IsFirstShot = request.IsFirstShot;
+            administerShotInDb.IsDue = false;
+            administerShotInDb.IsGiven = true;
+            administerShotInDb.IsCancelled = false;
+            administerShotInDb.ConsultationDetailId = ApplicationState.SelectedConsultationId;
+            context.AdministerShots.Update(administerShotInDb);
+            await settingService.DecreaseBatchQty(administerShotInDb.ShotBatch.BatchId, 1);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Administer has been saved.");
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<List<AdministerShot>> FilterAdministerShots(Guid scheduleId, string type)
+    {
+        return type switch
+        {
+            "All" => await context.AdministerShots
+                .Include(x => x.Hcp)
+                .Include(x => x.ShotBatch)
+                .Include(x => x.ShotBatch.Shot)
+                .Include(x => x.ShotBatch.Batch).Where(x => x.ImmunisationScheduleId == scheduleId).ToListAsync(),
+            "Given" => await context.AdministerShots
+                .Include(x => x.Hcp)
+                .Include(x => x.ShotBatch)
+                .Include(x => x.ShotBatch.Shot)
+                .Include(x => x.ShotBatch.Batch).Where(x => x.ImmunisationScheduleId == scheduleId && x.IsGiven)
+                .ToListAsync(),
+            "Due" => await context.AdministerShots
+                .Include(x => x.Hcp)
+                .Include(x => x.ShotBatch)
+                .Include(x => x.ShotBatch.Shot)
+                .Include(x => x.ShotBatch.Batch).Where(x => x.ImmunisationScheduleId == scheduleId && x.IsDue)
+                .ToListAsync(),
+            "Cancelled" => await context.AdministerShots
+                .Where(x => x.ImmunisationScheduleId == scheduleId && x.IsCancelled)
+                .Include(x => x.Hcp)
+                .Include(x => x.ShotBatch)
+                .Include(x => x.ShotBatch.Shot)
+                .Include(x => x.ShotBatch.Batch)
+                .ToListAsync(),
+            _ => await context.AdministerShots
+                .Include(x => x.Hcp)
+                .Include(x => x.ShotBatch)
+                .Include(x => x.ShotBatch.Shot)
+                .Include(x => x.ShotBatch.Batch)
+                .Where(x => x.ImmunisationScheduleId == scheduleId && x.IsDue)
+                .ToListAsync()
+        };
+    }
+
+
+    public async Task<IResult> CancelAdministerShot(Guid id)
+    {
+        var administerShotInDb = await context.AdministerShots.FirstOrDefaultAsync(x => x.Id == id);
+        if (administerShotInDb is null)
+        {
+            return await Result.FailAsync("Administer not found.");
+        }
+
+        administerShotInDb.IsCancelled = true;
+        administerShotInDb.IsDue = false;
+        administerShotInDb.IsGiven = false;
+        context.AdministerShots.Update(administerShotInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Administer has been cancelled.");
+    }
+
+    public async Task<IResult> SaveReaction(Guid id, Reaction request)
+    {
+        try
+        {
+            if (id == Guid.Empty)
+            {
+                var reaction = new Reaction()
+                {
+                    Id = Guid.NewGuid(),
+                    AdministerShotId = request.AdministerShotId,
+                    ReactionType = request.ReactionType,
+                    ReactionDate = request.ReactionDate,
+                    Comment = request.Comment,
+                    Side = request.Side,
+                };
+                await context.Reactions.AddAsync(reaction);
+                await context.SaveChangesAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            return await Result.FailAsync(e.Message);
+        }
+
+        return await Result.SuccessAsync("Reaction has been saved.");
+    }
+
+    public async Task<List<Reaction>> GetReactions(Guid administerId)
+    {
+        return await context.Reactions
+            .Include(x => x.AdministerShot)
+            .Include(x => x.AdministerShot.ShotBatch)
+            .Include(x => x.AdministerShot.ShotBatch.Shot)
+            .Where(x => x.AdministerShotId == administerId).ToListAsync();
+    }
+
+    public async Task<IResult> RemoveReaction(Guid id)
+    {
+        var reaction = await context.Reactions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (reaction is null)
+        {
+            return await Result.FailAsync("reaction not found.");
+        }
+
+        context.Reactions.Remove(reaction);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("reaction has been removed.");
+    }
+
     #endregion
 }

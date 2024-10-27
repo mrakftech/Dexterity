@@ -1,4 +1,4 @@
-﻿<SfDataForm ColumnCount="@ColumnCount" Model="@Model" OnValidSubmit="OnValidSubmit" ColumnSpacing="20px" Width="100%" ButtonsAlignment="FormButtonsAlignment.Left">
+﻿<SfDataForm  ColumnCount="@ColumnCount" Model="@Model" OnValidSubmit="OnValidSubmit" ColumnSpacing="@ColumnSpacing" Width="@Width" ButtonsAlignment="FormButtonsAlignment.Left">
     <FormValidator>
         <ObjectGraphDataAnnotationsValidator/>
     </FormValidator>
@@ -23,5 +23,7 @@
     //[Parameter] public RenderFragment TemplateField { get; set; }
     [Parameter] public RenderFragment Buttons { get; set; }
     [Parameter] public RenderFragment Group { get; set; }
+    [Parameter] public string ColumnSpacing { get; set; } = "20px";
+    [Parameter] public string Width { get; set; } = "100%";
 
 }

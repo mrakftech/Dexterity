@@ -1,0 +1,138 @@
+﻿@using Services.Features.UserAccounts.Dtos.User
+@using Services.Features.Consultation.Dto.Immunisations
+<DexDialog>
+    <DialogTitle>Administer Shot</DialogTitle>
+    <Content>
+        <DexForm Model="Administer" ColumnCount="2" OnValidSubmit="SaveAdministerShot">
+            <Fields>
+                <FormItem Field="@nameof(AdministerShotDto.ShotName)" IsEnabled="false" LabelText="Immunisation" ColumnSpan="1"/>
+                <FormItem Field="@nameof(AdministerShotDto.ShotMethod)" IsEnabled="false" LabelText="Method" ColumnSpan="1"/>
+                <FormItem Field="@nameof(AdministerShotDto.DueDate)" LabelText="Due Date" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(AdministerShotDto.ShotDose)" IsEnabled="false" LabelText="Dose" ColumnSpan="1"/>
+                <FormItem Field="@nameof(AdministerShotDto.HcpId)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">HCP/Vaccinator</label>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="" DataSource="@HealthCares" @bind-Value="@Administer.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(AdministerShotDto.ManfactureName)" IsEnabled="false" LabelText="Dose" ColumnSpan="1"/>
+                <FormItem Field="@nameof(AdministerShotDto.GivenDate)" LabelText="Given Date" ColumnSpan="1" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(AdministerShotDto.TradeName)" IsEnabled="false" LabelText="Trade Name" ColumnSpan="1"/>
+                <FormItem Field="@nameof(AdministerShotDto.Side)" LabelText="Side" ColumnSpan="1">
+                    <Template>
+                        <SfDropDownList TValue="string" TItem="Side" Placeholder="Side" DataSource="@SettingConstants.Sides" @bind-Value="Administer.Side">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(AdministerShotDto.ShotComment)" IsEnabled="false" LabelText="Comment" ColumnSpan="1" EditorType="FormEditorType.TextArea"/>
+                <FormItem Field="@nameof(AdministerShotDto.BatchId)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Batch</label>
+                        <SfDropDownList TValue="Guid" TItem="Batch" Placeholder="" DataSource="@Administer.Batches" @bind-Value="@Administer.BatchId">
+                            <DropDownListTemplates TItem="Batch">
+                                <ItemTemplate>
+                                    <span class="item">
+                                        <span class="name">@context.BatchNumber</span>
+                                        <span class="name">@context.Remaining</span>
+                                        <span class="name" style="text-align:end">
+                                            @context.Expiry.ToString("d")
+                                        </span>
+                                    </span>
+                                </ItemTemplate>
+                                <HeaderTemplate>
+                                    <span class="head">
+                                        <span class="name">Batch Number</span><span class="name">Remaining Stock</span> <span class="name">Expiry</span>
+                                    </span>
+                                </HeaderTemplate>
+                            </DropDownListTemplates>
+                            <DropDownListFieldSettings Value="Id" Text="BatchNumber"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(AdministerShotDto.Expiry)" IsEnabled="false" LabelText="Expiry" EditorType="FormEditorType.DatePicker" ColumnSpan="1">
+                    <Template>
+                        @if (Administer.IsBacthExpired)
+                        {
+                            <span class="validation-message">Selected Batch is Expired</span>
+                        }
+                        <label class="e-form-label">Expiry:</label>
+                        <SfDatePicker TValue="DateTime" Placeholder="" @bind-Value="Administer.Expiry" Enabled="false" ShowClearButton="true"></SfDatePicker>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(AdministerShotDto.IsFirstShot)"  LabelText="First Shot" ColumnSpan="2"/>
+                </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Administer" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+<style>
+    .head, .item {
+        display: table;
+        width: 100%;
+        margin: auto;
+    }
+
+    .head {
+        height: 40px;
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    .name, .city {
+        display: table-cell;
+        vertical-align: middle;
+    }
+
+    .head .name {
+        text-indent: 16px;
+    }
+
+    .head .city {
+        text-indent: 10px;
+    }
+    
+</style>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private AdministerShotDto Administer { get; set; } = new();
+    private List<HealthcareDto> HealthCares { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetAdministerDetails(Id);
+        await GetHealthCares();
+        MudDialog.StateHasChanged();
+    }
+
+    private async Task GetAdministerDetails(Guid id)
+    {
+        Administer = await UnitOfWork.Consultation.GetAdministerShot(Id);
+    }
+
+    private async Task GetHealthCares()
+    {
+        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task SaveAdministerShot()
+    {
+        var res = await UnitOfWork.Consultation.GivenAdministerShot(Id, Administer);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

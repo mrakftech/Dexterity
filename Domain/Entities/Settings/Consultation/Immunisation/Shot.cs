@@ -1,10 +1,12 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Contracts;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation
 {
-    public class Shot
+    public class Shot : IBaseId
     {
-        public int Id { get; set; }
+        [Key]
+        public Guid Id { get; set; }
 
         [Required]
         public string Name { get; set; }

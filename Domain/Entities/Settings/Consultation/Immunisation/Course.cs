@@ -1,10 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Domain.Contracts;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation;
 
-public class Course
+public class Course : IBaseId
 {
-    public int Id { get; set; }
+    [Key] public Guid Id { get; set; } = Guid.Empty;
     [Required] public string Name { get; set; }
     public bool IsActive { get; set; }
 }

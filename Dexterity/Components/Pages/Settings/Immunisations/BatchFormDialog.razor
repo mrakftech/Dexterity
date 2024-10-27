@@ -6,15 +6,15 @@
     <Content>
         <DexForm Model="Batch" ColumnCount="2" OnValidSubmit="SaveBatchDetails">
             <Fields>
-                @if (Id > 0)
+                @if (BatchId != Guid.Empty)
                 {
                     <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Selected Batch Number" ColumnSpan="1" IsEnabled="false"></FormItem>
                     <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" LabelText="Batch Number" ColumnSpan="2">
                         <Template>
                             <label class="e-form-label">Select Batch</label>
-                            <SfAutoComplete TValue="string" TItem="BatchDetail" Placeholder="Batch Number" DataSource="@_batchList">
+                            <SfAutoComplete TValue="string" TItem="Batch" Placeholder="Batch Number" DataSource="@_batchList">
                                 <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
-                                <AutoCompleteEvents TValue="string" TItem="BatchDetail" ValueChange="OnChangeBatch"></AutoCompleteEvents>
+                                <AutoCompleteEvents TValue="string" TItem="Batch" ValueChange="OnChangeBatch"></AutoCompleteEvents>
                             </SfAutoComplete>
                         </Template>
                     </FormItem>
@@ -26,7 +26,7 @@
                 <FormItem Field="@nameof(UpsertBatchDto.Expiry)" EditorType="FormEditorType.DatePicker" ColumnSpan="2"></FormItem>
                 <FormItem Field="@nameof(UpsertBatchDto.BatchCount)" LabelText="Batch Count" ColumnSpan="1"></FormItem>
                 <FormItem Field="@nameof(UpsertBatchDto.Remaining)" ColumnSpan="1"></FormItem>
-                @if (Id > 0)
+                @if (BatchId != Guid.Empty)
                 {
                     <FormItem Field="@nameof(UpsertBatchDto.DrugName)" LabelText="Selected Drug" ColumnSpan="2" IsEnabled="false"></FormItem>
                 }
@@ -53,21 +53,21 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid BatchId { get; set; }
     [Parameter] public AssignShotToBatchDto AssignShotToBatch { get; set; } = new();
     public UpsertBatchDto Batch { get; set; } = new();
     private List<Drug> Drugs { get; set; } = new();
-    private List<BatchDetail> _batchList = new();
+    private List<Batch> _batchList = new();
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id == 0)
+        if (BatchId == Guid.Empty)
         {
             Batch.BatchNumber = AssignShotToBatch.BatchNumber;
         }
         else
         {
-            var res = await UnitOfWork.Setting.GetUpdateBatchDetail(Id);
+            var res = await UnitOfWork.Setting.GetUpdateBatchDetail(BatchId);
             Batch = res.Data;
         }
 
@@ -104,7 +104,7 @@
 
     private async Task SaveBatchDetails()
     {
-        var res = await UnitOfWork.Setting.UpsertBatch(Id, AssignShotToBatch.ShotId, Batch);
+        var res = await UnitOfWork.Setting.UpsertBatch(BatchId, AssignShotToBatch.ShotId, Batch);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -116,14 +116,14 @@
         }
     }
 
-    private void OnChangeBatch(ChangeEventArgs<string, BatchDetail> args)
+    private void OnChangeBatch(ChangeEventArgs<string, Batch> args)
     {
         if (args.ItemData is not null)
         {
             var batchDetail = args.ItemData;
             Batch.TradeName = batchDetail.TradeName;
             Batch.ManfactureName = batchDetail.ManfactureName;
-            Batch.DrugId = batchDetail.Id;
+            Batch.DrugId = batchDetail.DrugId;
         }
         else
         {

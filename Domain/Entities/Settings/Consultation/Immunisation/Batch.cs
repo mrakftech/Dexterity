@@ -1,10 +1,13 @@
-﻿using Domain.Entities.Settings.Drugs;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Contracts;
+using Domain.Entities.Settings.Drugs;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation
 {
-    public class BatchDetail
+    public class Batch : IBaseId
     {
-        public int Id { get; set; }
+        [Key]
+        public Guid Id { get; set; }
         public string BatchNumber { get; set; }
         public DateTime Expiry { get; set; }
         public string TradeName { get; set; }

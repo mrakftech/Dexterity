@@ -1,5 +1,4 @@
-﻿@using Domain.Entities.Settings.Consultation.Immunisation
-@using Services.Features.Settings.Dtos.Immunisations
+﻿@using Services.Features.Settings.Dtos.Immunisations
 <TabTitle Title="Shots" Icon="flu-shot.png">
 </TabTitle>
 <MudStack Row>
@@ -51,7 +50,7 @@
                         </FormGroup>
                     </Fields>
                     <Buttons>
-                        @if (_shotId > 0)
+                        @if (_shotId != Guid.Empty)
                         {
                             <DexLoadingButton Name="Save Shot" Processing="_loading" Type="MudButtonType.Submit"/>
                             <DexLoadingButton Name="Delete" Click="DeleteShot"/>
@@ -65,16 +64,16 @@
                 </DexForm>
             </MudItem>
             <MudItem md="4">
-                @if (_shotId > 0)
+                @if (_shotId != Guid.Empty)
                 {
                     <DexForm Model="AssignShotToBatch" OnValidSubmit="AssignBatchToShot">
                         <Fields>
                             <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" ColumnSpan="2">
                                 <Template>
                                     <label class="e-form-label">Select Batch:</label>
-                                    <SfAutoComplete TValue="string" TItem="BatchDetail" Placeholder="Batch Number" DataSource="@_batchList">
+                                    <SfAutoComplete TValue="string" TItem="Batch" Placeholder="Batch Number" DataSource="@_batchList">
                                         <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
-                                        <AutoCompleteEvents TValue="string" TItem="BatchDetail" ValueChange="OnChangeBatch"></AutoCompleteEvents>
+                                        <AutoCompleteEvents TValue="string" TItem="Batch" ValueChange="OnChangeBatch"></AutoCompleteEvents>
                                     </SfAutoComplete>
                                 </Template>
                             </FormItem>
@@ -82,7 +81,7 @@
                         <Buttons>
                             @if (!_isBatchFound)
                             {
-                                <DexLoadingButton Name="Create New Batch" Click="() => UpsertBatch(0)"/>
+                                <DexLoadingButton Name="Create New Batch" Click="() => UpsertBatch(Guid.Empty)"/>
                             }
                             else
                             {
@@ -96,15 +95,15 @@
             <MudItem md="12">
                 <DexGrid DataSource="ShotBatchDetails" Height="200px">
                     <DexGridColumns>
-                        <GridColumn Field="@nameof(BatchDetail.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px">
+                        <GridColumn Field="@nameof(Batch.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(Batch.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(Batch.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(Batch.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(Batch.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
+                        <GridColumn Field="@nameof(Batch.IsActive)" HeaderText="Active" Width="120px">
                             <Template>
                                 @{
-                                    var item = (context as BatchDetail);
+                                    var item = (context as Batch);
                                     @if (item!.IsActive)
                                     {
                                         <MudText Color="MudColor.Primary"> Yes</MudText>
@@ -115,12 +114,12 @@
                                     }
                                 }
                             </Template>
-                            
+
                         </GridColumn>
                         <GridColumn HeaderText="Actions" Width="120">
                             <Template>
                                 @{
-                                    var item = (context as BatchDetail);
+                                    var item = (context as Batch);
                                     <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
                                     <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertBatch(item!.Id)"/>
                                 }
@@ -134,19 +133,19 @@
 </MudStack>
 
 @code {
-    private List<Shot> ShotsList { get; set; } = new();
-    private List<BatchDetail> ShotBatchDetails { get; set; } = new();
+    private List<Shot> ShotsList { get; set; } = [];
+    private List<Batch> ShotBatchDetails { get; set; } = [];
     private Shot Shot { get; set; } = new();
     private AssignShotToBatchDto AssignShotToBatch { get; set; } = new();
     private bool _isFieldsEnable;
     private bool _isBatchFound;
     private bool _loading;
-    private int _shotId;
-    private List<BatchDetail> _batchList = new();
+    private Guid _shotId;
+    private List<Batch> _batchList = [];
 
     protected override async Task OnInitializedAsync()
     {
-        if (_shotId == 0)
+        if (_shotId == Guid.Empty)
         {
             _isFieldsEnable = true;
         }
@@ -189,7 +188,7 @@
         }
     }
 
-    private async Task GetSelectedShotDetails(int shotId)
+    private async Task GetSelectedShotDetails(Guid shotId)
     {
         var shotDetails = await UnitOfWork.Setting.GetShotsDetail(shotId);
         Shot = shotDetails.Shot;
@@ -201,13 +200,13 @@
     {
         _isFieldsEnable = true;
         Shot = new Shot();
-        _shotId = 0;
+        _shotId = Guid.Empty;
         AssignShotToBatch = new AssignShotToBatchDto();
     }
 
     private async Task DeleteShot()
     {
-        if (_shotId > 0)
+        if (_shotId != Guid.Empty)
         {
             var parameters = new DialogParameters();
             var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
@@ -247,10 +246,10 @@
         }
     }
 
-    private async Task UpsertBatch(int id)
+    private async Task UpsertBatch(Guid batchId)
     {
         var parameters = new DialogParameters();
-        parameters.Add("Id", id);
+        parameters.Add("BatchId", batchId);
         parameters.Add("AssignShotToBatch", AssignShotToBatch);
         var options = new DialogOptions()
         {
@@ -268,21 +267,20 @@
         }
     }
 
-    private async Task DeleteBatch(int id)
+    private async Task DeleteBatch(Guid batchId)
     {
         var parameters = new DialogParameters();
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
-            var res = await UnitOfWork.Setting.DeleteBatchFromShot(id);
+            var res = await UnitOfWork.Setting.DeleteBatchFromShot(batchId);
             Snackbar.SuccessMessage(res.Messages.First());
             await GetSelectedShotDetails(_shotId);
-            
         }
     }
 
-    private void OnChangeBatch(ChangeEventArgs<string, BatchDetail> args)
+    private void OnChangeBatch(ChangeEventArgs<string, Batch> args)
     {
         if (!args.IsInteracted)
         {

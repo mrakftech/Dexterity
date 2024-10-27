@@ -23,7 +23,7 @@ public class SettingMapping : Profile
 
         CreateMap<NoteTemplate, NoteTemplateDto>().ReverseMap();
 
-        CreateMap<BatchDetail, UpsertBatchDto>()
+        CreateMap<Batch, UpsertBatchDto>()
             .ForMember(x => x.DrugName, c => c.MapFrom(m => m.Drug.GenericName))
             .ReverseMap();
     }

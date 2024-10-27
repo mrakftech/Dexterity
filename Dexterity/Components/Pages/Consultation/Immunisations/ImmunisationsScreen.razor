@@ -1,17 +1,37 @@
-﻿@using Domain.Entities.Consultation
-<TabTitle Title="Immunisations" Icon="vaccine.png"></TabTitle>
+﻿@using Services.Features.Consultation.Dto.Immunisations
+@using ChangeEventArgs = Microsoft.AspNetCore.Components.ChangeEventArgs
+@using Domain.Entities.Consultation
+<TabTitle Title="Immunisations" Icon="vaccine.png">
+    <ActionButtons>
+        <div class="col-md-2">
+            <select @onchange="@(HandleChange)" class="form-control">
+                <option>All</option>
+                <option>Given</option>
+                <option>Due</option>
+                <option>Cancelled</option>
+            </select>
+        </div>
+        <button type="button" class="btn btn-primary btn-sm m-2"><i class="fa fa-print"></i> Print STC</button>
+        @if (_administerId != Guid.Empty)
+        {
+            <button type="button" class="btn btn-primary btn-sm m-2" @onclick="OpenReactionFormDialog"><i class="fas fa-head-side-cough"></i> Add Reaction</button>
+            <button type="button" class="btn btn-primary btn-sm m-2" @onclick="(() => GivenAdministerShot(_administerId))"><i class="fa fa-syringe"></i> Administer</button>
+            <button type="button" class="btn btn-danger btn-sm" @onclick="CancelAdminister"><i class="fa fa-cancel"></i> Cancel Administer</button>
+        }
+    </ActionButtons>
+</TabTitle>
 
 <MudStack Row>
-    <MudItem md="2">
+    <MudItem md="4">
         <SfGrid DataSource="@ImmunisationsSchedules" Height="350px">
-            <GridEvents TValue="ImmunisationSchedule" RowSelected="SelectSchedule"></GridEvents>
+            <GridEvents TValue="ImmunisationScheduleDto" RowSelected="SelectSchedule"></GridEvents>
             <GridTemplates>
                 <DetailTemplate>
                     @{
-                        @* var con = context as ImmunisationSchedule; *@
-                        @* <SfListBox DataSource="@con!.ImmunisationProgram.AssignedCourses" TValue="Course" TItem="Course"> *@
-                        @*     <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings> *@
-                        @* </SfListBox> *@
+                        var con = context as ImmunisationScheduleDto;
+                        <SfListBox DataSource="@con!.Courses" TValue="Course" TItem="Course">
+                            <ListBoxFieldSettings Text="Name" Value="Id"></ListBoxFieldSettings>
+                        </SfListBox>
                     }
 
                 </DetailTemplate>
@@ -20,23 +40,50 @@
                 </EmptyRecordTemplate>
             </GridTemplates>
             <GridColumns>
-                <GridColumn Field="@nameof(ImmunisationSchedule.ImmunisationProgram.Name)" HeaderText="Schedule">
+                <GridColumn Field="@nameof(ImmunisationScheduleDto.ImmunisationProgram.Name)" HeaderText="Schedule">
                     <Template>
                         @{
-                            var con = context as ImmunisationSchedule;
+                            var con = context as ImmunisationScheduleDto;
                             <span>@con!.ImmunisationProgram.Name</span>
                         }
                     </Template>
                 </GridColumn>
             </GridColumns>
         </SfGrid>
+        <div class="mt-2">
+            <h4>Reactions</h4>
+            <SfGrid DataSource="_reactions" Height="350px">
+                <GridColumns>
+                    <GridColumn Field="@nameof(Reaction.ReactionDate)" HeaderText="Date" Format="d" Type="ColumnType.DateTime"/>
+                    <GridColumn Field="@nameof(Reaction.Side)"/>
+                    <GridColumn Field="@nameof(Reaction.AdministerShot.ShotBatch.Shot.Name)">
+                        <Template>
+                            @{
+                                var con = context as Reaction;
+                                <span>@con!.AdministerShot.ShotBatch.Shot.Name</span>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(Reaction.ReactionType)" HeaderText="Reaction Type"/>
+                    <GridColumn HeaderText="Actions" Width="120">
+                        <Template>
+                            @{
+                                var item = (context as Reaction);
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => RemoveReaction(item.Id)"/>
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+
     </MudItem>
-    <MudItem md="10">
+    <MudItem md="8">
         <SfGrid DataSource="_administerShots">
-            <GridEvents TValue="AdministerShot" OnRecordDoubleClick="OpenAdministerShotDialog"></GridEvents>
+            <GridEvents TValue="AdministerShot" OnRecordDoubleClick="DoubleClickAdministerShot" RowSelected="SelectedAdminister"></GridEvents>
             <GridColumns>
-                <GridColumn Field="@nameof(AdministerShot.DueDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Due Date" Width="100px"/>
-                <GridColumn Field="@nameof(AdministerShot.GivenDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Given Date" Width="100px">
+                <GridColumn Field="@nameof(AdministerShot.DueDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Due Date"/>
+                <GridColumn Field="@nameof(AdministerShot.GivenDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Given Date">
                     <Template>
                         @{
                             var con = context as AdministerShot;
@@ -46,16 +93,16 @@
                             }
                             else
                             {
-                                <span>@con!.GivenDate</span>
+                                <span>@con!.GivenDate.Value.ToString("d")</span>
                             }
                         }
                     </Template>
                 </GridColumn>
-                <GridColumn Field="@nameof(AdministerShot.Shot.Name)" HeaderText="Shot" Width="400px">
+                <GridColumn Field="@nameof(AdministerShot.ShotBatch.Shot.Name)" HeaderText="Shot">
                     <Template>
                         @{
                             var con = context as AdministerShot;
-                            <span>@con!.Shot.Name</span>
+                            <span>@con!.ShotBatch.Shot.Name</span>
                         }
                     </Template>
                 </GridColumn>
@@ -80,9 +127,12 @@
 </MudStack>
 
 @code {
-    [Parameter] public List<ImmunisationSchedule> ImmunisationsSchedules { get; set; }
+    [Parameter] public List<ImmunisationScheduleDto> ImmunisationsSchedules { get; set; } = [];
     private List<AdministerShot> _administerShots = [];
+    private List<Reaction> _reactions = [];
+    private List<Course> _courses = [];
     private Guid _scheduleId = Guid.Empty;
+    private Guid _administerId;
 
     protected override async Task OnInitializedAsync()
     {
@@ -96,10 +146,11 @@
 
     private async Task GetImmunisationSchedules()
     {
-        ImmunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
+        ImmunisationsSchedules = await UnitOfWork.Consultation
+            .GetImmunisationSchedule(ApplicationState.SelectedPatientId);
     }
 
-    private async Task SelectSchedule(RowSelectEventArgs<ImmunisationSchedule> args)
+    private async Task SelectSchedule(RowSelectEventArgs<ImmunisationScheduleDto> args)
     {
         if (args.Data is not null)
         {
@@ -109,21 +160,101 @@
         }
     }
 
-    private async Task OpenAdministerShotDialog(RecordDoubleClickEventArgs<AdministerShot> args)
+    private async Task GetReactions()
+    {
+        _reactions = await UnitOfWork.Consultation.GetReactions(_administerId);
+    }
+
+    private async Task DoubleClickAdministerShot(RecordDoubleClickEventArgs<AdministerShot> args)
+    {
+        if (args.RowData.Id != Guid.Empty)
+        {
+            await GivenAdministerShot(args.RowData.Id);
+        }
+    }
+
+    private async Task GivenAdministerShot(Guid id)
     {
         var parameters = new DialogParameters();
-        parameters.Add("AdministerShotDto", args.RowData);
+        parameters.Add("Id", id);
         var options = new DialogOptions()
         {
             CloseButton = true,
-            MaxWidth = MaxWidth.Small, FullWidth = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
             Position = DialogPosition.Center
         };
-        var dialogresult = await DialogService.ShowAsync<AdministerShotDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<AdministerShotFormDialog>("", parameters, options);
         var result = await dialogresult.Result;
-        if (result.Canceled)
+        if (!result.Canceled)
         {
             await GetAdministerShots(_scheduleId);
+            StateHasChanged();
+        }
+    }
+
+    private async Task SelectedAdminister(RowSelectEventArgs<AdministerShot> args)
+    {
+        if (args.Data is not null)
+        {
+            _administerId = args.Data.Id;
+            await GetReactions();
+        }
+    }
+
+    private async Task CancelAdminister()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.CancelAdministerShot(_administerId);
+            await GetAdministerShots(_scheduleId);
+            StateHasChanged();
+            Snackbar.SuccessMessage(res.Messages.First());
+            _administerId = Guid.Empty;
+        }
+    }
+
+    private async Task OpenReactionFormDialog()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ReactionId", Guid.Empty);
+        parameters.Add("AdministerShotId", _administerId);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<ReactionFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetAdministerShots(_scheduleId);
+            await GetReactions();
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleChange(ChangeEventArgs args)
+    {
+        _administerShots = await UnitOfWork.Consultation.FilterAdministerShots(_scheduleId, args.Value.ToString());
+    }
+
+    private async Task RemoveReaction(Guid itemId)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.RemoveReaction(itemId);
+            await GetReactions();
+            Snackbar.SuccessMessage(res.Messages.First());
+            StateHasChanged();
         }
     }
 

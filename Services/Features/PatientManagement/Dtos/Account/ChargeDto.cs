@@ -1,5 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Services.Configurations.Attributes;
+using Shared.Attributes;
 using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Dtos.Account;

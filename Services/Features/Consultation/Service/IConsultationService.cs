@@ -2,6 +2,7 @@
 using Domain.Entities.Settings.Consultation;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Shared.Wrapper;
@@ -39,9 +40,17 @@ public interface IConsultationService
     #endregion
 
     #region Immunisations
+
     Task<IResult> SaveImmunisationSchedule(ImmunisationSchedule request);
-    Task<List<ImmunisationSchedule>> GetImmunisationSchedule(Guid patientId);
+    Task<List<ImmunisationScheduleDto>> GetImmunisationSchedule(Guid patientId);
     Task<List<AdministerShot>> GetAdministerShots(Guid scheduleId);
+    Task<AdministerShotDto> GetAdministerShot(Guid id);
+    Task<IResult> GivenAdministerShot(Guid id, AdministerShotDto request);
+    Task<IResult> CancelAdministerShot(Guid id);
+    Task<List<AdministerShot>> FilterAdministerShots(Guid scheduleId,string type);
+    Task<IResult> SaveReaction(Guid id, Reaction reaction);
+    Task<List<Reaction>> GetReactions(Guid administerId);
+    Task<IResult> RemoveReaction(Guid id);
 
     #endregion
 

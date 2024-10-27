@@ -97,41 +97,44 @@ public interface ISettingService
     #region Shot
 
     Task<List<Shot>> GetShotsList();
-    Task<ShotDto> GetShotsDetail(int id);
+    Task<ShotDto> GetShotsDetail(Guid shotId);
     Task<IResult> SaveShot(Shot shot);
-    Task<IResult> DeleteShot(int id);
-    Task<IResult> DeleteBatchFromShot(int batchId);
+    Task<IResult> DeleteShot(Guid shotId);
+    Task<IResult> DeleteBatchFromShot(Guid batchId);
     Task<IResult> AssignBatchToShot(AssignShotToBatchDto assignShotToBatch);
+    Task<ShotBatch> GetShotBatchByShotId(Guid shotId);
+    Task<List<Batch>> GetAssignedBatches(Guid shotId);
 
     #endregion
 
     #region Batch
 
-    Task<List<BatchDetail>> GetBatches();
-    Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(int id);
-    Task<IResult> UpsertBatch(int id,int shotId, UpsertBatchDto batch);
-    Task<IResult> DeleteBatch(int id);
+    Task<List<Batch>> GetBatches();
+    Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(Guid batchId);
+    Task<IResult> UpsertBatch(Guid batchId, Guid shotId, UpsertBatchDto batch);
+    Task<IResult> DeleteBatch(Guid batchId);
+    Task<IResult> DecreaseBatchQty(Guid batchId,int qty);
 
     #endregion
 
     #region Courses
 
     Task<List<Course>> GetCourses();
-    Task<CourseDto> GetCourse(int courseId);
-    Task<IResult> SaveCourse(int courseId, Course course);
-    Task<IResult> AssignedShotToCourse(int courseId, List<int> shotIds);
-    Task<List<Shot>> GetAssignedShotToCourse(int courseId);
-    Task<IResult> DeleteCourse(int id);
+    Task<CourseDto> GetCourse(Guid courseId);
+    Task<IResult> SaveCourse(Guid courseId, Course course);
+    Task<IResult> AssignedShotToCourse(Guid courseId, List<Guid> shotIds);
+    Task<List<Shot>> GetAssignedShotToCourse(Guid courseId);
+    Task<IResult> DeleteCourse(Guid id);
     #endregion
 
     #region Immunisation Programs
 
     Task<List<ImmunisationProgram>> GetImmunisationPrograms();
-    Task<ImmunisationSetupDto> GetImmunisationProgram(int programId);
-    Task<IResult> SaveImmunisationProgram(int setupId, ImmunisationProgram program);
-    Task<IResult> AssignedCourseToSchedule(int programId, List<int> courseIds);
-    Task<List<Course>> GetAssignedCoursesOfProgram(int programId);
-    Task<IResult> DeleteImmunisationProgram(int setupId);
+    Task<ImmunisationSetupDto> GetImmunisationProgram(Guid programId);
+    Task<IResult> SaveImmunisationProgram(Guid setupId, ImmunisationProgram program);
+    Task<IResult> AssignedCourseToSchedule(Guid programId, List<Guid> courseIds);
+    Task<List<Course>> GetAssignedCoursesOfProgram(Guid programId);
+    Task<IResult> DeleteImmunisationProgram(Guid setupId);
 
     #endregion
 

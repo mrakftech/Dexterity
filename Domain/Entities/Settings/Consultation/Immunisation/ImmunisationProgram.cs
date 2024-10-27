@@ -1,15 +1,16 @@
-﻿using Domain.Entities.Consultation;
+﻿using System.ComponentModel.DataAnnotations;
+using Domain.Contracts;
+using Domain.Entities.Consultation;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation;
 
-public class ImmunisationProgram
+public class ImmunisationProgram : IBaseId
 {
-    public int Id { get; set; }
+    [Key] public Guid Id { get; set; } = Guid.Empty;
     public string Name { get; set; }
     public bool IsActive { get; set; }
     public bool IsDefualt { get; set; }
     public bool IsChildhood { get; set; }
 
     public ImmunisationSchedule ImmunisationSchedule { get; set; }
-
 }

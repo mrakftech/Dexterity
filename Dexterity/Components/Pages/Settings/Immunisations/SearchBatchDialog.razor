@@ -4,16 +4,16 @@
     <Content>
         <DexGrid DataSource="BatchList">
             <DexGridColumns>
-                <GridColumn Field="@nameof(BatchDetail.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(BatchDetail.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(BatchDetail.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(BatchDetail.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(BatchDetail.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(BatchDetail.IsActive)" HeaderText="Active" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
+                <GridColumn Field="@nameof(Batch.IsActive)" HeaderText="Active" Width="120px"></GridColumn>
                 <GridColumn HeaderText="Actions" Width="120">
                     <Template>
                         @{
-                        var item = (context as BatchDetail);
+                        var item = (context as Batch);
                         <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
                         }
                     </Template>
@@ -24,7 +24,7 @@
 </DexDialog>
 
 @code{
-    private List<BatchDetail> BatchList { get; set; } = new();
+    private List<Batch> BatchList { get; set; } = new();
     protected override async void OnInitialized()
     {
         await GetBatches();
@@ -36,14 +36,14 @@
         StateHasChanged();
     }
 
-    private async Task DeleteBatch(int id)
+    private async Task DeleteBatch(Guid batchId)
     {
         var parameters = new DialogParameters();
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
-            var res = await UnitOfWork.Setting.DeleteBatch(id);
+            var res = await UnitOfWork.Setting.DeleteBatch(batchId);
             Snackbar.SuccessMessage(res.Messages.First());
             await GetBatches();
         }

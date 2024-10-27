@@ -1,5 +1,6 @@
 ﻿@layout MainLayout
 @page "/consultation"
+@using Services.Features.Consultation.Dto.Immunisations
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.Consultation.Dto
 @using Dexterity.Components.Pages.Consultation.Options
@@ -8,7 +9,6 @@
 @using Services.Features.Consultation.Dto.Notes
 @using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
 @using Dexterity.Components.Pages.Consultation.MainDetails
-@using Domain.Entities.Consultation
 @using Dexterity.Components.Pages.Consultation.Immunisations
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
@@ -30,30 +30,44 @@
             <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder"/>
         </TopBarItems>
         <NavigationItems>
-            <RadzenPanelMenuItem Text="Consultation Details" Icon="@Method.FaIcon("fas fa-user-doctor-message")" Click="() => ClickChangedTab(0)">
-                <DexMenuItem Text="Home" Icon="fa-home"/>
-                <DexMenuItem Text="Find Patient" Icon="fa-user-magnifying-glass" Click="FindPatient"/>
-                <DexMenuItem Text="Patient Summary" Icon="fas fa-rectangle-list" Click="OpenPatientSummaryModal"/>
+            <RadzenPanelMenuItem Text="Consultation Details"
+                                 Icon="@Method.FaIcon("fas fa-user-doctor-message")"
+                                 Click="() => ClickChangedTab(0)">
+
+                <DexMenuItem Text="Find Patient"
+                             Icon="fa-user-magnifying-glass"
+                             Click="FindPatient"/>
+
+                <DexMenuItem Text="Patient Summary"
+                             Icon="fas fa-rectangle-list"
+                             Click="OpenPatientSummaryModal"/>
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
-                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" Click="() => EditBeginConsultationDialog(_consultationId)"/>
+                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" Click="() => EditBeginConsultationDialog(ApplicationState.SelectedConsultationId)"/>
                 @if (!_isConsultationFinish)
                 {
-                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" Click="() => FinishConsultationDialog(_consultationId)"/>
+                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" Click="() => FinishConsultationDialog(ApplicationState.SelectedConsultationId)"/>
                 }
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            @* <RadzenPanelMenuItem Text="Procedures" Icon="@Method.FaIcon("fas fa-user-doctor-message")"> *@
-            @*     <DexMenuItem Text="Find Patient" Icon="fas fa-users"/> *@
-            @* </RadzenPanelMenuItem> *@
             <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-notes-medical")">
-                <DexMenuItem Text="Save Note" Icon="fas fa-note" Disabled="@(!_isConsultationSelected)" Click="OpenUpsertNotesDialog"/>
+                <DexMenuItem Text="Save Note" Icon="fas fa-note"
+                             Disabled="@(!_isConsultationSelected)"
+                             Click="() => ClickChangedTab(1)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")" Click="() => ClickChangedTab(1)">
-                <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerShotDialog" Disabled="@(!_isConsultationSelected)"/>
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")" Click="() => ClickChangedTab(2)">
+                <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerScheduleDialog"
+                             Disabled="@(!_isConsultationSelected)"/>
+
+                <DexMenuItem Text="Print Schedule" Icon="fas fa-print" 
+                             Disabled="@(!_isConsultationSelected)"/>
+                <DexMenuItem Text="Print Leaflet" Icon="fas fa-print"
+                             Disabled="@(!_isConsultationSelected)"/>
+                <DexMenuItem Text="Print Given Shots" Icon="fa-thin fa-syringe"
+                             Disabled="@(!_isConsultationSelected)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
@@ -66,9 +80,13 @@
                 <MudTabPanel Text="">
                     <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
                 </MudTabPanel>
+                <MudTabPanel>
+                    <NoteDetails/>
+                </MudTabPanel>
                 <MudTabPanel Text="">
                     <ImmunisationsScreen ImmunisationsSchedules="_immunisationsSchedules"/>
                 </MudTabPanel>
+               
             </MudTabs>
         </DexContentTabs>
     </InnerLayout>
@@ -80,11 +98,11 @@
     private List<GetConsultationDetailDto> Consultations { get; set; } = new();
     private List<ConsultationNoteDto> PastMedicalHistory { get; set; } = new();
     private List<ConsultationNoteDto> ActiveDiagnosis { get; set; } = new();
-    private List<ImmunisationSchedule> _immunisationsSchedules = [];
+    private List<ImmunisationScheduleDto> _immunisationsSchedules = [];
 
     MudTabs _tabs = new();
+
     private bool _loading;
-    private int _consultationId = 0;
     private bool _isConsultationFinish;
     private bool _isConsultationSelected;
     private int _reminderCount;
@@ -198,16 +216,54 @@
         if (args.Data.Id > 0)
         {
             _isConsultationSelected = true;
-            _consultationId = args.Data.Id;
+            ApplicationState.SelectedConsultationId = args.Data.Id;
             _isConsultationFinish = args.Data.IsFinish;
         }
         else
         {
             _isConsultationSelected = false;
-            _consultationId = 0;
+            ApplicationState.SelectedConsultationId = 0;
         }
 
         StateHasChanged();
+    }
+
+    #endregion
+
+
+    #region Notes
+
+    private async Task GetConsultationNotes()
+    {
+        PastMedicalHistory = await UnitOfWork.Consultation.GetPastMedicalHistory();
+        ActiveDiagnosis = await UnitOfWork.Consultation.GetActiveDiagonsisByPatient();
+        StateHasChanged();
+    }
+
+    #endregion
+
+    #region Immunisations
+
+    private async Task OpenAdministerScheduleDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<AddAdministerSchedule>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetImmunisationSchedules();
+        }
+    }
+
+    private async Task GetImmunisationSchedules()
+    {
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
     }
 
     #endregion
@@ -245,7 +301,6 @@
         await DialogService.ShowAsync<TasksDialog>("", parameters, options);
     }
 
-
     private async Task OpenAllergyDialog()
     {
         var parameters = new DialogParameters();
@@ -257,62 +312,6 @@
             await GetPatientSummary();
             StateHasChanged();
         }
-    }
-
-    #endregion
-
-    #region Notes
-
-    private async Task GetConsultationNotes()
-    {
-        PastMedicalHistory = await UnitOfWork.Consultation.GetPastMedicalHistory();
-        ActiveDiagnosis = await UnitOfWork.Consultation.GetActiveDiagonsisByPatient();
-        StateHasChanged();
-    }
-
-    private async Task OpenUpsertNotesDialog()
-    {
-        var parameters = new DialogParameters();
-        parameters.Add("ConsultationId", _consultationId);
-        var options = new DialogOptions()
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Medium, FullWidth = true,
-            Position = DialogPosition.Center
-        };
-        var dialogresult = await DialogService.ShowAsync<UpsertNoteFormDialog>("", parameters, options);
-        var result = await dialogresult.Result;
-        if (result.Canceled)
-        {
-            await GetConsultations();
-            await GetConsultationNotes();
-        }
-    }
-
-    #endregion
-
-    #region Immunisations
-
-    private async Task OpenAdministerShotDialog()
-    {
-        var parameters = new DialogParameters();
-        var options = new DialogOptions()
-        {
-            CloseButton = true,
-            MaxWidth = MaxWidth.Small, FullWidth = true,
-            Position = DialogPosition.Center
-        };
-        var dialogresult = await DialogService.ShowAsync<AddAdministerSchedule>("", parameters, options);
-        var result = await dialogresult.Result;
-        if (result.Canceled)
-        {
-            await GetImmunisationSchedules();
-        }
-    }
-
-    private async Task GetImmunisationSchedules()
-    {
-        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
     }
 
     #endregion

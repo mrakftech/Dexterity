@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
-using Services.Configurations.Attributes;
 using Services.State;
+using Shared.Attributes;
 
 namespace Services.Features.UserAccounts.Dtos.User;
 

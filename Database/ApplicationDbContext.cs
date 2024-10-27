@@ -87,10 +87,10 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     #region Immunisations
 
     public DbSet<Shot> Shots { get; set; }
-    public DbSet<BatchDetail> BatchDetails { get; set; }
-    public DbSet<AssignedBatchToShot> AssignedBatchToShots { get; set; }
-    public DbSet<AssignedCourseToProgram> AssignedCourseToPrograms { get; set; }
-    public DbSet<AssignedShotToCourse> AssignedShotToCourses { get; set; }
+    public DbSet<Batch> Batches { get; set; }
+    public DbSet<ShotBatch> ShotBatches { get; set; }
+    public DbSet<ProgramCourse> ProgramCourses { get; set; }
+    public DbSet<CourseShot> CourseShots { get; set; }
     public DbSet<Course> Courses { get; set; }
     public DbSet<ImmunisationProgram> ImmunisationPrograms { get; set; }
 
@@ -146,6 +146,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ConsultationNote> ConsultationNotes { get; set; }
     public DbSet<ImmunisationSchedule> ImmunisationSchedules { get; set; }
     public DbSet<AdministerShot> AdministerShots { get; set; }
+    public DbSet<Reaction> Reactions { get; set; }
 
     #endregion
 }

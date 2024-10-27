@@ -1,0 +1,57 @@
+﻿@using Shared.Constants.Module.Consultation
+@using Domain.Entities.Consultation
+<DexDialog>
+    <DialogTitle>
+        Reaction
+    </DialogTitle>
+    <Content>
+        <DexForm Model="@ReactionDto" OnValidSubmit="SaveReaction">
+            <Fields>
+                <FormItem Field="@nameof(Reaction.ReactionDate)" LabelText="Reaction Date" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(Reaction.ReactionType)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Reaction Type</label>
+                        <SfDropDownList TValue="string" TItem="ReactionType" Placeholder="" DataSource="@ConsultationConstants.ReactionTypes" @bind-Value="@ReactionDto.ReactionType">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Reaction.Side)" LabelText="Side" ColumnSpan="1">
+                    <Template>
+                        <SfDropDownList TValue="string" TItem="Side" Placeholder="Side" DataSource="@SettingConstants.Sides" @bind-Value="ReactionDto.Side">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Reaction.Comment)" EditorType="FormEditorType.TextArea"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid ReactionId { get; set; }
+    [Parameter] public Guid AdministerShotId { get; set; }
+    private Reaction ReactionDto { get; set; } = new();
+
+    private async Task SaveReaction()
+    {
+        ReactionDto.AdministerShotId = AdministerShotId;
+        var res = await UnitOfWork.Consultation.SaveReaction(ReactionId, ReactionDto);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

@@ -1,4 +1,4 @@
-﻿using Services.Configurations.Attributes;
+﻿using Shared.Attributes;
 
 namespace Services.Features.PatientManagement.Dtos.Options;
 
