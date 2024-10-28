@@ -27,13 +27,14 @@ namespace Dexterity
                 .UseMauiApp<App>()
                 .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
             builder.Services.AddTransient<SnackbarNotificationService>();
-          
-            
+
+
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
-           
+
             SyncfusionLicenseProvider
-                .RegisterLicense("MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
+                .RegisterLicense(
+                    "MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
             builder.Services.AddBlazorContextMenu(options =>
             {
                 options.ConfigureTemplate("myTemplate", template =>
@@ -79,10 +80,10 @@ namespace Dexterity
 #endif
             builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             builder.Services.AddMauiBlazorWebView();
-        
+
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")),
-                     ServiceLifetime.Transient
+                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking),
+                    ServiceLifetime.Transient
                 )
                 .AddTransient<IDatabaseSeeder, DatabaseSeeder>();
             builder.Services.AddRepositories();
@@ -114,7 +115,6 @@ namespace Dexterity
                     await roomEndpoints.DeleteRoom(ApplicationState.Telehealth.MeetingName);
                     ApplicationState.Telehealth.MeetingName = string.Empty;
                     ApplicationState.Telehealth.MeetingLink = string.Empty;
-
                 }
             }).GetAwaiter().GetResult();
         }

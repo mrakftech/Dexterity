@@ -1,0 +1,85 @@
+﻿@using Services.Features.Consultation.Dto.Immunisations
+<DexDialog>
+    <DialogTitle>Recurring</DialogTitle>
+    <Content>
+        <DexForm Model="ImmunisationRecurringSchedule" ColumnCount="2" OnValidSubmit="SaveRecurringSchedule">
+            <Fields>
+                <FormItem Field="@nameof(ImmunisationRecurringDto.StartDate)" ColumnSpan="2" EditorType="FormEditorType.DatePicker">
+                </FormItem>
+                <FormItem Field="@nameof(ImmunisationRecurringDto.SpecifiedCount)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Specified Count</label>
+                        <SfNumericTextBox @bind-Value="ImmunisationRecurringSchedule.SpecifiedCount"/>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ImmunisationRecurringDto.RecurrenceInterval)" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Recurrence Interval Day(s)</label>
+                        <SfNumericTextBox @bind-Value="ImmunisationRecurringSchedule.RecurrenceInterval"/>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ImmunisationRecurringDto.ImmunisationProgramId)">
+                    <Template>
+                        <label class="e-form-label">Select Schedule</label>
+                        <SfDropDownList TValue="string" TItem="ImmunisationProgram" Placeholder="Select a Schedule" DataSource="@_programs" ColumnSpan="1">
+                            <DropDownListFieldSettings Value="Name" Text="Name"/>
+                            <DropDownListEvents TValue="string" TItem="ImmunisationProgram" ValueChange="OnChangeSetup"></DropDownListEvents>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ImmunisationRecurringDto.ImmunisationProgramId)" ColumnSpan="2">
+                    <Template>
+                        <label class="e-form-label">Course</label>
+                        <SfListView DataSource="@_courses" Height="150px">
+                            <ListViewFieldSettings Id="Id" Text="Name" TValue="Course"></ListViewFieldSettings>
+                        </SfListView>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Add Recurring Schedule" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
+    private ImmunisationRecurringDto ImmunisationRecurringSchedule { get; set; } = new();
+    private List<ImmunisationProgram> _programs = [];
+    private List<Course> _courses = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCourseSchedules();
+    }
+
+    private async Task GetCourseSchedules()
+    {
+        _programs = await UnitOfWork.Setting.GetImmunisationPrograms();
+    }
+
+    private async Task OnChangeSetup(ChangeEventArgs<string, ImmunisationProgram> args)
+    {
+        if (args.ItemData is null) return;
+        var immunisationSetup = args.ItemData;
+        ImmunisationRecurringSchedule.ImmunisationProgramId = immunisationSetup.Id;
+        ImmunisationRecurringSchedule.PatientId = ApplicationState.SelectedPatientId;
+        _courses = await UnitOfWork.Setting.GetAssignedCoursesOfProgram(immunisationSetup.Id);
+    }
+
+    private async Task SaveRecurringSchedule()
+    {
+        var res = await UnitOfWork.Consultation.AddRecurringSchedule(ImmunisationRecurringSchedule);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDiloag.Close();
+        }
+        else
+        {
+            Snackbar.FailMessge(res.Messages.First());
+        }
+    }
+
+}

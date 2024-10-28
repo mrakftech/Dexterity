@@ -12,6 +12,7 @@
             </select>
         </div>
         <button type="button" class="btn btn-primary btn-sm m-2"><i class="fa fa-print"></i> Print STC</button>
+        <button type="button" class="btn btn-primary btn-sm m-2" @onclick="OpenRecurringDialog"><i class="fa fa-repeat"></i> Add Recurring</button>
         @if (_administerId != Guid.Empty)
         {
             <button type="button" class="btn btn-primary btn-sm m-2" @onclick="OpenReactionFormDialog"><i class="fas fa-head-side-cough"></i> Add Reaction</button>
@@ -254,6 +255,25 @@
             var res = await UnitOfWork.Consultation.RemoveReaction(itemId);
             await GetReactions();
             Snackbar.SuccessMessage(res.Messages.First());
+            StateHasChanged();
+        }
+    }
+
+    private async Task OpenRecurringDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<AddImmunisationRecurring>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+           await GetImmunisationSchedules();
             StateHasChanged();
         }
     }

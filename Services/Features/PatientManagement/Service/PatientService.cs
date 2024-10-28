@@ -46,7 +46,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<DateTime> GetPatientDob(Guid id)
     {
-        var patientInDb = await context.Patients.FirstOrDefaultAsync(x => x.Id == id);
+        var patientInDb = await context.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         return patientInDb.DateOfBirth;
     }
 

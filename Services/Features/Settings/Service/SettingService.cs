@@ -683,6 +683,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             .ShotBatches
             .Include(x => x.Batch)
             .Where(x => x.ShotId == shotId && x.Batch.IsActive && x.Batch.Remaining > 0)
+            .AsNoTracking()
             .FirstOrDefaultAsync();
         return shotBatch;
     }
@@ -893,6 +894,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             .Where(x => x.CourseId == courseId)
             .OrderBy(x => x.Order)
             .Select(x => x.Shot)
+            .AsNoTracking()
             .ToListAsync();
     }
 
@@ -975,12 +977,13 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             .Where(x => x.ImmunisationProgramId == programId)
             .OrderBy(x => x.Order)
             .Select(x => x.Course)
+            .AsNoTracking()
             .ToListAsync();
     }
 
     public async Task<IResult> DeleteImmunisationProgram(Guid id)
     {
-        var courseInDb = await context.ImmunisationPrograms.FirstOrDefaultAsync(x => x.Id == id);
+        var courseInDb = await context.ImmunisationPrograms.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         context.ImmunisationPrograms.Remove(courseInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Immunisation Setup has been deleted.");

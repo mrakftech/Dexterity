@@ -12,5 +12,5 @@ public class ImmunisationProgram : IBaseId
     public bool IsDefualt { get; set; }
     public bool IsChildhood { get; set; }
 
-    public ImmunisationSchedule ImmunisationSchedule { get; set; }
+    public List<ImmunisationSchedule> ImmunisationSchedules { get; set; }
 }

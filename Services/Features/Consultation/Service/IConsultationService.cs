@@ -47,10 +47,11 @@ public interface IConsultationService
     Task<AdministerShotDto> GetAdministerShot(Guid id);
     Task<IResult> GivenAdministerShot(Guid id, AdministerShotDto request);
     Task<IResult> CancelAdministerShot(Guid id);
-    Task<List<AdministerShot>> FilterAdministerShots(Guid scheduleId,string type);
+    Task<List<AdministerShot>> FilterAdministerShots(Guid scheduleId, string type);
     Task<IResult> SaveReaction(Guid id, Reaction reaction);
     Task<List<Reaction>> GetReactions(Guid administerId);
     Task<IResult> RemoveReaction(Guid id);
+    Task<IResult> AddRecurringSchedule(ImmunisationRecurringDto request);
 
     #endregion
 

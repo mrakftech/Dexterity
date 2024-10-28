@@ -410,11 +410,11 @@ public class ConsultationService(
     private async Task<List<AdministerShot>> AddAdministerShots(Guid? programId, Guid scheduleId)
     {
         var shotList = new List<Shot>();
-
         var administerShots = new List<AdministerShot>();
 
         var program = await context
             .ImmunisationPrograms
+            .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == programId);
 
         var courses = await settingService.GetAssignedCoursesOfProgram(program.Id);
@@ -611,7 +611,6 @@ public class ConsultationService(
         };
     }
 
-
     public async Task<IResult> CancelAdministerShot(Guid id)
     {
         var administerShotInDb = await context.AdministerShots.FirstOrDefaultAsync(x => x.Id == id);
@@ -678,6 +677,37 @@ public class ConsultationService(
         context.Reactions.Remove(reaction);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("reaction has been removed.");
+    }
+
+    public async Task<IResult> AddRecurringSchedule(ImmunisationRecurringDto request)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+        try
+        {
+            for (var i = 1; i <= request.SpecifiedCount; i++)
+            {
+                var schedule = new ImmunisationSchedule()
+                {
+                    Id = Guid.NewGuid(),
+                    ScheduleDate = request.StartDate.AddDays(i * request.RecurrenceInterval),
+                    ImmunisationProgramId = request.ImmunisationProgramId,
+                    PatientId = request.PatientId,
+                };
+                await context.ImmunisationSchedules.AddAsync(schedule);
+                var administerShots = await AddAdministerShots(request.ImmunisationProgramId, schedule.Id);
+                await context.AdministerShots.AddRangeAsync(administerShots);
+            }
+
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            return await Result.FailAsync(e.Message);
+        }
+
+        return await Result.SuccessAsync("Schedule has been added.");
     }
 
     #endregion
