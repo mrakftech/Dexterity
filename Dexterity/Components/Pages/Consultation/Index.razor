@@ -10,6 +10,7 @@
 @using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
 @using Dexterity.Components.Pages.Consultation.MainDetails
 @using Dexterity.Components.Pages.Consultation.Immunisations
+@using Dexterity.Components.Pages.Consultation.Prescriptions
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
 @if (!_loading)
@@ -18,16 +19,16 @@
         <TopBarItems>
             @if (Patient.NkaFlag)
             {
-                <SfButton Content="Allergies/Drug Allergies" @onclick="OpenAllergyDialog" CssClass="mr-3"/>
+                <DexSfButton Click="OpenAllergyDialog" Name="Allergies/Drug Allergies" Icon="drug-allergy.png"/>
             }
             else
             {
-                <DexSimpleButton Color="MudColor.Secondary" Name="Allergies/Drug Allergies" Class="mr-3" Click="OpenAllergyDialog"/>
+                <DexSfButton Style="background-color:crimson;color:white" Click="OpenAllergyDialog" Name="Allergies/Drug Allergies" Icon="drug-allergy.png"/>
             }
-            <SfButton Content="Refresh" @onclick="GetPatientSummary"/>
-            <SfButton Content="@($"Tasks ({_taskCount})")" @onclick="CheckTasks"/>
-            <SfButton style="color: crimson;font-weight: bolder" Content="@($"Sms ({_smsHistoryCount})")" @onclick="CheckSmsHistory"/>
-            <SfButton Content="@($"Reminders ({_reminderCount})")" @onclick="CheckReminder"/>
+            <DexSfButton Click="GetPatientSummary" Name="Refresh" Icon="refresh.png"/>
+            <DexSfButton Click="CheckTasks" Name="@($"Tasks ({_taskCount})")" Icon="task.png"/>
+            <DexSfButton Click="CheckSmsHistory" Name="@($"SMS ({_smsHistoryCount})")" Icon="sms.png" Style="color: crimson;font-weight: bolder"/>
+            <DexSfButton Click="CheckReminder" Name="@($"Reminders ({_reminderCount})")" Icon="reminder.png"/>
         </TopBarItems>
         <NavigationItems>
             <RadzenPanelMenuItem Text="Consultation Details"
@@ -62,7 +63,7 @@
                 <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerScheduleDialog"
                              Disabled="@(!_isConsultationSelected)"/>
 
-                <DexMenuItem Text="Print Schedule" Icon="fas fa-print" 
+                <DexMenuItem Text="Print Schedule" Icon="fas fa-print"
                              Disabled="@(!_isConsultationSelected)"/>
                 <DexMenuItem Text="Print Leaflet" Icon="fas fa-print"
                              Disabled="@(!_isConsultationSelected)"/>
@@ -70,8 +71,15 @@
                              Disabled="@(!_isConsultationSelected)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Medications" Icon="@Method.FaIcon("fas fa-user-doctor-message")">
-                <DexMenuItem Text="Find Patient" Icon="fas fa-users"/>
+            <RadzenPanelMenuItem Text="Prescriptions" Icon="@Method.FaIcon("fas fa-prescription-bottle-pill")" Click="() => ClickChangedTab(3)">
+                <DexMenuItem Text="Add new" Icon="fas fa-prescription-bottle-medical"/>
+                <DexMenuItem Text="Print" Icon="fas fa-print"/>
+                <DexMenuItem Text="Reprint" Icon="fas fa-print"/>
+                <DexMenuItem Text="Re-Issue" Icon="fas fa-arrows-rotate"/>
+                <DexMenuItem Text="Complete Prescription" Icon="fas fa-check"/>
+                <DexMenuItem Text="Cancel Prescription" Icon="fas fa-cancel"/>
+                <hr class="hr-custom m-1"/>
+                <DexMenuItem Text="Drug Card" Icon="fas fa-prescription-bottle-medical"/>
             </RadzenPanelMenuItem>
         </NavigationItems>
         <DexContentTabs>
@@ -86,7 +94,9 @@
                 <MudTabPanel Text="">
                     <ImmunisationsScreen ImmunisationsSchedules="_immunisationsSchedules"/>
                 </MudTabPanel>
-               
+                <MudTabPanel Text="">
+                    <PrescriptionDetail/>
+                </MudTabPanel>
             </MudTabs>
         </DexContentTabs>
     </InnerLayout>

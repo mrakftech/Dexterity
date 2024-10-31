@@ -1,0 +1,16 @@
+﻿<SfButton @onclick="Click" style="@Style" CssClass="m-1">
+    <span>
+        <img alt="" src="assets/images/buttons/@Icon" class="e-image-btn"/>
+    </span>
+    <span>
+        @Name
+    </span>
+</SfButton>
+
+@code {
+    [Parameter] public EventCallback Click { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Icon { get; set; } = "reminder.png";
+    [Parameter] public string Style { get; set; } 
+
+}

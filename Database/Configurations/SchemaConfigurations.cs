@@ -85,6 +85,7 @@ public static class SchemaConfigurations
         builder.Entity<Reminder>(entity => { entity.ToTable(name: "Reminders", "Consultation"); });
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
         builder.Entity<Reaction>(entity => { entity.ToTable(name: "Reactions", "Consultation"); });
+        builder.Entity<Prescription>(entity => { entity.ToTable(name: "Prescriptions", "Consultation"); });
 
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });

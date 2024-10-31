@@ -147,6 +147,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ImmunisationSchedule> ImmunisationSchedules { get; set; }
     public DbSet<AdministerShot> AdministerShots { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
+    public DbSet<Prescription> Prescriptions { get; set; }
+    
 
     #endregion
 }
