@@ -1,11 +1,10 @@
-﻿<MudButton Size="MudSize.Small"
+﻿<MudButton 
            Variant="Variant.Filled"
            Color="@Color"
            Disabled="@Disabled"
            FullWidth="@FullWidth"
            Class="@Class"
            OnClick="Click">
-
     @if (Disabled)
     {
         <MudText Class="black-color">
@@ -17,6 +16,7 @@
         <MudText Class="white-color">
             <i class="@Icon"></i> @Name
         </MudText>
+
     }
 
 </MudButton>

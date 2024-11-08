@@ -57,7 +57,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             var patient = mapper.Map<Patient>(request);
             patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
             patient.UniqueNumber = CryptographyHelper.GetUniqueKey(8);
-            patient.MobilePhone = Method.GetMobileFormat(request.Mobile);
+            patient.MobilePhone = DexHelperMethod.GetMobileFormat(request.Mobile);
             patient.Address.AddressLine1 = request.AddressLine1;
             patient.CreatedBy = ApplicationState.CurrentUser.UserId;
             patient.ClinicId = ApplicationState.CurrentUser.ClinicId;

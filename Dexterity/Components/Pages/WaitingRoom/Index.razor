@@ -14,7 +14,7 @@
             <DexMenuItem Text="@($"In Consultation ({ConsultationPatients.Count})")" Icon="fas fa-person-walking-arrow-right" Click="@(() => ClickChangedTab(2))"/>
             <DexMenuItem Text="@($"Visit History ({VisitHistoryPatients.Count})")" Icon="fas fa-rectangle-history-circle-user" Click="@(() => ClickChangedTab(3))"/>
             <hr class="hr-custom"/>
-            <RadzenPanelMenuItem Text="Patient Status" Icon="@Method.FaIcon("fa-duotone fa-solid fa-image-polaroid-user")">
+            <RadzenPanelMenuItem Text="Patient Status" Icon="@DexHelperMethod.FaIcon("fa-duotone fa-solid fa-image-polaroid-user")">
                 @if (_status == AppointmentConstants.WaitingStatus.Expected)
                 {
                     <DexMenuItem Disabled="@_disableBtns" Text="@(AppointmentConstants.WaitingStatus.Arrived)" Icon="fas fa-house-return" Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Arrived))"/>
@@ -43,7 +43,7 @@
                              Click="@OpenChargeDialog"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom"/>
-            <RadzenPanelMenuItem Text="Additional items" Icon="@Method.FaIcon("fa-solid fa-sitemap")">
+            <RadzenPanelMenuItem Text="Additional items" Icon="@DexHelperMethod.FaIcon("fa-solid fa-sitemap")">
                 <DexMenuItem Disabled="@_disableBtns" Text="Update Visit" Icon="fas fa-clock" Click="@(() => ClickChangedTab(0))"/>
                 <DexMenuItem Disabled="@_disableBtns" Text="Transfer Patient" Icon="fas fa-right-left" Click="@(() => ClickChangedTab(0))"/>
                 <DexMenuItem Disabled="@_disableBtns" Text="Patient Summary" Icon="fas fa-clipboard-list-check" Click="@(() => ClickChangedTab(0))"/>
@@ -170,7 +170,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
     }
 

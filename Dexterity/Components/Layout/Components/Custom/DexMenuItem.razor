@@ -1,10 +1,10 @@
 ﻿@if (Disabled)
 {
-    <RadzenPanelMenuItem Text="@Text" Icon="@Method.FaIcon(@Icon)" Style="color: dimgrey;background-color: transparent"/>
+    <RadzenPanelMenuItem Text="@Text" Icon="@DexHelperMethod.FaIcon(@Icon)" Style="color: dimgrey;background-color: transparent"/>
 }
 else
 {
-    <RadzenPanelMenuItem Text="@Text" Icon="@Method.FaIcon(@Icon)" Click="Click"/>
+    <RadzenPanelMenuItem Text="@Text" Icon="@DexHelperMethod.FaIcon(@Icon)" Click="Click"/>
 }
 
 @code {

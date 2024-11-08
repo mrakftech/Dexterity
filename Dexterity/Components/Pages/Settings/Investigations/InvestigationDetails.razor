@@ -1,0 +1,163 @@
+﻿@using Services.Features.Settings.Dtos
+<TabTitle Title="Investigations"></TabTitle>
+<MudStack Row>
+    <MudItem md="3">
+        <SfGrid DataSource="_templates" ShowPager="false" Height="400px">
+            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationTemplateDto"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(InvestigationTemplateDto.Name)"/>
+            </GridColumns>
+        </SfGrid>
+        <DexForm Model="_template" ColumnCount="2" OnValidSubmit="SaveInvestigationTemplate">
+            <Fields>
+                <FormItem Field="@nameof(InvestigationTemplateDto.Name)" ColumnSpan="2"/>
+                <FormItem Field="@nameof(InvestigationTemplateDto.IsActive)" LabelText="Active" ColumnSpan="2"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                @if (_template.Id != Guid.Empty)
+                {
+                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteTemplate(_template.Id)"/>
+                }
+            </Buttons>
+        </DexForm>
+    </MudItem>
+    <MudItem md="8">
+        <DexForm Model="_detail" ColumnCount="2" OnValidSubmit="SaveDetails">
+            <Fields>
+                <FormItem Field="@nameof(InvestigationTDetailDto.Name)" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.FieldType)" LabelText="Field Type" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)">
+                    <Template>
+                        <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder="" DataSource="@SettingConstants.FieldTypes" @bind-Value="@_detail.FieldType">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.IsActive)" ColumnSpan="1" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.NormalMaximum)" ColumnSpan="1" LabelText="Normal Maximum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationTDetailDto.IsMaindatory)" ColumnSpan="1" LabelText="Mandatory" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                @if (_detail.Id != Guid.Empty)
+                {
+                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteDetails(_detail.Id)"/>
+                }
+            </Buttons>
+        </DexForm>
+        <div class="mt-2">
+            <SfGrid DataSource="_details" Height="200px">
+                <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationTDetailDto"></GridEvents>
+
+                <GridColumns>
+                    <GridColumn Field="@nameof(InvestigationTDetailDto.Name)"/>
+                    <GridColumn Field="@nameof(InvestigationTDetailDto.FieldType)" HeaderText="Field Type"/>
+                    <GridColumn Field="@nameof(InvestigationTDetailDto.AbsoluteMinimum)" HeaderText="Min"/>
+                    <GridColumn Field="@nameof(InvestigationTDetailDto.AbsoluteMaximum)" HeaderText="Max"/>
+                    <GridColumn Field="@nameof(InvestigationTDetailDto.Unit)"/>
+                </GridColumns>
+            </SfGrid>
+        </div>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<InvestigationTemplateDto> _templates = new();
+    private List<InvestigationTDetailDto> _details = new();
+    private InvestigationTemplateDto _template = new();
+    private InvestigationTDetailDto _detail = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetInvestigationTemplates();
+    }
+
+    private async Task GetInvestigationTemplates()
+    {
+        _templates = await UnitOfWork.Setting.GetInvestigationTemplates();
+    }
+
+    private async Task GetInvestigationDetails(Guid templateId)
+    {
+        _details = await UnitOfWork.Setting.GetInvestigationTemplateDetails(templateId);
+    }
+
+    private async Task SaveInvestigationTemplate()
+    {
+        var res = await UnitOfWork.Setting.SaveInvestigationTemplate(_template);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetInvestigationTemplates();
+            _template = new();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task SelectedTemplateRow(RowSelectEventArgs<InvestigationTemplateDto> arg)
+    {
+        var template = arg.Data;
+        _template = template;
+        await GetInvestigationDetails(template.Id);
+    }
+
+    private async Task DeleteTemplate(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteInvestigationTemplate(id);
+            await GetInvestigationTemplates();
+            Snackbar.SuccessMessage(res.Messages.First());
+            _template = new();
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveDetails()
+    {
+        _detail.InvestigationTemplateId = _template.Id;
+        var res = await UnitOfWork.Setting.SaveInvestigationDetail(_detail);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetInvestigationDetails(_template.Id);
+            _detail = new();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+
+    private void SelectedDetailRow(RowSelectEventArgs<InvestigationTDetailDto> obj)
+    {
+        _detail = obj.Data;
+    }
+
+    private async Task DeleteDetails(Guid detailId)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteInvestigationDetails(detailId);
+            await GetInvestigationDetails(_template.Id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            _detail = new();
+            StateHasChanged();
+        }
+    }
+
+}

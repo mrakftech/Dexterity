@@ -105,7 +105,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 }
 
                 request.RoleId = request.RoleId;
-                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
+                request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
                 request.CreatedBy = ApplicationState.CurrentUser.UserId;
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
@@ -126,7 +126,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 request.RoleId = request.RoleId;
                 request.ModifiedBy = ApplicationState.CurrentUser.UserId;
                 request.ModifiedDate = DateTime.Today;
-                request.ResetPasswordAt = Method.GetPasswordResetTime(request.ResetPassword);
+                request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
                 userInDb = mapper.Map(request, userInDb);
                 userInDb.WorkingDays = request.WorkingDays;
                 context.Users.Update(userInDb);

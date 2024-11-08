@@ -559,6 +559,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Drug deleted");
     }
 
+
     private async Task<bool> DrugExistsAsync(int id)
     {
         return await context.Drugs.AnyAsync(e => e.Id == id);
@@ -1000,6 +1001,141 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    #endregion
+
+    #region Investigation
+
+    public async Task<List<InvestigationTemplateDto>> GetInvestigationTemplates()
+    {
+        var templates = await context.InvestigationTemplates
+            .AsNoTracking()
+            .Where(x => x.IsActive).ToListAsync();
+        var data = mapper.Map<List<InvestigationTemplateDto>>(templates);
+        return data;
+    }
+
+    public async Task<IResult> SaveInvestigationTemplate(InvestigationTemplateDto request)
+    {
+        if (request.Id == Guid.Empty)
+        {
+            var investigationTemplate = new InvestigationTemplate()
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+                IsActive = request.IsActive
+            };
+            context.InvestigationTemplates.Add(investigationTemplate);
+        }
+        else
+        {
+            var investigationInDb = await context
+                .InvestigationTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+            if (investigationInDb == null)
+                return await Result.FailAsync("Investigation Template not found.");
+
+
+            investigationInDb.Name = request.Name;
+            investigationInDb.IsActive = request.IsActive;
+            context.ChangeTracker.Clear();
+            context.InvestigationTemplates.Update(investigationInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Template has been saved.");
+    }
+
+    public async Task<IResult> DeleteInvestigationTemplate(Guid id)
+    {
+        var investigationInDb = await context
+            .InvestigationTemplates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (investigationInDb == null)
+            return await Result.FailAsync("Investigation Template not found.");
+
+        context.InvestigationTemplates.Remove(investigationInDb);
+        await context.SaveChangesAsync();
+
+        return await Result.SuccessAsync("Investigation Template has been deleted.");
+    }
+
+    public async Task<List<InvestigationTDetailDto>> GetInvestigationTemplateDetails(Guid investigationId)
+    {
+        var details = await context.InvestigationTemplateDetails
+            .AsNoTracking()
+            .Where(x => x.IsActive && x.InvestigationTemplateId == investigationId)
+            .ToListAsync();
+        var mapped = mapper.Map<List<InvestigationTDetailDto>>(details);
+        return mapped;
+    }
+
+    public async Task<IResult> SaveInvestigationDetail(InvestigationTDetailDto request)
+    {
+        if (request.Id == Guid.Empty)
+        {
+            var details = new InvestigationTemplateDetail()
+            {
+                Id = Guid.NewGuid(),
+                InvestigationTemplateId = request.InvestigationTemplateId,
+                Name = request.Name,
+                IsActive = request.IsActive,
+                Description = request.Description,
+                IsMaindatory = request.IsMaindatory,
+                AbsoluteMinimum = request.AbsoluteMinimum,
+                AbsoluteMaximum = request.AbsoluteMaximum,
+                NormalMinimum = request.NormalMinimum,
+                NormalMaximum = request.NormalMaximum,
+                FieldType = request.FieldType,
+            };
+            await context.InvestigationTemplateDetails.AddAsync(details);
+        }
+        else
+        {
+            var investigationDetailInDb = await context
+                .InvestigationTemplateDetails
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+            if (investigationDetailInDb == null)
+                return await Result.FailAsync("Investigation Details not found.");
+
+            investigationDetailInDb.InvestigationTemplateId = request.InvestigationTemplateId;
+            investigationDetailInDb.Name = request.Name;
+            investigationDetailInDb.IsActive = request.IsActive;
+            investigationDetailInDb.Description = request.Description;
+            investigationDetailInDb.IsMaindatory = request.IsMaindatory;
+            investigationDetailInDb.AbsoluteMinimum = request.AbsoluteMinimum;
+            investigationDetailInDb.AbsoluteMaximum = request.AbsoluteMaximum;
+            investigationDetailInDb.NormalMinimum = request.NormalMinimum;
+            investigationDetailInDb.NormalMaximum = request.NormalMaximum;
+            investigationDetailInDb.FieldType = request.FieldType;
+            context.ChangeTracker.Clear();
+            context.InvestigationTemplateDetails.Update(investigationDetailInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation details has been saved.");
+    }
+
+    public async Task<IResult> DeleteInvestigationDetails(Guid id)
+    {
+        var investigationDetailInDb = await context
+            .InvestigationTemplateDetails
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (investigationDetailInDb == null)
+            return await Result.FailAsync("Investigation Details not found.");
+
+        context.InvestigationTemplateDetails.Remove(investigationDetailInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation details has been deleted.");
+    }
 
     #endregion
 }

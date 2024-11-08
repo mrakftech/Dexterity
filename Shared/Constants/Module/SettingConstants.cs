@@ -2,6 +2,17 @@
 
 public static class SettingConstants
 {
+    public static List<InvestigationFieldType> FieldTypes { get; set; } =
+    [
+        new(1, "Text"),
+        new(2, "Number"),
+        new(3, "Decimal"),
+        new(4, "Date"),
+        new(5, "List Selection"),
+    ];
+
+    #region Immunisations
+
     public static List<IntervalType> IntervalTypes { get; set; } =
     [
         new(1, "From Birth", 56, 0),
@@ -38,6 +49,8 @@ public static class SettingConstants
         new(10, "Right Side"),
         new(11, "Right Thigh"),
     ];
+
+    #endregion
 }
 
 public enum TransactionActionType
@@ -46,6 +59,14 @@ public enum TransactionActionType
     Payment,
     StrikeOff
 }
+
+public class InvestigationFieldType(int id, string name)
+{
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
+}
+
+#region Immunisations
 
 public class IntervalType(int id, string name, int min, int max)
 {
@@ -72,3 +93,5 @@ public class Side(int id, string name)
     public int Id { get; set; } = id;
     public string Name { get; set; } = name;
 }
+
+#endregion

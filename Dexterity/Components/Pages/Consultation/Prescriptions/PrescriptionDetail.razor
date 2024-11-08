@@ -1,4 +1,6 @@
-﻿<div class="mt-2">
+﻿@using Shared.Constants.Module.Consultation
+@using Domain.Entities.Consultation
+<div class="mt-2">
     <SfTab CssClass="e-tab-custom-class">
         <TabItems>
             <TabItem>
@@ -7,7 +9,7 @@
                     <div class="e-title" style="padding-left:10px">To Print</div>
                 </HeaderTemplate>
                 <ContentTemplate>
-                    <h1>To Print</h1>
+                    <PrescriptionList Prescriptions="Prescriptions"/>
                 </ContentTemplate>
             </TabItem>
             <TabItem>
@@ -65,9 +67,20 @@
         background-size: cover;
         background-position: center;
     }
-
 </style>
 
 @code {
+    
+    private List<Prescription> Prescriptions { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPrescriptions();
+    }
+
+    private async Task GetPrescriptions()
+    {
+        Prescriptions = await UnitOfWork.Consultation.GetPrescriptions(PrescriptionsConstants.Status.ToPrint);
+    }
 
 }

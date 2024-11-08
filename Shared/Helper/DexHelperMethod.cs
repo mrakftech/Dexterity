@@ -3,7 +3,7 @@ using Shared.Constants.Application;
 
 namespace Shared.Helper;
 
-public static class Method
+public static class DexHelperMethod
 {
     public static DateTime GetPasswordResetTime(string key)
     {
@@ -79,5 +79,5 @@ public static class Method
         return util.Format(s, PhoneNumberFormat.E164);
     }
 
-    public static string FaIcon(string icon) => $"<i class=\"fa fa-solid {icon}\"></i>";
+    public static string FaIcon(string icon) => $"<i class='{icon}'></i>";
 }

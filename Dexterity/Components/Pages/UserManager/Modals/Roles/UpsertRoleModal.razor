@@ -28,7 +28,7 @@
     {
         if (RoleName == null || string.IsNullOrWhiteSpace(RoleName))
         {
-            Snackbar.FailMessge("Role Name required.");
+            Snackbar.FailMessage("Role Name required.");
             return;
         }
 
@@ -40,7 +40,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
     }
 

@@ -5,6 +5,7 @@ using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
+using Shared.Constants.Module.Consultation;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
@@ -62,6 +63,12 @@ public interface IConsultationService
     Task<IResult> SaveReminders(int id, UpsertReminderDto request);
     Task<IResult> CompleteReminder(int id);
     Task<IResult> DeleteReminder(int id);
+
+    #endregion
+
+    #region Prescriptions
+
+    Task<List<Prescription>> GetPrescriptions(string status);
 
     #endregion
 }

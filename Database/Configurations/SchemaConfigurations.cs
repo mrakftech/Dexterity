@@ -9,6 +9,7 @@ using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
+using Domain.Entities.Settings;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
@@ -49,6 +50,8 @@ public static class SchemaConfigurations
         builder.Entity<PomrGroup>(entity => { entity.ToTable(name: "PomrGroups", "Setting"); });
         builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
         builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
+        builder.Entity<InvestigationTemplate>(entity => { entity.ToTable(name: "InvestigationTemplates", "Setting"); });
+        builder.Entity<InvestigationTemplateDetail>(entity => { entity.ToTable(name: "InvestigationTemplateDetails", "Setting"); });
 
         builder.Entity<Drug>(entity => { entity.ToTable(name: "Drugs", "Setting"); });
 

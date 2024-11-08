@@ -12,6 +12,7 @@ using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
 using Services.State;
+using Shared.Constants.Module.Consultation;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
@@ -708,6 +709,18 @@ public class ConsultationService(
         }
 
         return await Result.SuccessAsync("Schedule has been added.");
+    }
+
+    #endregion
+
+    #region Prescriptions
+
+    public async Task<List<Prescription>> GetPrescriptions(string status)
+    {
+        return await context.Prescriptions
+            .Include(x => x.Drug)
+            .Include(x => x.AddedBy)
+            .Where(x => x.Status == status && x.PatientId == ApplicationState.SelectedPatientId).ToListAsync();
     }
 
     #endregion

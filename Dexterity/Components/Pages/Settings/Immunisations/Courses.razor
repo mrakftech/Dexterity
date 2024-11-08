@@ -214,7 +214,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
 
         await GetCourses();
@@ -237,7 +237,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
     }
 
@@ -250,7 +250,7 @@
                 {
                     if (_destinationList.Any(x => x.Id == _sourceItemSelected.Id))
                     {
-                        Snackbar.FailMessge("Item already exists");
+                        Snackbar.FailMessage("Item already exists");
                         return;
                     }
 

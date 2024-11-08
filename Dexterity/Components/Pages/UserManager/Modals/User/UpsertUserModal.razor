@@ -67,7 +67,7 @@ else
         {
             var user = await UnitOfWork.User.GetUser(UserId);
             var data = Mapper.Map<CreateUserDto>(user);
-            data.ResetPassword = Method.GetPasswordResetIn(user.ResetPasswordAt);
+            data.ResetPassword = DexHelperMethod.GetPasswordResetIn(user.ResetPasswordAt);
             UserDto = data;
         }
     }
@@ -86,7 +86,7 @@ else
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
 
         _processing = false;

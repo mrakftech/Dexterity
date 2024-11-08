@@ -113,7 +113,7 @@ public interface ISettingService
     Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(Guid batchId);
     Task<IResult> UpsertBatch(Guid batchId, Guid shotId, UpsertBatchDto batch);
     Task<IResult> DeleteBatch(Guid batchId);
-    Task<IResult> DecreaseBatchQty(Guid batchId,int qty);
+    Task<IResult> DecreaseBatchQty(Guid batchId, int qty);
 
     #endregion
 
@@ -125,6 +125,7 @@ public interface ISettingService
     Task<IResult> AssignedShotToCourse(Guid courseId, List<Guid> shotIds);
     Task<List<Shot>> GetAssignedShotToCourse(Guid courseId);
     Task<IResult> DeleteCourse(Guid id);
+
     #endregion
 
     #region Immunisation Programs
@@ -146,6 +147,19 @@ public interface ISettingService
     Task<Result<Drug>> GetDrugByIdAsync(int id);
     Task<IResult> UpsertDrugAsync(int id, Drug drug);
     Task<IResult> DeleteDrugAsync(int id);
+
+    #endregion
+
+    #region Investigation
+
+    public Task<List<InvestigationTemplateDto>> GetInvestigationTemplates();
+    public Task<IResult> SaveInvestigationTemplate(InvestigationTemplateDto request);
+    public Task<IResult> DeleteInvestigationTemplate(Guid id);
+
+    public Task<List<InvestigationTDetailDto>> GetInvestigationTemplateDetails(Guid investigationId);
+    public Task<IResult> SaveInvestigationDetail(InvestigationTDetailDto request);
+    public Task<IResult> DeleteInvestigationDetails(Guid id);
+
 
     #endregion
 }

@@ -89,14 +89,14 @@
         Payment.AccountId = PatientAccount.Id;
         if (Payment.Amount > PatientAccount.Balance)
         {
-            Snackbar.FailMessge("Patient don't have enough balance.");
+            Snackbar.FailMessage("Patient don't have enough balance.");
             _processing = false;
             return;
         }
 
         if (Payment.SelectedTransaction.Count == 0)
         {
-            Snackbar.FailMessge("Please Allocate the Payment to 1 or more Charges.");
+            Snackbar.FailMessage("Please Allocate the Payment to 1 or more Charges.");
             _processing = false;
             return;
         }
@@ -109,7 +109,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
 
         await Task.Delay(1000);

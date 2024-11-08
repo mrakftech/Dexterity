@@ -32,7 +32,7 @@
         </TopBarItems>
         <NavigationItems>
             <RadzenPanelMenuItem Text="Consultation Details"
-                                 Icon="@Method.FaIcon("fas fa-user-doctor-message")"
+                                 Icon="@DexHelperMethod.FaIcon("fas fa-user-doctor-message")"
                                  Click="() => ClickChangedTab(0)">
 
                 <DexMenuItem Text="Find Patient"
@@ -53,13 +53,13 @@
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Notes" Icon="@Method.FaIcon("fas fa-notes-medical")">
+            <RadzenPanelMenuItem Text="Notes" Icon="@DexHelperMethod.FaIcon("fas fa-notes-medical")">
                 <DexMenuItem Text="Save Note" Icon="fas fa-note"
                              Disabled="@(!_isConsultationSelected)"
                              Click="() => ClickChangedTab(1)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@Method.FaIcon("fas fa-syringe")" Click="() => ClickChangedTab(2)">
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@DexHelperMethod.FaIcon("fas fa-syringe")" Click="() => ClickChangedTab(2)">
                 <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerScheduleDialog"
                              Disabled="@(!_isConsultationSelected)"/>
 
@@ -71,7 +71,7 @@
                              Disabled="@(!_isConsultationSelected)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Prescriptions" Icon="@Method.FaIcon("fas fa-prescription-bottle-pill")" Click="() => ClickChangedTab(3)">
+            <RadzenPanelMenuItem Text="Prescriptions" Icon="@DexHelperMethod.FaIcon("fas fa-prescription-bottle-pill")" Click="() => ClickChangedTab(3)">
                 <DexMenuItem Text="Add new" Icon="fas fa-prescription-bottle-medical"/>
                 <DexMenuItem Text="Print" Icon="fas fa-print"/>
                 <DexMenuItem Text="Reprint" Icon="fas fa-print"/>

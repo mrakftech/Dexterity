@@ -430,6 +430,9 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("AddedById")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("AdditionalInstruction")
                         .HasColumnType("nvarchar(max)");
 
@@ -466,6 +469,9 @@ namespace Database.Migrations
                     b.Property<bool>("IsInReview")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
@@ -483,7 +489,11 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AddedById");
+
                     b.HasIndex("DrugId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("Prescriptions", "Consultation");
                 });
@@ -2437,6 +2447,69 @@ namespace Database.Migrations
                     b.ToTable("EmailTemplates", "Setting");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InvestigationTemplates", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplateDetail", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<double>("AbsoluteMaximum")
+                        .HasColumnType("float");
+
+                    b.Property<double>("AbsoluteMinimum")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FieldType")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("InvestigationTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsMaindatory")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<double>("NormalMaximum")
+                        .HasColumnType("float");
+
+                    b.Property<double>("NormalMinimum")
+                        .HasColumnType("float");
+
+                    b.Property<string>("Unit")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvestigationTemplateId");
+
+                    b.ToTable("InvestigationTemplateDetails", "Setting");
+                });
+
             modelBuilder.Entity("Domain.Entities.Settings.Templates.SmsTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2807,13 +2880,29 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Prescription", b =>
                 {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "AddedBy")
+                        .WithMany()
+                        .HasForeignKey("AddedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Settings.Drugs.Drug", "Drug")
                         .WithMany()
                         .HasForeignKey("DrugId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("AddedBy");
+
                     b.Navigation("Drug");
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Reaction", b =>
@@ -3148,6 +3237,17 @@ namespace Database.Migrations
                     b.Navigation("HealthCode");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplateDetail", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Templates.InvestigationTemplate", "InvestigationTemplate")
+                        .WithMany("InvestigationDetails")
+                        .HasForeignKey("InvestigationTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("InvestigationTemplate");
+                });
+
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.Role", "Role")
@@ -3261,6 +3361,11 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram", b =>
                 {
                     b.Navigation("ImmunisationSchedules");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplate", b =>
+                {
+                    b.Navigation("InvestigationDetails");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>

@@ -39,7 +39,7 @@
     {
         if (_reasonId == 0)
         {
-            Snackbar.FailMessge("Please select reason");
+            Snackbar.FailMessage("Please select reason");
             _processing = false;
             return;
         }
@@ -53,7 +53,7 @@
         }
         else
         {
-            Snackbar.FailMessge(res.Messages.First());
+            Snackbar.FailMessage(res.Messages.First());
         }
         _processing = false;
     }
