@@ -1,8 +1,9 @@
-﻿@using Services.Features.Settings.Dtos
+﻿@using Domain.Entities.Settings.Templates.Investigation
+@using Services.Features.Settings.Dtos
 <TabTitle Title="Investigations"></TabTitle>
 <MudStack Row>
     <MudItem md="3">
-        <SfGrid DataSource="_templates" ShowPager="false" Height="400px">
+        <SfGrid DataSource="_templates" Height="400px">
             <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationTemplateDto"></GridEvents>
             <GridColumns>
                 <GridColumn Field="@nameof(InvestigationTemplateDto.Name)"/>
@@ -29,11 +30,29 @@
                 <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
                 <FormItem Field="@nameof(InvestigationTDetailDto.FieldType)" LabelText="Field Type" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)">
                     <Template>
-                        <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder="" DataSource="@SettingConstants.FieldTypes" @bind-Value="@_detail.FieldType">
+                        <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder="" DataSource="@SettingConstants.FieldTypes" @bind-Value="@_detail.FieldType" Enabled="@(_template.Id != Guid.Empty)">
                             <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="string" TItem="InvestigationFieldType" ValueChange="OnFieldTypeValueChange"></DropDownListEvents>
                         </SfDropDownList>
+                        @if (_showListValue)
+                        {
+                            <div class="mt-2">
+                                <MudStack Row>
+                                    <MudItem>
+                                        <SfDropDownList TValue="Guid" TItem="InvestigationSelectionList" Placeholder="" DataSource="_selectionList" @bind-Value="@_detail.InvestigationSelectionListId">
+                                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                        </SfDropDownList>
+                                    </MudItem>
+                                    <MudItem>
+                                        <button type="button" class="btn btn-sm btn-primary" @onclick="AddSelectionListValues">...</button>
+                                    </MudItem>
+                                </MudStack>
+
+                            </div>
+                        }
                     </Template>
                 </FormItem>
+
                 <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
                 <FormItem Field="@nameof(InvestigationTDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
                 <FormItem Field="@nameof(InvestigationTDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
@@ -68,8 +87,10 @@
 @code {
     private List<InvestigationTemplateDto> _templates = new();
     private List<InvestigationTDetailDto> _details = new();
+    private List<InvestigationSelectionList> _selectionList = new();
     private InvestigationTemplateDto _template = new();
     private InvestigationTDetailDto _detail = new();
+    private bool _showListValue;
 
     protected override async Task OnInitializedAsync()
     {
@@ -84,6 +105,11 @@
     private async Task GetInvestigationDetails(Guid templateId)
     {
         _details = await UnitOfWork.Setting.GetInvestigationTemplateDetails(templateId);
+    }
+
+    private async Task GetInvestigationSelectionList()
+    {
+        _selectionList = await UnitOfWork.Setting.GetInvestigationSelectionList();
     }
 
     private async Task SaveInvestigationTemplate()
@@ -157,6 +183,35 @@
             Snackbar.SuccessMessage(res.Messages.First());
             _detail = new();
             StateHasChanged();
+        }
+    }
+
+    private async Task OnFieldTypeValueChange(ChangeEventArgs<string, InvestigationFieldType> args)
+    {
+        if (args.ItemData is not null)
+        {
+            if (args.ItemData.Name == "List Selection")
+            {
+                _showListValue = true;
+                await GetInvestigationSelectionList();
+            }
+            else
+            {
+                _showListValue = false;
+                _detail.FieldType = args.ItemData.Name;
+            }
+        }
+    }
+
+    private async Task AddSelectionListValues()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult =   await DialogService.ShowAsync<SelectionListDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (result.Canceled)
+        {
+            await GetInvestigationSelectionList();
         }
     }
 

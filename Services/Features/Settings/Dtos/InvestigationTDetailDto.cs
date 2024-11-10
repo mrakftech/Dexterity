@@ -14,5 +14,7 @@ public class InvestigationTDetailDto
     public double NormalMaximum { get; set; }
     public string Unit { get; set; }
     public Guid InvestigationTemplateId { get; set; }
+    public Guid InvestigationSelectionListId { get; set; }
+
 
 }

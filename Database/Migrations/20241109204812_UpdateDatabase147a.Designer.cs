@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241109204812_UpdateDatabase147a")]
+    partial class UpdateDatabase147a
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2447,27 +2450,6 @@ namespace Database.Migrations
                     b.ToTable("EmailTemplates", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.AssignedInvestigationGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InvestigationGroupId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InvestigationTemplateId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvestigationGroupId");
-
-                    b.HasIndex("InvestigationTemplateId");
-
-                    b.ToTable("AssignedInvestigationGroups", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2481,7 +2463,6 @@ namespace Database.Migrations
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -3316,25 +3297,6 @@ namespace Database.Migrations
                         .HasForeignKey("HealthCodeId");
 
                     b.Navigation("HealthCode");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.AssignedInvestigationGroup", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.Investigation.InvestigationGroup", "InvestigationGroup")
-                        .WithMany()
-                        .HasForeignKey("InvestigationGroupId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Settings.Templates.InvestigationTemplate", "InvestigationTemplate")
-                        .WithMany()
-                        .HasForeignKey("InvestigationTemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InvestigationGroup");
-
-                    b.Navigation("InvestigationTemplate");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionValue", b =>

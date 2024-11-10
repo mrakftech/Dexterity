@@ -1,0 +1,152 @@
+﻿@using Domain.Entities.Settings.Templates.Investigation
+<DexDialog>
+    <DialogTitle>Selection List</DialogTitle>
+    <Content>
+        <label class="e-form-label">Selected List</label>
+        <MudStack Row>
+            <MudItem>
+                <SfDropDownList TValue="Guid" TItem="InvestigationSelectionList" Placeholder="" DataSource="_selectionList">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="Guid" TItem="InvestigationSelectionList" ValueChange="OnListSelectionValueChange"></DropDownListEvents>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem>
+                <button type="submit" class="btn btn-sm btn-primary" @onclick="AddNew">
+                    <i class="fas fa-floppy-disk"></i> Add New
+                </button>
+            </MudItem>
+        </MudStack>
+
+        <DexForm Model="_selectionListData" OnValidSubmit="SaveSelectionList">
+            <Fields>
+                <FormItem Field="@nameof(InvestigationSelectionList.Name)"/>
+                <FormItem Field="@nameof(InvestigationSelectionList.Id)">
+                    <Template>
+                        <SfGrid DataSource="_values" Height="250px" Toolbar="@(_actions)">
+                            <GridEditSettings AllowAdding="true" AllowEditing="true" AllowDeleting="true"></GridEditSettings>
+                            <GridEvents OnActionBegin="ActionBeginHandler" TValue="InvestigationSelectionValue"></GridEvents>
+                            <GridColumns>
+                                <GridColumn Field="@nameof(InvestigationSelectionValue.Value)"/>
+                            </GridColumns>
+                        </SfGrid>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <button type="submit" class="btn btn-sm btn-primary">
+                    <i class="fas fa-floppy-disk"></i> SAVE
+                </button>
+                @if (_selectionListData.Id != Guid.Empty)
+                {
+                    <button type="button" class="btn btn-sm btn-danger" @onclick="() => DeleteInvestigationSelectionList(_selectionListData.Id)">
+                        <i class="fas fa-close"></i> Delete
+                    </button>
+                }
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    private List<InvestigationSelectionList> _selectionList = new();
+    private List<InvestigationSelectionValue> _values = new();
+    private InvestigationSelectionList _selectionListData = new();
+    private List<string> _actions = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetInvestigationSelectionList();
+    }
+
+    private async Task GetInvestigationSelectionList()
+    {
+        _selectionList = await UnitOfWork.Setting.GetInvestigationSelectionList();
+    }
+
+    private async Task GetInvestigationSelectionListValues(Guid selectionListId)
+    {
+        _values = await UnitOfWork.Setting.GetInvestigationSelectionValues(selectionListId);
+    }
+
+    private void AddNew()
+    {
+        _selectionListData = new InvestigationSelectionList();
+    }
+
+    private async Task OnListSelectionValueChange(ChangeEventArgs<Guid, InvestigationSelectionList> arg)
+    {
+        if (arg.ItemData is not null)
+        {
+            await GetInvestigationSelectionList();
+            _selectionListData = arg.ItemData;
+            _actions = ["Add", "Edit", "Delete", "Cancel", "Update"];
+            await GetInvestigationSelectionListValues(_selectionListData.Id);
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveSelectionList()
+    {
+        var res = await UnitOfWork.Setting.SaveInvestigationSelectionList(_selectionListData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetInvestigationSelectionList();
+            _selectionListData = new InvestigationSelectionList();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task DeleteInvestigationSelectionList(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteInvestigationSelectionList(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            _selectionListData = new InvestigationSelectionList();
+            StateHasChanged();
+        }
+    }
+
+    public async Task ActionBeginHandler(Syncfusion.Blazor.Grids.ActionEventArgs<InvestigationSelectionValue> args)
+    {
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Save))
+        {
+            if (_selectionListData.Id == Guid.Empty)
+            {
+                Snackbar.FailMessage("Please Selection List Item");
+                return;
+            }
+
+            var values = args.Data;
+            values.InvestigationSelectionListId = _selectionListData.Id;
+            if (args.Action == "Add")
+            {
+                var res = await UnitOfWork.Setting.SaveInvestigationSelectionListValue(args.Data);
+                Snackbar.SuccessMessage(res.Messages.First());
+
+            }
+            else
+            {
+                var res = await UnitOfWork.Setting.SaveInvestigationSelectionListValue(args.Data);
+                Snackbar.SuccessMessage(res.Messages.First());
+                await GetInvestigationSelectionListValues(_selectionListData.Id);
+
+            }
+        }
+
+        if (args.RequestType.Equals(Syncfusion.Blazor.Grids.Action.Delete))
+        {
+            var res = await UnitOfWork.Setting.DeleteInvestigationSelectionListValue(args.Data.Id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetInvestigationSelectionListValues(_selectionListData.Id);
+        }
+    }
+
+}

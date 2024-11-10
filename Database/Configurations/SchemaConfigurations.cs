@@ -16,6 +16,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Investigation;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
@@ -51,8 +52,26 @@ public static class SchemaConfigurations
         builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
         builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
         builder.Entity<InvestigationTemplate>(entity => { entity.ToTable(name: "InvestigationTemplates", "Setting"); });
-        builder.Entity<InvestigationTemplateDetail>(entity => { entity.ToTable(name: "InvestigationTemplateDetails", "Setting"); });
-
+        builder.Entity<InvestigationTemplateDetail>(entity =>
+        {
+            entity.ToTable(name: "InvestigationTemplateDetails", "Setting");
+        });
+        builder.Entity<InvestigationSelectionList>(entity =>
+        {
+            entity.ToTable(name: "InvestigationSelectionList", "Setting");
+        });
+        builder.Entity<InvestigationSelectionValue>(entity =>
+        {
+            entity.ToTable(name: "InvestigationSelectionValues", "Setting");
+        });
+        builder.Entity<InvestigationGroup>(entity =>
+        {
+            entity.ToTable(name: "InvestigationGroups", "Setting");
+        });  
+        builder.Entity<AssignedInvestigationGroup>(entity =>
+        {
+            entity.ToTable(name: "AssignedInvestigationGroups", "Setting");
+        });
         builder.Entity<Drug>(entity => { entity.ToTable(name: "Drugs", "Setting"); });
 
         //Immuisation 
@@ -89,7 +108,6 @@ public static class SchemaConfigurations
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
         builder.Entity<Reaction>(entity => { entity.ToTable(name: "Reactions", "Consultation"); });
         builder.Entity<Prescription>(entity => { entity.ToTable(name: "Prescriptions", "Consultation"); });
-
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });
         builder.Entity<ImmunisationSchedule>()

@@ -1,4 +1,5 @@
 ﻿using Domain.Contracts;
+using Domain.Entities.Settings.Templates.Investigation;
 
 namespace Domain.Entities.Settings.Templates;
 
@@ -18,4 +19,7 @@ public class InvestigationTemplateDetail : IBaseId
 
     public InvestigationTemplate InvestigationTemplate { get; set; }
     public Guid InvestigationTemplateId { get; set; }
+
+    public InvestigationSelectionList InvestigationSelectionList { get; set; }
+    public Guid? InvestigationSelectionListId { get; set; }
 }

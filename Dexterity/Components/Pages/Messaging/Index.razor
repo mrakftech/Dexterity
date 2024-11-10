@@ -6,13 +6,13 @@
 </TopTitleBar>
 
 <div class="vertical-space">
-    <InnerLayout>
+    <InnerLayout ShowHeader="false">
         <NavigationItems>
-            <DexMenuItem Text="User Tasks" Icon="fas fa-bars-progress" Click="@(() => ClickChanged(0))"/>
-            <DexMenuItem Text="Contacts" Icon="fas fa-address-book" Click="@(() => ClickChanged(1))"/>
-            <DexMenuItem Text="SMS Messaging" Icon="fas fa-inbox" Click="@(() => ClickChanged(2))"/>
-            <DexMenuItem Text="Instant Messaging" Icon="fas fa-message" Click="@(() => ClickChanged(3))"/>
-            <DexMenuItem Text="Phone Directory" Icon="fas fa-phone-rotary" Click="@(() => ClickChanged(4))"/>
+            <DexMenuItem Text="User Tasks" Icon="user-task-icon" Click="@(() => ClickChanged(0))"/>
+            <DexMenuItem Text="Contacts" Icon="contact-icon" Click="@(() => ClickChanged(1))"/>
+            <DexMenuItem Text="SMS Messaging" Icon="sms-message-icon" Click="@(() => ClickChanged(2))"/>
+            <DexMenuItem Text="Instant Messaging" Icon="text-message-icon" Click="@(() => ClickChanged(3))"/>
+            <DexMenuItem Text="Phone Directory" Icon="telephone-icon" Click="@(() => ClickChanged(4))"/>
         </NavigationItems>
 
         <DexContentTabs >

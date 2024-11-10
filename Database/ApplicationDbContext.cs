@@ -23,6 +23,7 @@ using Domain.Entities.Settings;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Templates.Investigation;
 
 namespace Database;
 
@@ -87,6 +88,11 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Drug> Drugs { get; set; }
     public DbSet<InvestigationTemplate> InvestigationTemplates { get; set; }
     public DbSet<InvestigationTemplateDetail> InvestigationTemplateDetails { get; set; }
+    public DbSet<InvestigationSelectionList> InvestigationSelectionList { get; set; }
+    public DbSet<InvestigationSelectionValue> InvestigationSelectionValues { get; set; }
+    public DbSet<InvestigationGroup> InvestigationGroups { get; set; }
+    
+    public DbSet<AssignedInvestigationGroup> AssignedInvestigationsGroup { get; set; }
 
     #region Immunisations
 

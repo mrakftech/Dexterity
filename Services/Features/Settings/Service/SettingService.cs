@@ -6,6 +6,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Investigation;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
@@ -1091,6 +1092,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 NormalMinimum = request.NormalMinimum,
                 NormalMaximum = request.NormalMaximum,
                 FieldType = request.FieldType,
+                InvestigationSelectionListId = request.InvestigationSelectionListId,
             };
             await context.InvestigationTemplateDetails.AddAsync(details);
         }
@@ -1114,6 +1116,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             investigationDetailInDb.NormalMinimum = request.NormalMinimum;
             investigationDetailInDb.NormalMaximum = request.NormalMaximum;
             investigationDetailInDb.FieldType = request.FieldType;
+            investigationDetailInDb.InvestigationSelectionListId = request.InvestigationSelectionListId;
+
             context.ChangeTracker.Clear();
             context.InvestigationTemplateDetails.Update(investigationDetailInDb);
         }
@@ -1135,6 +1139,182 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.InvestigationTemplateDetails.Remove(investigationDetailInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Investigation details has been deleted.");
+    }
+
+    public async Task<List<InvestigationSelectionList>> GetInvestigationSelectionList()
+    {
+        return await context.InvestigationSelectionList.ToListAsync();
+    }
+
+    public async Task<IResult> SaveInvestigationSelectionList(InvestigationSelectionList request)
+    {
+        if (request.Id == Guid.Empty)
+        {
+            var newInvestigationSelectionList = new InvestigationSelectionList()
+            {
+                Id = Guid.NewGuid(),
+                Name = request.Name,
+            };
+            await context.InvestigationSelectionList.AddAsync(newInvestigationSelectionList);
+        }
+        else
+        {
+            var listInDb = await context.InvestigationSelectionList
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+            if (listInDb == null) return await Result.FailAsync("Investigation Selection List not found.");
+            listInDb.Name = request.Name;
+
+            context.ChangeTracker.Clear();
+            context.InvestigationSelectionList.Update(listInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Selection List has been saved.");
+    }
+
+    public async Task<IResult> DeleteInvestigationSelectionList(Guid id)
+    {
+        var listInDb = await context
+            .InvestigationSelectionList
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (listInDb == null) return await Result.FailAsync("Investigation Selection List not found.");
+
+        context.InvestigationSelectionList.Remove(listInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Selection List has been removed.");
+    }
+
+    public async Task<List<InvestigationSelectionValue>> GetInvestigationSelectionValues(Guid selectionId)
+    {
+        return await context.InvestigationSelectionValues
+            .Where(x => x.InvestigationSelectionListId == selectionId)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SaveInvestigationSelectionListValue(InvestigationSelectionValue request)
+    {
+        if (request.Id == Guid.Empty)
+        {
+            request.Id = Guid.NewGuid();
+            request.InvestigationSelectionListId = request.InvestigationSelectionListId;
+            await context.InvestigationSelectionValues.AddAsync(request);
+        }
+        else
+        {
+            var listInDb = await context.InvestigationSelectionValues.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+            listInDb.Value = request.Value;
+            listInDb.InvestigationSelectionListId = request.InvestigationSelectionListId;
+            context.ChangeTracker.Clear();
+            context.InvestigationSelectionValues.Update(listInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Selection Value has been saved.");
+    }
+
+    public async Task<IResult> DeleteInvestigationSelectionListValue(Guid id)
+    {
+        var listInDb = await context
+            .InvestigationSelectionValues
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (listInDb == null) return await Result.FailAsync("Investigation Selection Value not found.");
+
+        context.InvestigationSelectionValues.Remove(listInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Selection Value has been removed.");
+    }
+
+    public async Task<List<InvestigationGroup>> GetInvestigationGroups()
+    {
+        return await context.InvestigationGroups.AsNoTracking().Where(x => x.IsActive).ToListAsync();
+    }
+
+    public async Task<IResult> SaveInvestigationGroup(InvestigationGroup request)
+    {
+        if (request.Id == Guid.Empty)
+        {
+            var newInvestigationGroup = new InvestigationGroup()
+            {
+                Id = Guid.NewGuid(),
+                Icon = request.Icon,
+                Name = request.Name,
+                IsActive = request.IsActive
+            };
+            await context.InvestigationGroups.AddAsync(newInvestigationGroup);
+        }
+        else
+        {
+            var groupInDb = await context.InvestigationGroups.AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == request.Id);
+            if (groupInDb == null) return await Result.FailAsync("Investigation Group not found.");
+
+            groupInDb.Name = request.Name;
+            groupInDb.Icon = request.Icon;
+            groupInDb.IsActive = request.IsActive;
+            context.ChangeTracker.Clear();
+            context.InvestigationGroups.Update(groupInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Group has been saved.");
+    }
+
+    public async Task<IResult> DeleteInvestigationGroup(Guid id)
+    {
+        var groupInDb = await context.InvestigationGroups.AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (groupInDb == null) return await Result.FailAsync("Investigation Group not found.");
+
+        context.InvestigationGroups.Remove(groupInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Investigation Group has been removed.");
+    }
+
+    public async Task<IResult> AssignInvestigationsToGroup(Guid groupId, Guid investigationId)
+    {
+        var isExists = await context.AssignedInvestigationsGroup.AsNoTracking().AnyAsync(x =>
+            x.InvestigationGroupId == groupId && x.InvestigationTemplateId == investigationId);
+
+        if (!isExists)
+        {
+            var newAssignGroup = new AssignedInvestigationGroup()
+            {
+                Id = Guid.NewGuid(),
+                InvestigationGroupId = groupId,
+                InvestigationTemplateId = investigationId
+            };
+            await context.AssignedInvestigationsGroup.AddAsync(newAssignGroup);
+        }
+
+        await context.SaveChangesAsync();
+        context.ChangeTracker.Clear();
+        return await Result.SuccessAsync("Assigned Investigations Group has been assigned.");
+    }
+
+    public async Task<List<AssignedInvestigationGroup>> GetAssignInvestigationsOfGroup(Guid groupId)
+    {
+        return  await context.AssignedInvestigationsGroup
+            .AsNoTracking()
+            .Include(x=>x.InvestigationGroup)
+            .Where(x => x.InvestigationGroupId == groupId)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> DeleteAssignedInvestigationGroup(Guid id)
+    {
+        var assignInDb = await context.AssignedInvestigationsGroup.FirstOrDefaultAsync(x => x.Id == id);
+        if (assignInDb == null) return await Result.FailAsync("Assigned Investigation Group not found.");
+
+        context.AssignedInvestigationsGroup.Remove(assignInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Assigned Investigation Group has been removed.");
     }
 
     #endregion

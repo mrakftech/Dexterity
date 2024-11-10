@@ -1,0 +1,29 @@
+﻿@using Dexterity.Components
+<div class="mt-2">
+    <SfTab CssClass="e-tab-custom-class">
+        <TabItems>
+            <TabItem>
+                <HeaderTemplate>
+                    <i class="investigations-icon"></i>
+                    <div class="e-title" style="padding-left:10px">Investigations</div>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <InvestigationDetails/>
+                </ContentTemplate>
+            </TabItem>
+            <TabItem>
+                <HeaderTemplate>
+                    <i class="investigation-group-icon"></i>
+                    <div class="e-title" style="padding-left:10px">Investigation Groups</div>
+                </HeaderTemplate>
+                <ContentTemplate>
+                    <InvestigationGroups/>
+                </ContentTemplate>
+            </TabItem>
+        </TabItems>
+    </SfTab>
+</div>
+
+@code {
+
+}

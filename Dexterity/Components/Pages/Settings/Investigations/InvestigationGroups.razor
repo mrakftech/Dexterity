@@ -1,0 +1,173 @@
+﻿@using Domain.Entities.Settings.Templates.Investigation
+@using Services.Features.Settings.Dtos
+<TabTitle Title="Investigation Groups"></TabTitle>
+
+<MudStack Row>
+    <MudItem md="3">
+        <SfGrid DataSource="_groups" Height="400px">
+            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationGroup"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(InvestigationGroup.Name)" />
+            </GridColumns>
+        </SfGrid>
+        <DexForm Model="_group" ColumnCount="2" OnValidSubmit="SaveInvestigationGroup">
+            <Fields>
+                <FormItem Field="@nameof(InvestigationGroup.Name)" ColumnSpan="2" />
+                <FormItem Field="@nameof(InvestigationGroup.IsActive)" LabelText="Active" ColumnSpan="2" />
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" />
+                @if (_group.Id != Guid.Empty)
+                {
+                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteGroup(_group.Id)" />
+                }
+            </Buttons>
+        </DexForm>
+    </MudItem>
+    <MudItem md="8">
+        <div class="mt-2">
+            <SfGrid DataSource="_selectedInvestigations" Height="200px">
+                <GridColumns>
+                    <GridColumn Field="@nameof(AssignedInvestigationGroup.Id)" HeaderText="Investigations in Group">
+                        <Template>
+                            @{
+                                var item = (context as AssignedInvestigationGroup);
+                                <span>@item.InvestigationGroup.Name</span>
+                            }
+                        </Template>
+                    </GridColumn>
+                    <GridColumn HeaderText="Actions" Width="120">
+                        <Template>
+                            @{
+                                var item = (context as AssignedInvestigationGroup);
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteAssignedGroup(item.Id)" />
+                            }
+                        </Template>
+                    </GridColumn>
+                </GridColumns>
+            </SfGrid>
+        </div>
+        <div class="mt-2">
+            @if (_selectedInvestigation.Id != Guid.Empty)
+            {
+                <button class="btn btn-sm btn-primary m-3" @onclick="AssignedInvestigations"><i class="fa fa-plus-circle"></i> Add</button>
+            }
+            @if (_group.Id != Guid.Empty)
+            {
+                <SfGrid DataSource="_investigations" Height="200px">
+                    <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationTemplateDto"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(InvestigationTemplateDto.Name)" HeaderText="Add Investigation to Group" />
+
+                    </GridColumns>
+                </SfGrid>
+            }
+        </div>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<InvestigationGroup> _groups = new();
+    private InvestigationGroup _group = new();
+    private List<InvestigationTemplateDto> _investigations = new();
+    private List<AssignedInvestigationGroup> _selectedInvestigations = new();
+    private InvestigationTemplateDto _selectedInvestigation = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetInvestigationTemplates();
+        await GetInvestigationGroups();
+    }
+
+    private async Task GetInvestigationTemplates()
+    {
+        _investigations = await UnitOfWork.Setting.GetInvestigationTemplates();
+    }
+
+    private async Task GetInvestigationGroups()
+    {
+        _groups = await UnitOfWork.Setting.GetInvestigationGroups();
+    }
+
+    private async Task GetAssignedInvestigationsOfGroups()
+    {
+        _selectedInvestigations = await UnitOfWork.Setting.GetAssignInvestigationsOfGroup(_group.Id);
+    }
+
+    private async Task SaveInvestigationGroup()
+    {
+        var res = await UnitOfWork.Setting.SaveInvestigationGroup(_group);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            _group = new();
+            StateHasChanged();
+            await GetInvestigationGroups();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task SelectedTemplateRow(RowSelectEventArgs<InvestigationGroup> arg)
+    {
+        _group = new();
+        var group = arg.Data;
+        _group = group;
+        await GetAssignedInvestigationsOfGroups();
+    }
+
+    private async Task DeleteGroup(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteInvestigationGroup(id);
+            await GetInvestigationGroups();
+            Snackbar.SuccessMessage(res.Messages.First());
+            _group = new();
+            StateHasChanged();
+        }
+    }
+
+    private void SelectedDetailRow(RowSelectEventArgs<InvestigationTemplateDto> obj)
+    {
+        if (obj.Data is not null)
+        {
+            _selectedInvestigation = obj.Data;
+        }
+    }
+
+
+    private async Task AssignedInvestigations()
+    {
+        var res = await UnitOfWork.Setting.AssignInvestigationsToGroup(_group.Id, _selectedInvestigation.Id);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetAssignedInvestigationsOfGroups();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task DeleteAssignedGroup(Guid itemId)
+    {
+        var res = await UnitOfWork.Setting.DeleteAssignedInvestigationGroup(itemId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetAssignedInvestigationsOfGroups();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}
