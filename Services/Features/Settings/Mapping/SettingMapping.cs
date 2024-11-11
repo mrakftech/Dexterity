@@ -5,6 +5,7 @@ using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Investigation;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 

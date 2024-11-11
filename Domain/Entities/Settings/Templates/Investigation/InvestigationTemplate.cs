@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
 
-namespace Domain.Entities.Settings.Templates;
+namespace Domain.Entities.Settings.Templates.Investigation;
 
 public class InvestigationTemplate : IBaseId
 {
