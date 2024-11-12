@@ -1,6 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-
-namespace Services.Features.Consultation.Dto.BaselineDetails;
+﻿namespace Services.Features.Consultation.Dto.BaselineDetails;
 
 public class BaselineDetailDto
 {

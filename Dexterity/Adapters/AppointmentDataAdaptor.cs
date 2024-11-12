@@ -1,8 +1,9 @@
 ﻿using Services.Features.Appointments.Dtos;
-using Syncfusion.Blazor.Data;
+using Services.Features.Appointments.Service;
 using Syncfusion.Blazor;
+using Syncfusion.Blazor.Data;
 
-namespace Services.Features.Appointments.Service
+namespace Dexterity.Adapters
 {
     public class AppointmentDataAdaptor : DataAdaptor
     {

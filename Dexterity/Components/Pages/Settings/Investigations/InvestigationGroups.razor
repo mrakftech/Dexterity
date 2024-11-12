@@ -1,4 +1,4 @@
-﻿@using Domain.Entities.Settings.Templates.Investigation
+﻿@using Domain.Entities.Settings.Templates.Investigations
 @using Services.Features.Settings.Dtos
 <TabTitle Title="Investigation Groups"></TabTitle>
 
@@ -55,9 +55,9 @@
             @if (_group.Id != Guid.Empty)
             {
                 <SfGrid DataSource="_investigations" Height="200px">
-                    <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationTemplateDto"></GridEvents>
+                    <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDto"></GridEvents>
                     <GridColumns>
-                        <GridColumn Field="@nameof(InvestigationTemplateDto.Name)" HeaderText="Add Investigation to Group" />
+                        <GridColumn Field="@nameof(InvestigationDto.Name)" HeaderText="Add Investigation to Group" />
 
                     </GridColumns>
                 </SfGrid>
@@ -69,9 +69,9 @@
 @code {
     private List<InvestigationGroup> _groups = new();
     private InvestigationGroup _group = new();
-    private List<InvestigationTemplateDto> _investigations = new();
+    private List<InvestigationDto> _investigations = new();
     private List<AssignedInvestigationGroup> _selectedInvestigations = new();
-    private InvestigationTemplateDto _selectedInvestigation = new();
+    private InvestigationDto _selectedInvestigation = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -133,7 +133,7 @@
         }
     }
 
-    private void SelectedDetailRow(RowSelectEventArgs<InvestigationTemplateDto> obj)
+    private void SelectedDetailRow(RowSelectEventArgs<InvestigationDto> obj)
     {
         if (obj.Data is not null)
         {

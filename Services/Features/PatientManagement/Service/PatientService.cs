@@ -22,7 +22,6 @@ using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
 using Shared.Constants.Module;
-using Syncfusion.Blazor.RichTextEditor;
 
 namespace Services.Features.PatientManagement.Service;
 

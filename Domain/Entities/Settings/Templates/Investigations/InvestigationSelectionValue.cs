@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities.Settings.Templates.Investigation;
+﻿namespace Domain.Entities.Settings.Templates.Investigations;
 
 public class InvestigationSelectionValue
 {

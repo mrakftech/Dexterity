@@ -1,11 +1,12 @@
 ﻿using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
-using Shared.Constants.Module.Consultation;
+using Services.Features.Settings.Dtos;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
@@ -69,6 +70,16 @@ public interface IConsultationService
     #region Prescriptions
 
     Task<List<Prescription>> GetPrescriptions(string status);
+
+    #endregion
+
+    #region Investigations
+    Task<List<InvestigationGroup>> GetInvestigationGroups();
+    Task<List<InvestigationDto>> GetInvestigations(Guid? groupId);
+    Task<List<PatientInvestigation>> GetPatientInvestigations();
+
+
+    
 
     #endregion
 }

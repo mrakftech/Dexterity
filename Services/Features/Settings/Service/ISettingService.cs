@@ -3,7 +3,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 using Shared.Constants.Module;
@@ -153,12 +153,12 @@ public interface ISettingService
 
     #region Investigation
 
-    public Task<List<InvestigationTemplateDto>> GetInvestigationTemplates();
-    public Task<IResult> SaveInvestigationTemplate(InvestigationTemplateDto request);
+    public Task<List<InvestigationDto>> GetInvestigationTemplates();
+    public Task<IResult> SaveInvestigationTemplate(InvestigationDto request);
     public Task<IResult> DeleteInvestigationTemplate(Guid id);
 
-    public Task<List<InvestigationTDetailDto>> GetInvestigationTemplateDetails(Guid investigationId);
-    public Task<IResult> SaveInvestigationDetail(InvestigationTDetailDto request);
+    public Task<List<InvestigationDetailDto>> GetInvestigationTemplateDetails(Guid investigationId);
+    public Task<IResult> SaveInvestigationDetail(InvestigationDetailDto request);
     public Task<IResult> DeleteInvestigationDetails(Guid id);
 
     public Task<List<InvestigationSelectionList>> GetInvestigationSelectionList();

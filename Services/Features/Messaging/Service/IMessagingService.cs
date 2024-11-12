@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Messaging;
-using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.UserAccounts;
 using Services.Features.Messaging.Dtos.Sms;

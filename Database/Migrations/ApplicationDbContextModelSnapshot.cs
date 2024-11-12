@@ -424,6 +424,38 @@ namespace Database.Migrations
                     b.ToTable("ImmunisationSchedule", "Consultation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InvestigationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HcpId");
+
+                    b.HasIndex("InvestigationId");
+
+                    b.HasIndex("PatientId");
+
+                    b.ToTable("PatientInvestigations", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.Prescription", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2447,7 +2479,7 @@ namespace Database.Migrations
                     b.ToTable("EmailTemplates", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.AssignedInvestigationGroup", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.AssignedInvestigationGroup", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -2456,74 +2488,19 @@ namespace Database.Migrations
                     b.Property<Guid>("InvestigationGroupId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("InvestigationTemplateId")
+                    b.Property<Guid>("InvestigationId")
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
                     b.HasIndex("InvestigationGroupId");
 
-                    b.HasIndex("InvestigationTemplateId");
+                    b.HasIndex("InvestigationId");
 
                     b.ToTable("AssignedInvestigationGroups", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationGroup", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Icon")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InvestigationGroups", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionList", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("InvestigationSelectionList", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionValue", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("InvestigationSelectionListId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Value")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvestigationSelectionListId");
-
-                    b.ToTable("InvestigationSelectionValues", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplate", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.Investigation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -2537,10 +2514,10 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("InvestigationTemplates", "Setting");
+                    b.ToTable("Investigations", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplateDetail", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationDetail", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -2558,10 +2535,10 @@ namespace Database.Migrations
                     b.Property<string>("FieldType")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid?>("InvestigationSelectionListId")
+                    b.Property<Guid>("InvestigationId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("InvestigationTemplateId")
+                    b.Property<Guid?>("InvestigationSelectionListId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsActive")
@@ -2584,11 +2561,66 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("InvestigationId");
+
                     b.HasIndex("InvestigationSelectionListId");
 
-                    b.HasIndex("InvestigationTemplateId");
+                    b.ToTable("InvestigationDetails", "Setting");
+                });
 
-                    b.ToTable("InvestigationTemplateDetails", "Setting");
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationGroup", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Icon")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InvestigationGroups", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionList", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("InvestigationSelectionList", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionValue", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("InvestigationSelectionListId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Value")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InvestigationSelectionListId");
+
+                    b.ToTable("InvestigationSelectionValues", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.SmsTemplate", b =>
@@ -2959,6 +2991,33 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
+                {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
+                        .WithMany()
+                        .HasForeignKey("HcpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.Investigation", "Investigation")
+                        .WithMany()
+                        .HasForeignKey("InvestigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hcp");
+
+                    b.Navigation("Investigation");
+
+                    b.Navigation("Patient");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.Prescription", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.User", "AddedBy")
@@ -3318,51 +3377,51 @@ namespace Database.Migrations
                     b.Navigation("HealthCode");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.AssignedInvestigationGroup", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.AssignedInvestigationGroup", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.Templates.Investigation.InvestigationGroup", "InvestigationGroup")
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.InvestigationGroup", "InvestigationGroup")
                         .WithMany()
                         .HasForeignKey("InvestigationGroupId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.Templates.InvestigationTemplate", "InvestigationTemplate")
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.Investigation", "Investigation")
                         .WithMany()
-                        .HasForeignKey("InvestigationTemplateId")
+                        .HasForeignKey("InvestigationId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("InvestigationGroup");
+                    b.Navigation("Investigation");
 
-                    b.Navigation("InvestigationTemplate");
+                    b.Navigation("InvestigationGroup");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionValue", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationDetail", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionList", "InvestigationSelectionList")
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.Investigation", "Investigation")
+                        .WithMany("InvestigationDetails")
+                        .HasForeignKey("InvestigationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionList", "InvestigationSelectionList")
+                        .WithMany()
+                        .HasForeignKey("InvestigationSelectionListId");
+
+                    b.Navigation("Investigation");
+
+                    b.Navigation("InvestigationSelectionList");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionValue", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionList", "InvestigationSelectionList")
                         .WithMany("InvestigationSelectionValues")
                         .HasForeignKey("InvestigationSelectionListId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("InvestigationSelectionList");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplateDetail", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionList", "InvestigationSelectionList")
-                        .WithMany()
-                        .HasForeignKey("InvestigationSelectionListId");
-
-                    b.HasOne("Domain.Entities.Settings.Templates.InvestigationTemplate", "InvestigationTemplate")
-                        .WithMany("InvestigationDetails")
-                        .HasForeignKey("InvestigationTemplateId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("InvestigationSelectionList");
-
-                    b.Navigation("InvestigationTemplate");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
@@ -3480,14 +3539,14 @@ namespace Database.Migrations
                     b.Navigation("ImmunisationSchedules");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigation.InvestigationSelectionList", b =>
-                {
-                    b.Navigation("InvestigationSelectionValues");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplate", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.Investigation", b =>
                 {
                     b.Navigation("InvestigationDetails");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Investigations.InvestigationSelectionList", b =>
+                {
+                    b.Navigation("InvestigationSelectionValues");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Domain.Entities.Appointments;
 using Domain.Entities.WaitingRoom;
 using Services.Features.WaitingRoom.Dtos;
 

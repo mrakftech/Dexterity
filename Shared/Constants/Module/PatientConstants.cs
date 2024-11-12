@@ -1,5 +1,3 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Shared.Constants.Module;
 
 public static class PatientConstants

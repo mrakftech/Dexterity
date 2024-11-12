@@ -1,5 +1,4 @@
-﻿using Domain.Entities.UserAccounts;
-using Shared.Constants.Module;
+﻿using Shared.Constants.Module;
 
 namespace Domain.Entities.PatientManagement.Billing;
 

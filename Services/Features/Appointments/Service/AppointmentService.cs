@@ -1,13 +1,9 @@
 ﻿using AutoMapper;
 using Database;
 using Domain.Entities.Appointments;
-using Domain.Entities.PatientManagement;
-using Domain.Entities.UserAccounts;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Appointments.Dtos;
 using Services.State;
-using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Wrapper;
 

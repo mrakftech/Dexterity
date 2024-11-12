@@ -1,5 +1,6 @@
 ﻿using ClickATell.Extensions;
 using DailyCo.Extensions;
+using Dexterity.Adapters;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;

@@ -4,23 +4,19 @@ using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
-using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
-using Domain.Entities.Settings;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
-using Newtonsoft.Json;
 
 namespace Database.Configurations;
 
@@ -51,11 +47,8 @@ public static class SchemaConfigurations
         builder.Entity<PomrGroup>(entity => { entity.ToTable(name: "PomrGroups", "Setting"); });
         builder.Entity<HealthCode>(entity => { entity.ToTable(name: "HeathCodes", "Setting"); });
         builder.Entity<NoteTemplate>(entity => { entity.ToTable(name: "NoteTemplates", "Setting"); });
-        builder.Entity<InvestigationTemplate>(entity => { entity.ToTable(name: "InvestigationTemplates", "Setting"); });
-        builder.Entity<InvestigationTemplateDetail>(entity =>
-        {
-            entity.ToTable(name: "InvestigationTemplateDetails", "Setting");
-        });
+        builder.Entity<Investigation>(entity => { entity.ToTable(name: "Investigations", "Setting"); });
+        builder.Entity<InvestigationDetail>(entity => { entity.ToTable(name: "InvestigationDetails", "Setting"); });
         builder.Entity<InvestigationSelectionList>(entity =>
         {
             entity.ToTable(name: "InvestigationSelectionList", "Setting");
@@ -64,10 +57,7 @@ public static class SchemaConfigurations
         {
             entity.ToTable(name: "InvestigationSelectionValues", "Setting");
         });
-        builder.Entity<InvestigationGroup>(entity =>
-        {
-            entity.ToTable(name: "InvestigationGroups", "Setting");
-        });  
+        builder.Entity<InvestigationGroup>(entity => { entity.ToTable(name: "InvestigationGroups", "Setting"); });
         builder.Entity<AssignedInvestigationGroup>(entity =>
         {
             entity.ToTable(name: "AssignedInvestigationGroups", "Setting");
@@ -108,6 +98,10 @@ public static class SchemaConfigurations
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
         builder.Entity<Reaction>(entity => { entity.ToTable(name: "Reactions", "Consultation"); });
         builder.Entity<Prescription>(entity => { entity.ToTable(name: "Prescriptions", "Consultation"); });
+        builder.Entity<PatientInvestigation>(entity =>
+        {
+            entity.ToTable(name: "PatientInvestigations", "Consultation");
+        });
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });
         builder.Entity<ImmunisationSchedule>()

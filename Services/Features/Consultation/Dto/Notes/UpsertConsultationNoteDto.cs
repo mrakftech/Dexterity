@@ -1,5 +1,4 @@
 ﻿using System.ComponentModel.DataAnnotations;
-using Domain.Entities.Settings.Consultation;
 using Shared.Constants.Module.Consultation;
 
 namespace Services.Features.Consultation.Dto.Notes;

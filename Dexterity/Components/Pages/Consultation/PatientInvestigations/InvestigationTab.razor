@@ -1,0 +1,105 @@
+﻿@using Domain.Entities.Consultation
+@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings.Templates.Investigations
+
+<MudStack Row>
+    <MudItem md="3">
+        <div class="m-2">
+            <SfGrid DataSource="InvestigationGroups" Height="100px" ShowPager="false" Toolbar="@(new List<string>() {"Search"})">
+                <GridEvents RowSelected="SelectedGroupRow" TValue="InvestigationGroup"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(InvestigationGroup.Name)" HeaderText="Investigation Groups"/>
+                </GridColumns>
+            </SfGrid>
+        </div>
+
+        <div class="m-2">
+            <SfGrid DataSource="Investigations" Height="100px" Toolbar="@(new List<string>() {"Search"})">
+                <GridEvents RowSelected="SelectedInvestigationRow" TValue="InvestigationDto"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(InvestigationDto.Name)" HeaderText=@($"Investigations:{_investigationTitle}")/>
+                </GridColumns>
+            </SfGrid>
+            @if (_isAddInvestigation)
+            {
+                <DexLoadingButton Name="Add" Class="m-1"/>
+            }
+            <DexLoadingButton Name="Show All" Class="m-1" Click="ShowAllInvestigations"/>
+        </div>
+
+    </MudItem>
+    <MudItem md="9">
+        <div class="m-2">
+            <DexGrid DataSource="PatientInvestigations" Height="100px" ShowPager="false">
+                <DexGridColumns>
+                    <GridColumn Field="@nameof(PatientInvestigation.Date)" Format="d" Type="ColumnType.DateTime" HeaderText="Date"/>
+                    <GridColumn Field="@nameof(PatientInvestigation.InvestigationId)" HeaderText="Name">
+                        <Template>
+                            @{
+                                var item = (context as PatientInvestigation);
+                            }
+                            <span>@item!.Investigation.Name</span>
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(PatientInvestigation.Status)"/>
+                    <GridColumn Field="@nameof(PatientInvestigation.HcpId)" HeaderText="HCP">
+                        <Template>
+                            @{
+                                var item = (context as PatientInvestigation);
+                            }
+                            <span>@item!.Hcp.FullName</span>
+                        </Template>
+                    </GridColumn>
+                </DexGridColumns>
+            </DexGrid>
+        </div>
+    </MudItem>
+</MudStack>
+
+@code {
+    private List<InvestigationGroup> InvestigationGroups { get; set; } = new();
+    private List<InvestigationDto> Investigations { get; set; } = new();
+    private List<PatientInvestigation> PatientInvestigations { get; set; } = new();
+    private string _investigationTitle = "";
+    private bool _isAddInvestigation;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetInvestigationGroups();
+        await GetPatientInvestigations();
+        await GetInvestigations();
+    }
+
+    private async Task GetInvestigations()
+    {
+        Investigations = await UnitOfWork.Consultation.GetInvestigations(Guid.Empty);
+    }
+
+    private async Task GetInvestigationGroups()
+    {
+        InvestigationGroups = await UnitOfWork.Consultation.GetInvestigationGroups();
+    }
+
+    private async Task GetPatientInvestigations()
+    {
+        PatientInvestigations = await UnitOfWork.Consultation.GetPatientInvestigations();
+    }
+
+    private async Task SelectedGroupRow(RowSelectEventArgs<InvestigationGroup> arg)
+    {
+        _investigationTitle = arg.Data.Name;
+        Investigations = await UnitOfWork.Consultation.GetInvestigations(arg.Data.Id);
+    }
+
+    private async Task ShowAllInvestigations()
+    {
+        await GetInvestigations();
+        _investigationTitle = "All";
+    }
+
+    private void SelectedInvestigationRow(RowSelectEventArgs<InvestigationDto> arg)
+    {
+        _isAddInvestigation = arg.Data is not null;
+    }
+
+}

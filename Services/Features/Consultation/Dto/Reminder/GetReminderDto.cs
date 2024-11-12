@@ -1,7 +1,4 @@
-﻿using Domain.Entities.PatientManagement;
-using Domain.Entities.UserAccounts;
-using Services.Features.UserAccounts.Dtos.User;
-using Shared.Constants.Module.Consultation;
+﻿using Shared.Constants.Module.Consultation;
 
 namespace Services.Features.Consultation.Dto.Reminder;
 

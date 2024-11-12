@@ -1,7 +1,6 @@
 using Domain.Entities.UserAccounts;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
-using Shared.Constants.Role;
 using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;

@@ -15,7 +15,6 @@ using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Helper;
 using Shared.Wrapper;
-using Syncfusion.Blazor.Kanban.Internal;
 
 namespace Services.Features.Messaging.Service;
 

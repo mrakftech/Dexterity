@@ -18,12 +18,10 @@ using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.WaitingRoom;
-using System.Reflection.Emit;
-using Domain.Entities.Settings;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Templates.Investigation;
+using Domain.Entities.Settings.Templates.Investigations;
 
 namespace Database;
 
@@ -86,8 +84,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<HealthCode> HealthConditionCodes { get; set; }
     public DbSet<NoteTemplate> NoteTemplates { get; set; }
     public DbSet<Drug> Drugs { get; set; }
-    public DbSet<InvestigationTemplate> InvestigationTemplates { get; set; }
-    public DbSet<InvestigationTemplateDetail> InvestigationTemplateDetails { get; set; }
+    public DbSet<Investigation> Investigations { get; set; }
+    public DbSet<InvestigationDetail> InvestigationDetails { get; set; }
     public DbSet<InvestigationSelectionList> InvestigationSelectionList { get; set; }
     public DbSet<InvestigationSelectionValue> InvestigationSelectionValues { get; set; }
     public DbSet<InvestigationGroup> InvestigationGroups { get; set; }
@@ -158,6 +156,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<AdministerShot> AdministerShots { get; set; }
     public DbSet<Reaction> Reactions { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
+    public DbSet<PatientInvestigation> PatientInvestigations { get; set; }
     
 
     #endregion

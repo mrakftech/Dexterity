@@ -6,7 +6,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
@@ -1007,31 +1007,31 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #region Investigation
 
-    public async Task<List<InvestigationTemplateDto>> GetInvestigationTemplates()
+    public async Task<List<InvestigationDto>> GetInvestigationTemplates()
     {
-        var templates = await context.InvestigationTemplates
+        var templates = await context.Investigations
             .AsNoTracking()
             .Where(x => x.IsActive).ToListAsync();
-        var data = mapper.Map<List<InvestigationTemplateDto>>(templates);
+        var data = mapper.Map<List<InvestigationDto>>(templates);
         return data;
     }
 
-    public async Task<IResult> SaveInvestigationTemplate(InvestigationTemplateDto request)
+    public async Task<IResult> SaveInvestigationTemplate(InvestigationDto request)
     {
         if (request.Id == Guid.Empty)
         {
-            var investigationTemplate = new InvestigationTemplate()
+            var investigationTemplate = new Investigation()
             {
                 Id = Guid.NewGuid(),
                 Name = request.Name,
                 IsActive = request.IsActive
             };
-            context.InvestigationTemplates.Add(investigationTemplate);
+            context.Investigations.Add(investigationTemplate);
         }
         else
         {
             var investigationInDb = await context
-                .InvestigationTemplates
+                .Investigations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id);
 
@@ -1042,7 +1042,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             investigationInDb.Name = request.Name;
             investigationInDb.IsActive = request.IsActive;
             context.ChangeTracker.Clear();
-            context.InvestigationTemplates.Update(investigationInDb);
+            context.Investigations.Update(investigationInDb);
         }
 
         await context.SaveChangesAsync();
@@ -1052,37 +1052,37 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> DeleteInvestigationTemplate(Guid id)
     {
         var investigationInDb = await context
-            .InvestigationTemplates
+            .Investigations
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (investigationInDb == null)
             return await Result.FailAsync("Investigation Template not found.");
 
-        context.InvestigationTemplates.Remove(investigationInDb);
+        context.Investigations.Remove(investigationInDb);
         await context.SaveChangesAsync();
 
         return await Result.SuccessAsync("Investigation Template has been deleted.");
     }
 
-    public async Task<List<InvestigationTDetailDto>> GetInvestigationTemplateDetails(Guid investigationId)
+    public async Task<List<InvestigationDetailDto>> GetInvestigationTemplateDetails(Guid investigationId)
     {
-        var details = await context.InvestigationTemplateDetails
+        var details = await context.InvestigationDetails
             .AsNoTracking()
-            .Where(x => x.IsActive && x.InvestigationTemplateId == investigationId)
+            .Where(x => x.IsActive && x.InvestigationId == investigationId)
             .ToListAsync();
-        var mapped = mapper.Map<List<InvestigationTDetailDto>>(details);
+        var mapped = mapper.Map<List<InvestigationDetailDto>>(details);
         return mapped;
     }
 
-    public async Task<IResult> SaveInvestigationDetail(InvestigationTDetailDto request)
+    public async Task<IResult> SaveInvestigationDetail(InvestigationDetailDto request)
     {
         if (request.Id == Guid.Empty)
         {
-            var details = new InvestigationTemplateDetail()
+            var details = new InvestigationDetail()
             {
                 Id = Guid.NewGuid(),
-                InvestigationTemplateId = request.InvestigationTemplateId,
+                InvestigationId = request.InvestigationId,
                 Name = request.Name,
                 IsActive = request.IsActive,
                 Description = request.Description,
@@ -1094,19 +1094,19 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 FieldType = request.FieldType,
                 InvestigationSelectionListId = request.InvestigationSelectionListId,
             };
-            await context.InvestigationTemplateDetails.AddAsync(details);
+            await context.InvestigationDetails.AddAsync(details);
         }
         else
         {
             var investigationDetailInDb = await context
-                .InvestigationTemplateDetails
+                .InvestigationDetails
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == request.Id);
 
             if (investigationDetailInDb == null)
                 return await Result.FailAsync("Investigation Details not found.");
 
-            investigationDetailInDb.InvestigationTemplateId = request.InvestigationTemplateId;
+            investigationDetailInDb.InvestigationId = request.InvestigationId;
             investigationDetailInDb.Name = request.Name;
             investigationDetailInDb.IsActive = request.IsActive;
             investigationDetailInDb.Description = request.Description;
@@ -1119,7 +1119,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             investigationDetailInDb.InvestigationSelectionListId = request.InvestigationSelectionListId;
 
             context.ChangeTracker.Clear();
-            context.InvestigationTemplateDetails.Update(investigationDetailInDb);
+            context.InvestigationDetails.Update(investigationDetailInDb);
         }
 
         await context.SaveChangesAsync();
@@ -1129,14 +1129,14 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> DeleteInvestigationDetails(Guid id)
     {
         var investigationDetailInDb = await context
-            .InvestigationTemplateDetails
+            .InvestigationDetails
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
 
         if (investigationDetailInDb == null)
             return await Result.FailAsync("Investigation Details not found.");
 
-        context.InvestigationTemplateDetails.Remove(investigationDetailInDb);
+        context.InvestigationDetails.Remove(investigationDetailInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Investigation details has been deleted.");
     }
@@ -1280,7 +1280,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> AssignInvestigationsToGroup(Guid groupId, Guid investigationId)
     {
         var isExists = await context.AssignedInvestigationsGroup.AsNoTracking().AnyAsync(x =>
-            x.InvestigationGroupId == groupId && x.InvestigationTemplateId == investigationId);
+            x.InvestigationGroupId == groupId && x.InvestigationId == investigationId);
 
         if (!isExists)
         {
@@ -1288,7 +1288,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             {
                 Id = Guid.NewGuid(),
                 InvestigationGroupId = groupId,
-                InvestigationTemplateId = investigationId
+                InvestigationId = investigationId
             };
             await context.AssignedInvestigationsGroup.AddAsync(newAssignGroup);
         }

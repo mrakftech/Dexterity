@@ -1,31 +1,31 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Tabs
 <MudStack Row>
     <MudTooltip Text="Notifications">
-        <MudIconButton Icon="fas fa-bell" Color="MudColor.Info"></MudIconButton>
+        <MudIconButton Icon="bell-icon" Color="MudColor.Info"></MudIconButton>
     </MudTooltip>
     <MudTooltip Text="Instant Messaging">
-        <MudIconButton Icon="fas fa-comments" Color="MudColor.Info" OnClick="OpenChatDialog"></MudIconButton>
+        <MudIconButton Icon="chat-icon" Color="MudColor.Info" OnClick="OpenChatDialog"></MudIconButton>
     </MudTooltip>
     <MudTooltip Text="My Tasks">
-        <MudIconButton Icon=" fas fa-list-check" Color="MudColor.Info" OnClick="OpenUserTaskModal"></MudIconButton>
+        <MudIconButton Icon="task-list-icon" Color="MudColor.Info" OnClick="OpenUserTaskModal"></MudIconButton>
     </MudTooltip>
 
 </MudStack>
 
 @code {
 
-    private async Task OpenUserTaskModal(MouseEventArgs obj)
-    {
-        var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<UserTasksTab>("", parameters, options);
-    }
+private async Task OpenUserTaskModal(MouseEventArgs obj)
+{
+var parameters = new DialogParameters();
+var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+await DialogService.ShowAsync<UserTasksTab>("", parameters, options);
+}
 
-    private async Task OpenChatDialog()
-    {
-        var parameters = new DialogParameters();
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
-        await DialogService.ShowAsync<ChatDialog>("", parameters, options);
-    }
+private async Task OpenChatDialog()
+{
+var parameters = new DialogParameters();
+var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+await DialogService.ShowAsync<ChatDialog>("", parameters, options);
+}
 
 }

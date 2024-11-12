@@ -1,18 +1,18 @@
-﻿@using Domain.Entities.Settings.Templates.Investigation
+﻿@using Domain.Entities.Settings.Templates.Investigations
 @using Services.Features.Settings.Dtos
 <TabTitle Title="Investigations"></TabTitle>
 <MudStack Row>
     <MudItem md="3">
         <SfGrid DataSource="_templates" Height="400px">
-            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationTemplateDto"></GridEvents>
+            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationDto"></GridEvents>
             <GridColumns>
-                <GridColumn Field="@nameof(InvestigationTemplateDto.Name)"/>
+                <GridColumn Field="@nameof(InvestigationDto.Name)"/>
             </GridColumns>
         </SfGrid>
         <DexForm Model="_template" ColumnCount="2" OnValidSubmit="SaveInvestigationTemplate">
             <Fields>
-                <FormItem Field="@nameof(InvestigationTemplateDto.Name)" ColumnSpan="2"/>
-                <FormItem Field="@nameof(InvestigationTemplateDto.IsActive)" LabelText="Active" ColumnSpan="2"/>
+                <FormItem Field="@nameof(InvestigationDto.Name)" ColumnSpan="2"/>
+                <FormItem Field="@nameof(InvestigationDto.IsActive)" LabelText="Active" ColumnSpan="2"/>
             </Fields>
             <Buttons>
                 <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
@@ -26,9 +26,9 @@
     <MudItem md="8">
         <DexForm Model="_detail" ColumnCount="2" OnValidSubmit="SaveDetails">
             <Fields>
-                <FormItem Field="@nameof(InvestigationTDetailDto.Name)" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.FieldType)" LabelText="Field Type" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)">
+                <FormItem Field="@nameof(InvestigationDetailDto.Name)" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.FieldType)" LabelText="Field Type" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)">
                     <Template>
                         <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder="" DataSource="@SettingConstants.FieldTypes" @bind-Value="@_detail.FieldType" Enabled="@(_template.Id != Guid.Empty)">
                             <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
@@ -53,12 +53,12 @@
                     </Template>
                 </FormItem>
 
-                <FormItem Field="@nameof(InvestigationTDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.IsActive)" ColumnSpan="1" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.NormalMaximum)" ColumnSpan="1" LabelText="Normal Maximum" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationTDetailDto.IsMaindatory)" ColumnSpan="1" LabelText="Mandatory" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.IsActive)" ColumnSpan="1" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.NormalMaximum)" ColumnSpan="1" LabelText="Normal Maximum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                <FormItem Field="@nameof(InvestigationDetailDto.IsMaindatory)" ColumnSpan="1" LabelText="Mandatory" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
             </Fields>
             <Buttons>
                 <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
@@ -70,14 +70,14 @@
         </DexForm>
         <div class="mt-2">
             <SfGrid DataSource="_details" Height="200px">
-                <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationTDetailDto"></GridEvents>
+                <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDetailDto"></GridEvents>
 
                 <GridColumns>
-                    <GridColumn Field="@nameof(InvestigationTDetailDto.Name)"/>
-                    <GridColumn Field="@nameof(InvestigationTDetailDto.FieldType)" HeaderText="Field Type"/>
-                    <GridColumn Field="@nameof(InvestigationTDetailDto.AbsoluteMinimum)" HeaderText="Min"/>
-                    <GridColumn Field="@nameof(InvestigationTDetailDto.AbsoluteMaximum)" HeaderText="Max"/>
-                    <GridColumn Field="@nameof(InvestigationTDetailDto.Unit)"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.Name)"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.FieldType)" HeaderText="Field Type"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.AbsoluteMinimum)" HeaderText="Min"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" HeaderText="Max"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.Unit)"/>
                 </GridColumns>
             </SfGrid>
         </div>
@@ -85,11 +85,11 @@
 </MudStack>
 
 @code {
-    private List<InvestigationTemplateDto> _templates = new();
-    private List<InvestigationTDetailDto> _details = new();
+    private List<InvestigationDto> _templates = new();
+    private List<InvestigationDetailDto> _details = new();
     private List<InvestigationSelectionList> _selectionList = new();
-    private InvestigationTemplateDto _template = new();
-    private InvestigationTDetailDto _detail = new();
+    private InvestigationDto _template = new();
+    private InvestigationDetailDto _detail = new();
     private bool _showListValue;
 
     protected override async Task OnInitializedAsync()
@@ -127,7 +127,7 @@
         }
     }
 
-    private async Task SelectedTemplateRow(RowSelectEventArgs<InvestigationTemplateDto> arg)
+    private async Task SelectedTemplateRow(RowSelectEventArgs<InvestigationDto> arg)
     {
         var template = arg.Data;
         _template = template;
@@ -151,7 +151,7 @@
 
     private async Task SaveDetails()
     {
-        _detail.InvestigationTemplateId = _template.Id;
+        _detail.InvestigationId = _template.Id;
         var res = await UnitOfWork.Setting.SaveInvestigationDetail(_detail);
         if (res.Succeeded)
         {
@@ -166,7 +166,7 @@
     }
 
 
-    private void SelectedDetailRow(RowSelectEventArgs<InvestigationTDetailDto> obj)
+    private void SelectedDetailRow(RowSelectEventArgs<InvestigationDetailDto> obj)
     {
         _detail = obj.Data;
     }

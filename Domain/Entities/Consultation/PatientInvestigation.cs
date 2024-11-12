@@ -1,13 +1,24 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Domain.Entities.PatientManagement;
+using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Consultation
 {
     public class PatientInvestigation
     {
         public Guid Id { get; set; }
+
+        public DateTime Date { get; set; }
+        public string Status { get; set; } //Awaiting, In Review, Follow up, Complete
+
+
+        public Patient Patient { get; set; }
+        public Guid PatientId { get; set; }
+
+        public User Hcp { get; set; }
+        public Guid HcpId { get; set; }
+
+        public Investigation Investigation { get; set; }
+        public Guid InvestigationId { get; set; }
     }
 }

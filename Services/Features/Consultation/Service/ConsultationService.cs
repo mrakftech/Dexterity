@@ -3,6 +3,7 @@ using Database;
 using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
@@ -10,10 +11,11 @@ using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.PatientManagement.Service;
+using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Service;
 using Services.State;
-using Shared.Constants.Module.Consultation;
 using Shared.Wrapper;
+using Syncfusion.Blazor.Data;
 
 namespace Services.Features.Consultation.Service;
 
@@ -721,6 +723,45 @@ public class ConsultationService(
             .Include(x => x.Drug)
             .Include(x => x.AddedBy)
             .Where(x => x.Status == status && x.PatientId == ApplicationState.SelectedPatientId).ToListAsync();
+    }
+
+    #endregion
+
+    #region Investigations
+
+    public async Task<List<InvestigationGroup>> GetInvestigationGroups()
+    {
+        return await context.InvestigationGroups.ToListAsync();
+    }
+
+    public async Task<List<InvestigationDto>> GetInvestigations(Guid? groupId)
+    {
+        List<InvestigationDto> investigations;
+        if (groupId == Guid.Empty)
+        {
+            var list = await context.Investigations.ToListAsync();
+            investigations = mapper.Map<List<InvestigationDto>>(list);
+        }
+        else
+        {
+            var list = await context.AssignedInvestigationsGroup
+                .Where(x => x.InvestigationGroupId == groupId)
+                .Select(x => x.Investigation)
+                .ToListAsync();
+
+            investigations = mapper.Map<List<InvestigationDto>>(list);
+        }
+
+        return investigations;
+    }
+
+    public async Task<List<PatientInvestigation>> GetPatientInvestigations()
+    {
+        return await context.PatientInvestigations
+            .Include(x=>x.Investigation)
+            .Include(x=>x.Hcp)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
     }
 
     #endregion

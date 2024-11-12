@@ -21,13 +21,13 @@
         <MudImage Src="favicon.png" Fluid="true" Width="32" Class="mr-3" Style="margin-left: -16px;"
                   ObjectPosition="ObjectPosition.Center">
         </MudImage>
-        <MudIconButton Icon="@MudIcons.Material.Filled.Menu" Color="MudColor.Inherit" Edge="Edge.Start"
+        <MudIconButton Icon="hamburger-icon" Color="MudColor.Inherit" Edge="Edge.Start"
                        OnClick="@ToggleDrawer"/>
         <MudSpacer/>
         <UserPersonalToolBar/>
         <MudToggleIconButton
-            Icon="@MudIcons.Material.Filled.DarkMode" Color="MudColor.Info"
-            ToggledIcon="@MudIcons.Material.Filled.WbSunny" ToggledColor="MudColor.Info" ToggledChanged="ThemeChange"/>
+            Icon="night-mode-icon" Color="MudColor.Info"
+            ToggledIcon="light-mode-icon" ToggledColor="MudColor.Info" ToggledChanged="ThemeChange"/>
     </MudAppBar>
     <MudDrawer Style="color: white!important; background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%) !important;" @bind-Open="@_open" ClipMode="DrawerClipMode.Docked" Breakpoint="@MudBreakpoint.Sm" Elevation="1"
                Width="200px" Variant="@DrawerVariant.Mini" Class="bg-side-nav">

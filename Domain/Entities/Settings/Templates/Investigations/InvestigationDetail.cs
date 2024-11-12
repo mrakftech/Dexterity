@@ -1,9 +1,8 @@
 ﻿using Domain.Contracts;
-using Domain.Entities.Settings.Templates.Investigation;
 
-namespace Domain.Entities.Settings.Templates;
+namespace Domain.Entities.Settings.Templates.Investigations;
 
-public class InvestigationTemplateDetail : IBaseId
+public class InvestigationDetail : IBaseId
 {
     public Guid Id { get; set; }
     public bool IsActive { get; set; }
@@ -17,8 +16,8 @@ public class InvestigationTemplateDetail : IBaseId
     public double NormalMaximum { get; set; }
     public string Unit { get; set; }
 
-    public InvestigationTemplate InvestigationTemplate { get; set; }
-    public Guid InvestigationTemplateId { get; set; }
+    public Investigation Investigation { get; set; }
+    public Guid InvestigationId { get; set; }
 
     public InvestigationSelectionList InvestigationSelectionList { get; set; }
     public Guid? InvestigationSelectionListId { get; set; }

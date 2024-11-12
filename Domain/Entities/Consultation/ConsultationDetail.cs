@@ -1,7 +1,6 @@
 ﻿using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.UserAccounts;
-using Microsoft.VisualBasic;
 
 namespace Domain.Entities.Consultation;
 

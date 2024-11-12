@@ -1,7 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Shared.Attributes;
 using Shared.Constants.Module;
-using static Shared.Constants.Module.PatientConstants;
 
 namespace Services.Features.PatientManagement.Dtos.Details;
 

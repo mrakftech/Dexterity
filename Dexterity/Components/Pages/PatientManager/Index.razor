@@ -15,14 +15,14 @@
 <MudItem md="12" Class="vertical-space">
     <InnerLayout >
         <NavigationItems>
-            <DexMenuItem Text="Quick Patient" Icon="fas fa-person-circle-plus" Click="@(AddNewPatient)"/>
-            <DexMenuItem Text="Add Patient" Icon="fas fa-users" Click="@(() => ClickChangedTab(1))"/>
-            <DexMenuItem Text="Open Patient" Icon="fas fa-user-pen" Click="@(() => ClickChangedTab(0))"/>
-            <DexMenuItem Text="Patient Group Centre" Icon="fas fa-family" Click="@(() => ClickChangedTab(2))"/>
-            <DexMenuItem Text="Open Patient Summary" Icon="fas fa-rectangle-list" Click="@(() => ClickChangedTab(3))"/>
-            <DexMenuItem Text="Patients Accounts" Icon="fas fa-solid fa-file-user" Click="@(() => ClickChangedTab(4))"/>
+            <DexMenuItem Text="Quick Patient" Icon="quick-add-patient-icon" Click="@(AddNewPatient)"/>
+            <DexMenuItem Text="Add Patient" Icon="add-patient-icon" Click="@(() => ClickChangedTab(1))"/>
+            <DexMenuItem Text="Open Patient" Icon="open-patient-icon" Click="@(() => ClickChangedTab(0))"/>
+            <DexMenuItem Text="Patient Group Centre" Icon="patient-family-icon" Click="@(() => ClickChangedTab(2))"/>
+            <DexMenuItem Text="Open Patient Summary" Icon="patient-summary-icon" Click="@(() => ClickChangedTab(3))"/>
+            <DexMenuItem Text="Patients Accounts" Icon="patient-account-icon" Click="@(() => ClickChangedTab(4))"/>
             <hr class="hr-custom"/>
-            <RadzenPanelMenuItem Text="Patient Options">
+            <RadzenPanelMenuItem Text="Patient Options" >
                 <DexMenuItem Text="Hospital Viewer" Icon="fas fa-circle-h" Click="@(() => ClickChangedTab(5))"/>
                 <DexMenuItem Text="Sms History" Icon="fas fa-rectangle-list" Click="@(() => ClickChangedTab(6))"/>
                 <DexMenuItem Text="Group Alerts" Icon="fas fa-rectangle-list" Click="@(() => ClickChangedTab(7))"/>

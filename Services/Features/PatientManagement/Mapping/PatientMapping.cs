@@ -8,7 +8,6 @@ using Domain.Entities.PatientManagement.Extra;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement.Group;
 using Domain.Entities.PatientManagement.Options;
-using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Allergies;

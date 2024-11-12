@@ -1,6 +1,6 @@
 ﻿namespace Services.Features.Settings.Dtos;
 
-public class InvestigationTDetailDto
+public class InvestigationDetailDto
 {
     public Guid Id { get; set; }
     public string Name { get; set; }
@@ -13,7 +13,7 @@ public class InvestigationTDetailDto
     public double NormalMinimum { get; set; }
     public double NormalMaximum { get; set; }
     public string Unit { get; set; }
-    public Guid InvestigationTemplateId { get; set; }
+    public Guid InvestigationId { get; set; }
     public Guid InvestigationSelectionListId { get; set; }
 
 

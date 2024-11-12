@@ -1,7 +1,4 @@
-﻿using System.ComponentModel.DataAnnotations;
-using Shared.Constants.Module;
-
-namespace Services.Features.PatientManagement.Dtos.Alerts;
+﻿namespace Services.Features.PatientManagement.Dtos.Alerts;
 
 public class PatientAlertDto
 {

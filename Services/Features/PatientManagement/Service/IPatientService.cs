@@ -1,5 +1,4 @@
 using Domain.Entities.PatientManagement.Alert;
-using Services.Features.PatientManagement.Dtos;
 using Services.Features.PatientManagement.Dtos.Account;
 using Services.Features.PatientManagement.Dtos.Alerts;
 using Services.Features.PatientManagement.Dtos.Allergies;
@@ -8,7 +7,6 @@ using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
-using Shared.Constants.Module;
 using Shared.Wrapper;
 
 namespace Services.Features.PatientManagement.Service;

@@ -135,3 +135,160 @@
     background-image: url("../images/menu-items/telephone.png");
 }
 
+.consultation-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/consultation.png");
+}
+
+.consultation-notes-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/medical-notes.png");
+}
+
+.consultation-immunisation-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/vaccine.png");
+}
+
+.consultation-prescription-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/prescription.png");
+}
+
+.consultation-investigations-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/investigations.png");
+}
+
+.quick-add-patient-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/quick-add-patient.png");
+}
+
+.add-patient-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/add-patient.png");
+}
+
+.open-patient-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/open-patient.png");
+}
+.patient-family-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-family.png");
+}
+
+.patient-account-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patietn-account.png");
+}
+
+.patient-options-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/options.png");
+}
+.patient-summary-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-summary.png");
+}
+.hamburger-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/menu.png");
+}
+.bell-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/bell.png");
+}
+
+.chat-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/chat.png");
+}
+
+.task-list-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/task-list.png");
+}
+
+.night-mode-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/night.png");
+}
+
+.light-mode-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/sunny.png");
+}
