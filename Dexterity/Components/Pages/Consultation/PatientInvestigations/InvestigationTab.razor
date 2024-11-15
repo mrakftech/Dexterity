@@ -1,6 +1,7 @@
 ﻿@using Domain.Entities.Consultation
 @using Services.Features.Settings.Dtos
 @using Domain.Entities.Settings.Templates.Investigations
+<TabTitle Title="Investigations" Icon="investigation-new.png"></TabTitle>
 
 <MudStack Row>
     <MudItem md="3">
@@ -22,7 +23,7 @@
             </SfGrid>
             @if (_isAddInvestigation)
             {
-                <DexLoadingButton Name="Add" Class="m-1"/>
+                <DexLoadingButton Name="Add" Class="m-1" Click="OpenInvestigationForm"/>
             }
             <DexLoadingButton Name="Show All" Class="m-1" Click="ShowAllInvestigations"/>
         </div>
@@ -50,6 +51,22 @@
                             <span>@item!.Hcp.FullName</span>
                         </Template>
                     </GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var item = (context as PatientInvestigation);
+                            }
+                            <button class="btn btn-sm btn-primary" @onclick="@(() => OpenInvestigationResultDetails(item!.Id))">...</button>
+                        </Template>
+                    </GridColumn>
+                    <GridColumn>
+                        <Template>
+                            @{
+                                var item = (context as PatientInvestigation);
+                            }
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatientInvestigation(item.Id)"/>
+                        </Template>
+                    </GridColumn>
                 </DexGridColumns>
             </DexGrid>
         </div>
@@ -62,6 +79,7 @@
     private List<PatientInvestigation> PatientInvestigations { get; set; } = new();
     private string _investigationTitle = "";
     private bool _isAddInvestigation;
+    private InvestigationDto _selectedInvestigation;
 
     protected override async Task OnInitializedAsync()
     {
@@ -99,7 +117,57 @@
 
     private void SelectedInvestigationRow(RowSelectEventArgs<InvestigationDto> arg)
     {
-        _isAddInvestigation = arg.Data is not null;
+        if (arg.Data is not null)
+        {
+            _isAddInvestigation = true;
+            _selectedInvestigation = arg.Data;
+        }
+        else
+        {
+            _selectedInvestigation = new InvestigationDto();
+            _isAddInvestigation = false;
+        }
+    }
+
+    private async Task OpenInvestigationForm()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("InvestigationId", _selectedInvestigation.Id);
+        parameters.Add("InvestigationName", _selectedInvestigation.Name);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<InvestigationForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetPatientInvestigations();
+        }
+    }
+
+
+    private async Task OpenInvestigationResultDetails(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("PatientInvestigationId", id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<InvestigationResult>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetPatientInvestigations();
+        }
+    }
+
+    private async Task DeletePatientInvestigation(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Consultation.DeletePatientInvestigation(id);
+            Snackbar.SuccessMessage(userRes.Messages.First());
+            await GetPatientInvestigations();
+        }
     }
 
 }

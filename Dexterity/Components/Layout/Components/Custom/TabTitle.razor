@@ -1,9 +1,9 @@
 ﻿<SfAppBar ColorMode="AppBarColor.Light" CssClass="mt-3 mb-3">
     @if (!string.IsNullOrWhiteSpace(Icon))
     {
-        <img src="@($"assets/images/menu-items/{Icon}")" width="42" height="42" alt=""/>
+        <img src="@($"assets/images/menu-items/{Icon}")" width="32" height="32" alt=""/>
     }
-    <span class="regular text-bold ml-3"> @Title</span>
+    <span class="regular text-bold ml-3"> @Title.ToUpper()</span>
     <AppBarSpacer></AppBarSpacer>
     @ActionButtons
 </SfAppBar>

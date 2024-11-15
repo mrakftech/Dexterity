@@ -81,7 +81,7 @@
 
     private async Task GetInvestigationTemplates()
     {
-        _investigations = await UnitOfWork.Setting.GetInvestigationTemplates();
+        _investigations = await UnitOfWork.Setting.GetInvestigations();
     }
 
     private async Task GetInvestigationGroups()

@@ -4,6 +4,7 @@ using Domain.Entities.Settings.Templates.Investigations;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
+using Services.Features.Consultation.Dto.Investigations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.Settings.Dtos;
@@ -74,12 +75,16 @@ public interface IConsultationService
     #endregion
 
     #region Investigations
+
     Task<List<InvestigationGroup>> GetInvestigationGroups();
     Task<List<InvestigationDto>> GetInvestigations(Guid? groupId);
     Task<List<PatientInvestigation>> GetPatientInvestigations();
-
-
+    Task<IResult> SavePatientInvestigation(PatientInvestigation patientInvestigation);
+    Task<IResult> DeletePatientInvestigation(Guid id);
+    public Task<List<ResultInvestigationDto>> GetInvestigationResults(Guid patientInvestigationId);
+    public Task<List<InvestigationSelectionValue>> GetInvestigationResultSelection(Guid investigationId);
     
+    Task<IResult> SaveInvestigationResult(UpdateResultDto request);
 
     #endregion
 }

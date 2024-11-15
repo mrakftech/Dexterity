@@ -8,10 +8,10 @@ namespace Domain.Entities.Consultation
     {
         public Guid Id { get; set; }
 
-        public DateTime Date { get; set; }
+        public DateTime Date { get; set; } = DateTime.Today;
         public string Status { get; set; } //Awaiting, In Review, Follow up, Complete
 
-
+        public bool IsAbnormal { get; set; }
         public Patient Patient { get; set; }
         public Guid PatientId { get; set; }
 

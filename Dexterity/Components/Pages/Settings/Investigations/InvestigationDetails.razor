@@ -52,7 +52,6 @@
                         }
                     </Template>
                 </FormItem>
-
                 <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
                 <FormItem Field="@nameof(InvestigationDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
                 <FormItem Field="@nameof(InvestigationDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
@@ -75,8 +74,8 @@
                 <GridColumns>
                     <GridColumn Field="@nameof(InvestigationDetailDto.Name)"/>
                     <GridColumn Field="@nameof(InvestigationDetailDto.FieldType)" HeaderText="Field Type"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.AbsoluteMinimum)" HeaderText="Min"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" HeaderText="Max"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.NormalMaximum)" HeaderText="Min"/>
+                    <GridColumn Field="@nameof(InvestigationDetailDto.NormalMinimum)" HeaderText="Max"/>
                     <GridColumn Field="@nameof(InvestigationDetailDto.Unit)"/>
                 </GridColumns>
             </SfGrid>
@@ -99,12 +98,12 @@
 
     private async Task GetInvestigationTemplates()
     {
-        _templates = await UnitOfWork.Setting.GetInvestigationTemplates();
+        _templates = await UnitOfWork.Setting.GetInvestigations();
     }
 
     private async Task GetInvestigationDetails(Guid templateId)
     {
-        _details = await UnitOfWork.Setting.GetInvestigationTemplateDetails(templateId);
+        _details = await UnitOfWork.Setting.GetInvestigationDetails(templateId);
     }
 
     private async Task GetInvestigationSelectionList()
@@ -114,7 +113,7 @@
 
     private async Task SaveInvestigationTemplate()
     {
-        var res = await UnitOfWork.Setting.SaveInvestigationTemplate(_template);
+        var res = await UnitOfWork.Setting.SaveInvestigation(_template);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
@@ -141,7 +140,7 @@
         var result = await dialogresult.Result;
         if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
-            var res = await UnitOfWork.Setting.DeleteInvestigationTemplate(id);
+            var res = await UnitOfWork.Setting.DeleteInvestigation(id);
             await GetInvestigationTemplates();
             Snackbar.SuccessMessage(res.Messages.First());
             _template = new();

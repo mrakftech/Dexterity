@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Appointments;
+using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
@@ -153,11 +154,11 @@ public interface ISettingService
 
     #region Investigation
 
-    public Task<List<InvestigationDto>> GetInvestigationTemplates();
-    public Task<IResult> SaveInvestigationTemplate(InvestigationDto request);
-    public Task<IResult> DeleteInvestigationTemplate(Guid id);
+    public Task<List<InvestigationDto>> GetInvestigations();
+    public Task<IResult> SaveInvestigation(InvestigationDto request);
+    public Task<IResult> DeleteInvestigation(Guid id);
 
-    public Task<List<InvestigationDetailDto>> GetInvestigationTemplateDetails(Guid investigationId);
+    public Task<List<InvestigationDetailDto>> GetInvestigationDetails(Guid investigationId);
     public Task<IResult> SaveInvestigationDetail(InvestigationDetailDto request);
     public Task<IResult> DeleteInvestigationDetails(Guid id);
 

@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241112153134_UpdateDatabase830p")]
+    partial class UpdateDatabase830p
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -422,30 +425,6 @@ namespace Database.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("ImmunisationSchedule", "Consultation");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.InvestigationResult", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("InvestigationDetailId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid?>("PatientInvestigationId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Result")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("InvestigationDetailId");
-
-                    b.HasIndex("PatientInvestigationId");
-
-                    b.ToTable("InvestigationResults", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
@@ -3016,21 +2995,6 @@ namespace Database.Migrations
                     b.Navigation("ImmunisationProgram");
 
                     b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.InvestigationResult", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.Investigations.InvestigationDetail", "InvestigationDetail")
-                        .WithMany()
-                        .HasForeignKey("InvestigationDetailId");
-
-                    b.HasOne("Domain.Entities.Consultation.PatientInvestigation", "PatientInvestigation")
-                        .WithMany()
-                        .HasForeignKey("PatientInvestigationId");
-
-                    b.Navigation("InvestigationDetail");
-
-                    b.Navigation("PatientInvestigation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>

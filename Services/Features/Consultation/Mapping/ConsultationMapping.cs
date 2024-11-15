@@ -1,7 +1,9 @@
 ﻿using AutoMapper;
 using Domain.Entities.Consultation;
+using Domain.Entities.Settings.Templates.Investigations;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
+using Services.Features.Consultation.Dto.Investigations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 
@@ -23,23 +25,20 @@ public class ConsultationMapping : Profile
             .ReverseMap();
         CreateMap<BaselineDetail, CreateBaselineDetailDto>().ReverseMap();
         CreateMap<BaselineDetailDto, CreateBaselineDetailDto>().ReverseMap();
-        
-        
-        
+
+
         CreateMap<ConsultationNote, ConsultationNoteDto>()
             .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.ConsultationDetail.Hcp.FullName))
             .ReverseMap();
         CreateMap<ConsultationNote, UpsertConsultationNoteDto>().ReverseMap();
 
-        
-        
-        
-        
-        
-        
-        
-        
-        
+        CreateMap<InvestigationDetail, ResultInvestigationDto>()
+            .ForMember(x => x.InvestigationDetailId, c => c.MapFrom(m => m.Id))
+            .ForMember(x => x.ResultText, c => c.MapFrom(m => m.Id))
+            .ForMember(x => x.Range, c => c.MapFrom(m => $"{m.NormalMinimum} - {m.NormalMaximum}"))
+            .ReverseMap();
+
+
         CreateMap<Reminder, GetReminderDto>()
             .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ForMember(x => x.Date, c => c.MapFrom(m => m.Date.ToString("d")))
@@ -47,10 +46,5 @@ public class ConsultationMapping : Profile
 
         CreateMap<Reminder, UpsertReminderDto>().ReverseMap();
         CreateMap<GetReminderDto, UpsertReminderDto>().ReverseMap();
-        
-        
-        
-        
-
     }
 }

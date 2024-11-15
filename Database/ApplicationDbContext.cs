@@ -89,7 +89,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<InvestigationSelectionList> InvestigationSelectionList { get; set; }
     public DbSet<InvestigationSelectionValue> InvestigationSelectionValues { get; set; }
     public DbSet<InvestigationGroup> InvestigationGroups { get; set; }
-    
     public DbSet<AssignedInvestigationGroup> AssignedInvestigationsGroup { get; set; }
 
     #region Immunisations
@@ -157,6 +156,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Reaction> Reactions { get; set; }
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<PatientInvestigation> PatientInvestigations { get; set; }
+    public DbSet<InvestigationResult> InvestigationResults { get; set; }
     
 
     #endregion

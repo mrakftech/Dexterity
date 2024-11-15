@@ -1,0 +1,138 @@
+﻿@using Domain.Entities.Settings.Templates.Investigations
+@using ChangeEventArgs = Microsoft.AspNetCore.Components.ChangeEventArgs
+@using Services.Features.Consultation.Dto.Investigations
+<DexDialog>
+    <DialogTitle>
+        Edit Item Name : @SelectedResult.Name
+    </DialogTitle>
+    <Content>
+        <DexForm Model="_updateResultDto" OnValidSubmit="SaveResults">
+            <Fields>
+                <FormItem Field="@nameof(UpdateResultDto.Id)">
+                    <Template>
+                        <p class="text-bold text-warning">Current Value: @SelectedResult.ResultText</p>
+                        <p class="text-bold text-warning">Ranges: @SelectedResult.Range</p>
+                        <p class="text-bold text-danger">@_error</p>
+                        <label class="e-form-label">@SelectedResult.Name</label>
+                        @{
+                            switch (SelectedResult!.FieldType)
+                            {
+                                case "Text":
+                                    <SfTextBox @bind-Value="@SelectedResult.ResultText"/>
+                                    break;
+
+                                case "Number":
+                                    <SfNumericTextBox TValue="int" @bind-Value="@_updateResultDto.ResultNumber" OnChange="OnNumberChange" CssClass="@_errorClass"/>
+                                    break;
+
+                                case "Decimal":
+                                    <SfNumericTextBox TValue="decimal" @bind-Value="@SelectedResult.ResultDecimal" OnChange="OnDecimalChange" CssClass="@_errorClass"/>
+                                    break;
+
+                                case "List Selection":
+                                    <SfDropDownList TValue="string" TItem="InvestigationSelectionValue" Placeholder="" DataSource="_investigationSelections" @bind-Value="@SelectedResult.ResultSelectedValue">
+                                        <DropDownListFieldSettings Value="Value" Text="Value"></DropDownListFieldSettings>
+                                    </SfDropDownList>
+                                    break;
+
+                                case "Date":
+                                    <SfDatePicker TValue="DateTime" @bind-Value="@SelectedResult.ResultDate" Min="DateTime.Now"/>
+                                    break;
+
+                                default:
+                                    <SfTextBox @bind-Value="@SelectedResult.ResultText"/>
+                                    break;
+                            }
+                        }
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public ResultInvestigationDto SelectedResult { get; set; }
+    private List<InvestigationSelectionValue> _investigationSelections;
+    private readonly UpdateResultDto _updateResultDto = new();
+    private string _error = "";
+    private string _errorClass = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSelectionItems();
+    }
+
+    private async Task GetSelectionItems()
+    {
+        _investigationSelections = await UnitOfWork.Consultation.GetInvestigationResultSelection(SelectedResult.InvestigationId);
+    }
+
+    private async Task SaveResults()
+    {
+        _updateResultDto.Id = SelectedResult.Id;
+        _updateResultDto.FieldType = SelectedResult.FieldType;
+        var res = await UnitOfWork.Consultation.SaveInvestigationResult(_updateResultDto);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private string GetResultValue(UpdateResultDto request)
+    {
+        return request!.FieldType switch
+        {
+            "Text" => request.ResultText,
+            "Number" => request.ResultNumber.ToString("N0"),
+            "Decimal" => request.ResultDecimal.ToString("F"),
+            "List Selection" => request.ResultSelectedValue,
+            "Date" => request.ResultDate.ToString("g"),
+            _ => request.ResultText
+        };
+    }
+
+    private void OnNumberChange(ChangeEventArgs obj)
+    {
+        var value = Convert.ToInt32(obj.Value);
+        if (value <= (decimal) SelectedResult.NormalMinimum || value > SelectedResult.NormalMaximum)
+        {
+            _error = "Values are out of range and abnormal";
+            _errorClass = "e-error";
+        }
+        else
+        {
+            _error = string.Empty;
+            _errorClass = string.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+    private void OnDecimalChange(ChangeEventArgs obj)
+    {
+        var value = Convert.ToDecimal(obj.Value);
+        if (value < (decimal) SelectedResult.NormalMinimum && value > (decimal) SelectedResult.NormalMaximum)
+        {
+            _error = "Values are out of range and abnormal";
+            _errorClass = "e-error";
+        }
+        else
+        {
+            _error = string.Empty;
+            _errorClass = string.Empty;
+        }
+
+        StateHasChanged();
+    }
+
+}

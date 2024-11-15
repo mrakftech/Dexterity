@@ -1,12 +1,71 @@
-﻿<DexDialog>
+﻿@using Services.Features.UserAccounts.Dtos.User
+@using Domain.Entities.Consultation
+<DexDialog>
     <DialogTitle>
-        <i class="investigations-icon"></i>Add New Investigation
+        Add New Investigation
     </DialogTitle>
     <Content>
-
+        <DexForm Model="_patientInvestigation" OnValidSubmit="SavePatientInvestigation">
+            <Fields>
+                <FormItem Field="@nameof(PatientInvestigation.InvestigationId)" LabelText="">
+                    <Template>
+                        <label class="e-form-label">Investigation:</label>
+                        <span>@InvestigationName</span>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(PatientInvestigation.Date)">
+                    <Template>
+                        <label class="e-form-label">Patient Name:</label>
+                        <span>@ApplicationState.SelectedPatientName</span>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(PatientInvestigation.HcpId)">
+                    <Template>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@_healthCares" @bind-Value="@_patientInvestigation.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(PatientInvestigation.Date)" EditorType="FormEditorType.DatePicker"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
     </Content>
 </DexDialog>
 
 @code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string InvestigationName { get; set; }
+    [Parameter] public Guid InvestigationId { get; set; }
+    private readonly PatientInvestigation _patientInvestigation = new();
+    private List<HealthcareDto> _healthCares = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHealthCares();
+    }
+
+    private async Task GetHealthCares()
+    {
+        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        _healthCares = users.Where(x => x.UserType == UserTypeConstants.Doctor).ToList();
+    }
+
+    private async Task SavePatientInvestigation()
+    {
+        _patientInvestigation.InvestigationId = InvestigationId;
+        var res = await UnitOfWork.Consultation.SavePatientInvestigation(_patientInvestigation);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
 
 }

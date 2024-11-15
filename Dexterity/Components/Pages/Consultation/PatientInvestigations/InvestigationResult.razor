@@ -1,0 +1,71 @@
+﻿@using Services.Features.Consultation.Dto.Investigations
+<DexDialog>
+    <DialogTitle>
+
+    </DialogTitle>
+    <Content>
+            <TabTitle Title="Results">
+                <ActionButtons>
+                    <button class="btn btn-sm btn-primary m-1"> Awaiting</button>
+                    <button class="btn btn-sm btn-primary m-1"> In Review</button>
+                    <button class="btn btn-sm btn-primary m-1"> Follow Up</button>
+                    <button class="btn btn-sm btn-primary m-1"> Complete</button>
+                </ActionButtons>
+            </TabTitle>
+            <SfGrid DataSource="_results" Height="400px">
+                <GridEvents RowSelected="SelectedInvestigationResult" TValue="ResultInvestigationDto"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(ResultInvestigationDto.Name)" HeaderText="Local Items" AllowEditing="false"/>
+                    <GridColumn Field="@nameof(ResultInvestigationDto.ResultText)" HeaderText="Result"/>
+                    <GridColumn Field="@nameof(ResultInvestigationDto.Unit)" AllowEditing="false"/>
+                    <GridColumn Field="@nameof(ResultInvestigationDto.Range)" HeaderText="Range" AllowEditing="false"/>
+                </GridColumns>
+            </SfGrid>
+    </Content>
+    <ActionButtons>
+        @if (_result.Id != Guid.Empty)
+        {
+            <button class="btn btn-sm btn-primary" @onclick="() => OpenResultForm(_result)"> Edit</button>
+        }
+        <button class="btn btn-sm btn-danger"> Cancel Test</button>
+    </ActionButtons>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid PatientInvestigationId { get; set; }
+    private List<ResultInvestigationDto> _results = new();
+    private ResultInvestigationDto _result = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetResultInvestigationDtos();
+    }
+
+    private async Task GetResultInvestigationDtos()
+    {
+        _results = await UnitOfWork.Consultation.GetInvestigationResults(PatientInvestigationId);
+    }
+
+    private async Task OpenResultForm(ResultInvestigationDto resultInvestigation)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("SelectedResult", resultInvestigation);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<ResultForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetResultInvestigationDtos();
+        }
+    }
+
+    private void SelectedInvestigationResult(RowSelectEventArgs<ResultInvestigationDto> arg)
+    {
+        if (arg.Data is not null)
+        {
+            _result = arg.Data;
+        }
+    }
+
+}

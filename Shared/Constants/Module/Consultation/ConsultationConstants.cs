@@ -1,6 +1,6 @@
 ﻿namespace Shared.Constants.Module.Consultation;
 
-public static class ConsultationConstants
+public static partial class ConsultationConstants
 {
     public static List<ReactionType> ReactionTypes { get; set; } =
     [
@@ -26,13 +26,7 @@ public static class ConsultationConstants
         new(20, "Crying"),
     ];
 
-    public static class InvestigationStatus
-    {
-        public const string Awaiting = "Awaiting";
-        public const string InReview = "In Review";
-        public const string FollowUp = "Follow up";
-        public const string Complete = "Complete";
-    }
+  
 }
 
 public class ReactionType(int id, string name)

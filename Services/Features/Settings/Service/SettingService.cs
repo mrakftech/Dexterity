@@ -873,7 +873,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         await ClearShotList(courseId);
         var list = shotIds.Select((item, index) => new CourseShot()
-                {CourseId = courseId, ShotId = item, Order = index + 1})
+        { CourseId = courseId, ShotId = item, Order = index + 1 })
             .ToList();
         context.ChangeTracker.Clear();
         context.CourseShots.AddRange(list);
@@ -964,7 +964,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         await ClearCourseList(programId);
         var list = courseIds.Select((item, index) => new ProgramCourse()
-                {ImmunisationProgramId = programId, CourseId = item, Order = index + 1})
+        { ImmunisationProgramId = programId, CourseId = item, Order = index + 1 })
             .ToList();
         context.ChangeTracker.Clear();
         context.ProgramCourses.AddRange(list);
@@ -1007,7 +1007,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     #region Investigation
 
-    public async Task<List<InvestigationDto>> GetInvestigationTemplates()
+    public async Task<List<InvestigationDto>> GetInvestigations()
     {
         var templates = await context.Investigations
             .AsNoTracking()
@@ -1016,7 +1016,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
-    public async Task<IResult> SaveInvestigationTemplate(InvestigationDto request)
+    public async Task<IResult> SaveInvestigation(InvestigationDto request)
     {
         if (request.Id == Guid.Empty)
         {
@@ -1049,7 +1049,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Investigation Template has been saved.");
     }
 
-    public async Task<IResult> DeleteInvestigationTemplate(Guid id)
+    public async Task<IResult> DeleteInvestigation(Guid id)
     {
         var investigationInDb = await context
             .Investigations
@@ -1065,7 +1065,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Investigation Template has been deleted.");
     }
 
-    public async Task<List<InvestigationDetailDto>> GetInvestigationTemplateDetails(Guid investigationId)
+    public async Task<List<InvestigationDetailDto>> GetInvestigationDetails(Guid investigationId)
     {
         var details = await context.InvestigationDetails
             .AsNoTracking()
@@ -1077,53 +1077,66 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveInvestigationDetail(InvestigationDetailDto request)
     {
-        if (request.Id == Guid.Empty)
+        try
         {
-            var details = new InvestigationDetail()
+            if (request.Id == Guid.Empty)
             {
-                Id = Guid.NewGuid(),
-                InvestigationId = request.InvestigationId,
-                Name = request.Name,
-                IsActive = request.IsActive,
-                Description = request.Description,
-                IsMaindatory = request.IsMaindatory,
-                AbsoluteMinimum = request.AbsoluteMinimum,
-                AbsoluteMaximum = request.AbsoluteMaximum,
-                NormalMinimum = request.NormalMinimum,
-                NormalMaximum = request.NormalMaximum,
-                FieldType = request.FieldType,
-                InvestigationSelectionListId = request.InvestigationSelectionListId,
-            };
-            await context.InvestigationDetails.AddAsync(details);
+                var details = new InvestigationDetail()
+                {
+                    Id = Guid.NewGuid(),
+                    InvestigationId = request.InvestigationId,
+                    Name = request.Name,
+                    IsActive = request.IsActive,
+                    Description = request.Description,
+                    IsMaindatory = request.IsMaindatory,
+                    AbsoluteMinimum = request.AbsoluteMinimum,
+                    AbsoluteMaximum = request.AbsoluteMaximum,
+                    NormalMinimum = request.NormalMinimum,
+                    NormalMaximum = request.NormalMaximum,
+                    FieldType = request.FieldType,
+                };
+                if (request.InvestigationSelectionListId != Guid.Empty)
+                {
+                    details.InvestigationSelectionListId = request.InvestigationSelectionListId;
+                }
+                await context.InvestigationDetails.AddAsync(details);
+            }
+            else
+            {
+                var investigationDetailInDb = await context
+                    .InvestigationDetails
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
+
+                if (investigationDetailInDb == null)
+                    return await Result.FailAsync("Investigation Details not found.");
+
+                investigationDetailInDb.InvestigationId = request.InvestigationId;
+                investigationDetailInDb.Name = request.Name;
+                investigationDetailInDb.IsActive = request.IsActive;
+                investigationDetailInDb.Description = request.Description;
+                investigationDetailInDb.IsMaindatory = request.IsMaindatory;
+                investigationDetailInDb.AbsoluteMinimum = request.AbsoluteMinimum;
+                investigationDetailInDb.AbsoluteMaximum = request.AbsoluteMaximum;
+                investigationDetailInDb.NormalMinimum = request.NormalMinimum;
+                investigationDetailInDb.NormalMaximum = request.NormalMaximum;
+                investigationDetailInDb.FieldType = request.FieldType;
+                if (request.InvestigationSelectionListId != Guid.Empty)
+                {
+                    investigationDetailInDb.InvestigationSelectionListId = request.InvestigationSelectionListId;
+                }
+
+                context.ChangeTracker.Clear();
+                context.InvestigationDetails.Update(investigationDetailInDb);
+            }
+
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Investigation details has been saved.");
         }
-        else
+        catch (Exception e)
         {
-            var investigationDetailInDb = await context
-                .InvestigationDetails
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Id == request.Id);
-
-            if (investigationDetailInDb == null)
-                return await Result.FailAsync("Investigation Details not found.");
-
-            investigationDetailInDb.InvestigationId = request.InvestigationId;
-            investigationDetailInDb.Name = request.Name;
-            investigationDetailInDb.IsActive = request.IsActive;
-            investigationDetailInDb.Description = request.Description;
-            investigationDetailInDb.IsMaindatory = request.IsMaindatory;
-            investigationDetailInDb.AbsoluteMinimum = request.AbsoluteMinimum;
-            investigationDetailInDb.AbsoluteMaximum = request.AbsoluteMaximum;
-            investigationDetailInDb.NormalMinimum = request.NormalMinimum;
-            investigationDetailInDb.NormalMaximum = request.NormalMaximum;
-            investigationDetailInDb.FieldType = request.FieldType;
-            investigationDetailInDb.InvestigationSelectionListId = request.InvestigationSelectionListId;
-
-            context.ChangeTracker.Clear();
-            context.InvestigationDetails.Update(investigationDetailInDb);
+            return await Result.FailAsync(e.Message);
         }
-
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("Investigation details has been saved.");
     }
 
     public async Task<IResult> DeleteInvestigationDetails(Guid id)
@@ -1300,9 +1313,9 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AssignedInvestigationGroup>> GetAssignInvestigationsOfGroup(Guid groupId)
     {
-        return  await context.AssignedInvestigationsGroup
+        return await context.AssignedInvestigationsGroup
             .AsNoTracking()
-            .Include(x=>x.InvestigationGroup)
+            .Include(x => x.InvestigationGroup)
             .Where(x => x.InvestigationGroupId == groupId)
             .ToListAsync();
     }

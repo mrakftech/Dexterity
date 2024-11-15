@@ -102,6 +102,10 @@ public static class SchemaConfigurations
         {
             entity.ToTable(name: "PatientInvestigations", "Consultation");
         });
+        builder.Entity<InvestigationResult>(entity =>
+        {
+            entity.ToTable(name: "InvestigationResults", "Consultation");
+        });
         builder.Entity<ImmunisationSchedule>(
             entity => { entity.ToTable(name: "ImmunisationSchedule", "Consultation"); });
         builder.Entity<ImmunisationSchedule>()

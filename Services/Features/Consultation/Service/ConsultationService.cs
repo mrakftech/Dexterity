@@ -1,4 +1,5 @@
-﻿using AutoMapper;
+﻿using System.Globalization;
+using AutoMapper;
 using Database;
 using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
@@ -8,14 +9,15 @@ using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
+using Services.Features.Consultation.Dto.Investigations;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Service;
 using Services.State;
+using Shared.Constants.Module.Consultation;
 using Shared.Wrapper;
-using Syncfusion.Blazor.Data;
 
 namespace Services.Features.Consultation.Service;
 
@@ -469,7 +471,7 @@ public class ConsultationService(
             .ToListAsync();
         foreach (var item in immunisationSchedules)
         {
-            var courses = await settingService.GetAssignedCoursesOfProgram((Guid) item.ImmunisationProgramId!);
+            var courses = await settingService.GetAssignedCoursesOfProgram(item.ImmunisationProgramId!);
             var model = new ImmunisationScheduleDto()
             {
                 Id = item.Id,
@@ -758,10 +760,154 @@ public class ConsultationService(
     public async Task<List<PatientInvestigation>> GetPatientInvestigations()
     {
         return await context.PatientInvestigations
-            .Include(x=>x.Investigation)
-            .Include(x=>x.Hcp)
+            .Include(x => x.Investigation)
+            .Include(x => x.Hcp)
             .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
             .ToListAsync();
+    }
+
+    public async Task<IResult> SavePatientInvestigation(PatientInvestigation patientInvestigation)
+    {
+        await using var transaction = await context.Database.BeginTransactionAsync();
+
+        try
+        {
+            if (patientInvestigation.Id == Guid.Empty)
+            {
+                var newPatientInvestigation = new PatientInvestigation()
+                {
+                    Id = Guid.NewGuid(),
+                    Status = InvestigationStatus.Awaiting,
+                    IsAbnormal = patientInvestigation.IsAbnormal,
+                    HcpId = patientInvestigation.HcpId,
+                    PatientId = ApplicationState.SelectedPatientId,
+                    InvestigationId = patientInvestigation.InvestigationId
+                };
+                await context.PatientInvestigations.AddAsync(newPatientInvestigation);
+
+                var results = await GetInvestigationResultDetails(patientInvestigation.InvestigationId);
+                foreach (var newResult in results.Select(item => new InvestigationResult()
+                         {
+                             Id = Guid.NewGuid(),
+                             PatientInvestigationId = newPatientInvestigation.Id,
+                             InvestigationDetailId = item.InvestigationDetailId,
+                             Result = string.Empty,
+                         }))
+                {
+                    context.InvestigationResults.Add(newResult);
+                }
+            }
+            else
+            {
+                var investigationInDb = await context.PatientInvestigations
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(x => x.Id == patientInvestigation.Id);
+                if (investigationInDb is null)
+                {
+                    return await Result.FailAsync("Patient investigation not found.");
+                }
+
+                investigationInDb.Date = patientInvestigation.Date;
+                investigationInDb.InvestigationId = patientInvestigation.InvestigationId;
+                investigationInDb.Status = patientInvestigation.Status;
+                investigationInDb.IsAbnormal = patientInvestigation.IsAbnormal;
+                investigationInDb.HcpId = patientInvestigation.HcpId;
+                investigationInDb.PatientId = patientInvestigation.PatientId;
+                context.PatientInvestigations.Update(investigationInDb);
+            }
+
+            await context.SaveChangesAsync();
+            await transaction.CommitAsync();
+            return await Result.SuccessAsync("Patient investigation has been saved.");
+        }
+        catch (Exception e)
+        {
+            await transaction.RollbackAsync();
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> DeletePatientInvestigation(Guid id)
+    {
+        var investigationInDb = await context.PatientInvestigations
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (investigationInDb is null)
+        {
+            return await Result.FailAsync("Patient investigation not found.");
+        }
+
+        context.PatientInvestigations.Remove(investigationInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Patient investigation has been deleted.");
+    }
+
+    public async Task<List<InvestigationSelectionValue>> GetInvestigationResultSelection(Guid investigationId)
+    {
+        var selection = await context.InvestigationDetails
+            .Include(x => x.InvestigationSelectionList)
+            .ThenInclude(investigationSelectionList =>
+                investigationSelectionList.InvestigationSelectionValues)
+            .FirstOrDefaultAsync(x => x.InvestigationId == investigationId && x.FieldType == "List Selection");
+
+        return selection == null ? [] : selection.InvestigationSelectionList.InvestigationSelectionValues.ToList();
+    }
+
+
+    public async Task<List<ResultInvestigationDto>> GetInvestigationResults(Guid patientInvestigationId)
+    {
+        return await context.InvestigationResults
+            .Include(x => x.InvestigationDetail)
+            .Where(x => x.PatientInvestigationId == patientInvestigationId)
+            .Select(x => new ResultInvestigationDto()
+            {
+                Id = x.Id,
+                Name = x.InvestigationDetail.Name,
+                Description = x.InvestigationDetail.Description,
+                IsActive = x.InvestigationDetail.IsActive,
+                IsMaindatory = x.InvestigationDetail.IsMaindatory,
+                FieldType = x.InvestigationDetail.FieldType,
+                Range = $"{x.InvestigationDetail.NormalMinimum} - {x.InvestigationDetail.NormalMaximum}",
+                Unit = x.InvestigationDetail.Unit,
+                InvestigationId = x.InvestigationDetail.InvestigationId,
+                InvestigationDetailId = x.InvestigationDetail.Id,
+                NormalMinimum = x.InvestigationDetail.NormalMinimum,
+                NormalMaximum = x.InvestigationDetail.NormalMaximum,
+                ResultText = x.Result,
+            })
+            .ToListAsync();
+    }
+
+    private async Task<List<ResultInvestigationDto>> GetInvestigationResultDetails(Guid investigationId)
+    {
+        var investigations = await context.Investigations
+            .Include(x => x.InvestigationDetails)
+            .FirstOrDefaultAsync(x => x.Id == investigationId);
+
+        var details = investigations.InvestigationDetails.ToList();
+        return mapper.Map<List<ResultInvestigationDto>>(details);
+    }
+
+    public async Task<IResult> SaveInvestigationResult(UpdateResultDto request)
+    {
+        var result = await context.InvestigationResults.FirstOrDefaultAsync(x => x.Id == request.Id);
+        result.Result = GetResultValue(request);
+        context.InvestigationResults.Update(result);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("result has been saved.");
+    }
+
+    private static string GetResultValue(UpdateResultDto request)
+    {
+        return request!.FieldType switch
+        {
+            "Text" => request.ResultText,
+            "Number" => request.ResultNumber.ToString("N0"),
+            "Decimal" => request.ResultDecimal.ToString("F"),
+            "List Selection" => request.ResultSelectedValue,
+            "Date" => request.ResultDate.ToString("g"),
+            _ => request.ResultText
+        };
     }
 
     #endregion
