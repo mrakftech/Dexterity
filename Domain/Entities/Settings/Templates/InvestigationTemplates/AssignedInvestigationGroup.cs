@@ -1,4 +1,4 @@
-﻿namespace Domain.Entities.Settings.Templates.Investigations;
+﻿namespace Domain.Entities.Settings.Templates.InvestigationTemplates;
 
 public class AssignedInvestigationGroup
 {

@@ -1,11 +1,11 @@
 ﻿@using Services.Features.UserAccounts.Dtos.User
-@using Domain.Entities.Consultation
+@using Domain.Entities.Consultation.InvestigationDetails
 <DexDialog>
     <DialogTitle>
         Add New Investigation
     </DialogTitle>
     <Content>
-        <DexForm Model="_patientInvestigation" OnValidSubmit="SavePatientInvestigation">
+        <DexForm Model="PatientInvestigationData" OnValidSubmit="SavePatientInvestigation">
             <Fields>
                 <FormItem Field="@nameof(PatientInvestigation.InvestigationId)" LabelText="">
                     <Template>
@@ -21,7 +21,7 @@
                 </FormItem>
                 <FormItem Field="@nameof(PatientInvestigation.HcpId)">
                     <Template>
-                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@_healthCares" @bind-Value="@_patientInvestigation.HcpId">
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@_healthCares" @bind-Value="@PatientInvestigationData.HcpId">
                             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                         </SfDropDownList>
                     </Template>
@@ -39,7 +39,7 @@
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public string InvestigationName { get; set; }
     [Parameter] public Guid InvestigationId { get; set; }
-    private readonly PatientInvestigation _patientInvestigation = new();
+    private  PatientInvestigation PatientInvestigationData { get; set; } = new();
     private List<HealthcareDto> _healthCares = new();
 
     protected override async Task OnInitializedAsync()
@@ -55,8 +55,8 @@
 
     private async Task SavePatientInvestigation()
     {
-        _patientInvestigation.InvestigationId = InvestigationId;
-        var res = await UnitOfWork.Consultation.SavePatientInvestigation(_patientInvestigation);
+        PatientInvestigationData.InvestigationId = InvestigationId;
+        var res = await UnitOfWork.Consultation.SavePatientInvestigation(PatientInvestigationData);
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());

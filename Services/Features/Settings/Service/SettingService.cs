@@ -6,7 +6,8 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
@@ -325,7 +326,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes)
     {
-        var list = new List<AccountType>();
+        List<AccountType> list;
         switch (accountTypes)
         {
             case TransactionActionType.Charge:
@@ -873,7 +874,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         await ClearShotList(courseId);
         var list = shotIds.Select((item, index) => new CourseShot()
-        { CourseId = courseId, ShotId = item, Order = index + 1 })
+                {CourseId = courseId, ShotId = item, Order = index + 1})
             .ToList();
         context.ChangeTracker.Clear();
         context.CourseShots.AddRange(list);
@@ -964,7 +965,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         await ClearCourseList(programId);
         var list = courseIds.Select((item, index) => new ProgramCourse()
-        { ImmunisationProgramId = programId, CourseId = item, Order = index + 1 })
+                {ImmunisationProgramId = programId, CourseId = item, Order = index + 1})
             .ToList();
         context.ChangeTracker.Clear();
         context.ProgramCourses.AddRange(list);
@@ -1099,6 +1100,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
                 {
                     details.InvestigationSelectionListId = request.InvestigationSelectionListId;
                 }
+
                 await context.InvestigationDetails.AddAsync(details);
             }
             else
@@ -1328,6 +1330,110 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.AssignedInvestigationsGroup.Remove(assignInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Assigned Investigation Group has been removed.");
+    }
+
+    #endregion
+
+    #region Letter
+
+    public async Task<List<LetterType>> GetLetterTypes()
+    {
+        return await context.LetterTypes.AsNoTracking().ToListAsync();
+    }
+
+    public async Task<IResult> SaveLetterType(Guid id, LetterType letterType)
+    {
+        if (id == Guid.Empty)
+        {
+            await context.LetterTypes.AddAsync(letterType);
+        }
+        else
+        {
+            var letterInDb = await context.LetterTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == letterType.Id);
+            if (letterInDb == null) return await Result.FailAsync("Letter Type not found.");
+
+            letterInDb.Name = letterType.Name;
+            context.LetterTypes.Update(letterInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Letter Type has been saved.");
+    }
+
+    public async Task<IResult> DeleteLetterType(Guid id)
+    {
+        var letterInDb = await context.LetterTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (letterInDb == null) return await Result.FailAsync("Letter Type not found.");
+
+        context.LetterTypes.Remove(letterInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Letter Type has been deleted.");
+    }
+
+    public async Task<LetterType> GetLetterType(Guid id)
+    {
+        var letterInDb = await context.LetterTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+        return letterInDb ?? new LetterType();
+    }
+
+    public async Task<List<LetterTemplate>> GetLetterTemplates()
+    {
+        return await context.LetterTemplates
+            .Include(x=>x.LetterType)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<string> GetLetterTemplateFile(Guid letterTemplateId)
+    {
+        var templateInDb = await context.LetterTemplates.FirstOrDefaultAsync(x => x.Id == letterTemplateId);
+        return templateInDb != null ? templateInDb.TemplateFile : "";
+    }
+
+    public async Task<List<LetterTemplate>> GetLetterTemplatesByType(Guid typeId)
+    {
+        return await context.LetterTemplates
+            .Include(x=>x.LetterType)
+            .AsNoTracking()
+            .Where(x=>x.LetterType.Id == typeId)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SaveLetterTemplate(Guid id, LetterTemplateDto request)
+    {
+        var letterTemplate = mapper.Map<LetterTemplate>(request);
+        if (id == Guid.Empty)
+        {
+            await context.LetterTemplates.AddAsync(letterTemplate);
+        }
+        else
+        {
+            var letterInDb = await context.LetterTemplates.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+            if (letterInDb == null) return await Result.FailAsync("Letter Template not found.");
+
+            letterInDb.Name = request.Name;
+            letterInDb.LetterTypeId= request.LetterTypeId;
+            letterInDb.IsActive = request.IsActive;
+            letterInDb.TemplateFile = request.TemplateFile;
+            context.ChangeTracker.Clear();
+            context.LetterTemplates.Update(letterInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Letter Type has been saved.");
+    }
+
+    public async Task<IResult> DeleteLetterTemplate(Guid id)
+    {
+        var letterInDb = await context.LetterTemplates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (letterInDb == null) return await Result.FailAsync("Letter Template not found.");
+
+        context.LetterTemplates.Remove(letterInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Letter Template has been deleted.");
     }
 
     #endregion

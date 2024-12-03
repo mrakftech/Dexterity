@@ -6,33 +6,35 @@ using Syncfusion.Blazor.FileManager;
 
 namespace Services.Features.Settings.Service;
 
-public class FileService : IFileManagerService
+public class FileManagerService : IFileManagerService
 {
     private readonly List<FileManagerDirectoryContent> _copyFiles = new();
     private readonly List<FileManagerDirectoryContent> _data = new();
 
-    public FileService()
+    public FileManagerService()
     {
         GetData();
     }
+
     public async Task<IResult> CreateWordFile(string fileName, string content)
     {
         try
         {
             var root = CreateDirectory("Letters");
-            var path = Path.Combine(root, $"temp.html");
+            var path = Path.Combine(root, "temp.html");
             await File.WriteAllTextAsync(path, content);
 
             //Load an existing HTML file.
             await using var inputFileStream =
                 new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
             using var document = new WordDocument(inputFileStream, FormatType.Html);
-
+            inputFileStream.Close();
             //Save the Word document as DOCX format.
             await using var outputFileStream =
                 new FileStream(Path.Combine(root, $"{fileName}.docx"), FileMode.Create, FileAccess.ReadWrite);
             document.Save(outputFileStream, FormatType.Docx);
-
+            outputFileStream.Close();
+            File.Delete(path);
             return await Result.SuccessAsync();
         }
         catch (Exception e)
@@ -47,13 +49,33 @@ public class FileService : IFileManagerService
         return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"wwwroot/Files/{folderName}");
     }
 
+    public string GetTempPath()
+    {
+        CreateDirectoryInWwwRoot("Temp");
+        return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "wwwroot/Temp");
+    }
+
+    public string GetRootPath()
+    {
+        return Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"wwwroot/Files");
+    }
+
     private static string CreateDirectory(string folderName)
     {
+        CreateDirectoryInWwwRoot("Files");
         var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"wwwroot/Files/{folderName}");
         var exists = Directory.Exists(root);
         if (!exists)
             Directory.CreateDirectory(root);
         return root;
+    }
+
+    private static void CreateDirectoryInWwwRoot(string folderName)
+    {
+        var root = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"wwwroot/{folderName}");
+        var exists = Directory.Exists(root);
+        if (!exists)
+            Directory.CreateDirectory(root);
     }
 
     private void GetData()
@@ -63,7 +85,7 @@ public class FileService : IFileManagerService
             CaseSensitive = false,
             DateCreated = new DateTime(2022, 1, 2),
             DateModified = new DateTime(2022, 2, 3),
-            FilterPath = "",
+            FilterPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, $"wwwroot/Files"),
             FilterId = "",
             HasChild = true,
             Id = "0",
@@ -73,502 +95,6 @@ public class FileService : IFileManagerService
             ShowHiddenItems = false,
             Size = 1779448,
             Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/",
-            FilterPath = "/",
-            HasChild = false,
-            Id = "1",
-            IsFile = false,
-            Name = "Documents",
-            ParentId = "0",
-            ShowHiddenItems = false,
-            Size = 680786,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/",
-            FilterPath = "/",
-            HasChild = false,
-            Id = "2",
-            IsFile = false,
-            Name = "Downloads",
-            ParentId = "0",
-            ShowHiddenItems = false,
-            Size = 6172,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/",
-            FilterPath = "/",
-            HasChild = false,
-            Id = "3",
-            IsFile = false,
-            Name = "Music",
-            ParentId = "0",
-            ShowHiddenItems = false,
-            Size = 20,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/",
-            FilterPath = "/",
-            HasChild = false,
-            Id = "4",
-            IsFile = false,
-            Name = "Videos",
-            ParentId = "0",
-            ShowHiddenItems = false,
-            Size = 20,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/1/",
-            FilterPath = "/Documents/",
-            HasChild = false,
-            Id = "5",
-            IsFile = true,
-            Name = "EJ2 File Manager.docx",
-            ParentId = "1",
-            ShowHiddenItems = false,
-            Size = 12403,
-            Type = ".docx"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/1/",
-            FilterPath = "/Documents/",
-            HasChild = false,
-            Id = "6",
-            IsFile = true,
-            Name = "EJ2 File Manager.pdf",
-            ParentId = "1",
-            ShowHiddenItems = false,
-            Size = 90099,
-            Type = ".pdf"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/1/",
-            FilterPath = "/Documents/",
-            HasChild = false,
-            Id = "7",
-            IsFile = true,
-            Name = "File Manager PPT.pptx",
-            ParentId = "1",
-            ShowHiddenItems = false,
-            Size = 578010,
-            Type = ".pptx"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/1/",
-            FilterPath = "/Documents/",
-            HasChild = false,
-            Id = "8",
-            IsFile = true,
-            Name = "File Manager.txt",
-            ParentId = "1",
-            ShowHiddenItems = false,
-            Size = 274,
-            Type = ".txt"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/2/",
-            FilterPath = "/Downloads/",
-            HasChild = false,
-            Id = "9",
-            IsFile = true,
-            Name = "Sample Work Sheet.xlsx",
-            ParentId = "2",
-            ShowHiddenItems = false,
-            Size = 6172,
-            Type = ".xlsx"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/3/",
-            FilterPath = "/Music/",
-            HasChild = false,
-            Id = "10",
-            IsFile = true,
-            Name = "Music.mp3",
-            ParentId = "3",
-            ShowHiddenItems = false,
-            Size = 10,
-            Type = ".mp3"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/3/",
-            FilterPath = "/Music/",
-            HasChild = false,
-            Id = "11",
-            IsFile = true,
-            Name = "Sample Music.mp3",
-            ParentId = "3",
-            ShowHiddenItems = false,
-            Size = 10,
-            Type = ".mp3"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/4/",
-            FilterPath = "/Videos/",
-            HasChild = false,
-            Id = "12",
-            IsFile = true,
-            Name = "Demo Video.mp4",
-            ParentId = "4",
-            ShowHiddenItems = false,
-            Size = 10,
-            Type = ".mp4"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/4/",
-            FilterPath = "/Videos/",
-            HasChild = false,
-            Id = "13",
-            IsFile = true,
-            Name = "Sample Video.mp4",
-            ParentId = "4",
-            ShowHiddenItems = false,
-            Size = 10,
-            Type = ".mp4"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/",
-            FilterPath = "/",
-            HasChild = true,
-            Id = "14",
-            IsFile = false,
-            Name = "Pictures",
-            ParentId = "0",
-            ShowHiddenItems = false,
-            Size = 1092490,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/",
-            FilterPath = "/Pictures/",
-            HasChild = false,
-            Id = "15",
-            IsFile = false,
-            Name = "Employees",
-            ParentId = "14",
-            ShowHiddenItems = false,
-            Size = 324650,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "16",
-            IsFile = true,
-            Name = "1.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 49792,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "17",
-            IsFile = true,
-            Name = "2.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 50801,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "18",
-            IsFile = true,
-            Name = "3.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 48951,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "19",
-            IsFile = true,
-            Name = "4.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 46393,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "20",
-            IsFile = true,
-            Name = "5.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 66523,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/15/",
-            FilterPath = "/Pictures/Employees/",
-            HasChild = false,
-            Id = "21",
-            IsFile = true,
-            Name = "6.png",
-            ParentId = "15",
-            ShowHiddenItems = false,
-            Size = 62190,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/",
-            FilterPath = "/Pictures/",
-            HasChild = false,
-            Id = "22",
-            IsFile = false,
-            Name = "Foods",
-            ParentId = "14",
-            ShowHiddenItems = false,
-            Size = 299969,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/22/",
-            FilterPath = "/Pictures/Foods/",
-            HasChild = false,
-            Id = "23",
-            IsFile = true,
-            Name = "bread.png",
-            ParentId = "22",
-            ShowHiddenItems = false,
-            Size = 100486,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/22/",
-            FilterPath = "/Pictures/Foods/",
-            HasChild = false,
-            Id = "24",
-            IsFile = true,
-            Name = "doughnut.png",
-            ParentId = "22",
-            ShowHiddenItems = false,
-            Size = 99344,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/22/",
-            FilterPath = "/Pictures/Foods/",
-            HasChild = false,
-            Id = "25",
-            IsFile = true,
-            Name = "nuggets.png",
-            ParentId = "22",
-            ShowHiddenItems = false,
-            Size = 100139,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/",
-            FilterPath = "/Pictures/",
-            HasChild = false,
-            Id = "26",
-            IsFile = false,
-            Name = "Nature",
-            ParentId = "14",
-            ShowHiddenItems = false,
-            Size = 467871,
-            Type = "folder"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/26/",
-            FilterPath = "/Pictures/Nature/",
-            HasChild = false,
-            Id = "27",
-            IsFile = true,
-            Name = "bird.png",
-            ParentId = "26",
-            ShowHiddenItems = false,
-            Size = 102182,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/26/",
-            FilterPath = "/Pictures/Nature/",
-            HasChild = false,
-            Id = "28",
-            IsFile = true,
-            Name = "sea.png",
-            ParentId = "26",
-            ShowHiddenItems = false,
-            Size = 97145,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/26/",
-            FilterPath = "/Pictures/Nature/",
-            HasChild = false,
-            Id = "29",
-            IsFile = true,
-            Name = "seaview.png",
-            ParentId = "26",
-            ShowHiddenItems = false,
-            Size = 95866,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/26/",
-            FilterPath = "/Pictures/Nature/",
-            HasChild = false,
-            Id = "30",
-            IsFile = true,
-            Name = "snow.png",
-            ParentId = "26",
-            ShowHiddenItems = false,
-            Size = 74666,
-            Type = ".png"
-        });
-        _data.Add(new FileManagerDirectoryContent()
-        {
-            CaseSensitive = false,
-            DateCreated = new DateTime(2022, 1, 2),
-            DateModified = new DateTime(2022, 2, 3),
-            FilterId = "0/14/26/",
-            FilterPath = "/Pictures/Nature/",
-            HasChild = false,
-            Id = "31",
-            IsFile = true,
-            Name = "snowfall.png",
-            ParentId = "26",
-            ShowHiddenItems = false,
-            Size = 98012,
-            Type = ".png"
         });
     }
 

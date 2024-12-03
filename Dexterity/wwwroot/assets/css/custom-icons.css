@@ -292,3 +292,149 @@
     background-size: 100% 100%;
     background-image: url("../images/menu-items/sunny.png");
 }
+
+.patient-expected-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-expected.png");
+}
+.patient-waiting-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-waiting.png");
+}
+.patient-consultation-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/in-consultation.png");
+}
+.patient-history-icon {
+    display: inline-block;
+    width: 1.1em;
+    height: 1.1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-history.png");
+}
+.patient-status-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/patient-status.png");
+}
+.additional-items-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/additional-item.png");
+}
+
+.appointments-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/appointments.png");
+}
+.new-appointment-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/new-appointment.png");
+}
+
+.repeat-appointment-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/recurring-appointment.png");
+}
+
+.find-appointment-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/find-appointment.png");
+}
+
+.users-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/users.png");
+}
+
+.permissions-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/permissions.png");
+}
+
+.documents-icon {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/documents.png");
+}
+
+.letter-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/letter.png");
+}
+
+.sketch-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/sketch.png");
+}
+.ref-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/reff.png");
+}
+
+.document-icon {
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    background-repeat: no-repeat;
+    background-size: 100% 100%;
+    background-image: url("../images/menu-items/documents.png");
+}

@@ -1,41 +1,48 @@
-﻿@using Services.Features.Consultation.Dto.Investigations
+﻿@using Domain.Entities.Consultation
+@using Domain.Entities.Consultation.InvestigationDetails
+@using Shared.Constants.Module.Consultation
+@using Services.Features.Consultation.Dto.Investigations
 <DexDialog>
     <DialogTitle>
 
     </DialogTitle>
     <Content>
-            <TabTitle Title="Results">
-                <ActionButtons>
-                    <button class="btn btn-sm btn-primary m-1"> Awaiting</button>
-                    <button class="btn btn-sm btn-primary m-1"> In Review</button>
-                    <button class="btn btn-sm btn-primary m-1"> Follow Up</button>
-                    <button class="btn btn-sm btn-primary m-1"> Complete</button>
-                </ActionButtons>
-            </TabTitle>
-            <SfGrid DataSource="_results" Height="400px">
-                <GridEvents RowSelected="SelectedInvestigationResult" TValue="ResultInvestigationDto"></GridEvents>
-                <GridColumns>
-                    <GridColumn Field="@nameof(ResultInvestigationDto.Name)" HeaderText="Local Items" AllowEditing="false"/>
-                    <GridColumn Field="@nameof(ResultInvestigationDto.ResultText)" HeaderText="Result"/>
-                    <GridColumn Field="@nameof(ResultInvestigationDto.Unit)" AllowEditing="false"/>
-                    <GridColumn Field="@nameof(ResultInvestigationDto.Range)" HeaderText="Range" AllowEditing="false"/>
-                </GridColumns>
-            </SfGrid>
+        <TabTitle Title="Results">
+            <ActionButtons>
+                <SfCheckBox @bind-Checked="_isAbnormal" Label="Abnormal"></SfCheckBox>
+                <button class="btn btn-sm btn-primary m-1" @onclick="() => SavePatientInvestigation(InvestigationStatus.Awaiting)"> Awaiting</button>
+                <button class="btn btn-sm btn-primary m-1" @onclick="() => SavePatientInvestigation(InvestigationStatus.InReview)"> In Review</button>
+                <button class="btn btn-sm btn-primary m-1" @onclick="() => SavePatientInvestigation(InvestigationStatus.FollowUp)"> Follow Up</button>
+                <button class="btn btn-sm btn-primary m-1"@onclick="() => SavePatientInvestigation(InvestigationStatus.Complete)"> Complete</button>
+            </ActionButtons>
+        </TabTitle>
+        <SfGrid DataSource="_results" Height="400px">
+            <GridEvents RowSelected="SelectedInvestigationResult" TValue="ResultInvestigationDto" ></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(ResultInvestigationDto.Name)" HeaderText="Local Items" AllowEditing="false"/>
+                <GridColumn Field="@nameof(ResultInvestigationDto.ResultText)" HeaderText="Result"/>
+                <GridColumn Field="@nameof(ResultInvestigationDto.Unit)" AllowEditing="false"/>
+                <GridColumn Field="@nameof(ResultInvestigationDto.Range)" HeaderText="Range" AllowEditing="false"/>
+            </GridColumns>
+        </SfGrid>
     </Content>
     <ActionButtons>
         @if (_result.Id != Guid.Empty)
         {
             <button class="btn btn-sm btn-primary" @onclick="() => OpenResultForm(_result)"> Edit</button>
         }
-        <button class="btn btn-sm btn-danger"> Cancel Test</button>
+        <button class="btn btn-sm btn-danger" @onclick="() => SavePatientInvestigation(InvestigationStatus.Cancelled)"> Cancel Test</button>
     </ActionButtons>
 </DexDialog>
-
+<style>
+    
+</style>
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid PatientInvestigationId { get; set; }
     private List<ResultInvestigationDto> _results = new();
     private ResultInvestigationDto _result = new();
+    private bool _isAbnormal;
 
     protected override async Task OnInitializedAsync()
     {
@@ -67,5 +74,27 @@
             _result = arg.Data;
         }
     }
+
+    private async Task SavePatientInvestigation(string status)
+    {
+        var patientInvestigation = new PatientInvestigation()
+        {
+            Id = PatientInvestigationId,
+            Status = status,
+            IsAbnormal = _isAbnormal
+        };
+        var res = await UnitOfWork.Consultation.SavePatientInvestigation(patientInvestigation);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+   
 
 }

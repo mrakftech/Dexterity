@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Immunisations;
 
 public class Reaction : IBaseId
 {

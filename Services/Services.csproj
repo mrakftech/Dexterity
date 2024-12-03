@@ -16,8 +16,10 @@
 		<PackageReference Include="AutoMapper" Version="13.0.1" />
 		<PackageReference Include="Bogus" Version="35.4.0" />
         <PackageReference Include="MailKit" Version="4.7.1.1" />
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.72" />
         <PackageReference Include="MimeKit" Version="4.7.1" />
         <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
+        <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="27.2.4" />
 	</ItemGroup>
 	<ItemGroup>
 	  <Folder Include="Features\Messaging\Dtos\" />

@@ -3,11 +3,13 @@ using Syncfusion.Blazor.FileManager;
 
 namespace Services.Features.Settings.Service;
 
-public interface IFileService
+public interface IFileManagerService
 {
     Task<IResult> CreateWordFile(string fileName, string content);
 
     string GetFilePath(string folderName);
+    string GetTempPath();
+    string GetRootPath();
 
 
     public Task<FileManagerResponse<FileManagerDirectoryContent>> DeleteAsync(string path,

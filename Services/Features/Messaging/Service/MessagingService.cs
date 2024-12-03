@@ -284,21 +284,21 @@ public class MessagingService(
             message.CreatedDate = DateTime.Now;
             message.FromUserId = message.FromUserId;
             message.ToUserId = message.ToUserId;
-            context.ChangeTracker.Clear();
             await context.ChatMessages.AddAsync(message);
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("");
         }
         catch (Exception e)
         {
-            return await Result.SuccessAsync(e.Message);
+            return await Result.FailAsync(e.Message);
         }
     }
 
-    public async Task<List<ChatMessage>> GetConversationAsync(Guid contactId)
+    public List<ChatMessage> GetConversationAsync(Guid contactId)
     {
         var userId = ApplicationState.CurrentUser.UserId;
-        return await context.ChatMessages
+
+        var chats =  context.ChatMessages
             .Where(h => (h.FromUserId == contactId && h.ToUserId == userId) ||
                         (h.FromUserId == userId && h.ToUserId == contactId))
             .OrderBy(a => a.CreatedDate)
@@ -314,13 +314,17 @@ public class MessagingService(
                 ToUserId = x.ToUserId,
                 ToUser = x.ToUser,
                 FromUser = x.FromUser
-            }).ToListAsync();
+            }).ToList();
+
+        return chats;
     }
 
 
     public async Task<User> GetUserDetailsAsync(Guid userId)
     {
-        return await context.Users.Where(user => user.Id == userId).FirstOrDefaultAsync();
+        return await context.Users
+            .AsNoTracking()
+            .Where(user => user.Id == userId).FirstOrDefaultAsync();
     }
 
     #endregion

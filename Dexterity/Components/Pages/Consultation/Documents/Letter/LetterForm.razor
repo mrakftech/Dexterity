@@ -1,20 +1,114 @@
-﻿@using Services.Features.Consultation.Dto.Letter
+﻿@using Domain.Entities.Settings.Templates.Letter
+@using Shared.Constants.Module.Consultation
+@using Services.Features.UserAccounts.Dtos.User
+@using Services.Features.Consultation.Dto.Letter
 <DexDialog>
-    <DialogTitle></DialogTitle>
+    <DialogTitle>Letter Details</DialogTitle>
     <Content>
-        <DexForm>
+        <DexForm Model="@_letter" OnValidSubmit="SaveLetter">
             <Fields>
-                <FormItem Field="@nameof(LetterDto.PatientId)">
+                <FormItem Field="@nameof(LetterDto.LetterTypeId)">
                     <Template>
+                        <label class="e-form-label">Patient</label>
                         <span>@ApplicationState.SelectedPatientName</span>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(LetterDto.LetterDt)"/>
+                <FormItem Field="@nameof(LetterDto.LetterDt)" LabelText="Date" />
+                <FormItem Field="@nameof(LetterDto.LetterTypeId)">
+                    <Template>
+                        <label class="e-form-label">Letter Type</label>
+                        <SfDropDownList TValue="Guid" TItem="LetterType" Placeholder="Select a letter type"
+                                        DataSource="@_letterTypes"  @bind-Value="@_letter.LetterTypeId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="Guid" TItem="LetterType"
+                                                ValueChange="OnLetterTypeValueChange"></DropDownListEvents>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterDto.ReferTo)">
+                    <Template>
+                        <label class="e-form-label">Ref To</label>
+                        <SfDropDownList TValue="string" TItem="ReferenceTo" Placeholder="Select a ref "
+                                        DataSource="@LetterConstants.ReferenceToList" @bind-Value="@_letter.ReferTo">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterDto.Reference)" LabelText="Reference" IsEnabled="false"/>
+                <FormItem Field="@nameof(LetterDto.LetterTemplateId)">
+                    <Template>
+                        <label class="e-form-label">Letter Template</label>
+                        <SfDropDownList TValue="Guid" TItem="LetterTemplate" Placeholder="Select a letter Template"
+                                        DataSource="@_letterTemplates" @bind-Value="@_letter.LetterTemplateId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterDto.HcpId)">
+                    <Template>
+                        <label class="e-form-label">HCP</label>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select a Hcp"
+                                        DataSource="@_hcps"  @bind-Value="@_letter.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterDto.Description)" LabelText="Description"/>
+
             </Fields>
+
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
         </DexForm>
     </Content>
 </DexDialog>
 
 @code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    private readonly LetterDto _letter = new();
+    private List<LetterType> _letterTypes = new();
+    private List<LetterTemplate> _letterTemplates = new();
+    private List<HealthcareDto> _hcps = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLetterType();
+        await GetHcps();
+    }
+
+    private async Task GetHcps()
+    {
+        _hcps = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task GetLetterType()
+    {
+        _letterTypes = await UnitOfWork.Setting.GetLetterTypes();
+    }
+
+    private async Task GetLetterTemplates(Guid typeId)
+    {
+        _letterTemplates = await UnitOfWork.Setting.GetLetterTemplatesByType(typeId);
+    }
+
+    private async Task OnLetterTypeValueChange(ChangeEventArgs<Guid, LetterType> args)
+    {
+        await GetLetterTemplates(Guid.Parse(args.Value.ToString()));
+    }
+
+    private async Task SaveLetter()
+    {
+        var res = await UnitOfWork.Consultation.SaveLetter(Guid.Empty, _letter);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
 
 }

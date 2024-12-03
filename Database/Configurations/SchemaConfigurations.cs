@@ -1,5 +1,11 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Common;
+using Domain.Entities.Consultation.Detail;
+using Domain.Entities.Consultation.Documents;
+using Domain.Entities.Consultation.Immunisations;
+using Domain.Entities.Consultation.InvestigationDetails;
+using Domain.Entities.Consultation.Notes;
 using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Allergies;
@@ -14,7 +20,8 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 
@@ -36,6 +43,8 @@ public static class SchemaConfigurations
 
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
         builder.Entity<SmsTemplate>(entity => { entity.ToTable(name: "SmsTemplates", "Setting"); });
+        builder.Entity<LetterType>(entity => { entity.ToTable(name: "LetterTypes", "Setting"); });
+        builder.Entity<LetterTemplate>(entity => { entity.ToTable(name: "LetterTemplates", "Setting"); });
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinic", "Setting"); });
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Setting"); });
@@ -98,6 +107,9 @@ public static class SchemaConfigurations
         builder.Entity<ConsultationNote>(entity => { entity.ToTable(name: "Notes", "Consultation"); });
         builder.Entity<Reaction>(entity => { entity.ToTable(name: "Reactions", "Consultation"); });
         builder.Entity<Prescription>(entity => { entity.ToTable(name: "Prescriptions", "Consultation"); });
+        builder.Entity<ConsultationLetter>(entity => { entity.ToTable(name: "Letters", "Consultation"); });
+        builder.Entity<LetterReply>(entity => { entity.ToTable(name: "LetterReplies", "Consultation"); });
+     
         builder.Entity<PatientInvestigation>(entity =>
         {
             entity.ToTable(name: "PatientInvestigations", "Consultation");
@@ -119,6 +131,13 @@ public static class SchemaConfigurations
             .HasOne(e => e.Hcp)
             .WithMany(d => d.AdministerShots)
             .HasForeignKey(e => e.HcpId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        builder.Entity<InvestigationAudit>(entity => { entity.ToTable(name: "InvestigationAudits", "Consultation"); });
+        builder.Entity<InvestigationAudit>()
+            .HasOne(e => e.PatientInvestigation)
+            .WithMany(d => d.InvestigationAudits)
+            .HasForeignKey(e => e.PatientInvestigationId)
             .OnDelete(DeleteBehavior.NoAction);
     }
 }

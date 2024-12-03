@@ -4,7 +4,8 @@ using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 
@@ -23,6 +24,7 @@ public class SettingMapping : Profile
             .ReverseMap();
 
         CreateMap<NoteTemplate, NoteTemplateDto>().ReverseMap();
+        CreateMap<LetterTemplate, LetterTemplateDto>().ReverseMap();
 
         CreateMap<Batch, UpsertBatchDto>()
             .ForMember(x => x.DrugName, c => c.MapFrom(m => m.Drug.GenericName))

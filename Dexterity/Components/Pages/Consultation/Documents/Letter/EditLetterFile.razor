@@ -1,9 +1,57 @@
 ﻿<DexDialog>
-    <DialogTitle></DialogTitle>
+    <DialogTitle>Edit Letter</DialogTitle>
     <Content>
-        
+        <div class="mt-4">
+            <SfRichTextEditor @ref="_editorRef" ID="RT_Editor" ShowCharCount="true" AutoSaveOnIdle="true"
+                              EnableTabKey="true"
+                              EnableXhtml="true" 
+                              Placeholder="Write some text....."
+                              @bind-Value="@_file">
+                <RichTextEditorToolbarSettings Items="@WordProcessorSetting.Tools"></RichTextEditorToolbarSettings>
+                <RichTextEditorQuickToolbarSettings Table="@WordProcessorSetting.TableQuickToolbarItems"
+                                                    ShowOnRightClick="true"/>
+                <RichTextEditorImportWord
+                    ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+            </SfRichTextEditor>
+        </div>
     </Content>
+    <ActionButtons>
+        <DexSimpleButton Name="Save" Click="SaveLetterFile"/>
+    </ActionButtons>
 </DexDialog>
+
 @code {
-    
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    SfRichTextEditor _editorRef;
+    private string _file;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLetterDetail();
+    }
+
+    private async Task GetLetterDetail()
+    {
+        var letter = await UnitOfWork.Consultation.GetLetter(Id);
+        if (letter is not null)
+        {
+            _file = letter.PatientFile;
+        }
+    }
+
+    private async Task SaveLetterFile()
+    {
+        var res = await UnitOfWork.Consultation.SaveLetterFile(Id, _file);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
 }

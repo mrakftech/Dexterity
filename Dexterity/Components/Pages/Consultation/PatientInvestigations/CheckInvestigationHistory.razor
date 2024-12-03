@@ -1,5 +1,70 @@
-﻿<h3>CheckInvestigationHistory</h3>
+﻿@using Domain.Entities.PatientManagement
+@using Domain.Entities.Settings.Templates.InvestigationTemplates
+@using Domain.Entities.Consultation.InvestigationDetails
+@using Domain.Entities.Consultation
+<DexDialog>
+    <DialogTitle>Investigation History</DialogTitle>
+    <Content>
+        <RadzenRow>
+            <RadzenCard Variant="RadVariant.Outlined" class="rz-mx-auto" Style="width: 100%">
+                <RadzenStack Orientation="RadOrientation.Horizontal" JustifyContent="RadJustifyContent.Start" Gap="30rem" class="rz-p-4">
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Investigation:</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@Investigation.Name</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Patient Name:</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@Patient.FullName</b>
+                        </RadzenText>
+
+                    </RadzenStack>
+                    <RadzenStack Gap="0">
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Created:</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@PatientInvestigation.CreatedDate.ToString("d")</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Modified:</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@(PatientInvestigation.ModifiedDate == null ? "-" : PatientInvestigation.ModifiedDate)</b>
+                        </RadzenText>
+                        <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Status:</RadzenText>
+                        <RadzenText TextStyle="TextStyle.Body1">
+                            <b>@PatientInvestigation.Status</b>
+                        </RadzenText>
+                    </RadzenStack>
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenRow>
+        <DexGrid DataSource="InvestigationAudits" Height="300px" ShowPager="false">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(InvestigationAudit.Date)" Format="d"/>
+                <GridColumn Field="@nameof(InvestigationAudit.Status)"/>
+                <GridColumn Field="@nameof(InvestigationAudit.HcpName)"/>
+            </DexGridColumns>
+        </DexGrid>
+    </Content>
+</DexDialog>
 
 @code {
-    
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid PatientIvestigationId { get; set; }
+    private PatientInvestigation PatientInvestigation { get; set; } = new();
+    private Investigation Investigation { get; set; } = new();
+    private Patient Patient { get; set; } = new();
+    private List<InvestigationAudit> InvestigationAudits { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPatientInvestigation();
+    }
+
+    private async Task GetPatientInvestigation()
+    {
+        PatientInvestigation = await UnitOfWork.Consultation.GetPatientInvestigation(PatientIvestigationId);
+        InvestigationAudits = PatientInvestigation.InvestigationAudits.ToList();
+        Investigation = PatientInvestigation.Investigation;
+        Patient = PatientInvestigation.Patient;
+    }
+
 }

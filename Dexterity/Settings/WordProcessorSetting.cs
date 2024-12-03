@@ -1,6 +1,6 @@
 ﻿using Syncfusion.Blazor.RichTextEditor;
 
-namespace Dexterity.UiServices;
+namespace Dexterity.Settings;
 
 public static class WordProcessorSetting
 {

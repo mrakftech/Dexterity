@@ -19,6 +19,7 @@
 
     private async Task StartConsultation()
     {
+        _processing = true;
         var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(AppointmentId, AppointmentConstants.WaitingStatus.InConsultation);
         if (res.Succeeded)
         {
@@ -30,6 +31,7 @@
         {
             Snackbar.FailMessage(res.Messages.First());
         }
+        _processing = false;
     }
 
 }

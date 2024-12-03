@@ -350,6 +350,57 @@ namespace Database.Migrations
                     b.ToTable("Details", "Consultation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.ConsultationLetter", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CompletedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("LetterDt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LetterTemplateId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("LetterTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("PatientFile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PatientFileName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ReferTo")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reference")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("HcpId");
+
+                    b.HasIndex("LetterTemplateId");
+
+                    b.ToTable("Letters", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationNote", b =>
                 {
                     b.Property<int>("Id")
@@ -424,6 +475,31 @@ namespace Database.Migrations
                     b.ToTable("ImmunisationSchedule", "Consultation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.InvestigationAudit", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("HcpName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("PatientInvestigationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PatientInvestigationId");
+
+                    b.ToTable("InvestigationAudits", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.InvestigationResult", b =>
                 {
                     b.Property<Guid>("Id")
@@ -448,11 +524,42 @@ namespace Database.Migrations
                     b.ToTable("InvestigationResults", "Consultation");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.LetterReply", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("AdditionNotes")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("ConsultationLetterId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("File")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ConsultationLetterId");
+
+                    b.ToTable("LetterReplies", "Consultation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -465,6 +572,12 @@ namespace Database.Migrations
 
                     b.Property<bool>("IsAbnormal")
                         .HasColumnType("bit");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
@@ -2650,6 +2763,47 @@ namespace Database.Migrations
                     b.ToTable("InvestigationSelectionValues", "Setting");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Letter.LetterTemplate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<Guid>("LetterTypeId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("TemplateFile")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LetterTypeId");
+
+                    b.ToTable("LetterTemplates", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Letter.LetterType", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("LetterTypes", "Setting");
+                });
+
             modelBuilder.Entity("Domain.Entities.Settings.Templates.SmsTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -2982,6 +3136,25 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.ConsultationLetter", b =>
+                {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
+                        .WithMany()
+                        .HasForeignKey("HcpId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.Settings.Templates.Letter.LetterTemplate", "LetterTemplate")
+                        .WithMany()
+                        .HasForeignKey("LetterTemplateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hcp");
+
+                    b.Navigation("LetterTemplate");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationNote", b =>
                 {
                     b.HasOne("Domain.Entities.Consultation.ConsultationDetail", "ConsultationDetail")
@@ -3018,6 +3191,17 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Consultation.InvestigationAudit", b =>
+                {
+                    b.HasOne("Domain.Entities.Consultation.PatientInvestigation", "PatientInvestigation")
+                        .WithMany("InvestigationAudits")
+                        .HasForeignKey("PatientInvestigationId")
+                        .OnDelete(DeleteBehavior.NoAction)
+                        .IsRequired();
+
+                    b.Navigation("PatientInvestigation");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.InvestigationResult", b =>
                 {
                     b.HasOne("Domain.Entities.Settings.Templates.Investigations.InvestigationDetail", "InvestigationDetail")
@@ -3031,6 +3215,17 @@ namespace Database.Migrations
                     b.Navigation("InvestigationDetail");
 
                     b.Navigation("PatientInvestigation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Consultation.LetterReply", b =>
+                {
+                    b.HasOne("Domain.Entities.Consultation.ConsultationLetter", "ConsultationLetter")
+                        .WithMany()
+                        .HasForeignKey("ConsultationLetterId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ConsultationLetter");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
@@ -3466,6 +3661,17 @@ namespace Database.Migrations
                     b.Navigation("InvestigationSelectionList");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Settings.Templates.Letter.LetterTemplate", b =>
+                {
+                    b.HasOne("Domain.Entities.Settings.Templates.Letter.LetterType", "LetterType")
+                        .WithMany()
+                        .HasForeignKey("LetterTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("LetterType");
+                });
+
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.Role", "Role")
@@ -3537,6 +3743,11 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.Consultation.ConsultationDetail", b =>
                 {
                     b.Navigation("Notes");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Consultation.PatientInvestigation", b =>
+                {
+                    b.Navigation("InvestigationAudits");
                 });
 
             modelBuilder.Entity("Domain.Entities.PatientManagement.Billing.PatientAccount", b =>

@@ -28,13 +28,12 @@ namespace Dexterity
                 .ConfigureFonts(fonts => { fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular"); });
             builder.Services.AddTransient<SnackbarNotificationService>();
 
-
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
 
             SyncfusionLicenseProvider
                 .RegisterLicense(
-                    "MzQwNDg0MEAzMjM2MmUzMDJlMzBTNG1aeW5QUnNCU25pQmhReTRwdUk1VEVscXpLbE1MTUZmanJoYVo3SzhJPQ==");
+                    "Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH5ceHRcQmFdWUF0Vks=");
             builder.Services.AddBlazorContextMenu(options =>
             {
                 options.ConfigureTemplate("myTemplate", template =>
@@ -82,7 +81,8 @@ namespace Dexterity
             builder.Services.AddMauiBlazorWebView();
 
             builder.Services.AddDbContextFactory<ApplicationDbContext>(options =>
-                        options.UseSqlServer(configuration.GetConnectionString("AppConnection")).UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking),
+                        options.UseSqlServer(configuration.GetConnectionString("AppConnection"))
+                            .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking),
                     ServiceLifetime.Transient
                 )
                 .AddTransient<IDatabaseSeeder, DatabaseSeeder>();

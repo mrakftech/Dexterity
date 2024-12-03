@@ -1,20 +1,147 @@
-﻿@using Domain.Entities.Settings.Templates.Letter
-<DexForm Model="@LetterTemplateDto">
-    <Fields>
-        <FormItem Field="@nameof(Le)"/>
-    </Fields>
-</DexForm>
-@code {
-    private LetterTemplate LetterTemplateDto { get; set; } = new();
-    private List<LetterType> _letterTypes = [];
+﻿@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings.Templates.Letter
+<MudItem md="3">
+    <DexForm Model="@LetterTemplateData" OnValidSubmit="SaveLetterTemplate">
+        <Fields>
+            <FormItem Field="@nameof(LetterTemplateDto.Name)"/>
+            <FormItem Field="@nameof(LetterTemplateDto.LetterTypeId)">
+                <Template>
+                    <label class="e-form-label">Letter Type</label>
+                    <SfDropDownList CssClass="" TValue="Guid" TItem="LetterType" Placeholder="Letter Type"
+                                    DataSource="@_letterTypes" @bind-Value="@LetterTemplateData.LetterTypeId">
+                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(LetterTemplateDto.TemplateFile)" LabelText="">
+                <Template>
+                    <SfRichTextEditor @ref="EditorRef" ID="RT_Editor" ShowCharCount="true" AutoSaveOnIdle="true"
+                                      EnableTabKey="true" EnableXhtml="true" Placeholder="Write some text....."
+                                      @bind-Value="@LetterTemplateData.TemplateFile">
+                        <RichTextEditorToolbarSettings Items="@WordProcessorSetting.Tools"></RichTextEditorToolbarSettings>
+                        <RichTextEditorImportWord
+                            ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+                        <RichTextEditorQuickToolbarSettings Table="@WordProcessorSetting.TableQuickToolbarItems"
+                                                            ShowOnRightClick="true"/>
+                    </SfRichTextEditor>
+                </Template>
+            </FormItem>
+        </Fields>
+        <Buttons>
+            <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="_processing"/>
+            @if (_id != Guid.Empty)
+            {
+                <DexLoadingButton Name="New" Click="NewLetterTemplate"/>
+            }
+        </Buttons>
+    </DexForm>
+</MudItem>
+<MudItem md="4" Class="mt-3">
+    <DexGrid DataSource="LetterTemplates" Height="250px">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(LetterTemplateData.LetterTypeId)" HeaderText="Letter Type">
+                <Template>
+                    @{
+                        var item = (context as LetterTemplate);
+                        <MudText Color="MudColor.Primary"> @item!.LetterType.Name</MudText>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(LetterTemplateData.Name)"/>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as LetterTemplate);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary" OnClick="() => EditLetterTemplate(item!.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteLetterTemplate(item!.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
 
+@code {
+    private LetterTemplateDto LetterTemplateData { get; set; } = new();
+    private List<LetterType> _letterTypes = [];
+    private List<LetterTemplate> LetterTemplates { get; set; } = [];
+    private bool _processing;
+    private Guid _id;
+    SfRichTextEditor EditorRef;
     protected override async Task OnInitializedAsync()
     {
         await GetLetterTypes();
+        await GetLetterTemplates();
     }
 
     private async Task GetLetterTypes()
     {
         _letterTypes = await UnitOfWork.Setting.GetLetterTypes();
     }
+
+    private async Task GetLetterTemplates()
+    {
+        LetterTemplates = await UnitOfWork.Setting.GetLetterTemplates();
+    }
+
+    private async Task SaveLetterTemplate()
+    {
+        _processing = true;
+
+        var res = await UnitOfWork.Setting.SaveLetterTemplate(_id, LetterTemplateData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetLetterTemplates();
+            LetterTemplateData = new();
+            _id = Guid.Empty;
+            StateHasChanged();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+    private async Task DeleteLetterTemplate(Guid itemId)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteLetterTemplate(itemId);
+            await GetLetterTemplates();
+            Snackbar.SuccessMessage(res.Messages.First());
+        }
+    }
+
+    private void EditLetterTemplate(Guid itemId)
+    {
+        if (itemId != Guid.Empty)
+        {
+            _id = itemId;
+            var temp = LetterTemplates.FirstOrDefault(x => x.Id == itemId);
+            var map = Mapper.Map<LetterTemplateDto>(temp);
+            LetterTemplateData = map;
+        }
+        else
+        {
+            _id = Guid.Empty;
+        }
+    }
+
+    private void NewLetterTemplate()
+    {
+        LetterTemplateData = new LetterTemplateDto();
+    }
+
+
+
+
 }

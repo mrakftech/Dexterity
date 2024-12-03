@@ -3,7 +3,7 @@ using Domain.Contracts;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Detail;
 
 public class BaselineDetail:IBaseId
 {

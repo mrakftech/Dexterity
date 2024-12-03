@@ -4,7 +4,8 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 using Shared.Constants.Module;
@@ -176,6 +177,22 @@ public interface ISettingService
     public Task<List<AssignedInvestigationGroup>> GetAssignInvestigationsOfGroup(Guid groupId);
     public Task<IResult> DeleteAssignedInvestigationGroup(Guid id);
 
+    #endregion
+
+    #region Letter Template
+
+    public Task<List<LetterType>> GetLetterTypes();
+    public Task<IResult> SaveLetterType(Guid id, LetterType letterType);
+    public Task<IResult> DeleteLetterType(Guid id);
+    public Task<LetterType> GetLetterType(Guid id);
+    
+    public Task<List<LetterTemplate>> GetLetterTemplates();
+    public Task<string> GetLetterTemplateFile(Guid letterTemplateId);
+    public Task<List<LetterTemplate>> GetLetterTemplatesByType(Guid typeId);
+    public Task<IResult> SaveLetterTemplate(Guid id, LetterTemplateDto letterTemplate);
+    public Task<IResult> DeleteLetterTemplate(Guid id);
+
+    
 
     #endregion
 }

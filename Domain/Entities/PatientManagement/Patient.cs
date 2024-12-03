@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Immunisations;
 using Domain.Entities.PatientManagement.Billing;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.PatientManagement.Extra;

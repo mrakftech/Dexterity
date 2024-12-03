@@ -9,34 +9,30 @@
 @using Dexterity.Components.Pages.Settings.SmsTemplate
 @using Dexterity.Components.Pages.Settings.Drugs
 @using Dexterity.Components.Pages.Settings.Investigations
+@using Dexterity.Components.Pages.Settings.Letter
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
 <MudItem md="12" Class="vertical-space">
     <InnerLayout ShowHeader="false" DrawerWidth="250px">
         <NavigationItems>
-            <RadzenPanelMenuItem Text="Categories & Templates" Icon="@DexHelperMethod.FaIcon("category-icon")">
+            <RadzenPanelMenuItem Text="System Types" Icon="@DexHelperMethod.FaIcon("category-icon")">
+                <DexMenuItem Text="Letter Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(11))"/>
+                <DexMenuItem Text="Appointment Types" Icon="fas fa-calendar-clock" Click="@(() => ClickChanged(3))"/>
+                <DexMenuItem Text="Account Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(5))"/>
+                <DexMenuItem Text="Consultation Note Templates" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
+                <DexMenuItem Text="Appointment Cancellation Reason" Icon="fas fa-ban" Click="@(() => ClickChanged(4))"/>
+            </RadzenPanelMenuItem>
+            <RadzenPanelMenuItem Text="Other Types" Icon="@DexHelperMethod.FaIcon("types-icon")">
+                <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
+                <DexMenuItem Text="POMR Groups" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(6))"/>
+                <DexMenuItem Text="Drug Management" Icon="fas fa-pills" Click="@(() => ClickChanged(9))"/>
+                <DexMenuItem Text="Investigations" Icon="fas fa-user-magnifying-glass"
+                             Click="@(() => ClickChanged(10))"/>
                 <DexMenuItem Text="Sms Templates" Icon="fas fa-comment-sms" Click="@(() => ClickChanged(0))"/>
                 <DexMenuItem Text="Email Templates" Icon="fas fa-envelope-open-text" Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Clinics" Icon="fas fa-house-chimney-medical" Click="@(() => ClickChanged(2))"/>
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Appointments" Icon="@DexHelperMethod.FaIcon("appointment-type-icon")">
-                <DexMenuItem Text="Appointment Types" Icon="fas fa-calendar-clock" Click="@(() => ClickChanged(3))"/>
-                <DexMenuItem Text="Appointment Cancellation Reason" Icon="fas fa-ban" Click="@(() => ClickChanged(4))"/>
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Types" Icon="@DexHelperMethod.FaIcon("types-icon")">
-                <DexMenuItem Text="Account Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(5))"/>
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Other Types" Icon="@DexHelperMethod.FaIcon("other-types")">
-                <DexMenuItem Text="POMR Groups" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(6))"/>
-                <DexMenuItem Text="Note Template" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@DexHelperMethod.FaIcon("immunisation-template")">
-                <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
-            </RadzenPanelMenuItem>
-            <RadzenPanelMenuItem Text="Admin Console" Icon="@DexHelperMethod.FaIcon("admin-icon")">
-                <DexMenuItem Text="Drug Management" Icon="fas fa-pills" Click="@(() => ClickChanged(9))"/>
-                <DexMenuItem Text="Investigations" Icon="fas fa-user-magnifying-glass" Click="@(() => ClickChanged(10))"/>
+                
             </RadzenPanelMenuItem>
         </NavigationItems>
         <DexContentTabs>
@@ -73,6 +69,9 @@
                 </MudTabPanel>
                 <MudTabPanel>
                     <InvestigationTabs/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <LetterTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

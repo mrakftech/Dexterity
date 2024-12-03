@@ -1,5 +1,84 @@
-﻿<h3>AttachReply</h3>
+﻿@using Domain.Entities.Consultation
+@using Domain.Entities.Consultation.Documents
+@using UploadChangeEventArgs = Syncfusion.Blazor.Inputs.UploadChangeEventArgs
+<DexDialog>
+    <DialogTitle>Attach Reply</DialogTitle>
+    <Content>
+        <SfTab>
+            <TabItems>
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="From Scanner"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                    </ContentTemplate>
+                </TabItem>
+
+                <TabItem>
+                    <ChildContent>
+                        <TabHeader Text="From File"></TabHeader>
+                    </ChildContent>
+                    <ContentTemplate>
+                        <DexForm Model="LetterReply" OnValidSubmit="AttachReplyClick">
+                            <Fields>
+                                <FormItem Field="@nameof(Domain.Entities.Consultation.Documents.LetterReply.Date)"
+                                          EditorType="FormEditorType.DatePicker"/>
+                                <FormItem Field="@nameof(Domain.Entities.Consultation.Documents.LetterReply.Description)"/>
+                                <FormItem Field="@nameof(Domain.Entities.Consultation.Documents.LetterReply.AdditionNotes)"
+                                          EditorType="FormEditorType.TextArea" LabelText="Addition Notes"/>
+                                <FormItem Field="@nameof(Domain.Entities.Consultation.Documents.LetterReply.File)"
+                                          LabelText="Import Word File">
+                                    <Template>
+                                        <SfRichTextEditor @ref="_editorRef"
+                                                          ID="RT_Editor"
+                                                          ShowCharCount="true"
+                                                          AutoSaveOnIdle="true"
+                                                          EnableTabKey="true"
+                                                          EnableXhtml="true"
+                                                          Placeholder="Write some text....."
+                                                          @bind-Value="@LetterReply.File">
+                                            <RichTextEditorToolbarSettings
+                                                Items="@WordProcessorSetting.MsWordTools"></RichTextEditorToolbarSettings>
+                                            <RichTextEditorImportWord
+                                                ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+                                        </SfRichTextEditor>
+                                    </Template>
+                                </FormItem>
+                            </Fields>
+                            <Buttons>
+                                <DexLoadingButton Name="Attach" Type="MudButtonType.Submit" Processing="_processing"/>
+                            </Buttons>
+                        </DexForm>
+                    </ContentTemplate>
+                </TabItem>
+            </TabItems>
+        </SfTab>
+    </Content>
+</DexDialog>
 
 @code {
-    
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid ConsultationLetterId { get; set; }
+    private LetterReply LetterReply { get; set; } = new();
+    SfRichTextEditor _editorRef;
+    private bool _processing;
+
+    private async Task AttachReplyClick()
+    {
+        _processing = true;
+        LetterReply.ConsultationLetterId = ConsultationLetterId;
+        var res = await UnitOfWork.Consultation.AddLetterRply(LetterReply);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+
+        _processing = false;
+    }
+
 }

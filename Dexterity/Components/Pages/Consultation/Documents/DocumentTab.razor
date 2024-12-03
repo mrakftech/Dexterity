@@ -1,5 +1,47 @@
-﻿<h3>DocumentTab</h3>
+﻿@using Dexterity.Components.Pages.Consultation.Documents.Letter
+@using Dexterity.Components.Pages.Consultation.Documents.Document_Manager
+<SfTab CssClass="e-tab-custom-class mt-2" HeaderPlacement="HeaderPosition.Left">
+    <TabItems>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Letter" IconCss="letter-icon"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <LetterTab/>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Documents" IconCss="documents-icon"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <FileExplorer/>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Sketches" IconCss="sketch-icon"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="E-Referrals" IconCss="ref-icon"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Forms" IconCss="document-icon"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+            </ContentTemplate>
+        </TabItem>
+    </TabItems>
+</SfTab>
 
 @code {
-    
+
 }

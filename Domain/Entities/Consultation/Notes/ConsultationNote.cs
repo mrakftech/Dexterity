@@ -1,7 +1,8 @@
-﻿using Domain.Entities.Settings.Consultation;
+﻿using Domain.Entities.Consultation.Detail;
+using Domain.Entities.Settings.Consultation;
 using Shared.Constants.Module.Consultation;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Notes;
 
 public class ConsultationNote
 {

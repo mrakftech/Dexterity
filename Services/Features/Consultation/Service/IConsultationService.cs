@@ -1,10 +1,15 @@
 ﻿using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Documents;
+using Domain.Entities.Consultation.Immunisations;
+using Domain.Entities.Consultation.InvestigationDetails;
 using Domain.Entities.Settings.Consultation;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Investigations;
+using Services.Features.Consultation.Dto.Letter;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
 using Services.Features.Settings.Dtos;
@@ -79,12 +84,28 @@ public interface IConsultationService
     Task<List<InvestigationGroup>> GetInvestigationGroups();
     Task<List<InvestigationDto>> GetInvestigations(Guid? groupId);
     Task<List<PatientInvestigation>> GetPatientInvestigations();
-    Task<IResult> SavePatientInvestigation(PatientInvestigation patientInvestigation);
+    Task<IResult> SavePatientInvestigation(PatientInvestigation request);
     Task<IResult> DeletePatientInvestigation(Guid id);
     public Task<List<ResultInvestigationDto>> GetInvestigationResults(Guid patientInvestigationId);
     public Task<List<InvestigationSelectionValue>> GetInvestigationResultSelection(Guid investigationId);
-    
     Task<IResult> SaveInvestigationResult(UpdateResultDto request);
+    Task<PatientInvestigation> GetPatientInvestigation(Guid id);
+
+    #endregion
+
+    #region Documents
+
+    #region Letter
+
+    Task<ConsultationLetter> GetLetter(Guid id);
+    Task<IResult> SaveLetter(Guid id, LetterDto request);
+    Task<IResult> SaveLetterFile(Guid id, string file);
+    Task<IResult> ChangeStatus(Guid id,string status);
+    Task<List<ConsultationLetter>> GetConsultationLetters();
+    Task<IResult> SendEmailLetter(EmailDto request);
+    Task<IResult> AddLetterRply(LetterReply letterReply);
+
+    #endregion
 
     #endregion
 }

@@ -1,6 +1,6 @@
 ﻿namespace Shared.Constants.Module.Consultation;
 
-public static partial class ConsultationConstants
+public static  class ConsultationConstants
 {
     public static List<ReactionType> ReactionTypes { get; set; } =
     [
@@ -25,7 +25,7 @@ public static partial class ConsultationConstants
         new(19, "Swelling of Glands"),
         new(20, "Crying"),
     ];
-
+   
   
 }
 
@@ -34,3 +34,4 @@ public class ReactionType(int id, string name)
     public int Id { get; set; } = id;
     public string Name { get; set; } = name;
 }
+

@@ -1,5 +1,29 @@
-﻿<h3>PrintLetter</h3>
+﻿<DexDialog>
+    <DialogTitle>Print Letter</DialogTitle>
+    <Content>
+        @((MarkupString) _file)
+    </Content>
+</DexDialog>
 
 @code {
-    
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private string _file;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLetterDetail();
+    }
+
+    private async Task GetLetterDetail()
+    {
+        var letter = await UnitOfWork.Consultation.GetLetter(Id);
+        if (letter is not null)
+        {
+            _file = letter.PatientFile;
+        }
+    }
+
+   
+
 }

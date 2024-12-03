@@ -71,8 +71,8 @@
 		<PackageReference Include="CodeBeam.MudBlazor.Extensions" Version="7.0.2" />
 		<PackageReference Include="Microsoft.AspNetCore.Components.DataAnnotations.Validation" Version="3.2.0-rc1.20223.4" />
 		<PackageReference Include="Radzen.Blazor" Version="5.0.9" />
-        <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
-        <PackageReference Include="Syncfusion.Blazor.Themes" Version="26.2.5" />
+        <PackageReference Include="Syncfusion.Blazor" Version="27.2.2" />
+        <PackageReference Include="Syncfusion.Blazor.Themes" Version="27.2.2" />
 		<PackageReference Include="Blazor.ContextMenu" Version="2.1.0" />
         <PackageReference Include="Blazored.FluentValidation" Version="2.2.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.2">

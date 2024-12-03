@@ -1,10 +1,9 @@
 ﻿using Domain.Contracts;
-using Domain.Entities.Consultation.Investigation;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.UserAccounts;
 using Shared.Attributes;
 
-namespace Domain.Entities.Consultation
+namespace Domain.Entities.Consultation.InvestigationDetails
 {
     public class PatientInvestigation:IBaseId,IBaseActionOn
     {

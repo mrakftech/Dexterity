@@ -1,5 +1,211 @@
-﻿<h3>LetterTab</h3>
+﻿@using Shared.Constants.Module.Consultation
+@using Domain.Entities.Consultation.Documents
+@using Domain.Entities.Consultation
+
+<MudStack>
+    <TabTitle Title="Letters">
+        <ActionButtons>
+            @if (_selectedLetterId != Guid.Empty)
+            {
+                <button type="button" class="btn btn-primary btn-sm m-2" @onclick="OpenEmailLetter">Email Letter
+                </button>
+                <button type="button" class="btn btn-primary btn-sm m-2" @onclick="AttachReplyDialog">Attach Reply
+                </button>
+                <button type="button" class="btn btn-primary btn-sm m-2" @onclick="PrintDialog">Print</button>
+                <button type="button" class="btn btn-primary btn-sm m-2">Label</button>
+                <button type="button" class="btn btn-primary btn-sm m-2" @onclick="MarkAsCancel">Cancel</button>
+                @if (_consultationLetter.Status != LetterConstants.Status.Completed)
+                {
+                    <button type="button" class="btn btn-primary btn-sm m-2" @onclick="EditLetterFileDialog">Edit
+                    </button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-primary btn-sm m-2" @onclick="MarkAsComplete">Complete</button>
+                }
+            }
+
+
+            <button type="button" class="btn btn-primary btn-sm m-2" @onclick="OpenNewLetter">Add</button>
+        </ActionButtons>
+    </TabTitle>
+    <SfGrid DataSource="_consultationLetters">
+        <GridTemplates>
+            <DetailTemplate>
+                @{
+                    var replies = (context as ConsultationLetter);
+                    <DexGrid DataSource="replies.LetterReplies" ShowPager="false" Height="100px">
+                        <DexGridColumns>
+                            <GridColumn Field="@nameof(LetterReply.Date)" Format="d" Type="ColumnType.Date"/>
+                            <GridColumn Field="@nameof(LetterReply.Description)"/>
+                        </DexGridColumns>
+                    </DexGrid>
+                }
+            </DetailTemplate>
+        </GridTemplates>
+        <GridEvents TValue="ConsultationLetter" RowSelected="SelectedLetter"></GridEvents>
+        <GridColumns>
+            <GridColumn Field="@nameof(ConsultationLetter.LetterDt)" HeaderText="Date"/>
+            <GridColumn Field="@nameof(ConsultationLetter.LetterTypeId)" HeaderText="Letter Type">
+                <Template>
+                    @{
+                        var item = (context as ConsultationLetter);
+                        <span>@item!.LetterTemplate.LetterType.Name</span>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(ConsultationLetter.ReferTo)" HeaderText="Reference"/>
+            <GridColumn Field="@nameof(ConsultationLetter.LetterTemplate.Name)" HeaderText="Template">
+                <Template>
+                    @{
+                        var item = (context as ConsultationLetter);
+                        <span>@item!.LetterTemplate.Name</span>
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn Field="@nameof(ConsultationLetter.Status)" HeaderText="Status"/>
+        </GridColumns>
+    </SfGrid>
+</MudStack>
 
 @code {
-    
+    private List<ConsultationLetter> _consultationLetters = new();
+    private Guid _selectedLetterId = Guid.Empty;
+    private ConsultationLetter _consultationLetter;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetConsultationLetters();
+    }
+
+    private async Task GetConsultationLetters()
+    {
+        _consultationLetters = await UnitOfWork.Consultation.GetConsultationLetters();
+    }
+
+    private async Task OpenNewLetter()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<LetterForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetConsultationLetters();
+        }
+    }
+
+    private void SelectedLetter(RowSelectEventArgs<ConsultationLetter> arg)
+    {
+        if (arg.Data is not null)
+        {
+            _selectedLetterId = arg.Data.Id;
+            _consultationLetter = arg.Data;
+        }
+        else
+        {
+            _selectedLetterId = Guid.Empty;
+            _consultationLetter = new ConsultationLetter();
+        }
+    }
+
+    private async Task PrintDialog()
+    {
+        var parameters = new DialogParameters {{"Id", _selectedLetterId}};
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<PrintLetter>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task EditLetterFileDialog()
+    {
+        var parameters = new DialogParameters {{"Id", _selectedLetterId}};
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<EditLetterFile>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetConsultationLetters();
+        }
+    }
+
+    private async Task MarkAsCancel()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to cancel this?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.ChangeStatus(_selectedLetterId, LetterConstants.Status.Cancelled);
+            StateHasChanged();
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetConsultationLetters();
+        }
+    }
+
+    private async Task MarkAsComplete()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText", "Are you sure you want to complete this?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.ChangeStatus(_selectedLetterId, LetterConstants.Status.Completed);
+            StateHasChanged();
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetConsultationLetters();
+        }
+    }
+
+    private async Task OpenEmailLetter()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("AttachedFile", _consultationLetter.PatientFileName);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<EmailLetter>("", parameters, options);
+    }
+
+    private async Task AttachReplyDialog()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ConsultationLetterId", _consultationLetter.Id);
+
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Medium,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<AttachReply>("", parameters, options);
+    }
+
 }

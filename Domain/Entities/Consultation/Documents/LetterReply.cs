@@ -1,6 +1,6 @@
 ﻿using Domain.Contracts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Documents;
 
 public class LetterReply : IBaseId
 {

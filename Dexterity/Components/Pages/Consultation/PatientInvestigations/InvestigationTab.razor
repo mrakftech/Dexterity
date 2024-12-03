@@ -1,6 +1,8 @@
 ﻿@using Domain.Entities.Consultation
+@using Domain.Entities.Consultation.InvestigationDetails
+@using Domain.Entities.Settings.Templates.InvestigationTemplates
 @using Services.Features.Settings.Dtos
-@using Domain.Entities.Settings.Templates.Investigations
+@using Shared.Constants.Module.Consultation
 <TabTitle Title="Investigations" Icon="investigation-new.png"></TabTitle>
 
 <MudStack Row>
@@ -31,8 +33,9 @@
     </MudItem>
     <MudItem md="9">
         <div class="m-2">
-            <DexGrid DataSource="PatientInvestigations" Height="100px" ShowPager="false">
-                <DexGridColumns>
+            <SfGrid DataSource="PatientInvestigations" Height="400px">
+                <GridEvents TValue="PatientInvestigation" RowDataBound="RowBound"></GridEvents>
+                <GridColumns>
                     <GridColumn Field="@nameof(PatientInvestigation.Date)" Format="d" Type="ColumnType.DateTime" HeaderText="Date"/>
                     <GridColumn Field="@nameof(PatientInvestigation.InvestigationId)" HeaderText="Name">
                         <Template>
@@ -56,7 +59,8 @@
                             @{
                                 var item = (context as PatientInvestigation);
                             }
-                            <button class="btn btn-sm btn-primary" @onclick="@(() => OpenInvestigationResultDetails(item!.Id))">...</button>
+                            <button class="btn btn-sm btn-primary" @onclick="@(() => OpenInvestigationResultDetails(item!.Id))">Check Results</button>
+
                         </Template>
                     </GridColumn>
                     <GridColumn>
@@ -65,13 +69,20 @@
                                 var item = (context as PatientInvestigation);
                             }
                             <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatientInvestigation(item.Id)"/>
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.History" Color="MudColor.Primary" OnClick="() => OpenCheckInvestigationHistory(item.Id)"/>
                         </Template>
                     </GridColumn>
-                </DexGridColumns>
-            </DexGrid>
+                </GridColumns>
+            </SfGrid>
         </div>
     </MudItem>
 </MudStack>
+<style>
+    .in-review {
+        color: orangered!important;
+        font-weight: bolder;
+    }
+</style>
 
 @code {
     private List<InvestigationGroup> InvestigationGroups { get; set; } = new();
@@ -168,6 +179,22 @@
             Snackbar.SuccessMessage(userRes.Messages.First());
             await GetPatientInvestigations();
         }
+    }
+
+    public void RowBound(RowDataBoundEventArgs<PatientInvestigation> args)
+    {
+        if (args.Data.Status == InvestigationStatus.InReview)
+        {
+            args.Row.AddClass(new string[] {"in-review"});
+        }
+    }
+
+    private async Task OpenCheckInvestigationHistory(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("PatientIvestigationId",id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<CheckInvestigationHistory>("", parameters, options);
     }
 
 }

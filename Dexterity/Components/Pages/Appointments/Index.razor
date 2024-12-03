@@ -19,10 +19,10 @@
     {
         <InnerLayout>
             <NavigationItems>
-                <DexMenuItem Text="Appointments" Icon="fas fa-calendar-range" Click="@(() => ClickChanged(0))"/>
-                <DexMenuItem Text="New Appointment" Icon="fas fa-calendar-circle-plus" Click="@(() => NewAppointment(DateTime.Now))"/>
-                <DexMenuItem Text="Recurring Appointments" Icon="fas fa-calendar-range" Click="@(() => ClickChanged(1))"/>
-                <DexMenuItem Text="Find Appointments" Icon="fas fa-magnifying-glass" Click="@(() => ClickChanged(2))"/>
+                <DexMenuItem Text="Appointments" Icon="appointments-icon" Click="@(() => ClickChanged(0))"/>
+                <DexMenuItem Text="New Appointment" Icon="new-appointment-icon" Click="@(() => NewAppointment(DateTime.Now))"/>
+                <DexMenuItem Text="Recurring Appointments" Icon="repeat-appointment-icon" Click="@(() => ClickChanged(1))"/>
+                <DexMenuItem Text="Find Appointments" Icon="find-appointment-icon" Click="@(() => ClickChanged(2))"/>
             </NavigationItems>
             <DexContentTabs>
                     <MudTabs @ref="_tabs">

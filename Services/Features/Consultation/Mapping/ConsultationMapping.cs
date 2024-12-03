@@ -1,6 +1,9 @@
 ﻿using AutoMapper;
 using Domain.Entities.Consultation;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Consultation.Common;
+using Domain.Entities.Consultation.Detail;
+using Domain.Entities.Consultation.Notes;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Investigations;

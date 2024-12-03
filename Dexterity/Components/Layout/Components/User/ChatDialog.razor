@@ -24,9 +24,9 @@
                          id="chatContainer">
                         <div class="msg-body">
                             <ul>
-                                @foreach (var message in _messages)
+                                @foreach (var message in _messages.Where(x => x.Id > 0))
                                 {
-                                    if ( message.ToUserId == ContactId)
+                                    if (message.ToUserId == ContactId)
                                     {
                                         <li class="reply">
                                             <p> @message.Message </p>
@@ -47,7 +47,8 @@
                     <MudPaper Elevation="25" Class="d-flex flex-row px-2 mx-4" Style="">
                         <MudTextField T="string" Placeholder="Enter your message..." Class="mt-n2 mx-4"
                                       @bind-Value="CurrentMessage" For="@(() => CurrentMessage)"/>
-                        <MudButton OnClick="SubmitAsync" StartIcon="@MudIcons.Material.Outlined.Send" Color="Color.Primary"
+                        <MudButton OnClick="SubmitAsync" StartIcon="@MudIcons.Material.Outlined.Send"
+                                   Color="Color.Primary"
                                    ButtonType="MudButtonType.Button">
                             Send
                         </MudButton>
@@ -64,10 +65,12 @@
                     <MudList T="string">
                         @foreach (var user in ChatUsers)
                         {
-                            <MudListItem T="string" Class="pa-0 px-2" Style="height: 50px" OnClick="@(() => LoadUserChat(user.Id))">
+                            <MudListItem T="string" Class="pa-0 px-2" Style="height: 50px"
+                                         OnClick="@(() => LoadUserChat(user.Id))">
                                 <div class="d-flex flex-row mt-n1 mb-n1">
                                     <div class="mr-4">
-                                        <MudBadge Color="@(GetUserStatusBadgeColor(user.IsOnline))" Overlap="true" Bordered="true" Dot="true">
+                                        <MudBadge Color="@(GetUserStatusBadgeColor(user.IsOnline))" Overlap="true"
+                                                  Bordered="true" Dot="true">
                                             @if (user.Id == ContactId)
                                             {
                                                 <MudAvatar Color="Color.Secondary">
@@ -95,7 +98,7 @@
     </Content>
 </DexDialog>
 
-@code{
+@code {
     [CascadingParameter] public HubConnection HubConnection { get; set; }
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
 
@@ -163,8 +166,7 @@
                 await JsRuntime.InvokeAsync<string>("ScrollToBottom", "chatContainer");
                 MudDialog.StateHasChanged();
                 StateHasChanged();
-                await LoadUserChat(ContactId);
-
+                LoadConversation();
             }
         });
         await GetUsersAsync();
@@ -172,7 +174,7 @@
         CurrentUserName = ApplicationState.CurrentUser.Name;
         if (ContactId != Guid.Empty)
         {
-            await LoadUserChat(ContactId);
+            LoadConversation();
         }
 
         await HubConnection.SendAsync(ApplicationConstants.SignalR.PingRequest, CurrentUserId);
@@ -192,7 +194,7 @@
             await UnitOfWork.Messaging.SaveMessageAsync(chatHistory);
             await HubConnection.SendAsync("SendMessageAsync", chatHistory, CurrentUserName);
             CurrentMessage = string.Empty;
-            await LoadUserChat(ContactId);
+            LoadConversation();
         }
     }
 
@@ -202,9 +204,14 @@
         ContactId = contact.Id;
         ContactName = contact.FullName;
         _messages = new List<ChatMessage>();
-        _messages = await UnitOfWork.Messaging.GetConversationAsync(ContactId);
+        _messages = UnitOfWork.Messaging.GetConversationAsync(ContactId);
     }
 
+    private void LoadConversation()
+    {
+        _messages = new List<ChatMessage>();
+        _messages = UnitOfWork.Messaging.GetConversationAsync(ContactId);
+    }
 
     private Color GetUserStatusBadgeColor(bool isOnline)
     {

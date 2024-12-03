@@ -4,6 +4,7 @@ using Database;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
+using Services.Features.Messaging.Mail;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -21,11 +22,14 @@ public sealed class UnitOfWork(
     IAppointmentService appointment,
     IConsultationService consultation,
     IWaitingRoomService waitingRoom,
+    IFileManagerService fileManager,
+    IMailService mail,
     SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
 {
     private bool _disposed;
+
 
     public IConsultationService Consultation
     {
@@ -33,7 +37,7 @@ public sealed class UnitOfWork(
         {
             if (consultation == null)
             {
-                consultation = new ConsultationService(context, mapper, patient, setting);
+                consultation = new ConsultationService(context, mapper, patient, setting, fileManager, mail);
             }
 
             return consultation;
@@ -115,6 +119,19 @@ public sealed class UnitOfWork(
             }
 
             return patient;
+        }
+    }
+
+    public IFileManagerService FileService
+    {
+        get
+        {
+            if (fileManager == null)
+            {
+                fileManager = new FileManagerService();
+            }
+
+            return fileManager;
         }
     }
 

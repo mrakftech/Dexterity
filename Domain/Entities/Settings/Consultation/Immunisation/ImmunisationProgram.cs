@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
 using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Immunisations;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation;
 

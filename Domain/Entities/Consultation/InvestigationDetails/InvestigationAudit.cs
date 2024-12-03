@@ -1,6 +1,6 @@
 ﻿using Domain.Contracts;
 
-namespace Domain.Entities.Consultation.Investigation;
+namespace Domain.Entities.Consultation.InvestigationDetails;
 
 public class InvestigationAudit : IBaseId
 {

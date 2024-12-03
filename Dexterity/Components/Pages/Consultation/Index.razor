@@ -12,6 +12,8 @@
 @using Dexterity.Components.Pages.Consultation.Immunisations
 @using Dexterity.Components.Pages.Consultation.Prescriptions
 @using Dexterity.Components.Pages.Consultation.PatientInvestigations
+@using Dexterity.Components.Pages.Consultation.Documents.Letter
+@using Dexterity.Components.Pages.Consultation.Documents
 <TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
 
 @if (!_loading)
@@ -24,11 +26,13 @@
             }
             else
             {
-                <DexSfButton Style="background-color:crimson;color:white" Click="OpenAllergyDialog" Name="Allergies/Drug Allergies" Icon="drug-allergy.png"/>
+                <DexSfButton Style="background-color:crimson;color:white" Click="OpenAllergyDialog"
+                             Name="Allergies/Drug Allergies" Icon="drug-allergy.png"/>
             }
             <DexSfButton Click="GetPatientSummary" Name="Refresh" Icon="refresh.png"/>
             <DexSfButton Click="CheckTasks" Name="@($"Tasks ({_taskCount})")" Icon="task.png"/>
-            <DexSfButton Click="CheckSmsHistory" Name="@($"SMS ({_smsHistoryCount})")" Icon="sms.png" Style="color: crimson;font-weight: bolder"/>
+            <DexSfButton Click="CheckSmsHistory" Name="@($"SMS ({_smsHistoryCount})")" Icon="sms.png"
+                         Style="color: crimson;font-weight: bolder"/>
             <DexSfButton Click="CheckReminder" Name="@($"Reminders ({_reminderCount})")" Icon="reminder.png"/>
         </TopBarItems>
         <NavigationItems>
@@ -39,16 +43,18 @@
                 <DexMenuItem Text="Find Patient"
                              Icon="fa-user-magnifying-glass"
                              Click="FindPatient"/>
-
                 <DexMenuItem Text="Patient Summary"
                              Icon="fas fa-rectangle-list"
                              Click="OpenPatientSummaryModal"/>
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
-                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)" Click="() => EditBeginConsultationDialog(ApplicationState.SelectedConsultationId)"/>
+                <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"
+                             Click="() => EditBeginConsultationDialog(ApplicationState.SelectedConsultationId)"/>
                 @if (!_isConsultationFinish)
                 {
-                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered" Disabled="@(!_isConsultationSelected)" Click="() => FinishConsultationDialog(ApplicationState.SelectedConsultationId)"/>
+                    <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered"
+                                 Disabled="@(!_isConsultationSelected)"
+                                 Click="() => FinishConsultationDialog(ApplicationState.SelectedConsultationId)"/>
                 }
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
@@ -60,7 +66,8 @@
                              Click="() => ClickChangedTab(1)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Immunisations" Icon="@DexHelperMethod.FaIcon("consultation-immunisation-icon")" Click="() => ClickChangedTab(2)">
+            <RadzenPanelMenuItem Text="Immunisations" Icon="@DexHelperMethod.FaIcon("consultation-immunisation-icon")"
+                                 Click="() => ClickChangedTab(2)">
                 <DexMenuItem Text="Add a Schedule" Icon="fas fa-clock-rotate-left" Click="OpenAdministerScheduleDialog"
                              Disabled="@(!_isConsultationSelected)"/>
 
@@ -72,7 +79,8 @@
                              Disabled="@(!_isConsultationSelected)"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Prescriptions" Icon="@DexHelperMethod.FaIcon("consultation-prescription-icon")" Click="() => ClickChangedTab(3)">
+            <RadzenPanelMenuItem Text="Prescriptions" Icon="@DexHelperMethod.FaIcon("consultation-prescription-icon")"
+                                 Click="() => ClickChangedTab(3)">
                 <DexMenuItem Text="Add new" Icon="fas fa-prescription-bottle-medical"/>
                 <DexMenuItem Text="Print" Icon="fas fa-print"/>
                 <DexMenuItem Text="Reprint" Icon="fas fa-print"/>
@@ -83,15 +91,30 @@
                 <DexMenuItem Text="Drug Card" Icon="fas fa-prescription-bottle-medical"/>
             </RadzenPanelMenuItem>
             <hr class="hr-custom m-1"/>
-            <RadzenPanelMenuItem Text="Investigations" Icon="@DexHelperMethod.FaIcon("consultation-investigations-icon")" Click="() => ClickChangedTab(4)">
-                <DexMenuItem Text="Add new" Icon="fas fa-plus"/>
+            <RadzenPanelMenuItem Text="Investigations"
+                                 Icon="@DexHelperMethod.FaIcon("consultation-investigations-icon")"
+                                 Click="() => ClickChangedTab(4)">
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1"/>
+            <RadzenPanelMenuItem Text="Documents" Icon="@DexHelperMethod.FaIcon("documents-icon")"
+                                 Click="() => ClickChangedTab(5)">
+                <DexMenuItem Text="Email Patient" Icon="fas fa-envelope"/>
+                <hr class="hr-custom m-1"/>
+                <DexMenuItem Text="Add Letter" Icon="fas fa-plus" Click="OpenNewLetter"/>
+                <DexMenuItem Text="Edit Letter" Icon="fas fa-edit" Click="OpenNewLetter"/>
+                <hr class="hr-custom m-1"/>
+                <DexMenuItem Text="Scanned Document" Icon="fas fa-scanner-image"/>
+                <DexMenuItem Text="Sketch Drawing" Icon="fas fa-compass-drafting"/>
             </RadzenPanelMenuItem>
         </NavigationItems>
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
             <MudTabs @ref="_tabs">
                 <MudTabPanel Text="">
-                    <ConsultationDetails Consultations="Consultations" RowSelected="RowSelectHandler" ActiveDiagnosis="ActiveDiagnosis" PastMedicalHistory="PastMedicalHistory"/>
+                    <ConsultationDetails Consultations="Consultations" 
+                                         RowSelected="RowSelectHandler"
+                                         ActiveDiagnosis="ActiveDiagnosis" 
+                                         PastMedicalHistory="PastMedicalHistory"/>
                 </MudTabPanel>
                 <MudTabPanel>
                     <NoteDetails/>
@@ -104,6 +127,9 @@
                 </MudTabPanel>
                 <MudTabPanel Text="">
                     <InvestigationTab/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <DocumentTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>
@@ -248,7 +274,6 @@
 
     #endregion
 
-
     #region Notes
 
     private async Task GetConsultationNotes()
@@ -333,5 +358,26 @@
     }
 
     #endregion
+
+    #region Documents
+    private async Task OpenNewLetter()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small, FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<LetterForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+    
+
+    #endregion
+   
 
 }

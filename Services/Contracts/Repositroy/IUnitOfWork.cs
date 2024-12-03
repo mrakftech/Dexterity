@@ -17,4 +17,5 @@ public interface IUnitOfWork: IDisposable
     IAppointmentService Appointment { get; }
     IWaitingRoomService WaitingRoom { get; }
     IConsultationService Consultation { get; }
+    IFileManagerService FileService { get; }
 }

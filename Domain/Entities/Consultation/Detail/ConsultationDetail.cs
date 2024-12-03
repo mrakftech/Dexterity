@@ -1,8 +1,9 @@
-﻿using Domain.Entities.PatientManagement;
+﻿using Domain.Entities.Consultation.Notes;
+using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Detail;
 
 public class ConsultationDetail
 {

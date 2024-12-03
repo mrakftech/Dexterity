@@ -1,5 +1,95 @@
-﻿<h3>EmailLetter</h3>
+﻿@using Services.Features.Consultation.Dto.Letter
+@using UploadChangeEventArgs = Syncfusion.Blazor.Inputs.UploadChangeEventArgs
+<DexDialog>
+    <DialogTitle>Email Letter</DialogTitle>
+    <Content>
+        <DexForm Model="Email" OnValidSubmit="SendLetterEmail">
+            <Fields>
+                <FormItem Field="@nameof(EmailDto.To)"></FormItem>
+                <FormItem Field="@nameof(EmailDto.Cc)"></FormItem>
+                <FormItem Field="@nameof(EmailDto.Subject)"></FormItem>
+                <FormItem Field="@nameof(EmailDto.AttachFile)" LabelText="Attach File"/>
+                <FormItem Field="@nameof(EmailDto.AttachFile)">
+                    <Template>
+                        <SfUploader ID="UploadFiles" AllowMultiple="false">
+                            <UploaderEvents ValueChange="@OnChange" Progressing="@ProgressingHandler"></UploaderEvents>
+                        </SfUploader>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(EmailDto.Details)" LabelText="Details"
+                          EditorType="FormEditorType.TextArea"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Send" Type="MudButtonType.Submit" Processing="isProcessing"/>
+            </Buttons>
+
+        </DexForm>
+    </Content>
+</DexDialog>
 
 @code {
-    
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string AttachedFile { get; set; }
+    private EmailDto Email { get; set; } = new();
+    SfRichTextEditor _editorRef;
+    private bool isProcessing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Email.AttachFile = AttachedFile;
+        Email.Details = $"The message is ready to be sent with the following file or link {Email.AttachFile}";
+    }
+
+    private async Task OnChange(UploadChangeEventArgs args)
+    {
+        try
+        {
+            foreach (var file in args.Files)
+            {
+                Email.Details = $"The message is ready to be sent with the following file or link {file.FileInfo.Name}";
+                var ex = Path.GetExtension(file.FileInfo.Name);
+                file.FileInfo.Name = $"{ApplicationState.SelectedPatientId}-email{ex}";
+                var path = Path.Combine(UnitOfWork.FileService.GetTempPath(), file.FileInfo.Name);
+                var filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
+                await file.File.OpenReadStream(long.MaxValue).CopyToAsync(filestream);
+                filestream.Close();
+                Email.Attachments.Add(path);
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void ProgressingHandler(Syncfusion.Blazor.Inputs.ProgressEventArgs args)
+    {
+        // Here, you can customize your code.
+    }
+
+    private async Task SendLetterEmail()
+    {
+        isProcessing = true;
+        if (Email.Attachments.Count == 0)
+        {
+            var path = Path.Combine(UnitOfWork.FileService.GetFilePath("Letters"), Email.AttachFile);
+            Email.Attachments.Add(path);
+        }
+
+        Email.CcList.Add(Email.Cc);
+        var res = await UnitOfWork.Consultation.SendEmailLetter(Email);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            Email = new();
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+
+        isProcessing = false;
+    }
+
 }

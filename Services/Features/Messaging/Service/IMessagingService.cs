@@ -39,7 +39,7 @@ public interface IMessagingService
 
     public Task<User> GetUserDetailsAsync(Guid userId);
     public Task<IResult> SaveMessageAsync(ChatMessage message);
-    public Task<List<ChatMessage>> GetConversationAsync(Guid contactId);
+    public List<ChatMessage> GetConversationAsync(Guid contactId);
 
 
     #endregion

@@ -12,11 +12,11 @@
                         <GridColumn Field="@nameof(ConsultationNoteDto.HealthCode.Code)" HeaderText="NOTES"  Width="120px">
                             <Template Context="noteContext">
                                 @{
-                                var item = (noteContext as ConsultationNoteDto);
-                                <div class="ml-3" style="font-weight: bolder;">
-                                    <span class="fas fa-notes-medical"> </span>
-                                    @item.HealthCode.Code
-                                </div>
+                                    var item = (noteContext as ConsultationNoteDto);
+                                    <div class="ml-3" style="font-weight: bolder;">
+                                        <span class="fas fa-notes-medical"> </span>
+                                        @item!.HealthCode.Code
+                                    </div>
                                 }
                             </Template>
                         </GridColumn>
@@ -25,7 +25,7 @@
                                 @{
                                     var item = (noteContext as ConsultationNoteDto);
                                     <div class="ml-3">
-                                        @item.Notes
+                                        @item!.Notes
                                     </div>
                                 }
                             </Template>
@@ -46,6 +46,7 @@
         <GridColumn Field="@nameof(GetConsultationDetailDto.Type)" HeaderText="Type"/>
     </GridColumns>
 </SfGrid>
+
 <style type="text/css" class="cssStyles">
     .detailtable td {
         font-size: 13px;
@@ -63,5 +64,5 @@
 
     [Parameter] public List<GetConsultationDetailDto> Consultations { get; set; } = new();
     [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
-
+    
 }

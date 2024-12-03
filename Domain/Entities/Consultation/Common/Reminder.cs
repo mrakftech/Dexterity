@@ -2,7 +2,7 @@
 using Domain.Entities.UserAccounts;
 using Shared.Constants.Module.Consultation;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Common;
 
 public class Reminder
 {

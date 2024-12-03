@@ -6,6 +6,12 @@ using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Common;
+using Domain.Entities.Consultation.Detail;
+using Domain.Entities.Consultation.Documents;
+using Domain.Entities.Consultation.Immunisations;
+using Domain.Entities.Consultation.InvestigationDetails;
+using Domain.Entities.Consultation.Notes;
 using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Family;
 using Domain.Entities.PatientManagement;
@@ -21,7 +27,8 @@ using Domain.Entities.WaitingRoom;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
+using Domain.Entities.Settings.Templates.Letter;
 
 namespace Database;
 
@@ -75,6 +82,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<SmsTemplate> SmsTemplates { get; set; }
     public DbSet<EmailTemplate> EmailTemplates { get; set; }
+    public DbSet<LetterType> LetterTypes { get; set; }
+    public DbSet<LetterTemplate> LetterTemplates { get; set; }
     public DbSet<Clinic> Clinics { get; set; }
     public DbSet<ClinicSite> ClinicSites { get; set; }
     public DbSet<AppointmentType> AppointmentTypes { get; set; }
@@ -157,7 +166,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Prescription> Prescriptions { get; set; }
     public DbSet<PatientInvestigation> PatientInvestigations { get; set; }
     public DbSet<InvestigationResult> InvestigationResults { get; set; }
-    
+    public DbSet<InvestigationAudit> InvestigationAudits { get; set; }
+    public DbSet<ConsultationLetter> ConsultationLetters { get; set; }
+    public DbSet<LetterReply> LetterReplies { get; set; }
 
     #endregion
 }

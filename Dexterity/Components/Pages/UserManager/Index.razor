@@ -5,29 +5,31 @@
 <TopTitleBar Title="User Management"
              Image="modules/users.svg">
 </TopTitleBar>
-    <InnerLayout DrawerWidth="150px">
-        <NavigationItems >
-            <DexMenuItem Text="Users" Icon="fas fa-users" Click="@(() => ClickChanged(0))"/>
-            <DexMenuItem Text="Permission" Icon="fas fa-sliders" Click="@(() => ClickChanged(1))"/>
-        </NavigationItems>
-        
-        <DexContentTabs>
-                <MudTabs @ref="_tabs" >
-                    <MudTabPanel Text="" >
-                        <UserList/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <Permissions/>
-                    </MudTabPanel>
-                </MudTabs>
-        </DexContentTabs>
-    </InnerLayout>
+<InnerLayout DrawerWidth="150px" ShowHeader="false">
+    <NavigationItems >
+        <DexMenuItem Text="Users" Icon="users-icon" Click="@(() => ClickChanged(0))"/>
+        <DexMenuItem Text="Permission" Icon="permissions-icon" Click="@(() => ClickChanged(1))"/>
+    </NavigationItems>
+
+    <DexContentTabs>
+        <MudTabs @ref="_tabs">
+            <MudTabPanel Text="">
+                <UserList/>
+            </MudTabPanel>
+            <MudTabPanel Text="">
+                <Permissions/>
+            </MudTabPanel>
+        </MudTabs>
+    </DexContentTabs>
+</InnerLayout>
+
 @code {
     MudTabs _tabs;
+
     private void ClickChanged(int tabIndex)
     {
         _tabs.ActivatePanel(tabIndex);
     }
-    
+
 
 }

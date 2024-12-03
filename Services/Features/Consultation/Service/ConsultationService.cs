@@ -1,17 +1,25 @@
-﻿using System.Globalization;
-using AutoMapper;
+﻿using AutoMapper;
 using Database;
 using Domain.Entities.Consultation;
+using Domain.Entities.Consultation.Common;
+using Domain.Entities.Consultation.Detail;
+using Domain.Entities.Consultation.Documents;
+using Domain.Entities.Consultation.Immunisations;
+using Domain.Entities.Consultation.InvestigationDetails;
+using Domain.Entities.Consultation.Notes;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
 using Services.Features.Consultation.Dto.Investigations;
+using Services.Features.Consultation.Dto.Letter;
 using Services.Features.Consultation.Dto.Notes;
 using Services.Features.Consultation.Dto.Reminder;
+using Services.Features.Messaging.Dtos.Sms;
+using Services.Features.Messaging.Mail;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Service;
@@ -25,7 +33,9 @@ public class ConsultationService(
     ApplicationDbContext context,
     IMapper mapper,
     IPatientService patientService,
-    ISettingService settingService)
+    ISettingService settingService,
+    IFileManagerService iFileManagerService,
+    IMailService mailService)
     : IConsultationService
 {
     #region Consultation Details
@@ -762,68 +772,78 @@ public class ConsultationService(
         return await context.PatientInvestigations
             .Include(x => x.Investigation)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId && x.Status != InvestigationStatus.Cancelled)
             .ToListAsync();
     }
 
-    public async Task<IResult> SavePatientInvestigation(PatientInvestigation patientInvestigation)
+    public async Task<IResult> SavePatientInvestigation(PatientInvestigation request)
     {
         await using var transaction = await context.Database.BeginTransactionAsync();
 
         try
         {
-            if (patientInvestigation.Id == Guid.Empty)
+            if (request.Id == Guid.Empty)
             {
-                var newPatientInvestigation = new PatientInvestigation()
+                var patientInvestigation = new PatientInvestigation()
                 {
                     Id = Guid.NewGuid(),
                     Status = InvestigationStatus.Awaiting,
-                    IsAbnormal = patientInvestigation.IsAbnormal,
-                    HcpId = patientInvestigation.HcpId,
+                    IsAbnormal = request.IsAbnormal,
+                    HcpId = request.HcpId,
                     PatientId = ApplicationState.SelectedPatientId,
-                    InvestigationId = patientInvestigation.InvestigationId
+                    InvestigationId = request.InvestigationId,
+                    CreatedDate = DateTime.UtcNow,
                 };
-                await context.PatientInvestigations.AddAsync(newPatientInvestigation);
+                await context.PatientInvestigations.AddAsync(patientInvestigation);
 
-                var results = await GetInvestigationResultDetails(patientInvestigation.InvestigationId);
-                foreach (var newResult in results.Select(item => new InvestigationResult()
-                         {
-                             Id = Guid.NewGuid(),
-                             PatientInvestigationId = newPatientInvestigation.Id,
-                             InvestigationDetailId = item.InvestigationDetailId,
-                             Result = string.Empty,
-                         }))
-                {
-                    context.InvestigationResults.Add(newResult);
-                }
+                await AddResults(patientInvestigation.InvestigationId, patientInvestigation.Id);
             }
             else
             {
                 var investigationInDb = await context.PatientInvestigations
                     .AsNoTracking()
-                    .FirstOrDefaultAsync(x => x.Id == patientInvestigation.Id);
+                    .FirstOrDefaultAsync(x => x.Id == request.Id);
                 if (investigationInDb is null)
                 {
                     return await Result.FailAsync("Patient investigation not found.");
                 }
 
-                investigationInDb.Date = patientInvestigation.Date;
-                investigationInDb.InvestigationId = patientInvestigation.InvestigationId;
-                investigationInDb.Status = patientInvestigation.Status;
-                investigationInDb.IsAbnormal = patientInvestigation.IsAbnormal;
-                investigationInDb.HcpId = patientInvestigation.HcpId;
-                investigationInDb.PatientId = patientInvestigation.PatientId;
+                //investigationInDb.Date = patientInvestigation.Date;
+                //investigationInDb.InvestigationId = patientInvestigation.InvestigationId;
+                investigationInDb.Status = request.Status;
+                investigationInDb.IsAbnormal = request.IsAbnormal;
+                investigationInDb.ModifiedDate = DateTime.UtcNow;
+                //investigationInDb.HcpId = patientInvestigation.HcpId;
                 context.PatientInvestigations.Update(investigationInDb);
+
+                await AddInvestiogationAudit(request.Status, investigationInDb.Id,
+                    investigationInDb.HcpId);
             }
 
             await context.SaveChangesAsync();
             await transaction.CommitAsync();
+            context.ChangeTracker.Clear();
             return await Result.SuccessAsync("Patient investigation has been saved.");
         }
         catch (Exception e)
         {
             await transaction.RollbackAsync();
             return await Result.FailAsync(e.Message);
+        }
+    }
+
+    private async Task AddResults(Guid investigationId, Guid patientInvestigationId)
+    {
+        var results = await GetInvestigationResultDetails(investigationId);
+        foreach (var newResult in results.Select(item => new InvestigationResult()
+                 {
+                     Id = Guid.NewGuid(),
+                     PatientInvestigationId = patientInvestigationId,
+                     InvestigationDetailId = item.InvestigationDetailId,
+                     Result = string.Empty,
+                 }))
+        {
+            context.InvestigationResults.Add(newResult);
         }
     }
 
@@ -878,6 +898,25 @@ public class ConsultationService(
             .ToListAsync();
     }
 
+    public async Task<IResult> SaveInvestigationResult(UpdateResultDto request)
+    {
+        var result = await context.InvestigationResults.FirstOrDefaultAsync(x => x.Id == request.Id);
+        result.Result = GetResultValue(request);
+        context.InvestigationResults.Update(result);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("result has been saved.");
+    }
+
+    public async Task<PatientInvestigation> GetPatientInvestigation(Guid id)
+    {
+        return await context.PatientInvestigations
+            .Include(x => x.Patient)
+            .Include(x => x.InvestigationAudits)
+            .Include(x => x.Investigation)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+
     private async Task<List<ResultInvestigationDto>> GetInvestigationResultDetails(Guid investigationId)
     {
         var investigations = await context.Investigations
@@ -888,14 +927,19 @@ public class ConsultationService(
         return mapper.Map<List<ResultInvestigationDto>>(details);
     }
 
-    public async Task<IResult> SaveInvestigationResult(UpdateResultDto request)
+    private async Task AddInvestiogationAudit(string status, Guid patientInvestigationId, Guid hcpId)
     {
-        var result = await context.InvestigationResults.FirstOrDefaultAsync(x => x.Id == request.Id);
-        result.Result = GetResultValue(request);
-        context.InvestigationResults.Update(result);
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("result has been saved.");
+        var audit = new InvestigationAudit()
+        {
+            Id = Guid.NewGuid(),
+            Date = DateTime.Now,
+            PatientInvestigationId = patientInvestigationId,
+            HcpName = ApplicationState.CurrentUser.Name,
+            Status = status,
+        };
+        await context.InvestigationAudits.AddAsync(audit);
     }
+
 
     private static string GetResultValue(UpdateResultDto request)
     {
@@ -909,6 +953,137 @@ public class ConsultationService(
             _ => request.ResultText
         };
     }
+
+    #endregion
+
+    #region Documents
+
+    #region Letter
+
+    public async Task<ConsultationLetter> GetLetter(Guid id)
+    {
+        return await context.ConsultationLetters
+            .AsNoTracking()
+            .Include(x => x.LetterTemplate)
+            .FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<IResult> SaveLetter(Guid id, LetterDto request)
+    {
+        if (id == Guid.Empty)
+        {
+            id = Guid.NewGuid();
+            var addLetter = new ConsultationLetter()
+            {
+                Id = id,
+                LetterDt = request.LetterDt,
+                Reference = request.Reference,
+                ReferTo = request.ReferTo,
+                HcpId = request.HcpId,
+                PatientId = ApplicationState.SelectedPatientId,
+                LetterTemplateId = request.LetterTemplateId,
+                LetterTypeId = request.LetterTypeId,
+                Description = request.Description,
+                Status = LetterConstants.Status.Active,
+                PatientFile = await settingService.GetLetterTemplateFile(request.LetterTemplateId),
+                PatientFileName = $"{id}.docx"
+            };
+            await context.ConsultationLetters.AddAsync(addLetter);
+            await iFileManagerService.CreateWordFile(addLetter.Id.ToString(), addLetter.PatientFile);
+
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("Letter has been saved.");
+    }
+
+    public async Task<IResult> SaveLetterFile(Guid id, string file)
+    {
+        var letter = await context.ConsultationLetters
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (letter is null)
+        {
+            return await Result.FailAsync("Letter doesn't exist.");
+        }
+
+        letter.PatientFile = file;
+        context.ChangeTracker.Clear();
+        context.ConsultationLetters.Update(letter);
+        await context.SaveChangesAsync();
+        await iFileManagerService.CreateWordFile(letter.Id.ToString(), letter.PatientFile);
+        return await Result.SuccessAsync("Letter file has been saved.");
+    }
+
+    public async Task<IResult> ChangeStatus(Guid id, string status)
+    {
+        var letter = await context.ConsultationLetters
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (letter is null)
+        {
+            return await Result.FailAsync("Letter doesn't exist.");
+        }
+
+        letter.Status = status;
+        if (status == LetterConstants.Status.Completed)
+        {
+            letter.CompletedAt = DateTime.UtcNow;
+        }
+
+        context.ChangeTracker.Clear();
+        context.ConsultationLetters.Update(letter);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Letter file has been saved.");
+    }
+
+    public async Task<List<ConsultationLetter>> GetConsultationLetters()
+    {
+        return await context.ConsultationLetters
+            .Include(x => x.LetterTemplate)
+            .Include(x => x.LetterReplies)
+            .Include(x => x.LetterTemplate.LetterType)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId &&
+                        x.Status != LetterConstants.Status.Cancelled)
+            .AsNoTracking()
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SendEmailLetter(EmailDto request)
+    {
+        try
+        {
+            var req = new MailRequest()
+            {
+                Subject = request.Subject,
+                To = request.To,
+                CcList = request.CcList,
+                Attachments = request.Attachments,
+            };
+            await mailService.SendAsync(req, default);
+            return await Result.SuccessAsync("Mail has been sent.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> AddLetterRply(LetterReply letterReply)
+    {
+        try
+        {
+            await context.LetterReplies.AddAsync(letterReply);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Letter Reply has been saved.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    #endregion
 
     #endregion
 }

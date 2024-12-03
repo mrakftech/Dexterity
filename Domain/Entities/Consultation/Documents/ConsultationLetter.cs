@@ -2,7 +2,7 @@
 using Domain.Entities.Settings.Templates.Letter;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Documents;
 
 public class ConsultationLetter : IBaseId
 {

@@ -1,8 +1,9 @@
 ﻿using Domain.Contracts;
+using Domain.Entities.Consultation.Detail;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.UserAccounts;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Immunisations;
 
 public class AdministerShot : IBaseId
 {
