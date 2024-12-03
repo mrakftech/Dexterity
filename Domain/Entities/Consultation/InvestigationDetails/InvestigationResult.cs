@@ -1,7 +1,7 @@
 ﻿using Domain.Contracts;
-using Domain.Entities.Settings.Templates.Investigations;
+using Domain.Entities.Settings.Templates.InvestigationTemplates;
 
-namespace Domain.Entities.Consultation;
+namespace Domain.Entities.Consultation.Investigation;
 
 public class InvestigationResult : IBaseId
 {

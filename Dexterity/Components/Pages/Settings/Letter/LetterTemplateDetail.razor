@@ -1,0 +1,20 @@
+﻿@using Domain.Entities.Settings.Templates.Letter
+<DexForm Model="@LetterTemplateDto">
+    <Fields>
+        <FormItem Field="@nameof(Le)"/>
+    </Fields>
+</DexForm>
+@code {
+    private LetterTemplate LetterTemplateDto { get; set; } = new();
+    private List<LetterType> _letterTypes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLetterTypes();
+    }
+
+    private async Task GetLetterTypes()
+    {
+        _letterTypes = await UnitOfWork.Setting.GetLetterTypes();
+    }
+}

@@ -1,0 +1,69 @@
+﻿@using  Domain.Entities.Settings.Templates.Letter
+<DexLoadingButton Name="Add New" Click="()=>OpenTypeFormDialog(Guid.Empty)" Class="m-3"/>
+
+<SfGrid DataSource="@_letterTypes" AllowPaging="true"
+        Height="315">
+    <GridColumns>
+        <GridColumn Field="@nameof(LetterType.Name)" HeaderText="Name" IsPrimaryKey="true" 
+                    Width="120"/>
+        <GridColumn>
+            <Template>
+                @{
+                    var item = (context as LetterType);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                   Color="MudColor.Primary"
+                                   OnClick="() => OpenTypeFormDialog(item.Id)" />
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                   Color="MudColor.Error" OnClick="() => DeleteLetterType(item.Id)" />
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+@code {
+    private List<LetterType> _letterTypes = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetLetterTypes();
+    }
+
+    private async Task GetLetterTypes()
+    {
+        _letterTypes = await UnitOfWork.Setting.GetLetterTypes();
+    }
+
+
+    private async Task OpenTypeFormDialog(Guid id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<LetterTypeForm>("", parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetLetterTypes();
+        }
+    }
+    
+    private async Task  DeleteLetterType(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteLetterType(id);
+            if (res.Succeeded)
+            {
+                await GetLetterTypes();
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+        }
+    }
+
+}

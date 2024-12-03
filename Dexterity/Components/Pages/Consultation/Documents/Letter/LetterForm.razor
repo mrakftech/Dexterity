@@ -1,0 +1,20 @@
+﻿@using Services.Features.Consultation.Dto.Letter
+<DexDialog>
+    <DialogTitle></DialogTitle>
+    <Content>
+        <DexForm>
+            <Fields>
+                <FormItem Field="@nameof(LetterDto.PatientId)">
+                    <Template>
+                        <span>@ApplicationState.SelectedPatientName</span>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterDto.LetterDt)"/>
+            </Fields>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+
+}

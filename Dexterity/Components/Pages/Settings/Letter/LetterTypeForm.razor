@@ -1,0 +1,43 @@
+﻿@using Domain.Entities.Settings.Templates.Letter
+<DexDialog>
+    <DialogTitle>Letter Type</DialogTitle>
+    <Content>
+        <DexForm Model="LetterType" OnValidSubmit="SaveLetterType">
+            <Fields>
+                <FormItem Field="@nameof(Domain.Entities.Settings.Templates.Letter.LetterType.Name)" LabelText="Name"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private LetterType LetterType { set; get; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            LetterType = await UnitOfWork.Setting.GetLetterType(Id);
+        }
+    }
+
+    private async Task SaveLetterType()
+    {
+        var res = await UnitOfWork.Setting.SaveLetterType(Id, LetterType);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}
