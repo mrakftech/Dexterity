@@ -1,0 +1,82 @@
+﻿@using Shared.Constants.Module.Consultation
+@using Domain.Entities.Consultation.Documents
+<DexDialog>
+    <DialogTitle></DialogTitle>
+    <Content>
+        <DexForm Model="ScannedDocumentData" OnValidSubmit="SaveScan">
+            <Fields>
+                <FormItem Field="@nameof(ScannedDocument.ScanDate)" EditorType="FormEditorType.DatePicker"
+                          LabelText="Date"/>
+                <FormItem Field="@nameof(ScannedDocument.Type)">
+                    <Template>
+                        <SfDropDownList TValue="string" TItem="DocumentType" Placeholder="Type"
+                                        DataSource="@ConsultationConstants.DocumentConstant.DocumentTypesList"
+                                        @bind-Value="ScannedDocumentData.Type">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(ScannedDocument.Category)">
+                    <Template>
+                        <SfDropDownList TValue="string" TItem="DocumentCategory" Placeholder="Category"
+                                        DataSource="@ConsultationConstants.DocumentConstant.DocumentCategoryList"
+                                        @bind-Value="ScannedDocumentData.Category">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                @if (IsAttachFile)
+                {
+                    <FormItem Field="@nameof(ScannedDocument.AttachedFile)">
+                        <Template>
+                            <SfRichTextEditor 
+                                              ID="RT_Editor"
+                                              ShowCharCount="true"
+                                              AutoSaveOnIdle="true"
+                                              EnableTabKey="true"
+                                              EnableXhtml="true"
+                                              Placeholder="Write some text....."
+                                              @bind-Value="@ScannedDocumentData.AttachedFile">
+                                <RichTextEditorToolbarSettings
+                                    Items="@WordProcessorSetting.MsWordTools"></RichTextEditorToolbarSettings>
+                                <RichTextEditorImportWord
+                                    ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+                            </SfRichTextEditor>
+                        </Template>
+                    </FormItem>
+                }
+                <FormItem Field="@nameof(ScannedDocument.Description)"/>
+                <FormItem Field="@nameof(ScannedDocument.AdditionalNotes)" EditorType="FormEditorType.TextArea"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Processing="isProcessing" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public bool IsAttachFile { get; set; }
+    private ScannedDocument ScannedDocumentData { get; set; } = new();
+    private bool isProcessing;
+
+    private async Task SaveScan()
+    {
+        isProcessing = true;
+        var res = await UnitOfWork.Consultation.SaveScannedDocuments(Id, ScannedDocumentData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+
+        isProcessing = false;
+    }
+
+}

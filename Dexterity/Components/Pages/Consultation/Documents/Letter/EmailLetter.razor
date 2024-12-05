@@ -72,7 +72,7 @@
         isProcessing = true;
         if (Email.Attachments.Count == 0)
         {
-            var path = Path.Combine(UnitOfWork.FileService.GetFilePath("Letters"), Email.AttachFile);
+            var path = Path.Combine(UnitOfWork.FileService.GetPatientDirectoryPath("Letters"), Email.AttachFile);
             Email.Attachments.Add(path);
         }
 

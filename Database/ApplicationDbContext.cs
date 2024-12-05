@@ -44,7 +44,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
         optionsBuilder
             .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
             .UseSqlServer(configuration["ConnectionStrings:AppConnection"] ?? string.Empty);
-        
+
         base.OnConfiguring(optionsBuilder);
     }
 
@@ -169,6 +169,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<InvestigationAudit> InvestigationAudits { get; set; }
     public DbSet<ConsultationLetter> ConsultationLetters { get; set; }
     public DbSet<LetterReply> LetterReplies { get; set; }
+    public DbSet<ScannedDocument> ScannedDocuments { get; set; }
 
     #endregion
 }

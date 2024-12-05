@@ -9,6 +9,7 @@ using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using PhoneNumbers;
+using Services.Features.Settings.Service;
 using Shared.Constants.Application;
 using Shared.Constants.Module;
 using Shared.Constants.Permission;
@@ -19,7 +20,8 @@ namespace Services.DbInitaiizer;
 
 public class DatabaseSeeder(
     IDbContextFactory<ApplicationDbContext> contextFactory,
-    ILogger<DatabaseSeeder> logger) : IDatabaseSeeder
+    ILogger<DatabaseSeeder> logger,
+    IFileManagerService fileManagerService) : IDatabaseSeeder
 {
     public void Initialize()
     {
@@ -151,6 +153,7 @@ public class DatabaseSeeder(
                 var util = PhoneNumberUtil.GetInstance();
                 var num = util.GetExampleNumber("US");
                 var fakePatients = new Faker<Patient>()
+                    .RuleFor(x => x.Id, x => Guid.NewGuid())
                     .RuleFor(x => x.FamilyName, x => "Test")
                     .RuleFor(x => x.FirstName, x => x.Person.FirstName)
                     .RuleFor(x => x.LastName, x => x.Person.LastName)
@@ -171,8 +174,12 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.IhiNumber, CryptographyHelper.GetUniqueKey(17))
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
                 var patients = fakePatients.Generate(20);
-                await context.Patients.AddRangeAsync(patients);
-                await context.SaveChangesAsync();
+                foreach (var patient in patients)
+                {
+                    await context.Patients.AddAsync(patient);
+                    await context.SaveChangesAsync();
+                    fileManagerService.CreatePatientDefualtDirectories(patient.Id);
+                }
             }
         }).GetAwaiter().GetResult();
     }

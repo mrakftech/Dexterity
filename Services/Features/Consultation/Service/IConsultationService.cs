@@ -107,5 +107,13 @@ public interface IConsultationService
 
     #endregion
 
+    #region Documents
+    Task<List<ScannedDocument>> GetScannedDocuments();
+    Task<IResult> SaveScannedDocuments(Guid id, ScannedDocument request);
+
+    
+
+    #endregion
+
     #endregion
 }

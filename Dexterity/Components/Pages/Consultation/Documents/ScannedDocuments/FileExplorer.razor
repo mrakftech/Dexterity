@@ -1,0 +1,144 @@
+﻿@using Domain.Entities.Consultation.Documents
+<MudStack>
+    <MudItem>
+        <MudStack Row>
+            <MudItem md="4">
+                <RadzenCard>
+                    <RadzenTree Data="@entries" Expand="@LoadFiles" Style="width: 100%; height: 300px"
+                                Change="@OnChange"
+                                @bind-Value="@_selection">
+                        <RadzenTreeLevel Text="@GetTextForNode" Template="@FileOrFolderTemplate"/>
+                    </RadzenTree>
+                </RadzenCard>
+            </MudItem>
+            <MudItem md="8">
+
+            </MudItem>
+        </MudStack>
+    </MudItem>
+    <MudItem md="4">
+        <SfGrid DataSource="_scannedDocuments" Height="200" AllowPaging="false" >
+            <GridEvents TValue="ScannedDocument" RowSelected="SelectDocument"></GridEvents>
+            <GridColumns>
+                <GridColumn Field="@nameof(ScannedDocument.ScanDate)" Format="d" Type="ColumnType.DateOnly" HeaderText="Date"/>
+                <GridColumn Field="@nameof(ScannedDocument.Type)"/>
+                <GridColumn Field="@nameof(ScannedDocument.Description)"/>
+            </GridColumns>
+        </SfGrid>
+    </MudItem>
+    <MudItem>
+        <MudStack Row>
+            @if (_docId != Guid.Empty)
+            {
+                <MudItem>
+                    <button class="btn btn-sm btn-primary" @onclick="()=>OpenScanForm(_docId)">Edit</button>
+                </MudItem>
+                <MudItem>
+                    <button class="btn btn-sm btn-primary" disabled="disabled">Email</button>
+                </MudItem>
+                <MudItem>
+                    <button class="btn btn-sm btn-primary" disabled="disabled">Print</button>
+                </MudItem>
+            }
+            <MudItem>
+                <button class="btn btn-sm btn-primary" @onclick="()=>OpenScanForm(Guid.Empty)" disabled="disabled">New Scan</button>
+            </MudItem>
+            <MudItem>
+                <button class="btn btn-sm btn-primary" @onclick="()=>OpenScanForm(Guid.Empty,true)">Attach File</button>
+            </MudItem>
+            <MudItem>
+                <button class="btn btn-sm btn-primary" disabled="disabled">Save</button>
+            </MudItem>
+        </MudStack>
+    </MudItem>
+</MudStack>
+
+
+
+
+@code {
+    IEnumerable<string> entries;
+    object _selection;
+    Guid _docId;
+    private List<ScannedDocument> _scannedDocuments = new();
+
+    protected override async void OnInitialized()
+    {
+        await GetScannedDocuments();
+        entries = Directory.GetDirectories(UnitOfWork.FileService.GetRootPath())
+            .Where(entry =>
+            {
+                var name = Path.GetFileName(entry);
+                return !name.StartsWith(".") && name != "bin" && name != "obj";
+            });
+    }
+
+    private async Task GetScannedDocuments()
+    {
+        _scannedDocuments = await UnitOfWork.Consultation.GetScannedDocuments();
+    }
+
+    private void SelectDocument(RowSelectEventArgs<ScannedDocument> args)
+    {
+        if (args.Data is not null)
+        {
+            _docId = args.Data.Id;
+        }
+    }
+
+
+    void OnChange()
+    {
+        var name = Path.GetFileName(_selection.ToString());
+        // Snackbar.SuccessMessage(_selection.ToString());
+    }
+
+    void LoadFiles(TreeExpandEventArgs args)
+    {
+        var directory = args.Value as string;
+
+        args.Children.Data = Directory.EnumerateFileSystemEntries(directory);
+        args.Children.Text = GetTextForNode;
+        args.Children.HasChildren = (path) => Directory.Exists((string) path);
+        args.Children.Template = FileOrFolderTemplate;
+        args.Children.Checkable = o => false;
+    }
+
+    string GetTextForNode(object data)
+    {
+        return Path.GetFileName((string) data);
+    }
+
+    RenderFragment<RadzenTreeItem> FileOrFolderTemplate = (context) => builder =>
+    {
+        var path = context.Value as string;
+        var isDirectory = Directory.Exists(path);
+
+        builder.OpenComponent<RadzenIcon>(0);
+        builder.AddAttribute(1, nameof(RadzenIcon.Icon), isDirectory ? "folder" : "insert_drive_file");
+        builder.CloseComponent();
+        builder.AddContent(3, context.Text);
+    };
+
+
+    private async Task OpenScanForm(Guid id, bool isAttachFile = false)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        parameters.Add("IsAttachFile", isAttachFile);
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<ScanForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetScannedDocuments();
+        }
+    }
+
+}

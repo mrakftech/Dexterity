@@ -21,11 +21,12 @@ using Services.Features.PatientManagement.Dtos.Family;
 using Services.Features.PatientManagement.Dtos.Grouping;
 using Services.Features.PatientManagement.Dtos.Options;
 using Services.Features.PatientManagement.Dtos.RelatedHcp;
+using Services.Features.Settings.Service;
 using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
-public class PatientService(ApplicationDbContext context, IMapper mapper)
+public class PatientService(ApplicationDbContext context, IMapper mapper, IFileManagerService fileManagerService)
     : IPatientService
 {
     #region Patient
@@ -54,6 +55,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         try
         {
             var patient = mapper.Map<Patient>(request);
+            patient.Id = Guid.NewGuid();
             patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
             patient.UniqueNumber = CryptographyHelper.GetUniqueKey(8);
             patient.MobilePhone = DexHelperMethod.GetMobileFormat(request.Mobile);
@@ -66,6 +68,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             var rowsUpdated = await context.SaveChangesAsync(cancellationToken);
             if (rowsUpdated > 0)
             {
+                fileManagerService.CreatePatientDefualtDirectories(patient.Id);
                 return await Result.SuccessAsync("Patient has been saved.");
             }
 
@@ -169,6 +172,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             var rowsUpdated = await context.SaveChangesAsync();
             if (rowsUpdated > 0)
             {
+                fileManagerService.CreatePatientDefualtDirectories(patient.Id);
                 return await Result.SuccessAsync("Patient has been created.");
             }
 
@@ -1171,6 +1175,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
                 context.PatientAllergies.Update(allergyInDb);
                 await context.SaveChangesAsync();
             }
+
             await UpdatePatientNka();
             return await Result.SuccessAsync("Allergy has been recorded.");
         }
@@ -1261,7 +1266,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
         try
         {
             var patient = await context.Patients.AsNoTracking()
-                .Include(x=>x.PatientAccount)
+                .Include(x => x.PatientAccount)
                 .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatientId);
 
             var allergyCount = await context.PatientAllergies.CountAsync(x =>
@@ -1270,7 +1275,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             var drugAllergyCount = await context.PatientDrugAllergies.CountAsync(x =>
                 x.PatientId == ApplicationState.SelectedPatientId);
 
-            if (allergyCount > 0 || drugAllergyCount >0)
+            if (allergyCount > 0 || drugAllergyCount > 0)
             {
                 patient.NkaFlag = false;
             }
@@ -1283,7 +1288,6 @@ public class PatientService(ApplicationDbContext context, IMapper mapper)
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             await context.SaveChangesAsync();
-
         }
         catch (Exception e)
         {

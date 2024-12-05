@@ -174,7 +174,7 @@
         CurrentUserName = ApplicationState.CurrentUser.Name;
         if (ContactId != Guid.Empty)
         {
-            LoadConversation();
+           await LoadUserChat(ContactId);
         }
 
         await HubConnection.SendAsync(ApplicationConstants.SignalR.PingRequest, CurrentUserId);

@@ -14,7 +14,7 @@
 @using Dexterity.Components.Pages.Consultation.PatientInvestigations
 @using Dexterity.Components.Pages.Consultation.Documents.Letter
 @using Dexterity.Components.Pages.Consultation.Documents
-<TopTitleBar Title="Consultation" Image="modules/consultation.svg"></TopTitleBar>
+<TopTitleBar Title="Consultation | Patient Summary" Image="modules/consultation.svg"></TopTitleBar>
 
 @if (!_loading)
 {
@@ -40,9 +40,6 @@
                                  Icon="@DexHelperMethod.FaIcon("consultation-icon")"
                                  Click="() => ClickChangedTab(0)">
 
-                <DexMenuItem Text="Find Patient"
-                             Icon="fa-user-magnifying-glass"
-                             Click="FindPatient"/>
                 <DexMenuItem Text="Patient Summary"
                              Icon="fas fa-rectangle-list"
                              Click="OpenPatientSummaryModal"/>
@@ -98,22 +95,21 @@
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Documents" Icon="@DexHelperMethod.FaIcon("documents-icon")"
                                  Click="() => ClickChangedTab(5)">
-                <DexMenuItem Text="Email Patient" Icon="fas fa-envelope"/>
-                <hr class="hr-custom m-1"/>
-                <DexMenuItem Text="Add Letter" Icon="fas fa-plus" Click="OpenNewLetter"/>
-                <DexMenuItem Text="Edit Letter" Icon="fas fa-edit" Click="OpenNewLetter"/>
-                <hr class="hr-custom m-1"/>
-                <DexMenuItem Text="Scanned Document" Icon="fas fa-scanner-image"/>
-                <DexMenuItem Text="Sketch Drawing" Icon="fas fa-compass-drafting"/>
+            </RadzenPanelMenuItem>
+            <hr class="hr-custom m-1" />
+            <RadzenPanelMenuItem Text="Find Patient"
+                                 Icon="@DexHelperMethod.FaIcon("find-patient-icon")"
+                                 Click="FindPatient">
             </RadzenPanelMenuItem>
         </NavigationItems>
+     
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
             <MudTabs @ref="_tabs">
                 <MudTabPanel Text="">
-                    <ConsultationDetails Consultations="Consultations" 
+                    <ConsultationDetails Consultations="Consultations"
                                          RowSelected="RowSelectHandler"
-                                         ActiveDiagnosis="ActiveDiagnosis" 
+                                         ActiveDiagnosis="ActiveDiagnosis"
                                          PastMedicalHistory="PastMedicalHistory"/>
                 </MudTabPanel>
                 <MudTabPanel>
@@ -360,6 +356,7 @@
     #endregion
 
     #region Documents
+
     private async Task OpenNewLetter()
     {
         var parameters = new DialogParameters();
@@ -375,9 +372,8 @@
         {
         }
     }
-    
 
     #endregion
-   
+
 
 }

@@ -1,6 +1,6 @@
 ﻿namespace Shared.Constants.Module.Consultation;
 
-public static  class ConsultationConstants
+public static class ConsultationConstants
 {
     public static List<ReactionType> ReactionTypes { get; set; } =
     [
@@ -25,8 +25,28 @@ public static  class ConsultationConstants
         new(19, "Swelling of Glands"),
         new(20, "Crying"),
     ];
-   
-  
+
+
+    public static class DocumentConstant
+    {
+        public const string Letters = "Letters";
+        public const string Sketches = "Sketches";
+        public const string Documents = "Documents";
+
+        public static List<DocumentType> DocumentTypesList { get; set; } =
+        [
+            new(1, "Letter"),
+            new(2, "Document"),
+        ];
+
+        public static List<DocumentCategory> DocumentCategoryList { get; set; } =
+        [
+            new(1, "Letters"),
+            new(2, "Documents"),
+            new(3, "Investigations"),
+            new(4, "Immunisations"),
+        ];
+    }
 }
 
 public class ReactionType(int id, string name)
@@ -35,3 +55,14 @@ public class ReactionType(int id, string name)
     public string Name { get; set; } = name;
 }
 
+public class DocumentType(int id, string name)
+{
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
+}
+
+public class DocumentCategory(int id, string name)
+{
+    public int Id { get; set; } = id;
+    public string Name { get; set; } = name;
+}

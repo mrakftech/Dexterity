@@ -1150,7 +1150,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
         if (investigationDetailInDb == null)
             return await Result.FailAsync("Investigation Details not found.");
-
+        context.ChangeTracker.Clear();
         context.InvestigationDetails.Remove(investigationDetailInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Investigation details has been deleted.");

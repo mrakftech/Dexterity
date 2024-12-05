@@ -989,7 +989,8 @@ public class ConsultationService(
                 PatientFileName = $"{id}.docx"
             };
             await context.ConsultationLetters.AddAsync(addLetter);
-            await iFileManagerService.CreateWordFile(addLetter.Id.ToString(), addLetter.PatientFile);
+            await iFileManagerService.CreateWordFile(addLetter.Id.ToString(), addLetter.PatientFile,
+                ConsultationConstants.DocumentConstant.Letters);
 
             await context.SaveChangesAsync();
         }
@@ -1011,7 +1012,8 @@ public class ConsultationService(
         context.ChangeTracker.Clear();
         context.ConsultationLetters.Update(letter);
         await context.SaveChangesAsync();
-        await iFileManagerService.CreateWordFile(letter.Id.ToString(), letter.PatientFile);
+        await iFileManagerService.CreateWordFile(letter.Id.ToString(), letter.PatientFile,
+            ConsultationConstants.DocumentConstant.Letters);
         return await Result.SuccessAsync("Letter file has been saved.");
     }
 
@@ -1081,6 +1083,58 @@ public class ConsultationService(
         {
             return await Result.FailAsync(e.Message);
         }
+    }
+
+    #endregion
+
+    #region Documents
+
+    public async Task<List<ScannedDocument>> GetScannedDocuments()
+    {
+        return await context.ScannedDocuments.Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SaveScannedDocuments(Guid id, ScannedDocument request)
+    {
+        if (id == Guid.Empty)
+        {
+            var newScannedDocument = new ScannedDocument()
+            {
+                Id = Guid.NewGuid(),
+                PatientId = ApplicationState.SelectedPatientId,
+                AdditionalNotes = request.AdditionalNotes,
+                Description = request.Description,
+                ScanDate = request.ScanDate,
+                Type = request.Type,
+                Category = request.Category,
+                AttachedFile = request.AttachedFile,
+            };
+            //Category is folder name in this method
+            await iFileManagerService.CreateWordFile(newScannedDocument.Id.ToString(), newScannedDocument.AttachedFile,
+                request.Category);
+            await context.ScannedDocuments.AddAsync(newScannedDocument);
+        }
+        else
+        {
+            var documentInDb = await context.ScannedDocuments
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+            if (documentInDb is null)
+                return await Result.FailAsync("Document doesn't exist.");
+
+            documentInDb.Category = request.Category;
+            documentInDb.Type = request.Type;
+            documentInDb.AttachedFile = request.AttachedFile;
+            documentInDb.ScanDate = request.ScanDate;
+            documentInDb.AdditionalNotes = request.AdditionalNotes;
+            documentInDb.Description = request.Description;
+            context.ChangeTracker.Clear();
+            context.ScannedDocuments.Update(documentInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Scanned Document has been saved.");
     }
 
     #endregion
