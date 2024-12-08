@@ -1,0 +1,197 @@
+﻿@using Domain.Entities.Settings.Templates.Forms
+<div class="m-2">
+    <TabTitle Title="Custom Forms"></TabTitle>
+    <MudStack Row>
+        <MudItem md="3">
+            <SfGrid DataSource="CustomForms" AllowPaging="false">
+                <GridEvents TValue="CustomForm" RowSelected="SelectedCustomForm"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(CustomForm.Name)"/>
+                </GridColumns>
+            </SfGrid>
+        </MudItem>
+
+        <MudItem md="9">
+            <MudStack>
+                <MudItem>
+                    <DexForm Model="CustomFormData" ColumnCount="2" OnValidSubmit="SaveCustomForm">
+                        <Fields>
+                            <FormItem Field="@nameof(CustomForm.Name)"/>
+                            <FormItem Field="@nameof(CustomForm.Type)">
+                                <Template>
+                                    <label class="e-form-label">Type</label>
+                                    <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string" Placeholder="Type" DataSource="@_types" @bind-Value="@CustomFormData.Type">
+                                        <DropDownListTemplates TItem="string">
+                                            <ItemTemplate Context="value">
+                                                <span>@value</span>
+                                            </ItemTemplate>
+                                        </DropDownListTemplates>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(CustomForm.Description)" EditorType="FormEditorType.TextArea"/>
+                            <FormItem Field="@nameof(CustomForm.BasedOn)">
+                                <Template>
+                                    <label class="e-form-label">Based On</label>
+                                    <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string" Placeholder="Based On" DataSource="@_types" @bind-Value="@CustomFormData.Type">
+                                        <DropDownListTemplates TItem="string">
+                                            <ItemTemplate Context="value">
+                                                <span>@value</span>
+                                            </ItemTemplate>
+                                        </DropDownListTemplates>
+                                    </SfDropDownList>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(CustomForm.IsActive)" LabelText="Active"/>
+                        </Fields>
+                        <Buttons>
+                            <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                            @if (_selectedFormId != Guid.Empty)
+                            {
+                                <DexLoadingButton Name="Add New" Click="NewCustomForm"/>
+                            }
+                        </Buttons>
+                    </DexForm>
+                </MudItem>
+                <MudItem>
+                    <MudStack Row>
+                        <DexSfButton Name="Add Template" Disabled="@(_selectedFormId == Guid.Empty)" Icon="plus.png" Click="() => TemplateFormDialog(Guid.Empty)"/>
+                        <DexSfButton Name="Edit" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="edit.png" Click="() => TemplateFormDialog(_selectedFormTemplateId)"/>
+                        <DexSfButton Name="Copy" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="copy.png" Click="() => CopyTemplate(_selectedFormTemplateId)"/>
+                        <DexSfButton Name="Delete" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="delete.png" Click="() => DeleteFormTemplate(_selectedFormTemplateId)"/>
+                        <DexSfButton Name="Attach" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="attachment.png"/>
+                    </MudStack>
+                    <SfGrid DataSource="FormTemplates" Height="300px" AllowPaging="false">
+                        <GridEvents TValue="CustomFormTemplate" RowSelected="SelectedFormTemplate"></GridEvents>
+                        <GridColumns>
+                            <GridColumn Field="@nameof(CustomFormTemplate.Description)"/>
+                            <GridColumn Field="@nameof(CustomFormTemplate.Created)" Type="ColumnType.Date" Format="d"/>
+                        </GridColumns>
+                    </SfGrid>
+                </MudItem>
+            </MudStack>
+        </MudItem>
+    </MudStack>
+</div>
+
+@code {
+    private CustomForm CustomFormData { get; set; } = new();
+    private IEnumerable<string> _types = Enum.GetNames(typeof(CustomFormType));
+    private List<CustomForm> CustomForms { get; set; } = new();
+    private List<CustomFormTemplate> FormTemplates { get; set; } = new();
+    private Guid _selectedFormId = Guid.Empty;
+    private Guid _selectedFormTemplateId = Guid.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCustomForms();
+    }
+
+    private async Task GetCustomForms()
+    {
+        CustomForms = await UnitOfWork.Setting.GetCustomForms();
+    }
+
+    private async Task GetCustomTemplates()
+    {
+        FormTemplates = await UnitOfWork.Setting.GetCustomFormTemplates(_selectedFormId);
+    }
+
+    private async Task SaveCustomForm()
+    {
+        var res = await UnitOfWork.Setting.SaveCustomForm(_selectedFormId, CustomFormData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetCustomForms();
+            NewCustomForm();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task SelectedCustomForm(RowSelectEventArgs<CustomForm> arg)
+    {
+        if (arg.Data is not null)
+        {
+            _selectedFormId = arg.Data.Id;
+            CustomFormData = arg.Data;
+            await GetCustomTemplates();
+        }
+        else
+        {
+            NewCustomForm();
+        }
+    }
+
+    private void SelectedFormTemplate(RowSelectEventArgs<CustomFormTemplate> arg)
+    {
+        if (arg.Data is not null)
+        {
+            _selectedFormTemplateId = arg.Data.Id;
+        }
+        else
+        {
+            _selectedFormTemplateId = Guid.Empty;
+        }
+    }
+
+    private void NewCustomForm()
+    {
+        _selectedFormId = Guid.Empty;
+        CustomFormData = new CustomForm();
+    }
+
+    private async Task TemplateFormDialog(Guid templateId)
+    {
+        var parameters = new DialogParameters
+        {
+            {"FormTemplateId", templateId},
+            {"CustomFormId", _selectedFormId}
+        };
+        var options = new DialogOptions()
+        {
+            CloseButton = true,
+            MaxWidth = MaxWidth.Small,
+            FullWidth = true,
+            Position = DialogPosition.Center
+        };
+        var dialogresult = await DialogService.ShowAsync<FormTemplateForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetCustomTemplates();
+
+        }
+    }
+
+    private async Task DeleteFormTemplate(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteFormTemplate(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetCustomTemplates();
+        }
+    }
+
+    private async Task CopyTemplate(Guid selectedFormTemplateId)
+    {
+        var res = await UnitOfWork.Setting.CopyFormTemplate(selectedFormTemplateId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetCustomTemplates();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}

@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241208070638_UpdateDatabase1205A")]
+    partial class UpdateDatabase1205A
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2704,28 +2707,6 @@ namespace Database.Migrations
                     b.ToTable("CustomForms", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Forms.FormTemplate", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("Created")
-                        .HasColumnType("datetime2");
-
-                    b.Property<Guid>("CustomFormId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CustomFormId");
-
-                    b.ToTable("FormTemplates", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplates.AssignedInvestigationGroup", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3785,17 +3766,6 @@ namespace Database.Migrations
                         .HasForeignKey("HealthCodeId");
 
                     b.Navigation("HealthCode");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Forms.FormTemplate", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.Forms.CustomForm", "CustomForm")
-                        .WithMany()
-                        .HasForeignKey("CustomFormId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("CustomForm");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplates.AssignedInvestigationGroup", b =>

@@ -1,0 +1,45 @@
+﻿@using Domain.Entities.Settings.Templates.Forms
+<DexDialog>
+    <DialogTitle>Template Details</DialogTitle>
+    <Content>
+        <DexForm Model="FormTemplateData" OnValidSubmit="SaveFormTemplate">
+            <Fields>
+                <FormItem Field="@nameof(CustomFormTemplate.Description)" LabelText="Name"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid FormTemplateId { get; set; }
+    [Parameter] public Guid CustomFormId { get; set; }
+    public CustomFormTemplate FormTemplateData { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (FormTemplateId != Guid.Empty)
+        {
+            FormTemplateData = await UnitOfWork.Setting.GetCustomFormTemplate(FormTemplateId);
+        }
+    }
+
+    private async Task SaveFormTemplate()
+    {
+        FormTemplateData.CustomFormId = CustomFormId;
+        var res = await UnitOfWork.Setting.SaveFormTemplate(FormTemplateId, FormTemplateData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}

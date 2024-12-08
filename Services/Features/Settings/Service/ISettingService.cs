@@ -4,6 +4,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
 using Services.Features.Settings.Dtos;
@@ -185,22 +186,33 @@ public interface ISettingService
     public Task<IResult> SaveLetterType(Guid id, LetterType letterType);
     public Task<IResult> DeleteLetterType(Guid id);
     public Task<LetterType> GetLetterType(Guid id);
-    
+
     public Task<List<LetterTemplate>> GetLetterTemplates();
     public Task<string> GetLetterTemplateFile(Guid letterTemplateId);
     public Task<List<LetterTemplate>> GetLetterTemplatesByType(Guid typeId);
     public Task<IResult> SaveLetterTemplate(Guid id, LetterTemplateDto letterTemplate);
     public Task<IResult> DeleteLetterTemplate(Guid id);
 
-    
-
     #endregion
-    
+
     #region Sketches
+
     public Task<List<SketchCategory>> GetSketchCategories();
     public Task<List<Sketch>> GetSketcheByCategory(Guid categoryId);
     public Task<IResult> SaveSketch(Guid id, Sketch request);
     public Task<IResult> DeleteSketch(Guid id);
+
+    #endregion
+
+    #region Custom Forms
+
+    public Task<List<CustomForm>> GetCustomForms();
+    public Task<IResult> SaveCustomForm(Guid id, CustomForm request);
+    public Task<List<CustomFormTemplate>> GetCustomFormTemplates(Guid customFormId);
+    public Task<CustomFormTemplate> GetCustomFormTemplate(Guid templateId);
+    public Task<IResult> SaveFormTemplate(Guid id, CustomFormTemplate request);
+    public Task<IResult> CopyFormTemplate(Guid id);
+    public Task<IResult> DeleteFormTemplate(Guid id);
 
     #endregion
 }

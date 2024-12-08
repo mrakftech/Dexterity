@@ -6,6 +6,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
 using Microsoft.EntityFrameworkCore;
@@ -1465,15 +1466,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             var sketchInDb = await context.Sketches
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == id);
-        
+
             if (sketchInDb is null)
                 return await Result.FailAsync("Sketch not found.");
 
             sketchInDb.IsActive = request.IsActive;
-            sketchInDb.Name= request.Name;
+            sketchInDb.Name = request.Name;
             sketchInDb.SketchCategoryId = request.SketchCategoryId;
             sketchInDb.Description = request.Description;
-            sketchInDb.Image=request.Image;
+            sketchInDb.Image = request.Image;
             context.ChangeTracker.Clear();
             context.Sketches.Update(sketchInDb);
         }
@@ -1487,13 +1488,126 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         var sketchInDb = await context.Sketches
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
-        
+
         if (sketchInDb is null)
             return await Result.FailAsync("Sketch not found.");
 
         context.Sketches.Remove(sketchInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Sketch has been deleted.");
+    }
+
+    public async Task<List<CustomForm>> GetCustomForms()
+    {
+        return await context.CustomForms
+            .Where(x => x.IsActive)
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SaveCustomForm(Guid id, CustomForm request)
+    {
+        if (id == Guid.Empty)
+        {
+            await context.CustomForms.AddAsync(request);
+        }
+        else
+        {
+            var customForm = await context.CustomForms
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (customForm is null)
+                return await Result.FailAsync("Form not found.");
+
+            customForm.IsActive = request.IsActive;
+            customForm.Name = request.Name;
+            customForm.Type = request.Type;
+            customForm.Description = request.Description;
+            context.ChangeTracker.Clear();
+            context.CustomForms.Update(customForm);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Form has been saved.");
+    }
+
+    public async Task<List<CustomFormTemplate>> GetCustomFormTemplates(Guid customFormId)
+    {
+        return await context.FormTemplates
+            .Where(x => x.CustomFormId == customFormId)
+            .ToListAsync();
+    }
+
+    public async Task<CustomFormTemplate> GetCustomFormTemplate(Guid templateId)
+    {
+        return await context.FormTemplates.FirstOrDefaultAsync(x=>x.Id == templateId);
+    }
+
+    public async Task<IResult> SaveFormTemplate(Guid id, CustomFormTemplate request)
+    {
+        if (id == Guid.Empty)
+        {
+            var newTemplate = new CustomFormTemplate()
+            {
+                Id = Guid.NewGuid(),
+                Created = DateTime.Now,
+                CustomFormId = request.CustomFormId,
+                Description = request.Description,
+            };
+            await context.FormTemplates.AddAsync(newTemplate);
+        }
+        else
+        {
+            var formTemplate = await context.FormTemplates
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (formTemplate is null)
+                return await Result.FailAsync("Form not found.");
+
+            formTemplate.Description = request.Description;
+            context.ChangeTracker.Clear();
+            context.FormTemplates.Update(formTemplate);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Form has been saved.");
+    }
+
+    public async Task<IResult> CopyFormTemplate(Guid id)
+    {
+        var formTemplate = await context.FormTemplates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (formTemplate is null)
+            return await Result.FailAsync("Form Template not found.");
+        
+        var newTemplate = new CustomFormTemplate()
+        {
+            Id = Guid.NewGuid(),
+            Created = DateTime.Now,
+            CustomFormId = formTemplate.CustomFormId,
+            Description = formTemplate.Description,
+        };
+        await context.FormTemplates.AddAsync(newTemplate);
+        
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("New Copy has been saved.");
+    }
+
+    public async Task<IResult> DeleteFormTemplate(Guid id)
+    {
+        var formTemplate = await context.FormTemplates
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (formTemplate is null)
+            return await Result.FailAsync("Form Template not found.");
+
+        context.FormTemplates.Remove(formTemplate);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Form Template has been deleted.");
     }
 
     #endregion

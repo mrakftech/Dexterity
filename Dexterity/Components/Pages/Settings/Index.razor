@@ -11,6 +11,7 @@
 @using Dexterity.Components.Pages.Settings.Investigations
 @using Dexterity.Components.Pages.Settings.Letter
 @using Dexterity.Components.Pages.Settings.SketchTemplate
+@using Dexterity.Components.Pages.Settings.CustomForms
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
@@ -24,6 +25,7 @@
                 <DexMenuItem Text="Consultation Note Templates" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
                 <DexMenuItem Text="Appointment Cancellation Reason" Icon="fas fa-ban" Click="@(() => ClickChanged(4))"/>
                 <DexMenuItem Text="Sketch Categories" Icon="fas fa-list" Click="@(() => ClickChanged(12))"/>
+                <DexMenuItem Text="Custom Forms" Icon="fas fa-window-restore" Click="@(() => ClickChanged(13))"/>
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Other Types" Icon="@DexHelperMethod.FaIcon("types-icon")">
                 <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
@@ -34,7 +36,6 @@
                 <DexMenuItem Text="Sms Templates" Icon="fas fa-comment-sms" Click="@(() => ClickChanged(0))"/>
                 <DexMenuItem Text="Email Templates" Icon="fas fa-envelope-open-text" Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Clinics" Icon="fas fa-house-chimney-medical" Click="@(() => ClickChanged(2))"/>
-                
             </RadzenPanelMenuItem>
         </NavigationItems>
         <DexContentTabs>
@@ -77,6 +78,9 @@
                 </MudTabPanel>
                 <MudTabPanel>
                     <SketchTab/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <CustomFormTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

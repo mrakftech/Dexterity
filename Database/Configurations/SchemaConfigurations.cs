@@ -21,6 +21,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
 using Domain.Entities.UserAccounts;
@@ -49,6 +50,8 @@ public static class SchemaConfigurations
         builder.Entity<Clinic>(entity => { entity.ToTable(name: "Clinic", "Setting"); });
         builder.Entity<ClinicSite>(entity => { entity.ToTable(name: "ClinicSites", "Setting"); });
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Setting"); });
+        builder.Entity<CustomForm>(entity => { entity.ToTable(name: "CustomForms", "Setting"); });
+        builder.Entity<CustomFormTemplate>(entity => { entity.ToTable(name: "FormTemplates", "Setting"); });
         builder.Entity<AppointmentCancellationReason>(entity =>
         {
             entity.ToTable(name: "AppointmentCancellationReasons", "Setting");
@@ -114,7 +117,7 @@ public static class SchemaConfigurations
         builder.Entity<LetterReply>(entity => { entity.ToTable(name: "LetterReplies", "Consultation"); });
         builder.Entity<ScannedDocument>(entity => { entity.ToTable(name: "ScannedDocuments", "Consultation"); });
         builder.Entity<PatientSketch>(entity => { entity.ToTable(name: "PatientSketches", "Consultation"); });
-     
+
         builder.Entity<PatientInvestigation>(entity =>
         {
             entity.ToTable(name: "PatientInvestigations", "Consultation");
