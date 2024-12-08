@@ -1,6 +1,7 @@
 ﻿@using Dexterity.Components.Pages.Consultation.Documents.Letter
 @using Dexterity.Components.Pages.Consultation.Documents.ScannedDocuments
 @using Dexterity.Components.Pages.Consultation.Documents.Sketche
+@using Dexterity.Components.Pages.Consultation.Documents.EReferrals
 <SfTab CssClass="e-tab-custom-class mt-2" HeaderPlacement="HeaderPosition.Left">
     <TabItems>
         <TabItem>
@@ -32,6 +33,7 @@
                 <TabHeader Text="E-Referrals" IconCss="ref-icon"></TabHeader>
             </ChildContent>
             <ContentTemplate>
+                <ReferralTab/>
             </ContentTemplate>
         </TabItem>
         <TabItem>

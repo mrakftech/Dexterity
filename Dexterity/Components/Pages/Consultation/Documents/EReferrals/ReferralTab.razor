@@ -1,0 +1,27 @@
+﻿<div class="m-3">
+    <TabTitle Title="E-Referral">
+        <ActionButtons>
+            <DexSimpleButton Class="m-1" Name="Search" Icon="fas fa-magnifying-glass"/>
+            <DexLoadingButton  Class="m-1" Name="Refresh" Icon="fas fa-arrows-rotate"/>
+            <DexLoadingButton Class="m-1" Name="Print" Icon="fas fa-print"/>
+            <MudMenu Label="Add Referral" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@MudIcons.Material.Filled.Add" EndIcon="@MudIcons.Material.Filled.KeyboardArrowDown">
+                <MudMenuItem>Healthlink</MudMenuItem>
+                <MudMenuItem>Alliance</MudMenuItem>
+                <MudMenuItem>Affidea</MudMenuItem>
+            </MudMenu>
+        </ActionButtons>
+    </TabTitle>
+    
+    <DexGrid>
+        <DexGridColumns>
+            <GridColumn Field="Type"/>
+            <GridColumn Field="Response Date"/>
+            <GridColumn Field="Recipient"/>
+            <GridColumn Field="Description"/>
+            <GridColumn Field="NCP"/>
+            <GridColumn Field="Status"/>
+        </DexGridColumns>
+    </DexGrid>
+</div>
+@code {
+}
