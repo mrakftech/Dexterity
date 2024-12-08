@@ -30,7 +30,6 @@ namespace Dexterity
             builder.Services.AddMemoryCache();
             builder.Services.AddSyncfusionBlazor();
             builder.Services.AddRadzenComponents();
-
             SyncfusionLicenseProvider
                 .RegisterLicense(
                     "Ngo9BigBOggjHTQxAR8/V1NDaF5cWWtCf1FpRmJGdld5fUVHYVZUTXxaS00DNHVRdkdnWH5ceHRcQmFdWUF0Vks=");

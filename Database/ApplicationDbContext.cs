@@ -99,6 +99,8 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<InvestigationSelectionValue> InvestigationSelectionValues { get; set; }
     public DbSet<InvestigationGroup> InvestigationGroups { get; set; }
     public DbSet<AssignedInvestigationGroup> AssignedInvestigationsGroup { get; set; }
+    public DbSet<Sketch> Sketches { get; set; }
+    public DbSet<SketchCategory> SketchCategories { get; set; }
 
     #region Immunisations
 
@@ -170,6 +172,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ConsultationLetter> ConsultationLetters { get; set; }
     public DbSet<LetterReply> LetterReplies { get; set; }
     public DbSet<ScannedDocument> ScannedDocuments { get; set; }
+    public DbSet<PatientSketch> PatientSketches { get; set; }
 
     #endregion
 }

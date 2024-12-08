@@ -1,5 +1,6 @@
 ﻿@using Dexterity.Components.Pages.Consultation.Documents.Letter
 @using Dexterity.Components.Pages.Consultation.Documents.ScannedDocuments
+@using Dexterity.Components.Pages.Consultation.Documents.Sketche
 <SfTab CssClass="e-tab-custom-class mt-2" HeaderPlacement="HeaderPosition.Left">
     <TabItems>
         <TabItem>
@@ -23,6 +24,7 @@
                 <TabHeader Text="Sketches" IconCss="sketch-icon"></TabHeader>
             </ChildContent>
             <ContentTemplate>
+                <SketcheDetail/>
             </ContentTemplate>
         </TabItem>
         <TabItem>

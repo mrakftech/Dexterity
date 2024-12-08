@@ -10,6 +10,7 @@
 @using Dexterity.Components.Pages.Settings.Drugs
 @using Dexterity.Components.Pages.Settings.Investigations
 @using Dexterity.Components.Pages.Settings.Letter
+@using Dexterity.Components.Pages.Settings.SketchTemplate
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
@@ -22,6 +23,7 @@
                 <DexMenuItem Text="Account Types" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(5))"/>
                 <DexMenuItem Text="Consultation Note Templates" Icon="fas fa-file-invoice" Click="@(() => ClickChanged(7))"/>
                 <DexMenuItem Text="Appointment Cancellation Reason" Icon="fas fa-ban" Click="@(() => ClickChanged(4))"/>
+                <DexMenuItem Text="Sketch Categories" Icon="fas fa-list" Click="@(() => ClickChanged(12))"/>
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Other Types" Icon="@DexHelperMethod.FaIcon("types-icon")">
                 <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
@@ -72,6 +74,9 @@
                 </MudTabPanel>
                 <MudTabPanel>
                     <LetterTab/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <SketchTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

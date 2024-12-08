@@ -195,4 +195,12 @@ public interface ISettingService
     
 
     #endregion
+    
+    #region Sketches
+    public Task<List<SketchCategory>> GetSketchCategories();
+    public Task<List<Sketch>> GetSketcheByCategory(Guid categoryId);
+    public Task<IResult> SaveSketch(Guid id, Sketch request);
+    public Task<IResult> DeleteSketch(Guid id);
+
+    #endregion
 }

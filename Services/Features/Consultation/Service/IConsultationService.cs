@@ -100,7 +100,7 @@ public interface IConsultationService
     Task<ConsultationLetter> GetLetter(Guid id);
     Task<IResult> SaveLetter(Guid id, LetterDto request);
     Task<IResult> SaveLetterFile(Guid id, string file);
-    Task<IResult> ChangeStatus(Guid id,string status);
+    Task<IResult> ChangeStatus(Guid id, string status);
     Task<List<ConsultationLetter>> GetConsultationLetters();
     Task<IResult> SendEmailLetter(EmailDto request);
     Task<IResult> AddLetterRply(LetterReply letterReply);
@@ -108,10 +108,15 @@ public interface IConsultationService
     #endregion
 
     #region Documents
+
     Task<List<ScannedDocument>> GetScannedDocuments();
     Task<IResult> SaveScannedDocuments(Guid id, ScannedDocument request);
 
-    
+    #endregion
+
+    #region Sketches
+
+    Task<IResult> SavePatientSketch(Guid id, string sketch);
 
     #endregion
 

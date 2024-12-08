@@ -1137,6 +1137,23 @@ public class ConsultationService(
         return await Result.SuccessAsync("Scanned Document has been saved.");
     }
 
+    public async Task<IResult> SavePatientSketch(Guid id, string sketch)
+    {
+        if (id == Guid.Empty)
+        {
+            var patientSketch = new PatientSketch()
+            {
+                Id = Guid.NewGuid(),
+                PatientId = ApplicationState.SelectedPatientId,
+                Sketch = sketch
+            };
+            await context.PatientSketches.AddAsync(patientSketch);
+            await context.SaveChangesAsync();
+        }
+
+        return await Result.SuccessAsync("Sketch has been saved.");
+    }
+
     #endregion
 
     #endregion

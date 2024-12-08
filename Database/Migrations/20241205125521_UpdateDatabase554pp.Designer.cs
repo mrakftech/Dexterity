@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241205125521_UpdateDatabase554pp")]
+    partial class UpdateDatabase554pp
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -413,25 +416,6 @@ namespace Database.Migrations
                     b.HasIndex("ConsultationLetterId");
 
                     b.ToTable("LetterReplies", "Consultation");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.Documents.PatientSketch", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("PatientId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Sketch")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PatientId");
-
-                    b.ToTable("PatientSketches", "Consultation");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Documents.ScannedDocument", b =>
@@ -2867,42 +2851,24 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Category")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<Guid>("SketchCategoryId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.HasKey("Id");
-
-                    b.HasIndex("SketchCategoryId");
 
                     b.ToTable("Sketches", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.SketchCategory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SketchCategories", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.SmsTemplate", b =>
@@ -3256,17 +3222,6 @@ namespace Database.Migrations
                         .IsRequired();
 
                     b.Navigation("ConsultationLetter");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.Documents.PatientSketch", b =>
-                {
-                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
-                        .WithMany()
-                        .HasForeignKey("PatientId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Documents.ScannedDocument", b =>
@@ -3795,17 +3750,6 @@ namespace Database.Migrations
                     b.Navigation("LetterType");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Sketch", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.SketchCategory", "SketchCategory")
-                        .WithMany("Sketches")
-                        .HasForeignKey("SketchCategoryId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("SketchCategory");
-                });
-
             modelBuilder.Entity("Domain.Entities.UserAccounts.PermissionClaim", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.Role", "Role")
@@ -3939,11 +3883,6 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplates.InvestigationSelectionList", b =>
                 {
                     b.Navigation("InvestigationSelectionValues");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.SketchCategory", b =>
-                {
-                    b.Navigation("Sketches");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.User", b =>

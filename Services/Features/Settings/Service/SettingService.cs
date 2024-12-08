@@ -1379,7 +1379,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<LetterTemplate>> GetLetterTemplates()
     {
         return await context.LetterTemplates
-            .Include(x=>x.LetterType)
+            .Include(x => x.LetterType)
             .AsNoTracking()
             .ToListAsync();
     }
@@ -1393,9 +1393,9 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<LetterTemplate>> GetLetterTemplatesByType(Guid typeId)
     {
         return await context.LetterTemplates
-            .Include(x=>x.LetterType)
+            .Include(x => x.LetterType)
             .AsNoTracking()
-            .Where(x=>x.LetterType.Id == typeId)
+            .Where(x => x.LetterType.Id == typeId)
             .ToListAsync();
     }
 
@@ -1412,7 +1412,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             if (letterInDb == null) return await Result.FailAsync("Letter Template not found.");
 
             letterInDb.Name = request.Name;
-            letterInDb.LetterTypeId= request.LetterTypeId;
+            letterInDb.LetterTypeId = request.LetterTypeId;
             letterInDb.IsActive = request.IsActive;
             letterInDb.TemplateFile = request.TemplateFile;
             context.ChangeTracker.Clear();
@@ -1428,12 +1428,72 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         var letterInDb = await context.LetterTemplates
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
-        
+
         if (letterInDb == null) return await Result.FailAsync("Letter Template not found.");
 
         context.LetterTemplates.Remove(letterInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Letter Template has been deleted.");
+    }
+
+    #endregion
+
+    #region Sketch categories
+
+    public async Task<List<SketchCategory>> GetSketchCategories()
+    {
+        return await context.SketchCategories
+            .Include(x => x.Sketches)
+            .AsNoTracking().ToListAsync();
+    }
+
+    public async Task<List<Sketch>> GetSketcheByCategory(Guid categoryId)
+    {
+        return await context.Sketches
+            .Where(x => x.SketchCategoryId == categoryId)
+            .AsNoTracking().ToListAsync();
+    }
+
+    public async Task<IResult> SaveSketch(Guid id, Sketch request)
+    {
+        if (id == Guid.Empty)
+        {
+            await context.Sketches.AddAsync(request);
+        }
+        else
+        {
+            var sketchInDb = await context.Sketches
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == id);
+        
+            if (sketchInDb is null)
+                return await Result.FailAsync("Sketch not found.");
+
+            sketchInDb.IsActive = request.IsActive;
+            sketchInDb.Name= request.Name;
+            sketchInDb.SketchCategoryId = request.SketchCategoryId;
+            sketchInDb.Description = request.Description;
+            sketchInDb.Image=request.Image;
+            context.ChangeTracker.Clear();
+            context.Sketches.Update(sketchInDb);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Sketch has been saved.");
+    }
+
+    public async Task<IResult> DeleteSketch(Guid id)
+    {
+        var sketchInDb = await context.Sketches
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        
+        if (sketchInDb is null)
+            return await Result.FailAsync("Sketch not found.");
+
+        context.Sketches.Remove(sketchInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Sketch has been deleted.");
     }
 
     #endregion

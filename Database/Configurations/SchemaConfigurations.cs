@@ -7,6 +7,7 @@ using Domain.Entities.Consultation.Immunisations;
 using Domain.Entities.Consultation.InvestigationDetails;
 using Domain.Entities.Consultation.Notes;
 using Domain.Entities.Messaging;
+using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Allergies;
 using Domain.Entities.PatientManagement.Billing;
@@ -81,6 +82,8 @@ public static class SchemaConfigurations
         builder.Entity<ShotBatch>(entity => { entity.ToTable(name: "ShotBatches", "Setting"); });
         builder.Entity<ProgramCourse>(entity => { entity.ToTable(name: "ProgramCourses", "Setting"); });
         builder.Entity<CourseShot>(entity => { entity.ToTable(name: "CourseShots", "Setting"); });
+        builder.Entity<Sketch>(entity => { entity.ToTable(name: "Sketches", "Setting"); });
+        builder.Entity<SketchCategory>(entity => { entity.ToTable(name: "SketchCategories", "Setting"); });
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
@@ -110,6 +113,7 @@ public static class SchemaConfigurations
         builder.Entity<ConsultationLetter>(entity => { entity.ToTable(name: "Letters", "Consultation"); });
         builder.Entity<LetterReply>(entity => { entity.ToTable(name: "LetterReplies", "Consultation"); });
         builder.Entity<ScannedDocument>(entity => { entity.ToTable(name: "ScannedDocuments", "Consultation"); });
+        builder.Entity<PatientSketch>(entity => { entity.ToTable(name: "PatientSketches", "Consultation"); });
      
         builder.Entity<PatientInvestigation>(entity =>
         {

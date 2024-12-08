@@ -5,6 +5,7 @@ using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.Settings.Clinic;
+using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -35,6 +36,67 @@ public class DatabaseSeeder(
         SeedAlertCategory();
         SeedFakePatientData();
         SeedFakeUserData();
+        SeedSketchCategories();
+    }
+
+    private void SeedSketchCategories()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+            if (context.SketchCategories.Any())
+                return;
+
+            var parts = new List<SketchCategory>()
+            {
+                new()
+                {
+                    Name = "Arm"
+                },
+                new()
+                {
+                    Name = "Body"
+                },
+                new()
+                {
+                    Name = "Brain"
+                },
+                new()
+                {
+                    Name = "Breast"
+                },
+                new()
+                {
+                    Name = "Colon"
+                },
+                new()
+                {
+                    Name = "Foot"
+                },
+                new()
+                {
+                    Name = "Hand"
+                },
+                new()
+                {
+                    Name = "Head"
+                },
+                new()
+                {
+                    Name = "Hip"
+                },
+                new()
+                {
+                    Name = "Knee"
+                },
+                new()
+                {
+                    Name = "Leg"
+                }
+            };
+            await context.SketchCategories.AddRangeAsync(parts);
+            await context.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
     }
 
     private void SeedAlertCategory()

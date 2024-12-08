@@ -1,0 +1,128 @@
+﻿@using Domain.Entities.Settings.Templates
+@using Syncfusion.Blazor.ImageEditor
+<div class="control-section m-2">
+    <MudStack Row>
+        <SfButton OnClick="ClearImageAsync">New</SfButton>
+        <SfDropDownList TItem="SketchCategory" TValue="string" PopupHeight="230px" Placeholder="e.g. Arm, Legs" DataSource="@_sketchCategories">
+            <DropDownListEvents TItem="SketchCategory" TValue="string" ValueChange="OnChange"/>
+            <DropDownListFieldSettings Text="Name" Value="Id"/>
+        </SfDropDownList>
+        <SfButton OnClick="SaveImageAsync">Save</SfButton>
+    </MudStack>
+    <div style="padding-bottom: 15px">
+
+    </div>
+    <MudStack Row>
+        <MudItem md="8">
+            <SfImageEditor @ref="_imageEditor" Height="500px" ShowQuickAccessToolbar="true">
+                <ImageEditorEvents Created="Created"></ImageEditorEvents>
+            </SfImageEditor>
+        </MudItem>
+        <MudItem md="4">
+
+            @if (!_isProcessing)
+            {
+                <SfGrid DataSource="_sketches" AllowPaging="false" Height="500">
+                    <GridEvents TValue="Sketch" RowSelected="SelectSketch"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(Sketch.Image)">
+                            <Template>
+                                @{
+                                    var sketch = (context as Sketch);
+                                    <div class="image">
+                                        <MudImage Src="@sketch!.Image" Fluid="true"></MudImage>
+                                    </div>
+                                }
+                            </Template>
+                        </GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            }
+            else
+            {
+                <CommonLoader/>
+            }
+        </MudItem>
+    </MudStack>
+</div>
+
+@code {
+    SfImageEditor _imageEditor;
+    private List<SketchCategory> _sketchCategories = new();
+    private List<Sketch> _sketches = new();
+    private bool _isProcessing;
+    Guid _categoryId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetSketchCategories();
+    }
+
+    private async Task GetSketchCategories()
+    {
+        _sketchCategories = await UnitOfWork.Setting.GetSketchCategories();
+    }
+
+    private async Task GetSketches()
+    {
+        _sketches = await UnitOfWork.Setting.GetSketcheByCategory(_categoryId);
+    }
+
+    private List<ImageEditorToolbarItemModel> _tools =
+    [
+    ];
+
+    private void Created()
+    {
+    }
+
+    private async void ClearImageAsync()
+    {
+        await _imageEditor.ClearImageAsync();
+    }
+
+    private async Task SaveImageAsync()
+    {
+        var imageData = await _imageEditor.GetImageDataAsync();
+        var base64String = Convert.ToBase64String(imageData);
+        var image = "data:image/png;base64," + base64String;
+        var res = await UnitOfWork.Consultation.SavePatientSketch(Guid.Empty, image);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            ClearImageAsync();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private void SelectSketch(RowSelectEventArgs<Sketch> args)
+    {
+        if (args.Data is not null)
+        {
+            _imageEditor.OpenAsync(args.Data.Image);
+        }
+        else
+        {
+        }
+    }
+
+    public async Task OnChange(ChangeEventArgs<string, SketchCategory> args)
+    {
+        _isProcessing = true;
+        if (args.ItemData is not null)
+        {
+            _categoryId = args.ItemData.Id;
+            await GetSketches();
+        }
+        else
+        {
+            _categoryId = Guid.Empty;
+        }
+
+        _isProcessing = false;
+    }
+
+}
