@@ -121,7 +121,7 @@ namespace Dexterity.Settings
                 PrimaryContrastText = "#FFF",
                 Secondary = "#b94e48",
                 Dark = "#000",
-                Surface = "#FFF",
+                Surface = "#F5F5F5",
                 Info = "#FFF",
                 HoverOpacity = 0.6,
                 TableLines = "#0077B5",

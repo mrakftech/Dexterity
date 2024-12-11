@@ -1,0 +1,117 @@
+﻿@using Domain.Entities.Settings.Templates.Dms
+<TabTitle Title="DMS Categories"></TabTitle>
+<RadzenColumn Size="12" SizeLG="4">
+    <div class="m-3">
+        <MudStack Row>
+            <MudItem md="2">
+                <SfTextBox Placeholder="Category Name" @bind-Value="_categoryName"/>
+            </MudItem>
+            <MudItem md="4">
+                <SfButton Content="Add Category" @onclick="@(() => AddDmsCategory(_categoryName))"/>
+                @if (_categoryId!=0)
+                {
+                    <SfButton CssClass="m-2" style="color: crimson;font-weight: bolder" Content="Delete" @onclick="@(() => DeleteDmsCategory(_categoryId))" Disabled="_categoryId == 0"/>
+                }
+            </MudItem>
+
+        </MudStack>
+    </div>
+    <RadzenCard>
+        <RadzenTree Data="@_documentCategories" Change="OnChange" Expand="OnExpand" Style="height: 300px;font-size: 16px">
+            <RadzenTreeLevel TextProperty="@nameof(DocumentCategory.Name)"/>
+        </RadzenTree>
+    </RadzenCard>
+    <div class="m-3">
+        <MudStack Row>
+            <MudItem md="2">
+                <SfTextBox Placeholder="Sub Category Name" @bind-Value="_subCategoryName"/>
+            </MudItem>
+            <MudItem md="2">
+                <SfButton Content="Add Sub Category" @onclick="@(() => AddDmsCategory(_subCategoryName, _categoryId))" Disabled="_categoryId == 0"/>
+            </MudItem>
+        </MudStack>
+    </div>
+</RadzenColumn>
+
+@code {
+    private List<DocumentCategory> _documentCategories = new();
+    private string _categoryName = string.Empty;
+    private string _subCategoryName = string.Empty;
+    private int _categoryId = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+    }
+
+    private async Task GetCategories()
+    {
+        _documentCategories = await UnitOfWork.Setting.GetAllCategoriesWithHierarchy();
+    }
+
+    void Log(string eventName, string value)
+    {
+    }
+
+    void OnChange(TreeEventArgs args)
+    {
+        var category = args.Value as DocumentCategory;
+        _categoryId = category!.Id;
+    }
+
+    void OnExpand(TreeExpandEventArgs args)
+    {
+        var category = args.Value as DocumentCategory;
+
+        args.Children.Data = category.SubCategories;
+        args.Children.TextProperty = "Name";
+        args.Children.HasChildren = (_) => false;
+
+        /* Optional template
+        args.Children.Template = context => builder => {
+            builder.OpenElement(1, "strong");
+            builder.AddContent(2, (context.Value as Product).ProductName);
+            builder.CloseElement();
+        };
+        */
+    }
+
+    void OnCollapse(TreeEventArgs args)
+    {
+    }
+
+    private async Task AddDmsCategory(string name, int? parentCategoryId = null)
+    {
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            return;
+        }
+
+        var res = await UnitOfWork.Setting.SaveDmsCategory(name, parentCategoryId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetCategories();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task DeleteDmsCategory(int categoryId)
+    {
+        var res = await UnitOfWork.Setting.DeleteDmsCategory(categoryId);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetCategories();
+            _categoryId = 0;
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}

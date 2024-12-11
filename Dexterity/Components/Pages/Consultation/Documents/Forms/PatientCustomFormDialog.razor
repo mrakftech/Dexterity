@@ -1,0 +1,82 @@
+﻿@using Domain.Entities.Settings.Templates.Forms
+@using Services.Features.UserAccounts.Dtos.User
+@using Domain.Entities.Consultation.Documents
+<DexDialog>
+    <DialogTitle>
+        Form Details
+    </DialogTitle>
+    <Content>
+        <DexForm Model="PatientCustomFormData" OnValidSubmit="SavePatientCustomForm">
+            <Fields>
+                <FormItem Field="@nameof(PatientCustomForm.CreatedDate)" LabelText="Date" EditorType="FormEditorType.DatePicker"/>
+                <FormItem Field="@nameof(PatientCustomForm.HcpId)">
+                    <Template>
+                        <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP"
+                                        DataSource="@_healthCares"
+                                        @bind-Value="@PatientCustomFormData.HcpId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(PatientCustomForm.FormTemplateId)">
+                    <Template>
+                        <SfDropDownList TValue="Guid" TItem="CustomFormTemplate" Placeholder="Template"
+                                        DataSource="@CustomFormTemplates"
+                                        @bind-Value="@PatientCustomFormData.FormTemplateId">
+                            <DropDownListFieldSettings Value="Id" Text="Description"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid CustomFormId { get; set; }
+    private List<CustomFormTemplate> CustomFormTemplates { get; set; }
+    private PatientCustomForm PatientCustomFormData { get; set; } = new();
+    private List<HealthcareDto> _healthCares = [];
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFormTemplates();
+        await GetHealthCares();
+        if (Id != Guid.Empty)
+        {
+            PatientCustomFormData = await UnitOfWork.Consultation.GetPatientCustomForm(Id);
+        }
+    }
+
+    private async Task GetFormTemplates()
+    {
+        CustomFormTemplates = await UnitOfWork.Setting.GetCustomFormTemplates(CustomFormId);
+    }
+
+    private async Task GetHealthCares()
+    {
+        _healthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+    }
+
+    private async Task SavePatientCustomForm()
+    {
+        var res = await UnitOfWork.Consultation.SavePatientCustomForm(Id, PatientCustomFormData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}

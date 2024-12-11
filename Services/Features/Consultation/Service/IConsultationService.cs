@@ -4,7 +4,6 @@ using Domain.Entities.Consultation.Immunisations;
 using Domain.Entities.Consultation.InvestigationDetails;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
-using Domain.Entities.Settings.Templates.Letter;
 using Services.Features.Consultation.Dto;
 using Services.Features.Consultation.Dto.BaselineDetails;
 using Services.Features.Consultation.Dto.Immunisations;
@@ -120,5 +119,16 @@ public interface IConsultationService
 
     #endregion
 
+    #region Patient Form
+
+    Task<List<PatientCustomForm>> GetPatientCustomForms();
+    Task<PatientCustomForm> GetPatientCustomForm(Guid id);
+
+    Task<IResult> SavePatientCustomForm(Guid id, PatientCustomForm request);
+    
+    Task<IResult> DeletePatientCustomForm(Guid id);
+
+
+    #endregion
     #endregion
 }

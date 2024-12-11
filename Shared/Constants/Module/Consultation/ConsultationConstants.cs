@@ -39,13 +39,7 @@ public static class ConsultationConstants
             new(2, "Document"),
         ];
 
-        public static List<DocumentCategory> DocumentCategoryList { get; set; } =
-        [
-            new(1, "Letters"),
-            new(2, "Documents"),
-            new(3, "Investigations"),
-            new(4, "Immunisations"),
-        ];
+       
     }
 }
 
@@ -56,12 +50,6 @@ public class ReactionType(int id, string name)
 }
 
 public class DocumentType(int id, string name)
-{
-    public int Id { get; set; } = id;
-    public string Name { get; set; } = name;
-}
-
-public class DocumentCategory(int id, string name)
 {
     public int Id { get; set; } = id;
     public string Name { get; set; } = name;

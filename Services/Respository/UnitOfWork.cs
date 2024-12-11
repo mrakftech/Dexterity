@@ -4,6 +4,7 @@ using Database;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
+using Services.Features.Dashboard;
 using Services.Features.Messaging.Mail;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
@@ -21,6 +22,7 @@ public sealed class UnitOfWork(
     ISettingService setting,
     IAppointmentService appointment,
     IConsultationService consultation,
+    IDashboardService dashboard,
     IWaitingRoomService waitingRoom,
     IFileManagerService fileManager,
     IMailService mail,
@@ -29,7 +31,18 @@ public sealed class UnitOfWork(
     : IUnitOfWork
 {
     private bool _disposed;
+    public IDashboardService Dashboard   
+    {
+        get
+        {
+            if (dashboard == null)
+            {
+                dashboard = new DashboardService(context);
+            }
 
+            return dashboard;
+        }
+    }
 
     public IConsultationService Consultation
     {

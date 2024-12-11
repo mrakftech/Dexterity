@@ -25,6 +25,7 @@ using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Service;
 using Services.State;
 using Shared.Constants.Module.Consultation;
+using Shared.Helper;
 using Shared.Wrapper;
 
 namespace Services.Features.Consultation.Service;
@@ -1152,6 +1153,67 @@ public class ConsultationService(
         }
 
         return await Result.SuccessAsync("Sketch has been saved.");
+    }
+
+    #endregion
+
+    #region Patietn Form
+
+    public async Task<List<PatientCustomForm>> GetPatientCustomForms()
+    {
+        return await context.PatientCustomForms
+            .Include(x => x.FormTemplate)
+            .Include(x => x.Hcp)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .ToListAsync();
+    }
+
+    public async Task<PatientCustomForm> GetPatientCustomForm(Guid id)
+    {
+        return await context.PatientCustomForms.FirstOrDefaultAsync(x => x.Id == id);
+    }
+
+    public async Task<IResult> SavePatientCustomForm(Guid id, PatientCustomForm request)
+    {
+        try
+        {
+            if (id == Guid.Empty)
+            {
+                var newCustomForm = new PatientCustomForm()
+                {
+                    Id = Guid.NewGuid(),
+                    RefNumber = CryptographyHelper.GetUniqueKey(),
+                    CreatedDate = DateTime.UtcNow,
+                    PatientId = ApplicationState.SelectedPatientId,
+                    FormTemplateId = request.FormTemplateId,
+                    HcpId = request.HcpId,
+                    Status = request.Status,
+                };
+                await context.PatientCustomForms.AddAsync(newCustomForm);
+            }
+
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Form has been saved.");
+        }
+        catch (Exception e)
+        {
+            return await Result.FailAsync(e.Message);
+        }
+    }
+
+    public async Task<IResult> DeletePatientCustomForm(Guid id)
+    {
+        var letter = await context.PatientCustomForms
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (letter is null)
+        {
+            return await Result.FailAsync("Form doesn't exist.");
+        }
+
+        context.PatientCustomForms.Remove(letter);
+        await context.SaveChangesAsync();
+        return await Result.FailAsync("Form has been deleted.");
     }
 
     #endregion

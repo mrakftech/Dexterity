@@ -61,10 +61,10 @@ public class FileManagerService : IFileManagerService
     public void CreatePatientDefualtDirectories(Guid patientId)
     {
         CreateDirectory(patientId.ToString());
-        foreach (var item in ConsultationConstants.DocumentConstant.DocumentCategoryList)
-        {
-            CreateDirectory($"{patientId}/{item.Name}");
-        }
+        // foreach (var item in ConsultationConstants.DocumentConstant.DocumentCategoryList)
+        // {
+        //     CreateDirectory($"{patientId}/{item.Name}");
+        // }
     }
 
     private static string CreateDirectory(string folderName)

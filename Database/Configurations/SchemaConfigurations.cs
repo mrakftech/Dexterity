@@ -21,6 +21,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
@@ -52,6 +53,12 @@ public static class SchemaConfigurations
         builder.Entity<AppointmentType>(entity => { entity.ToTable(name: "AppointmentTypes", "Setting"); });
         builder.Entity<CustomForm>(entity => { entity.ToTable(name: "CustomForms", "Setting"); });
         builder.Entity<CustomFormTemplate>(entity => { entity.ToTable(name: "FormTemplates", "Setting"); });
+        builder.Entity<DocumentCategory>(entity => { entity.ToTable(name: "DocumentCategories", "Setting"); });
+        builder.Entity<DocumentCategory>()
+            .HasOne(c => c.ParentCategory)
+            .WithMany(c => c.SubCategories)
+            .HasForeignKey(c => c.ParentCategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
         builder.Entity<AppointmentCancellationReason>(entity =>
         {
             entity.ToTable(name: "AppointmentCancellationReasons", "Setting");
@@ -117,6 +124,7 @@ public static class SchemaConfigurations
         builder.Entity<LetterReply>(entity => { entity.ToTable(name: "LetterReplies", "Consultation"); });
         builder.Entity<ScannedDocument>(entity => { entity.ToTable(name: "ScannedDocuments", "Consultation"); });
         builder.Entity<PatientSketch>(entity => { entity.ToTable(name: "PatientSketches", "Consultation"); });
+        builder.Entity<PatientCustomForm>(entity => { entity.ToTable(name: "PatientCustomForms", "Consultation"); });
 
         builder.Entity<PatientInvestigation>(entity =>
         {

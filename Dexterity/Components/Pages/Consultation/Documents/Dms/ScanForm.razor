@@ -1,4 +1,5 @@
 ﻿@using Shared.Constants.Module.Consultation
+@using Domain.Entities.Settings.Templates.Dms
 @using Domain.Entities.Consultation.Documents
 <DexDialog>
     <DialogTitle></DialogTitle>
@@ -19,7 +20,7 @@
                 <FormItem Field="@nameof(ScannedDocument.Category)">
                     <Template>
                         <SfDropDownList TValue="string" TItem="DocumentCategory" Placeholder="Category"
-                                        DataSource="@ConsultationConstants.DocumentConstant.DocumentCategoryList"
+                                        DataSource="_documentCategories"
                                         @bind-Value="ScannedDocumentData.Category">
                             <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
                         </SfDropDownList>
@@ -29,18 +30,20 @@
                 {
                     <FormItem Field="@nameof(ScannedDocument.AttachedFile)">
                         <Template>
-                            <SfRichTextEditor 
-                                              ID="RT_Editor"
-                                              ShowCharCount="true"
-                                              AutoSaveOnIdle="true"
-                                              EnableTabKey="true"
-                                              EnableXhtml="true"
-                                              Placeholder="Write some text....."
-                                              @bind-Value="@ScannedDocumentData.AttachedFile">
+                            <SfRichTextEditor
+                                ID="RT_Editor"
+                                ShowCharCount="true"
+                                AutoSaveOnIdle="true"
+                                EnableTabKey="true"
+                                EnableXhtml="true"
+                                Placeholder="Write some text....."
+                                @bind-Value="@ScannedDocumentData.AttachedFile">
                                 <RichTextEditorToolbarSettings
-                                    Items="@WordProcessorSetting.MsWordTools"></RichTextEditorToolbarSettings>
+                                    Items="@WordProcessorSetting.MsWordTools">
+                                </RichTextEditorToolbarSettings>
                                 <RichTextEditorImportWord
-                                    ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+                                    ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord">
+                                </RichTextEditorImportWord>
                             </SfRichTextEditor>
                         </Template>
                     </FormItem>
@@ -49,7 +52,7 @@
                 <FormItem Field="@nameof(ScannedDocument.AdditionalNotes)" EditorType="FormEditorType.TextArea"/>
             </Fields>
             <Buttons>
-                <DexLoadingButton Name="Save" Processing="isProcessing" Type="MudButtonType.Submit"/>
+                <DexLoadingButton Name="Save" Processing="_isProcessing" Type="MudButtonType.Submit"/>
             </Buttons>
         </DexForm>
     </Content>
@@ -60,11 +63,22 @@
     [Parameter] public Guid Id { get; set; }
     [Parameter] public bool IsAttachFile { get; set; }
     private ScannedDocument ScannedDocumentData { get; set; } = new();
-    private bool isProcessing;
+    private bool _isProcessing;
+    private List<DocumentCategory> _documentCategories = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCategories();
+    }
+
+    private async Task GetCategories()
+    {
+        _documentCategories = await UnitOfWork.Setting.GetAllCategoriesWithHierarchy();
+    }
 
     private async Task SaveScan()
     {
-        isProcessing = true;
+        _isProcessing = true;
         var res = await UnitOfWork.Consultation.SaveScannedDocuments(Id, ScannedDocumentData);
         if (res.Succeeded)
         {
@@ -76,7 +90,7 @@
             Snackbar.FailMessage(res.Messages.First());
         }
 
-        isProcessing = false;
+        _isProcessing = false;
     }
 
 }

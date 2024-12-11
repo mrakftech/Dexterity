@@ -75,8 +75,7 @@
 
     private async Task GetHealthCares()
     {
-        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
-        HealthCares = users.Where(x => x.UserType == UserTypeConstants.Doctor).ToList();
+        HealthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
     }
 
 }

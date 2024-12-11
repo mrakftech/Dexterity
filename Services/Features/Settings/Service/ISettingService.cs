@@ -4,6 +4,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
@@ -201,6 +202,13 @@ public interface ISettingService
     public Task<List<Sketch>> GetSketcheByCategory(Guid categoryId);
     public Task<IResult> SaveSketch(Guid id, Sketch request);
     public Task<IResult> DeleteSketch(Guid id);
+
+    #endregion
+    
+    #region DMS
+    public Task<List<DocumentCategory>> GetAllCategoriesWithHierarchy();
+    public Task<IResult> SaveDmsCategory(string name, int? parentCategoryId = null);
+    public Task<IResult> DeleteDmsCategory(int id);
 
     #endregion
 

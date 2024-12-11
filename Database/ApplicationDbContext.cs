@@ -27,6 +27,7 @@ using Domain.Entities.WaitingRoom;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
@@ -103,8 +104,9 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<Sketch> Sketches { get; set; }
     public DbSet<SketchCategory> SketchCategories { get; set; }
     public DbSet<CustomForm> CustomForms { get; set; }
-    
     public DbSet<CustomFormTemplate> FormTemplates { get; set; }
+
+    public DbSet<DocumentCategory> DocumentCategories { get; set; }
 
     #region Immunisations
 
@@ -177,6 +179,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<LetterReply> LetterReplies { get; set; }
     public DbSet<ScannedDocument> ScannedDocuments { get; set; }
     public DbSet<PatientSketch> PatientSketches { get; set; }
+    public DbSet<PatientCustomForm> PatientCustomForms { get; set; }
 
     #endregion
 }

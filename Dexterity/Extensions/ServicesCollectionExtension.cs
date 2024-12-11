@@ -4,6 +4,7 @@ using Dexterity.Adapters;
 using Services.Contracts.Repositroy;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
+using Services.Features.Dashboard;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -29,6 +30,7 @@ public static class ServicesCollectionExtension
         services.AddTransient<IUnitOfWork, UnitOfWork>();
         services.AddTransient<IMailService, MailService>();
         services.AddTransient<IFileManagerService, FileManagerService>();
+        services.AddTransient<IDashboardService, DashboardService>();
         services.AddScoped<AppointmentDataAdaptor>();
 
 

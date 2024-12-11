@@ -1,5 +1,6 @@
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
+using Services.Features.Dashboard;
 using Services.Features.Messaging.Service;
 using Services.Features.PatientManagement.Service;
 using Services.Features.Settings.Service;
@@ -18,4 +19,5 @@ public interface IUnitOfWork: IDisposable
     IWaitingRoomService WaitingRoom { get; }
     IConsultationService Consultation { get; }
     IFileManagerService FileService { get; }
+    IDashboardService Dashboard { get; }
 }

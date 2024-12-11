@@ -6,6 +6,7 @@ using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -37,8 +38,26 @@ public class DatabaseSeeder(
         SeedFakePatientData();
         SeedFakeUserData();
         SeedSketchCategories();
-    }
+        SeedDmsCategory();
 
+    }
+    private void SeedDmsCategory()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.DocumentCategories.Any())
+                return;
+            
+            var c = new DocumentCategory()
+            {
+                Name = "General"
+            };
+            context.DocumentCategories.Add(c);
+            await context.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
+    }
     private void SeedSketchCategories()
     {
         Task.Run(async () =>

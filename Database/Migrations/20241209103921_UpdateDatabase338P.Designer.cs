@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241209103921_UpdateDatabase338P")]
+    partial class UpdateDatabase338P
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2692,29 +2695,6 @@ namespace Database.Migrations
                     b.ToTable("Drugs", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Dms.DocumentCategory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)");
-
-                    b.Property<int?>("ParentCategoryId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ParentCategoryId");
-
-                    b.ToTable("DocumentCategories", "Setting");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Templates.EmailTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -3873,16 +3853,6 @@ namespace Database.Migrations
                     b.Navigation("HealthCode");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Dms.DocumentCategory", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.Templates.Dms.DocumentCategory", "ParentCategory")
-                        .WithMany("SubCategories")
-                        .HasForeignKey("ParentCategoryId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.Navigation("ParentCategory");
-                });
-
             modelBuilder.Entity("Domain.Entities.Settings.Templates.Forms.CustomFormTemplate", b =>
                 {
                     b.HasOne("Domain.Entities.Settings.Templates.Forms.CustomForm", "CustomForm")
@@ -4086,11 +4056,6 @@ namespace Database.Migrations
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.ImmunisationProgram", b =>
                 {
                     b.Navigation("ImmunisationSchedules");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.Templates.Dms.DocumentCategory", b =>
-                {
-                    b.Navigation("SubCategories");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.InvestigationTemplates.Investigation", b =>

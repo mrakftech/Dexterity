@@ -6,6 +6,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
 using Domain.Entities.Settings.Templates;
+using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
@@ -1497,6 +1498,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Sketch has been deleted.");
     }
 
+
     public async Task<List<CustomForm>> GetCustomForms()
     {
         return await context.CustomForms
@@ -1540,7 +1542,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<CustomFormTemplate> GetCustomFormTemplate(Guid templateId)
     {
-        return await context.FormTemplates.FirstOrDefaultAsync(x=>x.Id == templateId);
+        return await context.FormTemplates.FirstOrDefaultAsync(x => x.Id == templateId);
     }
 
     public async Task<IResult> SaveFormTemplate(Guid id, CustomFormTemplate request)
@@ -1582,7 +1584,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
         if (formTemplate is null)
             return await Result.FailAsync("Form Template not found.");
-        
+
         var newTemplate = new CustomFormTemplate()
         {
             Id = Guid.NewGuid(),
@@ -1591,7 +1593,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             Description = formTemplate.Description,
         };
         await context.FormTemplates.AddAsync(newTemplate);
-        
+
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("New Copy has been saved.");
     }
@@ -1608,6 +1610,46 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         context.FormTemplates.Remove(formTemplate);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Form Template has been deleted.");
+    }
+
+    #endregion
+
+    #region Dms Category
+
+    public async Task<List<DocumentCategory>> GetAllCategoriesWithHierarchy()
+    {
+        return await context.DocumentCategories
+            .Include(c => c.SubCategories)
+            .Where(c => c.ParentCategoryId == null) // Start from root categories
+            .ToListAsync();
+    }
+
+    public async Task<IResult> SaveDmsCategory(string name, int? parentCategoryId = null)
+    {
+        var newCategory = new DocumentCategory
+        {
+            Name = name,
+            ParentCategoryId = parentCategoryId,
+        };
+
+        await context.DocumentCategories.AddAsync(newCategory);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("DMS category has been saved.");
+    }
+
+    public async Task<IResult> DeleteDmsCategory(int id)
+    {
+        var documentCategory = await context.DocumentCategories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
+
+        if (documentCategory is null)
+            return await Result.FailAsync("Document not found.");
+
+        context.ChangeTracker.Clear();
+        context.DocumentCategories.Remove(documentCategory);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Document has been deleted.");
     }
 
     #endregion

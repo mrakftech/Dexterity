@@ -1,22 +1,131 @@
-﻿<div class="m-3">
+﻿@using Domain.Entities.Consultation.Documents
+@using Domain.Entities.Settings.Templates.Forms
+<div class="m-3">
     <TabTitle Title="Forms">
         <ActionButtons>
-            <DexSfButton Name="Add Form" Icon="plus.png"/>
-            <DexSfButton Name="Print" Icon="printer.png" Disabled="true"/>
-            <DexSfButton Name="Edit" Icon="edit.png" Disabled="true"/>
-            <DexSfButton Name="Preview" Icon="preview.png" Disabled="true"/>
-            <DexSfButton Name="Email" Icon="mail.png" Disabled="true"/>
-            <DexSfButton Name="Delete" Icon="delete.png" Disabled="true"/>
+            <DexSfButton Name="Add Form" Icon="plus.png" Disabled="@(_customFormId == Guid.Empty)" Click="() => OpenPatientFormDialog(Guid.Empty)"/>
+            <DexSfButton Name="Print" Icon="printer.png" Disabled="@(_patientCustomFormId == Guid.Empty)"/>
+            <DexSfButton Name="Edit" Icon="edit.png" Disabled="@(_patientCustomFormId == Guid.Empty)"/>
+            <DexSfButton Name="Preview" Icon="preview.png" Disabled="@(_patientCustomFormId == Guid.Empty)"/>
+            <DexSfButton Name="Email" Icon="mail.png" Disabled="@(_patientCustomFormId == Guid.Empty)"/>
+            <DexSfButton Name="Delete" Icon="delete.png" Disabled="@(_patientCustomFormId == Guid.Empty)" Click="()=>DeletePatientForm(_patientCustomFormId)"/>
         </ActionButtons>
     </TabTitle>
-    <DexGrid Height="300px">
-        <DexGridColumns>
-            <GridColumn Field="Date"/>
-            <GridColumn Field="Form"/>
-        </DexGridColumns>
-    </DexGrid>
+
+    <MudStack Row>
+        <MudItem md="9">
+            <SfGrid DataSource="PatientCustomForms" AllowPaging="false">
+                <GridEvents TValue="PatientCustomForm" RowSelected="SelectPatientCustomForm"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(PatientCustomForm.CreatedDate)" HeaderText="Date" Format="d" Type="ColumnType.Date"/>
+                    <GridColumn Field="@nameof(PatientCustomForm.FormTemplate)" HeaderText="Form" Width="120px">
+                        <Template>
+                            @{
+                                var item = (context as PatientCustomForm);
+                                <MudText > @item!.FormTemplate.Description</MudText>
+                            }
+
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(PatientCustomForm.RefNumber)" HeaderText="Ref"/>
+                    <GridColumn Field="@nameof(PatientCustomForm.FormTemplate)" HeaderText="HCP" Width="120px">
+                        <Template>
+                            @{
+                                var item = (context as PatientCustomForm);
+                                <MudText > @item!.Hcp.FullName</MudText>
+                            }
+
+                        </Template>
+                    </GridColumn>
+                    <GridColumn Field="@nameof(PatientCustomForm.Status)"/>
+                </GridColumns>
+            </SfGrid>
+        </MudItem>
+        <MudItem md="3">
+            <label>Available Forms</label>
+            <SfGrid DataSource="CustomForms" AllowPaging="false">
+                <GridEvents TValue="CustomForm" RowSelected="SelectCustomForm"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="Name"/>
+                </GridColumns>
+            </SfGrid>
+        </MudItem>
+    </MudStack>
+
 </div>
 
 @code {
+    private List<CustomForm> CustomForms { get; set; } = new();
+    private List<PatientCustomForm> PatientCustomForms { get; set; } = new();
+    private Guid _customFormId;
+    private Guid _patientCustomFormId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetCustomForms();
+        await GetPatientCustomForms();
+    }
+
+    private async Task GetCustomForms()
+    {
+        CustomForms = await UnitOfWork.Setting.GetCustomForms();
+    }
+
+    private async Task GetPatientCustomForms()
+    {
+        PatientCustomForms = await UnitOfWork.Consultation.GetPatientCustomForms();
+    }
+
+    private void SelectCustomForm(RowSelectEventArgs<CustomForm> args)
+    {
+        if (args.Data is not null)
+        {
+            _customFormId = args.Data.Id;
+        }
+        else
+        {
+        }
+    }
+
+    private void SelectPatientCustomForm(RowSelectEventArgs<PatientCustomForm> args)
+    {
+        if (args.Data is not null)
+        {
+            _patientCustomFormId = args.Data.Id;
+        }
+        else
+        {
+        }
+    }
+
+    private async Task OpenPatientFormDialog(Guid id)
+    {
+        var parameters = new DialogParameters
+        {
+            {"Id", id},
+            {"CustomFormId", _customFormId}
+        };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<PatientCustomFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetPatientCustomForms();
+        }
+    }
+
+    private async Task DeletePatientForm(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Consultation.DeletePatientCustomForm(id);
+            StateHasChanged();
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetPatientCustomForms();
+        }
+    }
 
 }

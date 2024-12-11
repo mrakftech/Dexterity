@@ -5,74 +5,92 @@
 @using Position = MudBlazor.Position
 
 <MudContainer Style="margin-top:8%" MaxWidth="MaxWidth.ExtraExtraLarge">
-  <MudGrid Justify="MudJustify.Center">
-    <MudItem>
-      <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="300"></MudImage>
-    </MudItem>
-    <MudItem md="12">
-      <MudGrid Justify="MudJustify.Center" Spacing="15">
-        <MudItem md="4">
-          <MetricsCard BgColor="bg-c-purple" Title="Patients" Count="56" Image="patient-m-card-img" ForceColor="#FFF"/>
+    <MudGrid Justify="MudJustify.Center">
+        <MudItem>
+            <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="300"></MudImage>
         </MudItem>
-        <MudItem md="4">
-          <MetricsCard BgColor=" bg-c-blue" Title="Appointments" Count="150" Image="appt-card-img"/>
+        <MudItem md="12">
+            <MudGrid Justify="MudJustify.Center" Spacing="15">
+                <MudItem md="4">
+                    <MetricsCard BgColor="bg-c-purple" Title="Patients" Count="@_patientCounts" Image="patient-m-card-img" ForceColor="#FFF"/>
+                </MudItem>
+                <MudItem md="4">
+                    <MetricsCard BgColor=" bg-c-blue" Title="Appointments" Count="@_apptCounts" Image="appt-card-img"/>
+                </MudItem>
+                <MudItem md="4">
+                    <MetricsCard BgColor="bg-c-green" Title="Waiting" Count="@_waitingCounts" Image="waiting-card-img"/>
+                </MudItem>
+            </MudGrid>
         </MudItem>
-        <MudItem md="4">
-          <MetricsCard BgColor="bg-c-green" Title="Waiting" Count="56" Image="waiting-card-img"/>
+        <MudItem md="12">
+            <MudGrid Justify="MudJustify.Center" Spacing="15">
+                <MudItem md="4">
+                    <MetricsCard BgColor="bg-c-yellow" Title="Consultations" Count="@_consCounts" Image="consultation-card-img"/>
+                </MudItem>
+                <MudItem md="4">
+                    <MetricsCard BgColor="bg-c-orange" Title="Messages" Count="480" Image="message-card-img"/>
+                </MudItem>
+                <MudItem md="4">
+                    <MetricsCard BgColor="bg-c-pink" Title="My Tasks" Count="@_tasksCounts" Image="my-task-card-img"/>
+                </MudItem>
+            </MudGrid>
         </MudItem>
-      </MudGrid>
-    </MudItem>
-    <MudItem md="12">
-      <MudGrid Justify="MudJustify.Center" Spacing="15">
-        <MudItem md="4">
-          <MetricsCard BgColor="bg-c-yellow" Title="Consultations" Count="90" Image="consultation-card-img"/>
-        </MudItem>
-        <MudItem md="4">
-          <MetricsCard BgColor="bg-c-orange" Title="Messages" Count="480" Image="message-card-img"/>
-        </MudItem>
-        <MudItem md="4">
-          <MetricsCard BgColor="bg-c-pink" Title="My Tasks" Count="90" Image="my-task-card-img"/>
-        </MudItem>
-      </MudGrid>
-    </MudItem>
 
-    <MudItem md="12" Style="margin-top: 5%">
-      <MudStack Row>
-        <MudItem md="6">
-          <MudPaper >
-            <MudChart ChartType="MudBlazor.ChartType.Bar"
-              ChartSeries="@Series"
-              @bind-SelectedIndex="Index"
-              LegendPosition="Position.Right"
-              XAxisLabels="@XAxisLabels" Width="100%" Height="350px"></MudChart>
-          </MudPaper>
+        <MudItem md="12" Style="margin-top: 5%">
+            <MudStack Row>
+                <MudItem md="6">
+                    <MudPaper >
+                        <MudChart ChartType="ChartType.Bar"
+                                  ChartSeries="@_series"
+                                  @bind-SelectedIndex="_index"
+                                  LegendPosition="Position.Right"
+                                  XAxisLabels="@_xAxisLabels" Width="100%" Height="350px">
+                        </MudChart>
+                    </MudPaper>
+                </MudItem>
+                <MudSpacer/>
+                <MudItem md="6">
+                    <MudPaper >
+                        <MudChart
+                            ChartType="MudBlazor.ChartType.Donut"
+                            LegendPosition="Position.Right" Width="300px" Height="350px"
+                            InputData="@_data" InputLabels="@_labels">
+                        </MudChart>
+                    </MudPaper>
+                </MudItem>
+            </MudStack>
         </MudItem>
-        <MudSpacer/>
-        <MudItem md="6">
-          <MudPaper >
-            <MudChart
-              ChartType="MudBlazor.ChartType.Donut"
-              LegendPosition="Position.Right" Width="300px" Height="350px"
-              InputData="@data" InputLabels="@labels">
-            </MudChart>
-          </MudPaper>
-        </MudItem>
-      </MudStack>
-    </MudItem>
-  </MudGrid>
+    </MudGrid>
 </MudContainer>
 
 @code{
+    private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private readonly double[] _data = [25, 77, 28, 5];
+    private readonly string[] _labels = ["Oil", "Coal", "Gas", "Biomass"];
 
-  private int Index = -1; //default value cannot be 0 -> first selectedindex is 0.
-  public double[] data = { 25, 77, 28, 5 };
-  public string[] labels = { "Oil", "Coal", "Gas", "Biomass" };
-  public List<ChartSeries> Series = new List<ChartSeries>()
-  {
-    new ChartSeries() { Name = "United States", Data = new double[] { 40, 20, 25, 27, 46, 60, 48, 80, 15 } },
-    new ChartSeries() { Name = "Germany", Data = new double[] { 19, 24, 35, 13, 28, 15, 13, 16, 31 } },
-    new ChartSeries() { Name = "Sweden", Data = new double[] { 8, 6, 11, 13, 4, 16, 10, 16, 18 } },
-  };
-  public string[] XAxisLabels = { "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep" };
+    private readonly List<ChartSeries> _series =
+    [
+        new() {Name = "United States", Data = [40, 20, 25, 27, 46, 60, 48, 80, 15]},
+        new() {Name = "Germany", Data = [19, 24, 35, 13, 28, 15, 13, 16, 31]},
+        new() {Name = "Sweden", Data = [8, 6, 11, 13, 4, 16, 10, 16, 18]}
+    ];
+
+    private readonly string[] _xAxisLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+
+
+    private int _patientCounts;
+    private int _apptCounts;
+    private int _waitingCounts;
+    private int _tasksCounts;
+    private int _consCounts;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _patientCounts = await UnitOfWork.Dashboard.GetPatientCount();
+        _apptCounts = await UnitOfWork.Dashboard.GetAppointmentCount();
+        _waitingCounts = await UnitOfWork.Dashboard.GetWaitingPatientCount();
+        _tasksCounts = await UnitOfWork.Dashboard.GetTasksCount();
+        _consCounts = await UnitOfWork.Dashboard.GetConsultationCount();
+    }
 
 }
