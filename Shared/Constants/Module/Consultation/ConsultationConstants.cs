@@ -26,6 +26,14 @@ public static class ConsultationConstants
         new(20, "Crying"),
     ];
 
+    public static class RecordType
+    {
+        public const string Notes = "Notes";
+        public const string Perscription = "Perscription";
+        public const string Immunisation = "Immunisation";
+        public const string Investigation = "Investigation";
+
+    }
 
     public static class DocumentConstant
     {
