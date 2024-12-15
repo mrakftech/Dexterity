@@ -125,7 +125,7 @@
                                 <ListViewFieldSettings TValue="Course" Id="Id" Text="Name"></ListViewFieldSettings>
                                 <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 1))"></ListViewEvents>
                             </SfListView>
-                            <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3" @onclick="@(e => OnButtonClick(2))">@("Add Item")</button>
+                            <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(2))">@("Add Item")</button>
 
                         </div>
                         <div class="flex vertical vertical__center flex__center padding">
@@ -141,7 +141,7 @@
                                 <ListViewFieldSettings Id="Id" Text="Name" TValue="Course"></ListViewFieldSettings>
                                 <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 2))"></ListViewEvents>
                             </SfListView>
-                            <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3" @onclick="@(e => OnButtonClick(3))">@("Remove Item")</button>
+                            <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(3))">@("Remove Item")</button>
 
                         </div>
                         @* <div class="flex vertical vertical__center flex__center padding"> *@
