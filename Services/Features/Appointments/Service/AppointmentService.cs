@@ -85,16 +85,18 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 appointment.ModifiedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
-                ;
                 appointment.PatientId = request.PatientId;
                 appointment.HcpId = request.HcpId;
                 appointment.AppointmentTypeId = request.AppointmentTypeId;
                 appointment.Duration = request.Duration;
+                appointment.Description = request.Description;
                 appointment.Status = request.Status;
                 appointment.RecurrenceRule = request.RecurrenceRule;
                 appointment.RecurrenceException = request.RecurrenceException;
                 appointment.RecurrenceID = request.RecurrenceID;
                 context.Appointments.Update(appointment);
+                await context.SaveChangesAsync();
+
             }
 
             await context.SaveChangesAsync();

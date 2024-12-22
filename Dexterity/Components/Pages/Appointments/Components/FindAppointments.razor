@@ -1,18 +1,34 @@
-﻿@using Services.Features.Appointments.Dtos
+﻿@using Dexterity.Components.Pages.Appointments.Dialogs
+@using Services.Features.Appointments.Dtos
 
 <TabTitle Title="Find Appointments"/>
 
 <DexGrid DataSource="AppointmentList" Loading="_loading">
-    <DexGridColumns >
-        <GridColumn Field="@nameof(SearchAppointmentDto.StartTime)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="120px"/>
+    <DexGridColumns>
+        <GridColumn Field="@nameof(SearchAppointmentDto.StartTime)" Format="g" Type="ColumnType.DateTime"
+                    HeaderText="Date" Width="120px"/>
         <GridColumn Field="@nameof(SearchAppointmentDto.PatientName)" HeaderText="Full Name" Width="120px"/>
-        <GridColumn Field="@nameof(SearchAppointmentDto.DateOfBirth)" Format="d" Type="ColumnType.DateTime" HeaderText="Date of Birth" Width="120px"/>
+        <GridColumn Field="@nameof(SearchAppointmentDto.DateOfBirth)" Format="d" Type="ColumnType.DateTime"
+                    HeaderText="Date of Birth" Width="120px"/>
         <GridColumn Field="@nameof(SearchAppointmentDto.Status)" HeaderText="Status" Width="120px"/>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as SearchAppointmentDto);
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                   Color="MudColor.Primary" OnClick="() => EditAppointment(item!.Id)"/>
+                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                   Color="MudColor.Error" OnClick="() => DeleteAppointment(item!.Id)"/>
+                }
+            </Template>
+        </GridColumn>
     </DexGridColumns>
+
 </DexGrid>
 
 @code {
-    private List<SearchAppointmentDto> AppointmentList { get; set; } = new();
+    List<SearchAppointmentDto> AppointmentList { get; set; } = new();
+
     private bool _loading;
 
     protected override async Task OnInitializedAsync()
@@ -26,6 +42,33 @@
     private async Task GetAppointments()
     {
         AppointmentList = await UnitOfWork.Appointment.FindAppointments();
+    }
+
+    private async Task DeleteAppointment(int id)
+    {
+        var parameters = new DialogParameters();
+
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result!.Canceled)
+        {
+            await UnitOfWork.Appointment.DeleteAppointment(id);
+            await GetAppointments();
+
+        }
+    }
+
+    private async Task EditAppointment(int id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions()
+            {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<EditAppointmentDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result!.Canceled)
+        {
+            await GetAppointments();
+        }
     }
 
 }

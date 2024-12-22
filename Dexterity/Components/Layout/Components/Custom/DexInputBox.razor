@@ -1,6 +1,7 @@
 ﻿@using System.Linq.Expressions
 <label class="e-form-label">@Label</label>
-<SfTextBox CssClass="mb-3" @bind-Value="@FieldDataSource" Placeholder="@Placeholder" Type="@FieldRole" Readonly="IsFieldReadOnly" Enabled="!IsFieldDisabled" Multiline="IsMultiLine"></SfTextBox>
+<SfTextBox CssClass="mb-3" @bind-Value="@FieldDataSource" 
+           Placeholder="@Placeholder" Type="@FieldRole" Readonly="IsFieldReadOnly" Enabled="!IsFieldDisabled" Multiline="IsMultiLine"></SfTextBox>
 @code {
     [Parameter] public string Label { get; set; } = "";
     [Parameter] public string Placeholder { get; set; } = "";

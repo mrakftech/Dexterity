@@ -13,3 +13,7 @@
     width: 24px;
     height: 24px;
 }
+
+.e-highlight {
+    background-color: yellow;
+}

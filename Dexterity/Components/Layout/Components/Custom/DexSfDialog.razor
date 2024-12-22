@@ -1,0 +1,14 @@
+﻿<SfDialog Width="250px" ShowCloseIcon="true" IsModal="true" @bind-Visible="@IsVisible">
+    <DialogTemplates>
+        <Header> @Header </Header>
+        <Content> @Content </Content>
+    </DialogTemplates>
+</SfDialog>
+
+@code {
+    [Parameter] public bool IsVisible { get; set; }
+    [Parameter] public RenderFragment Header { get; set; }
+    [Parameter] public RenderFragment Content { get; set; }
+    [Parameter] public RenderFragment ActionButtons { get; set; }
+
+}

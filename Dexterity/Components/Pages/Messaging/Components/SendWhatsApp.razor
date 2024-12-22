@@ -44,7 +44,7 @@
         Snackbar.SuccessMessage("WhatsApp link generated.");
     }
 
-    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
+    private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
     {
         _error = "";
         var patient = args.ItemData;

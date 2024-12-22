@@ -1,13 +1,25 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 <MudItem xs="12" sm="6" md="12">
     <label class="e-form-label">Patients</label>
-    <SfAutoComplete TValue="Guid" TItem="PatientListDto" Placeholder="Select a patient" DataSource="@PatientList" >
-        <AutoCompleteFieldSettings Value="Id" Text="FullName"  />
-        <AutoCompleteEvents TValue="Guid" TItem="PatientListDto" ValueChange="OnChangePatient"  ></AutoCompleteEvents>
+    <SfAutoComplete @ref="_autoObj" TValue="string" TItem="PatientListDto" Placeholder="Select a patient" DataSource="@PatientList" Highlight="true"
+                    @bind-Value="@SelectedPatientName">
+        <AutoCompleteFieldSettings Value="FullName" Text="FullName"/>
+        <AutoCompleteEvents TValue="string" TItem="PatientListDto" ValueChange="OnChangePatient" Focus="CreateHandler" ></AutoCompleteEvents>
     </SfAutoComplete>
 </MudItem>
-
+<style>
+   
+</style>
 @code {
+    SfAutoComplete<string, PatientListDto> _autoObj;
+    [Parameter] public string SelectedPatientName { get; set; } = string.Empty;
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
-    [Parameter] public EventCallback<ChangeEventArgs<Guid, PatientListDto>> OnChangePatient { get; set; }
+    [Parameter] public EventCallback<ChangeEventArgs<string, PatientListDto>> OnChangePatient { get; set; }
+    [Parameter] public EventCallback<object> Created { get; set; }
+    
+    public async Task CreateHandler()
+    {
+        //await Created.InvokeAsync();
+        await _autoObj.ShowPopupAsync();
+    }
 }

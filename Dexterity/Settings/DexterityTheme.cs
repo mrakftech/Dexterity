@@ -127,6 +127,7 @@ namespace Dexterity.Settings
                 TableLines = "#0077B5",
                 LinesInputs = "#0077B5",
                 LinesDefault = "#0077B5",
+                ActionDefault = "#b94e48"
             },
             PaletteDark = new PaletteDark()
             {

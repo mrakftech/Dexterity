@@ -88,7 +88,7 @@
         ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.CurrentUser.ClinicId);
     }
 
-    private void ChangePatient(ChangeEventArgs<Guid, PatientListDto> args)
+    private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
     {
         var patient = args.ItemData;
         if (patient != null)

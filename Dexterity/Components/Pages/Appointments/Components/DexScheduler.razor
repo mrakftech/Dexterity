@@ -6,25 +6,26 @@
 @using Query = Syncfusion.Blazor.Data.Query
 @using Services.Features.UserAccounts.Dtos.User
 
-
 <MudStack>
     <MudItem Class="mt-3">
         <MudStack Row>
             <MudItem md="3">
-                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@_appointmentStatusList" @bind-Value="@_statusSearchValue">
+                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@_appointmentStatusList"
+                                @bind-Value="@_statusSearchValue">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="3">
-                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@_hcpSearchValue">
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares"
+                                @bind-Value="@_hcpSearchValue">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </MudItem>
             <MudItem>
-                <DexSimpleButton Click="OnSearchClick" Name="Search" FullWidth="false" />
-                <DexSimpleButton Click="OnClearClick" Name="Clear" FullWidth="false" />
+                <DexSimpleButton Click="OnSearchClick" Name="Search" FullWidth="false"/>
+                <DexSimpleButton Click="OnClearClick" Name="Clear" FullWidth="false"/>
             </MudItem>
-            <MudSpacer />
+            <MudSpacer/>
             <MudItem>
                 <MudIconButton Icon="fas fa-refresh" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
                 <MudIconButton Icon="fas fa-print" Color="MudColor.Primary" OnClick="OnPrint"></MudIconButton>
@@ -33,16 +34,18 @@
     </MudItem>
     <MudItem md="12" Style="@(ShowSchedule ? string.Empty : "display:none")">
         <SfSchedule @ref="_scheduleRef" TValue="AppointmentDto" Width="100%" Height="650px" SelectedDate="@SelectedDate"
-                    AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true"  ShowWeekend="false">
+                    AllowDragAndDrop="true" ShowQuickInfo="true" EnableAutoRowHeight="true" ShowWeekend="false">
 
             <ScheduleEventSettings TValue="AppointmentDto" AllowDeleting AllowAdding EnableTooltip>
                 <SfDataManager AdaptorInstance="@typeof(AppointmentDataAdaptor)" Adaptor="Adaptors.CustomAdaptor">
                 </SfDataManager>
             </ScheduleEventSettings>
             <ScheduleResources>
-                <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId" Title="Name" 
-                Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true" 
-                WorkDaysField="WorkingDays" StartHourField="StartHour" EndHourField="EndHour"></ScheduleResource>
+                <ScheduleResource TItem="HealthcareDto" TValue="Guid[]" DataSource="@HealthCares" Field="HcpId"
+                                  Title="Name"
+                                  Name="Healthcares" TextField="Name" IdField="Id" AllowMultiple="true"
+                                  WorkDaysField="WorkingDays" StartHourField="StartHour"
+                                  EndHourField="EndHour"></ScheduleResource>
             </ScheduleResources>
             <ScheduleGroup EnableCompactView="false" Resources="@_groupData"></ScheduleGroup>
             <ScheduleViews>
@@ -83,15 +86,20 @@
                             <div class="e-date-time">
                                 <div class="e-date-time-icon e-icons"></div>
                                 <div class="e-date-time-wrapper e-text-ellipsis">
-                                    <div class="e-date-time-details e-text-ellipsis">@(GetEventDetails((context as AppointmentDto)))</div>
+                                    <div
+                                        class="e-date-time-details e-text-ellipsis">@(GetEventDetails((context as AppointmentDto)))</div>
                                 </div>
                             </div>
                             <div class="e-description">
                             </div>
                         </div>
                         <div class="e-popup-footer">
-                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="()=>CellClicked(((AppointmentDto)context).StartTime)">Create Appointment</MudButton>
-                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary" OnClick="@(e => OnCloseClick(e, context as AppointmentDto))">Close</MudButton>
+                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
+                                       OnClick="()=>CellClicked(((AppointmentDto)context).StartTime)">Create Appointment
+                            </MudButton>
+                            <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
+                                       OnClick="@(e => OnCloseClick(e, context as AppointmentDto))">Close
+                            </MudButton>
                         </div>
                     </div>
 
@@ -110,10 +118,12 @@
         {
             <SfGrid DataSource="_gridDataSource" Width="auto" Height="505px">
                 <GridColumns>
-                    <GridColumn Field="Subject" HeaderText="Subject" Width="120px"></GridColumn>
+                    <GridColumn Field="Subject/Patient" HeaderText="Subject" Width="120px"></GridColumn>
                     <GridColumn Field="Location" HeaderText="Location" Width="120px"></GridColumn>
-                    <GridColumn Field="StartTime" HeaderText="StartTime" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
-                    <GridColumn Field="EndTime" HeaderText="EndTime" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+                    <GridColumn Field="StartTime" HeaderText="StartTime" Width="120px" Format="g"
+                                Type="ColumnType.DateTime"></GridColumn>
+                    <GridColumn Field="EndTime" HeaderText="EndTime" Width="120px" Format="g"
+                                Type="ColumnType.DateTime"></GridColumn>
                 </GridColumns>
             </SfGrid>
         }
@@ -124,14 +134,14 @@
 @code {
     [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
     [Parameter] public List<PatientListDto> PatientList { get; set; } = new();
+    [Parameter] public DateTime SelectedDate { get; set; } = DateTime.Now;
+
     private List<AppointmentDto> _dataSource = new();
     private List<AppointmentDto> _gridDataSource = new();
     SfSchedule<AppointmentDto> _scheduleRef;
 
-    private string[] _groupData = new string[] { "Healthcares" };
+    private string[] _groupData = new string[] {"Healthcares"};
     private bool ShowSchedule { get; set; } = true;
-
-    DateTime SelectedDate { get; set; } = DateTime.Now;
 
 
     List<string> _appointmentStatusList = new List<string>
@@ -157,7 +167,7 @@
             parameters.Add("PatientList", PatientList);
             parameters.Add("HealthCares", HealthCares);
             var options = new DialogOptions()
-                { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+                {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
 
             if (action == "CellClick")
             {
@@ -180,24 +190,25 @@
                 }
             }
         }
+
         if (args.Type == PopupType.QuickInfo)
         {
             //args.Cancel = true;
         }
-
-
     }
+
     private async Task RefreshAppointments()
     {
         await _scheduleRef.RefreshAsync();
     }
+
     private async Task CellClicked(DateTime dateTime)
     {
         var parameters = new DialogParameters();
         parameters.Add("StartDate", dateTime);
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
-        var options = new MudBlazor.DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
         if (!result.Canceled)
@@ -205,14 +216,17 @@
             await _scheduleRef.RefreshAsync();
         }
     }
+
     private async Task OnCloseClick(MouseEventArgs args, AppointmentDto data)
     {
         await _scheduleRef.CloseQuickInfoPopupAsync();
     }
 
     #region Search Appointments
+
     private string _statusSearchValue;
     private Guid _hcpSearchValue;
+
     public async Task OnSearchClick()
     {
         DateTime? startDate = null;
@@ -220,17 +234,19 @@
         List<WhereFilter> searchObj = new List<WhereFilter>();
         if (!string.IsNullOrEmpty(_statusSearchValue))
         {
-            searchObj.Add(new WhereFilter() { Field = "Status", Operator = "equal", value = _statusSearchValue, Condition = "or", IgnoreCase = true });
+            searchObj.Add(new WhereFilter() {Field = "Status", Operator = "equal", value = _statusSearchValue, Condition = "or", IgnoreCase = true});
         }
+
         if (_hcpSearchValue != Guid.Empty)
         {
-            searchObj.Add(new WhereFilter() { Field = "HcpId", Operator = "equal", value = _hcpSearchValue, Condition = "or", IgnoreCase = true });
+            searchObj.Add(new WhereFilter() {Field = "HcpId", Operator = "equal", value = _hcpSearchValue, Condition = "or", IgnoreCase = true});
         }
+
         if (searchObj.Count > 0)
         {
-            Query query = new Query().Where(new WhereFilter() { Condition = "and", IsComplex = true, predicates = searchObj });
+            Query query = new Query().Where(new WhereFilter() {Condition = "and", IsComplex = true, predicates = searchObj});
             List<AppointmentDto> eventCollections = await _scheduleRef.GetEventsAsync(startDate, endDate, true);
-            object data = await new DataManager() { Json = eventCollections }.ExecuteQuery<AppointmentDto>(query);
+            object data = await new DataManager() {Json = eventCollections}.ExecuteQuery<AppointmentDto>(query);
             List<AppointmentDto> resultData = (data as List<AppointmentDto>);
             _gridDataSource = resultData;
             ShowSchedule = false;
@@ -240,17 +256,23 @@
             ShowSchedule = true;
         }
     }
+
     public void OnClearClick()
     {
         ShowSchedule = true;
         _statusSearchValue = string.Empty;
+        _hcpSearchValue = Guid.Empty;
     }
+
     public async Task OnPrint()
     {
         await _scheduleRef.PrintAsync();
     }
+
     #endregion
+
 }
+
 <style>
     .custom-event-editor td {
         padding: 7px;

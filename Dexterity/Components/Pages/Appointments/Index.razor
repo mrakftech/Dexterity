@@ -10,6 +10,14 @@
              Image="modules/appointment.svg">
 </TopTitleBar>
 
+<style>
+    .e-calendar {
+        border-spacing: 0;
+        max-width: 200px;
+        min-width: 230px!important;
+        padding: 12px;
+    }
+</style>
 <div class="">
     @if (_loading)
     {
@@ -17,36 +25,43 @@
     }
     else
     {
-        <InnerLayout>
+        <InnerLayout DrawerWidth="250px">
             <NavigationItems>
                 <DexMenuItem Text="Appointments" Icon="appointments-icon" Click="@(() => ClickChanged(0))"/>
-                <DexMenuItem Text="New Appointment" Icon="new-appointment-icon" Click="@(() => NewAppointment(DateTime.Now))"/>
-                <DexMenuItem Text="Recurring Appointments" Icon="repeat-appointment-icon" Click="@(() => ClickChanged(1))"/>
+                <DexMenuItem Text="New Appointment" Icon="new-appointment-icon"
+                             Click="@(() => NewAppointment(DateTime.Now))"/>
+                <DexMenuItem Text="Recurring Appointments" Icon="repeat-appointment-icon"
+                             Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Find Appointments" Icon="find-appointment-icon" Click="@(() => ClickChanged(2))"/>
+                <div class="m-2">
+                    <SfCalendar TValue="DateTime" Min='@MinDate' @bind-Value="@DateValue" Max='@MaxDate'
+                                CssClass="mini-calendar"/>
+                </div>
             </NavigationItems>
             <DexContentTabs>
-                    <MudTabs @ref="_tabs">
-                        <MudTabPanel Text="">
-                            <DexScheduler HealthCares="HealthCares" PatientList="PatientList"/>
-                        </MudTabPanel>
-                        <MudTabPanel Text="">
-                            <RecurringAppointments HealthCares="HealthCares" PatientList="PatientList"/>
-                        </MudTabPanel>
-                        <MudTabPanel Text="">
-                            <FindAppointments/>
-                        </MudTabPanel>
-                    </MudTabs>
+                <MudTabs @ref="_tabs">
+                    <MudTabPanel Text="">
+                        <DexScheduler HealthCares="HealthCares" PatientList="PatientList" SelectedDate="DateValue"/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <RecurringAppointments HealthCares="HealthCares" PatientList="PatientList"/>
+                    </MudTabPanel>
+                    <MudTabPanel Text="">
+                        <FindAppointments/>
+                    </MudTabPanel>
+                </MudTabs>
             </DexContentTabs>
         </InnerLayout>
     }
-
 </div>
 
 @code {
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private List<PatientListDto> PatientList { get; set; }
     MudTabs _tabs;
-
+    private DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 05);
+    private DateTime MaxDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 27);
+    private DateTime DateValue { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 15);
     private bool _loading = false;
 
     protected override async Task OnInitializedAsync()
@@ -80,7 +95,7 @@
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
         parameters.Add("HcpId", ApplicationState.CurrentUser.UserId);
-        parameters.Add("PatientId", ApplicationState.SelectedPatientId);
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatientId);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
