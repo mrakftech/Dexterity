@@ -2,6 +2,12 @@
 @using Icons = MudBlazor.Icons
 @using global::Services.Features.Messaging.Dtos.Sms
 @layout BlankLayout
+<style>
+    .e-fab.e-btn {
+        border-radius:0px;
+        min-height:60px;
+    }
+</style>
 <SfSpeedDial @ref="_speedDial" CssClass="popupSpeedDial" OpenIconCss="fas fa-tv" Content="Telehealth" Opened="OpeningTeleHealth">
     <PopupTemplate>
         <div class="speeddial-form">
