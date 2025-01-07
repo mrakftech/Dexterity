@@ -45,10 +45,10 @@
                     <FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site Or Room:</label>
-                            <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site"
+                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
                                             DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                <DropDownListEvents TValue="int" TItem="ClinicSiteDto"
+                                <DropDownListEvents TValue="Guid" TItem="ClinicSiteDto"
                                                     ValueChange="OnClinicSiteChanged"></DropDownListEvents>
                             </SfDropDownList>
                         </Template>
@@ -85,10 +85,15 @@
         <ActionButtons>
             @if (Id != 0)
             {
-                <DexSimpleButton Name="Cancel Appointment" Click="@CancelAppointment" Icon="fas fa-ban" FullWidth=false
+                <DexSimpleButton Name="Cancel " Click="@CancelAppointment" Icon="fas fa-ban" FullWidth=false
                                  Color="MudColor.Secondary"></DexSimpleButton>
-                <DexSimpleButton Name="Delete Appointment" Click="() => DeleteAppointment(Id)" Icon="fas fa-trash"
+                <DexSimpleButton Name="Delete" Click="() => DeleteAppointment(Id)" Icon="fas fa-trash"
                                  FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                @if (Appointment.IsSeries)
+                {
+                    <DexSimpleButton Name="Delete Series" Click="() => DeleteAppointmentSeries(Appointment.CustomRecurrenceId)" Icon="fas fa-trash"
+                                     FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                }
             }
         </ActionButtons>
     </DexDialog>
@@ -199,7 +204,7 @@ else
         MudDialog.StateHasChanged();
     }
 
-    Task OnClinicSiteChanged(ChangeEventArgs<int, ClinicSiteDto> args)
+    Task OnClinicSiteChanged(ChangeEventArgs<Guid, ClinicSiteDto> args)
     {
         var clinicSite = args.ItemData;
         Appointment.ClinicSiteId = clinicSite.Id;
@@ -237,6 +242,22 @@ else
         if (!result.Canceled)
         {
             await UnitOfWork.Appointment.DeleteAppointment(id);
+            Snackbar.SuccessMessage("Appointment has been deleted.");
+
+            MudDialog.Close();
+        }
+    }
+    
+    private async Task DeleteAppointmentSeries(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("ContentText","are you sure you want to delete series?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await UnitOfWork.Appointment.DeleteAppointmentSeries(id);
+            Snackbar.SuccessMessage("Appointment series has been deleted.");
             MudDialog.Close();
         }
     }

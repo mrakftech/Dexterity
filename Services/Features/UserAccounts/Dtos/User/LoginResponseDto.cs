@@ -4,6 +4,7 @@ public class LoginResponseDto
 {
     public Guid UserId { get; set; }
     public string RoleName { get; set; }
+    public Guid RoleId { get; set; }
     public string Name { get; set; }
     public bool IsForceReset { get; set; }
 

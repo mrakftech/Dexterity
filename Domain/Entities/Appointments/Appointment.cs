@@ -14,14 +14,15 @@ public class Appointment : IBaseActionBy, IBaseActionOn
     public DateTime EndTime { get; set; }
     public string Description { get; set; }
     public bool IsAllDay { get; set; }
+    public bool IsSeries { get; set; }
+    public Guid CustomRecurrenceId { get; set; }
+
     public string RecurrenceRule { get; set; }
     public string RecurrenceException { get; set; }
     public int? RecurrenceID { get; set; }
     public string Status { get; set; }
 
     public int Duration { get; set; }
-
-
     public int CancelReasonId { get; set; }
 
     public AppointmentType AppointmentType { get; set; }
@@ -31,7 +32,7 @@ public class Appointment : IBaseActionBy, IBaseActionOn
     public int ClinicId { get; set; }
 
     public ClinicSite ClinicSite { get; set; }
-    public int ClinicSiteId { get; set; }
+    public Guid ClinicSiteId { get; set; }
 
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }

@@ -36,10 +36,10 @@ public interface ISettingService
 
     public Task<List<ClinicSiteDto>> GetClinicSites();
     public Task<List<ClinicSiteDto>> GetSitesByClinic(int clinicId);
-    public Task<IResult<ClinicSiteDto>> GetClinicSite(int id);
+    public Task<IResult<ClinicSiteDto>> GetClinicSite(Guid id);
 
-    public Task<IResult> SaveClinicSite(int id, ClinicSiteDto request);
-    public Task<IResult> DeleteClinicSite(int id);
+    public Task<IResult> SaveClinicSite(Guid id, ClinicSiteDto request);
+    public Task<IResult> DeleteClinicSite(Guid id);
 
     #endregion
 

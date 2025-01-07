@@ -6,6 +6,7 @@
 
 <TabTitle Title="Add Recurrence"></TabTitle>
 <MudStack>
+    
     <MudItem>
         <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
     </MudItem>
@@ -41,20 +42,28 @@
         <MudStack Row>
             <MudItem md="6">
                 <label>Site:</label>
-                <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
+                <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="int" TItem="ClinicSiteDto" ValueChange="OnCliniSiteChanged"></DropDownListEvents>
+                    <DropDownListEvents TValue="Guid" TItem="ClinicSiteDto" ValueChange="OnClinicSiteChanged"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="6">
                 <label>Duration</label>
-                <SfNumericTextBox TValue="int" Value=@Appointment.Duration Min="5" Step="5" Max="60"></SfNumericTextBox>
+                <SfNumericTextBox TValue="int" Value="@Appointment.Duration" Min="5" Step="5" Max="60"></SfNumericTextBox>
             </MudItem>
-
+        </MudStack>
+    </MudItem>
+    <MudItem md="12">
+        <MudStack Row>
+            <MudItem md="12">
+                <label>Description:</label>
+                <SfTextBox @bind-Value="@Appointment.Description" Multiline></SfTextBox>
+            </MudItem>
+         
         </MudStack>
     </MudItem>
     <MudItem Class="mt-3">
-        <MudText>@Appointment.RecurrenceRule</MudText>
+        @* <MudText>@Appointment.RecurrenceRule</MudText> *@
         <SfRecurrenceEditor @bind-Value="@Appointment.RecurrenceRule" Frequencies="_repeats" EndTypes="@_endtypes"></SfRecurrenceEditor>
     </MudItem>
     <DexSimpleButton Name="Validate" Click="ValidateAppointments" FullWidth="false"></DexSimpleButton>
@@ -95,6 +104,7 @@
         {
             Appointment.PatientId = patient.Id;
             Appointment.PatientName = patient.FullName;
+            Appointment.StartTime = new DateTime(2025, 1, 1, 0, 0, 0);
         }
     }
 
@@ -107,7 +117,7 @@
         return Task.CompletedTask;
     }
 
-    Task OnCliniSiteChanged(ChangeEventArgs<int, ClinicSiteDto> args)
+    Task OnClinicSiteChanged(ChangeEventArgs<Guid, ClinicSiteDto> args)
     {
         var clinicSite = args.ItemData;
         Appointment.Location = clinicSite.Name;
@@ -137,13 +147,19 @@
 
         if (!string.IsNullOrWhiteSpace(Appointment.RecurrenceRule))
         {
-            var dateTimes = RecurringHelper.GetRecurrenceDateTimeCollection(Appointment.RecurrenceRule, Appointment.StartTime, 20).ToList();
-            var parameters = new DialogParameters();
-            parameters.Add("Appointment", Appointment);
-            parameters.Add("DateTimes", dateTimes);
+            var recurrenceDates = RecurringHelper.GetRecurrenceDateTimeCollection(Appointment.RecurrenceRule, Appointment.StartTime, 20).ToList();
+            var parameters = new DialogParameters
+            {
+                {"Appointment", Appointment},
+                {"RecurrencDates", recurrenceDates}
+            };
             var options = new DialogOptions()
                 {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-            await DialogService.ShowAsync<ValidateAppointmentsDialog>("", parameters, options);
+            var dialogresult =  await DialogService.ShowAsync<ValidateAppointmentsDialog>("", parameters, options);
+            var result = await dialogresult.Result;
+            if (!result.Canceled)
+            {
+            }
         }
         else
         {

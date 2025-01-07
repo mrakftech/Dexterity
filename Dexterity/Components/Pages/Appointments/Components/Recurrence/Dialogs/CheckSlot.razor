@@ -1,0 +1,56 @@
+﻿@using Services.Features.Appointments.Dtos
+<DexDialog>
+    <DialogTitle>Check Slot</DialogTitle>
+    <Content>
+        <DexGrid Loading="_loading" DataSource="FreeSlots">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(AppointmentSlotDto.StartTime)"
+                            HeaderText="Appointment Date"
+                            Width="80"/>
+
+                <GridColumn HeaderText="Actions" Width="60">
+                    <Template>
+                        @{
+                            var item = (context as AppointmentSlotDto);
+                            <MudButton Size="@MudSize.Small" Color="MudColor.Primary"
+                                       OnClick="()=>SelectSlot(item.StartTime)">Select Slot
+                            </MudButton>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid HcpId { get; set; }
+    [Parameter] public DateTime StartDate { get; set; }
+    [Parameter] public int Duration { get; set; }
+    private List<AppointmentSlotDto> FreeSlots { get; set; } = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        FreeSlots = await UnitOfWork.Appointment.GetFreeSlots(StartDate, StartDate.AddDays(20), HcpId, Duration);
+        _loading = false;
+    }
+
+    private async Task SelectSlot(DateTime startDate)
+    {
+        var res = await UnitOfWork.Appointment.SelectFreeSlot(Id, startDate);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+}

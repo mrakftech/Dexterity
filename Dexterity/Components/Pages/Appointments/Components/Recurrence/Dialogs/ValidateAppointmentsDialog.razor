@@ -1,11 +1,11 @@
-﻿@using Domain.Entities.Appointments
-@using Services.Features.Appointments.Dtos
+﻿@using Services.Features.Appointments.Dtos
 @using TextAlign = Syncfusion.Blazor.Grids.TextAlign
 <MudDialog>
     <DialogContent>
+        <p class="validation-message">@_error</p>
         <SfGrid DataSource="@Slots" AllowPaging="true">
             <GridColumns>
-                <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="10">
+                <GridColumn HeaderText="" TextAlign="TextAlign.Center" Width="20">
                     <Template>
                         @{
                             var slot = (context as AppointmentSlotDto);
@@ -26,119 +26,88 @@
                             HeaderText="Appointment Date"
                             TextAlign="TextAlign.Left"
                             Width="80"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="60">
+                    <Template>
+                        @{
+                            var item = (context as AppointmentSlotDto);
+                            if (!item.IsAvailable)
+                            {
+                                <MudButton Size="@MudSize.Small" Color="MudColor.Primary"
+                                           OnClick="() => CheckFreeSlot(item.Id)">Check Free Slot
+                                </MudButton>
+                            }
+                            else
+                            {
+                                <span>-</span>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
             </GridColumns>
         </SfGrid>
     </DialogContent>
     <DialogActions>
-        <DexLoadingButton Processing="_isProcessing" Name="Schedule" FullWidth="false" Click="ScheduleAppointments"></DexLoadingButton>
+        <DexLoadingButton Processing="_isProcessing" Name="Schedule" FullWidth="false"
+                          Click="ScheduleAppointments"></DexLoadingButton>
     </DialogActions>
 </MudDialog>
 
 @code {
+
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public List<DateTime> DateTimes { get; set; }
+    [Parameter] public List<DateTime> RecurrencDates { get; set; }
     [Parameter] public AppointmentDto Appointment { get; set; } = new();
     private List<AppointmentSlotDto> Slots { get; set; } = new();
-    private List<string> ExcludedDates = [];
     private bool _isProcessing;
+    private string _error ;
+
     protected override async Task OnInitializedAsync()
     {
-        var slots = new List<AppointmentSlotDto>();
-        foreach (var item in DateTimes)
-        {
-            var time = Appointment.StartTime.TimeOfDay;
-            var s = item.Date.Add(time);
-            ExcludedDates.Add(s.ToString());
-            var available = !await UnitOfWork.Appointment.IsSlotAvaiable(s, Appointment.HcpId);
-            var evnt = new AppointmentSlotDto()
-                {
-                    StartTime = s,
-                    IsAvailable = available,
-                };
-
-            slots.Add(evnt);
-        }
-        Slots = slots;
+        await UnitOfWork.Appointment.ClearRecurrenceEventsSlots();
+        await UnitOfWork.Appointment.AddRecurrenceEventsSlot(RecurrencDates, Appointment.StartTime, Appointment.HcpId);
+        await GetAppointmentSlots();
     }
+
+    private async Task GetAppointmentSlots()
+    {
+        Slots = await UnitOfWork.Appointment.GetAllFreeSlots();
+    }
+
     private async Task ScheduleAppointments()
     {
-        var list = new List<Appointment>();
         _isProcessing = true;
-     var a=   new Appointment()
-            {
-                StartTime = Appointment.StartTime,
-                EndTime = Appointment.StartTime.AddMinutes(Appointment.Duration),
-                PatientId = Appointment.PatientId,
-                HcpId = Appointment.HcpId,
-                ClinicSiteId = Appointment.ClinicSiteId,
-                AppointmentTypeId = Appointment.AppointmentTypeId,
-                ClinicId = ApplicationState.CurrentUser.ClinicId,
-                Status = AppointmentConstants.Status.Active,
-                Duration = Appointment.Duration,
-                Location = Appointment.Location,
-                Subject = $"{Appointment.PatientName}, {Appointment.Type}",
-                CreatedBy = ApplicationState.CurrentUser.UserId,
-                RecurrenceRule = Appointment.RecurrenceRule,
-                CreatedDate = DateTime.Now,
-
-            };
-
-        var res = await UnitOfWork.Appointment.SaveAppointmentList(a);
+        _error = string.Empty;
+        var res = await UnitOfWork.Appointment.AddRecurrenceEvents(Slots, Appointment);
         if (res.Succeeded)
         {
-
             Snackbar.SuccessMessage(res.Messages.First());
             MudDialog.Close();
+            await UnitOfWork.Appointment.ClearRecurrenceEventsSlots();
         }
         else
         {
             Snackbar.FailMessage(res.Messages.First());
+            _error = res.Messages.First();
         }
-        _isProcessing = false;
 
+        _isProcessing = false;
     }
 
-    // private async Task ScheduleAppointments()
-    // {
-    //     var list = new List<Appointment>();
-    //     _isProcessing = true;
-    //     @foreach (var item in Slots)
-    //     {
-    //         var recurrenceId = Guid.NewGuid().ToString();
-    //         if (item.IsAvailable)
-    //         {
-    //             list.Add(new Appointment()
-    //                 {
-    //                     StartTime = item.StartTime,
-    //                     EndTime = item.StartTime.AddMinutes(Appointment.Duration),
-    //                     PatientId = Appointment.PatientId,
-    //                     HcpId = Appointment.HcpId,
-    //                     ClinicSiteId = Appointment.ClinicSiteId,
-    //                     AppointmentTypeId = Appointment.AppointmentTypeId,
-    //                     ClinicId = ApplicationState.CurrentUser.ClinicId,
-    //                     Status = AppointmentConstants.Status.Active,
-    //                     Duration = Appointment.Duration,
-    //                     Location = Appointment.Location,
-    //                     Subject = $"{Appointment.PatientName}, {Appointment.Type}",
-    //                     CreatedBy = ApplicationState.CurrentUser.UserId,
-    //                     CreatedDate = DateTime.Now,
+    private async Task CheckFreeSlot(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        parameters.Add("HcpId", Appointment.HcpId);
+        parameters.Add("StartDate", Slots.Select(x => x.StartTime).Max().AddDays(1));
+        parameters.Add("Duration", Appointment.Duration);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<CheckSlot>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetAppointmentSlots();
+            _error = string.Empty;
+        }
+    }
 
-    //                 });
-    //         }
-
-    //     }
-    //     var res = await UnitOfWork.Appointment.SaveAppointmentList(list);
-    //     if (res.Succeeded)
-    //     {
-
-    //         Snackbar.SuccessMessge(res.Messages.First());
-    //         MudDialog.Close();
-    //     }
-    //     else
-    //     {
-    //         Snackbar.FailMessge(res.Messages.First());
-    //     }
-    //     _isProcessing = false;
-
-    // }
 }

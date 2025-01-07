@@ -43,7 +43,7 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    private GetPatientAccountDto PatientAccount { get; set; }= new();
+  [Parameter]  public GetPatientAccountDto PatientAccount { get; set; }= new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private List<AccountTypeDto> ChargeTypes { get; set; } = new();
     private ChargeDto Charge { get; set; } = new();

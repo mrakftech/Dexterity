@@ -155,5 +155,8 @@ public static class SchemaConfigurations
             .WithMany(d => d.InvestigationAudits)
             .HasForeignKey(e => e.PatientInvestigationId)
             .OnDelete(DeleteBehavior.NoAction);
+        
+        builder.Entity<AppointmentSlot>(entity => { entity.ToTable(name: "AppointmentSlots", "Scheduler"); });
+
     }
 }

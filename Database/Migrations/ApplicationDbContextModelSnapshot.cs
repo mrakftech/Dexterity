@@ -39,14 +39,17 @@ namespace Database.Migrations
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ClinicSiteId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ClinicSiteId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("CreatedBy")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomRecurrenceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -64,6 +67,9 @@ namespace Database.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSeries")
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
@@ -129,6 +135,26 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppointmentCancellationReasons", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Appointments.AppointmentSlot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsAvailable")
+                        .HasColumnType("bit");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AppointmentSlots", "Scheduler");
                 });
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentType", b =>
@@ -301,8 +327,8 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("ClinicSiteId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ClinicSiteId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("ConsultationClass")
                         .HasColumnType("nvarchar(max)");
@@ -1645,11 +1671,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Settings.Clinic.ClinicSite", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");

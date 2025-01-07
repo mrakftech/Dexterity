@@ -10,7 +10,8 @@
     <MudItem Class="mt-3">
         <MudStack Row>
             <MudItem md="3">
-                <SfDropDownList TValue="string" TItem="string" Placeholder="View" DataSource="@_appointmentStatusList"
+                <SfDropDownList TValue="string" TItem="string" 
+                                Placeholder="View" DataSource="@_appointmentStatusList"
                                 @bind-Value="@_statusSearchValue">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
@@ -55,10 +56,10 @@
             <ScheduleTemplates>
                 <ResourceHeaderTemplate>
                     @{
-                        var airlineData = context.ResourceData as HealthcareDto;
+                        var data = context.ResourceData as HealthcareDto;
                         <div class='template-wrap'>
                             <div class="airline-details">
-                                <div class="airline-name">@airlineData!.Name</div>
+                                <div class="airline-name">@data!.Name</div>
                             </div>
                         </div>
                     }
@@ -193,6 +194,7 @@
 
         if (args.Type == PopupType.QuickInfo)
         {
+            SelectedDate = args.Data.StartTime;
             //args.Cancel = true;
         }
     }

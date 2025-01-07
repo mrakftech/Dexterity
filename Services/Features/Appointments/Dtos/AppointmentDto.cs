@@ -13,6 +13,9 @@ public class AppointmentDto
     public DateTime EndTime { get; set; }
     public string Description { get; set; }
     public bool IsAllDay { get; set; }
+    public bool IsSeries { get; set; }
+    public Guid CustomRecurrenceId { get; set; }
+
     public string RecurrenceRule { get; set; }
     public string RecurrenceException { get; set; }
     public int? RecurrenceID { get; set; }
@@ -25,8 +28,8 @@ public class AppointmentDto
     
     public int ClinicId { get; set; }
     
-    [Range(1, int.MaxValue, ErrorMessage = "Please select site")]
-    public int ClinicSiteId { get; set; }
+    [NotEmpty(ErrorMessage = "Please select site")]
+    public Guid ClinicSiteId { get; set; }
     
     [NotEmpty]
     public Guid PatientId { get; set; }

@@ -8,6 +8,6 @@ public static class RoleConstants
     public const string Doctor = "Doctor";
     public const string Nurse = "Nurse";
     public const string Receptionist = "Receptionist";
-  
 
+   
 }

@@ -34,6 +34,14 @@ public class MessagingService(
             .ToListAsync();
     }
 
+    public async Task<List<UserTask>> GetAllUserTasks()
+    {
+        return await context.UserTasks
+            .Where(x =>x.Status == UserTaskConstants.TaskStatusConstant.Active)
+            .OrderByDescending(x => x.TaskDate)
+            .ToListAsync();
+    }
+
     public async Task<int> GetUserTasksCountByPatient(Guid patientId)
     {
         return await context.UserTasks

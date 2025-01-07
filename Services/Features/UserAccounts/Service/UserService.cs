@@ -45,6 +45,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             WorkingDays = userInDb.WorkingDays,
             StartHour = userInDb.StartHour,
             EndHour = userInDb.EndHour,
+            RoleId = userInDb.RoleId,
         };
         ApplicationState.CurrentUser = response;
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
@@ -179,6 +180,13 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == name);
         return role.Id;
+    }
+
+    public async Task<bool> IsAdmin()
+    {
+        var isAdmin = await context.Roles.FirstOrDefaultAsync(x =>
+            x.Id == ApplicationState.CurrentUser.RoleId && x.Name == RoleConstants.AdministratorRole);
+        return isAdmin is not null;
     }
 
     public async Task<List<RoleResponseDto>> GetRoles()
@@ -350,9 +358,9 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             .Select(x => x.User)
             .ToListAsync();
 
-        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>).Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
+        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>)
+            .Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
     }
-
 
     #endregion
 }

@@ -2,23 +2,34 @@
 using Microsoft.EntityFrameworkCore;
 using Services.State;
 using Shared.Constants.Module;
+using Shared.Constants.Role;
 
 namespace Services.Features.Dashboard;
 
 public class DashboardService(ApplicationDbContext context) : IDashboardService
 {
-    public async Task<int> GetPatientCount()
+    public async Task<int> GetPatientCount(int clinicId)
     {
-        return await context.Patients.CountAsync(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId);
+        return await context.Patients.CountAsync(x => x.ClinicId == clinicId);
     }
 
-    public async Task<int> GetAppointmentCount()
+    public async Task<int> GetDoctorsCount()
+    {
+        return await context.Users.CountAsync(x =>
+            x.UserType == UserTypeConstants.Doctor);
+    }
+    public async Task<int> GetStaffCount()
+    {
+        return await context.Users.CountAsync(x =>
+            x.UserType == UserTypeConstants.Nurse);
+    }
+    public async Task<int> GetAppointmentCount(int clinicId)
     {
         return await context.Appointments.CountAsync(x =>
-            x.ClinicId == ApplicationState.CurrentUser.ClinicId && x.HcpId == ApplicationState.CurrentUser.UserId);
+            x.ClinicId == clinicId && x.HcpId == ApplicationState.CurrentUser.UserId);
     }
 
-    public async Task<int> GetWaitingPatientCount()
+    public async Task<int> GetWaitingPatientCount(int clinicId)
     {
         return await context.WaitingAppointments.CountAsync(x =>
             x.ClinicId == ApplicationState.CurrentUser.ClinicId &&

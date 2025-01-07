@@ -26,6 +26,7 @@ public interface IUserService
 
     Task<RoleResponseDto> GetUserRole(Guid roleId);
     Task<Guid> GetRoleId(string name);
+    Task<bool> IsAdmin();
 
     #endregion
 

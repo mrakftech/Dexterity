@@ -16,7 +16,7 @@ public class ConsultationDetail
     
     
     public ClinicSite ClinicSite { get; set; }
-    public int ClinicSiteId { get; set; }
+    public Guid ClinicSiteId { get; set; }
    
     public User Hcp { get; set; }
     public Guid HcpId { get; set; }

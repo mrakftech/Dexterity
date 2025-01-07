@@ -17,7 +17,7 @@
                     <FormItem Field="@nameof(EditConsultationDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site:</label>
-                            <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@ConsultationDto.ClinicSiteId">
+                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@ConsultationDto.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>

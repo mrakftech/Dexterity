@@ -16,7 +16,7 @@
 @code {
 
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
     [Parameter] public int ClinicId { get; set; }
     private ClinicSiteDto ClinicSite { get; set; } = new();
     private bool _processing;
@@ -24,7 +24,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id > 0)
+        if (Id != Guid.Empty)
         {
             var s = await UnitOfWork.Setting.GetClinicSite(Id);
             ClinicSite = s.Data;

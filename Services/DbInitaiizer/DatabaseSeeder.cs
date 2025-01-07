@@ -198,7 +198,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.IsActive, true)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
-                var users = fakeUsers.Generate(10);
+                var users = fakeUsers.Generate(2);
                 await context.Users.AddRangeAsync(users);
                 await context.SaveChangesAsync();
                 foreach (var item in users)

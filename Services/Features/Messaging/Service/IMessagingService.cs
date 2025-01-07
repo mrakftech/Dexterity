@@ -13,6 +13,7 @@ public interface IMessagingService
     #region User Task
 
     public Task<List<UserTask>> GetUserTasksByPatient(Guid patientId);
+    public Task<List<UserTask>> GetAllUserTasks();
     public Task<int> GetUserTasksCountByPatient(Guid patientId);
     public Task<List<UserTask>> GetUserTaskList(string view = "All");
     public Task<IResult> SaveTask(Guid id, UserTaskDto dto);

@@ -1,73 +1,106 @@
 ﻿@layout MainLayout
 @page "/home"
 @using Dexterity.Components.Pages.Dashboard.Components
-
 @using Position = MudBlazor.Position
+@using Services.Features.Settings.Dtos
+
 
 <MudContainer Style="margin-top:8%" MaxWidth="MaxWidth.ExtraExtraLarge">
     <MudGrid Justify="MudJustify.Center">
         <MudItem>
-            <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="300"></MudImage>
-        </MudItem>
-        <MudItem md="12">
-            <MudGrid Justify="MudJustify.Center" Spacing="15">
-                <MudItem md="4">
-                    <MetricsCard BgColor="bg-c-purple" Title="Patients" Count="@_patientCounts"
-                                 Image="patient-m-card-img" ForceColor="#FFF"/>
-                </MudItem>
-                <MudItem md="4">
-                    <MetricsCard BgColor=" bg-c-blue" Title="Appointments" Count="@_apptCounts" Image="appt-card-img"/>
-                </MudItem>
-                <MudItem md="4">
-                    <MetricsCard BgColor="bg-c-green" Title="Waiting" Count="@_waitingCounts" Image="waiting-card-img"/>
-                </MudItem>
-            </MudGrid>
-        </MudItem>
-        <MudItem md="12">
-            <MudGrid Justify="MudJustify.Center" Spacing="15">
-                <MudItem md="4">
-                    <MetricsCard BgColor="bg-c-yellow" Title="Consultations" Count="@_consCounts"
-                                 Image="consultation-card-img"/>
-                </MudItem>
-                <MudItem md="4">
-                    <MetricsCard BgColor="bg-c-orange" Title="Messages" Count="480" Image="message-card-img"/>
-                </MudItem>
-                <MudItem md="4">
-                    <MetricsCard BgColor="bg-c-pink" Title="My Tasks" Count="@_tasksCounts" Image="my-task-card-img"/>
-                </MudItem>
-            </MudGrid>
-        </MudItem>
-
-        <MudItem md="12" Style="margin-top: 5%">
             <MudStack Row>
-                <MudItem md="6">
-                    <MudPaper>
-                        <MudChart ChartType="ChartType.Bar"
-                                  ChartSeries="@_series"
-                                  @bind-SelectedIndex="_index"
-                                  LegendPosition="Position.Right"
-                                  XAxisLabels="@_xAxisLabels" Width="100%" Height="350px">
-                        </MudChart>
-                    </MudPaper>
-                </MudItem>
-                <MudSpacer/>
-                <MudItem md="6">
-                    <MudPaper>
-                        <MudChart
-                            ChartType="MudBlazor.ChartType.Donut"
-                            LegendPosition="Position.Right" Width="300px" Height="350px"
-                            InputData="@_data" InputLabels="@_labels">
-                        </MudChart>
-                    </MudPaper>
+                <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="300" Style="border-right:solid"></MudImage>
+                <MudItem Class="mt-5">
+                    <SfDropDownList TValue="int" TItem="ClinicDto" Placeholder="Clinics" DataSource="@Clinics" CssClass="drop-down-clinic">
+                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        <DropDownListEvents TItem="ClinicDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
+                    </SfDropDownList>
                 </MudItem>
             </MudStack>
         </MudItem>
+        @if (_loading)
+        {
+            <MudItem md="12">
+                <CommonLoader />
+            </MudItem>
+        }
+        else
+        {
+            <MudItem md="12">
+
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-purple" Title="Patients" Count="@_patientCounts"
+                                     Image="patient-m-card-img" ForceColor="#FFF" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor=" bg-c-blue" Title="Appointments" Count="@_apptCounts" Image="appt-card-img" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-green" Title="Waiting" Count="@_waitingCounts" Image="waiting-card-img" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12">
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-yellow" Title="Consultations" Count="@_consCounts"
+                                     Image="consultation-card-img" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-orange" Title="Messages" Count="480" Image="message-card-img" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-pink" Title="Emails" Count="@_tasksCounts" Image="emails" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12">
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-steel-gray" Title="Doctors" Count="@_docCounts"
+                                     Image="doctor-1" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-light-green" Title="Staff" Count="@_staffCounts" Image="staff-2" />
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="bg-c-light-maroon" Title="My Tasks" Count="@_tasksCounts" Image="my-task-card-img" />
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12" Style="margin-top: 5%">
+                <MudStack Row>
+                    <MudItem md="6">
+                        <MudPaper>
+                            <MudChart ChartType="ChartType.Bar"
+                                      ChartSeries="@_series"
+                                      @bind-SelectedIndex="_index"
+                                      LegendPosition="Position.Right"
+                                      XAxisLabels="@_xAxisLabels" Width="100%" Height="350px">
+                            </MudChart>
+                        </MudPaper>
+                    </MudItem>
+                    <MudSpacer />
+                    <MudItem md="6">
+                        <MudPaper>
+                            <MudChart ChartType="ChartType.Donut"
+                                      LegendPosition="Position.Right" Width="300px" Height="350px"
+                                      InputData="@_data" InputLabels="@_labels">
+                            </MudChart>
+                        </MudPaper>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        }
+  
     </MudGrid>
 </MudContainer>
 
-@code{
+@code {
+    private List<ClinicDto> Clinics = new();
     private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.
-    private  double[] _data = [Convert.ToDouble(_patientCounts), Convert.ToDouble(_waitingCounts), Convert.ToDouble(_apptCounts), Convert.ToDouble(_apptCounts)];
+    private double[] _data = [Convert.ToDouble(_patientCounts), Convert.ToDouble(_waitingCounts), Convert.ToDouble(_apptCounts), Convert.ToDouble(_apptCounts)];
     private readonly string[] _labels = ["Patient", "Waiting", "Appointment", "Messages"];
 
     private readonly List<ChartSeries> _series =
@@ -78,19 +111,48 @@
     private readonly string[] _xAxisLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
 
 
-    private static int _patientCounts ;
+    private static int _patientCounts;
     private static int _apptCounts;
     private static int _waitingCounts;
     private static int _tasksCounts;
     private static int _consCounts;
-
+    private static int _docCounts;
+    private static int _staffCounts;
+    private static int _clinicId = ApplicationState.CurrentUser.ClinicId;
+    private bool _loading;
     protected override async Task OnInitializedAsync()
     {
-        _patientCounts = await UnitOfWork.Dashboard.GetPatientCount();
-        _apptCounts = await UnitOfWork.Dashboard.GetAppointmentCount();
-        _waitingCounts = await UnitOfWork.Dashboard.GetWaitingPatientCount();
-        _tasksCounts = await UnitOfWork.Dashboard.GetTasksCount();
-        _consCounts = await UnitOfWork.Dashboard.GetConsultationCount();
+        _loading = true;
+        await GetDashboardData(_clinicId);
+        Clinics = await UnitOfWork.Setting.GetClinics();
+        _loading = false;
+
     }
 
+    private async Task GetDashboardData(int clinicId)
+    {
+        _patientCounts = await UnitOfWork.Dashboard.GetPatientCount(_clinicId);
+        _apptCounts = await UnitOfWork.Dashboard.GetAppointmentCount(_clinicId);
+        _waitingCounts = await UnitOfWork.Dashboard.GetWaitingPatientCount(_clinicId);
+        _tasksCounts = await UnitOfWork.Dashboard.GetTasksCount();
+        _consCounts = await UnitOfWork.Dashboard.GetConsultationCount();
+        _docCounts = await UnitOfWork.Dashboard.GetDoctorsCount();
+        _staffCounts = await UnitOfWork.Dashboard.GetStaffCount();
+    }
+    private async Task ValueChangeHandler(ChangeEventArgs<int, ClinicDto> obj)
+    {
+        _clinicId = obj.Value;
+        if (_clinicId > 0)
+        {
+            _loading = true;
+           await Task.Delay(2000);
+            await GetDashboardData(_clinicId);
+            _loading = false;
+
+        }
+        else
+        {
+            _clinicId = ApplicationState.CurrentUser.ClinicId;
+        }
+    }
 }

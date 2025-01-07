@@ -14,7 +14,7 @@
     .e-calendar {
         border-spacing: 0;
         max-width: 200px;
-        min-width: 230px!important;
+        min-width: 230px !important;
         padding: 12px;
     }
 </style>
@@ -29,12 +29,12 @@
             <NavigationItems>
                 <DexMenuItem Text="Appointments" Icon="appointments-icon" Click="@(() => ClickChanged(0))"/>
                 <DexMenuItem Text="New Appointment" Icon="new-appointment-icon"
-                             Click="@(() => NewAppointment(DateTime.Now))"/>
+                             Click="@(() => NewAppointment(new DateTime(2025, 1, 1, 0, 0, 0)))"/>
                 <DexMenuItem Text="Recurring Appointments" Icon="repeat-appointment-icon"
                              Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Find Appointments" Icon="find-appointment-icon" Click="@(() => ClickChanged(2))"/>
                 <div class="m-2">
-                    <SfCalendar TValue="DateTime" Min='@MinDate' @bind-Value="@DateValue" Max='@MaxDate'
+                    <SfCalendar TValue="DateTime" @bind-Value="@DateValue" 
                                 CssClass="mini-calendar"/>
                 </div>
             </NavigationItems>
@@ -59,9 +59,7 @@
     private List<HealthcareDto> HealthCares { get; set; } = new();
     private List<PatientListDto> PatientList { get; set; }
     MudTabs _tabs;
-    private DateTime MinDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 05);
-    private DateTime MaxDate { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 27);
-    private DateTime DateValue { get; set; } = new DateTime(DateTime.Now.Year, DateTime.Now.Month, 15);
+    private DateTime DateValue { get; set; } = DateTime.Now;
     private bool _loading = false;
 
     protected override async Task OnInitializedAsync()

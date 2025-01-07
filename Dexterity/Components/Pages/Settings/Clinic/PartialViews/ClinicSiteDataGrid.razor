@@ -1,7 +1,7 @@
 ﻿@using Services.Features.Settings.Dtos
 <TabTitle Title="Clinic Sites">
     <ActionButtons>
-        <DexSimpleButton FullWidth="false" Name="Add Clinic Site" Click="() => OpenUpsertClinicSiteModal(0)"></DexSimpleButton>
+        <DexSimpleButton FullWidth="false" Name="Add Clinic Site" Click="() => OpenUpsertClinicSiteModal(Guid.Empty)"></DexSimpleButton>
     </ActionButtons>
 </TabTitle>
 <DexGrid DataSource="ClinicSites" Height="300px">
@@ -30,9 +30,9 @@
         await GetClinicSites();
     }
 
-    private async Task OpenUpsertClinicSiteModal(int id)
+    private async Task OpenUpsertClinicSiteModal(Guid id)
     {
-        var title = id == 0 ? "New Clinic Site" : "Edit Clinic Site";
+        var title = id == Guid.Empty ? "New Clinic Site" : "Edit Clinic Site";
         var parameters = new DialogParameters {{"Id", id}, {"ClinicId", ClinicId}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<ClinicSiteFormDialog>(title, parameters, options);
@@ -43,7 +43,7 @@
         }
     }
 
-    private async Task DeleteClinicSite(int id)
+    private async Task DeleteClinicSite(Guid id)
     {
         var parameters = new DialogParameters();
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
@@ -54,6 +54,7 @@
             var user = ClinicSites.FirstOrDefault(x => x.Id == id);
             ClinicSites.Remove(user);
             StateHasChanged();
+            await GetClinicSites();
             Snackbar.SuccessMessage(response.Messages.First());
         }
     }

@@ -157,6 +157,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     #region Appointments
 
+    public DbSet<AppointmentSlot> AppointmentSlots { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
     public DbSet<WaitingAppointment> WaitingAppointments { get; set; }
 

@@ -133,7 +133,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return mappedData;
     }
 
-    public async Task<IResult<ClinicSiteDto>> GetClinicSite(int id)
+    public async Task<IResult<ClinicSiteDto>> GetClinicSite(Guid id)
     {
         var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
 
@@ -143,9 +143,9 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result<ClinicSiteDto>.SuccessAsync(mappedData);
     }
 
-    public async Task<IResult> SaveClinicSite(int id, ClinicSiteDto request)
+    public async Task<IResult> SaveClinicSite(Guid id, ClinicSiteDto request)
     {
-        if (id == 0)
+        if (id == Guid.Empty)
         {
             var mappedData = mapper.Map<ClinicSite>(request);
             await context.ClinicSites.AddAsync(mappedData);
@@ -165,7 +165,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Clinic site saved.");
     }
 
-    public async Task<IResult> DeleteClinicSite(int id)
+    public async Task<IResult> DeleteClinicSite(Guid id)
     {
         var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
         if (clinic == null)

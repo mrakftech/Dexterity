@@ -36,7 +36,7 @@
                     <FormItem Field="@nameof(AppointmentDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site Or Room:</label>
-                            <SfDropDownList TValue="int" TItem="ClinicSiteDto" Placeholder="Select Site"
+                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
                                             DataSource="@ClinicSites" @bind-Value="@Appointment.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>

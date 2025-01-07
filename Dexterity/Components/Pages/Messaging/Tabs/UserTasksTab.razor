@@ -14,10 +14,14 @@ else
         </TabTitle>
 
         <MudStack Row Spacing="2" Class="m-4">
-            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All Tasks" Class="" OnClick="AllTasks"/>
+            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All My Tasks" Class="" OnClick="AllTasks"/>
             <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks"/>
             <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
             <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks"/>
+            @if (_isAdmin)
+            {
+                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All User Task" Class="" OnClick="AllUserTasks"/>
+            }
             <MudSpacer/>
             <label class="e-form-label mt-3">Status:</label>
             <MudItem md="2">
@@ -92,11 +96,13 @@ else
     private List<UserTask> UserTaskList { get; set; }
     private bool _comLoading;
     private bool _userTaskLoading;
+    private bool _isAdmin;
 
     protected override async Task OnInitializedAsync()
     {
         _comLoading = true;
         await GetUserTasks();
+        await IsAdmin();
         _comLoading = false;
     }
 
@@ -141,6 +147,11 @@ else
     private async Task AllTasks()
     {
         UserTaskList = await UnitOfWork.Messaging.GetUserTaskList();
+    }
+    
+    private async Task IsAdmin()
+    {
+        _isAdmin = await UnitOfWork.User.IsAdmin();
     }
 
     private async Task DayTasks()
@@ -187,6 +198,11 @@ else
         {
             Snackbar.SuccessMessage(res.Messages.First());
         }
+    }
+
+    private async Task AllUserTasks()
+    {
+        UserTaskList = await UnitOfWork.Messaging.GetAllUserTasks();
     }
 
 }
