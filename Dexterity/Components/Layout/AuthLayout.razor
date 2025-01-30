@@ -16,14 +16,27 @@
 <MudThemeProvider Theme="_currentTheme"/>
 <MudSnackbarProvider/>
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex align-center " Style="height: 20px;margin-top: 25%">
-    
-    @Body
-
+    <CascadingValue Value="_hubConnection">
+        @Body
+    </CascadingValue>
 </MudContainer>
 
 @code {
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
-
-   
+    private HubConnection _hubConnection;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _hubConnection = _hubConnection.TryInitialize(NavigationManager);
+            await _hubConnection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+            Console.WriteLine(e);
+        }
+        
+    }
 
 }

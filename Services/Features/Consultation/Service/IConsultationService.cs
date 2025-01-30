@@ -23,6 +23,7 @@ public interface IConsultationService
     Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId);
     Task<EditConsultationDto> GetConsultationDetail(int id);
     Task<IResult> FinishConsultation(int id);
+    Task<IResult> MarkAsErroneousRecord();
 
 
     #region Baseline Details

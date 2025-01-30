@@ -131,9 +131,21 @@ public class ConsultationService(
             return await Result.FailAsync("Consultation not found.");
 
         consultation.IsFinished = true;
+        context.ChangeTracker.Clear();
         context.ConsultationDetails.Update(consultation);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Consultation has been finished.");
+    }
+
+    public async Task<IResult> MarkAsErroneousRecord()
+    {
+        var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedConsultationId);
+        if (consultation is null)
+            return await Result.FailAsync("Consultation not found.");
+        
+        consultation.IsErroneousRecord = true;
+       await context.SaveChangesAsync();
+       return await Result.SuccessAsync("Consultation has been saved.");
     }
 
     #endregion

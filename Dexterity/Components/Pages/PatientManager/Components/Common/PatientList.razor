@@ -31,7 +31,7 @@
     private async Task GetPatients()
     {
         _patientLoading = true;
-        await Task.Delay(1000);
+        await Task.Delay(500);
         Patients = await UnitOfWork.Patient.GetPatients();
         _patientLoading = false;
     }

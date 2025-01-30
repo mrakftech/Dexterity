@@ -33,8 +33,16 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientListDto>> GetPatients()
     {
-        var patients = await context.Patients.Where(x => x.IsDeleted == false).ToListAsync();
-        return mapper.Map<List<PatientListDto>>(patients);
+        try
+        {
+            var patients = await context.Patients.Where(x => x.IsDeleted == false).ToListAsync();
+            return mapper.Map<List<PatientListDto>>(patients);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
     }
 
     public async Task<PatientDto> GetPatient(Guid id)

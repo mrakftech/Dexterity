@@ -5,11 +5,17 @@
 <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
     <RadzenColumn Size="12" SizeMD="5">
         <RadzenStack>
-            <RadzenFieldset Text=""   >
+            <RadzenFieldset Text="">
                 <RadzenStack Gap="1rem">
                     <RadzenRow AlignItems="AlignItems.Center">
                         <RadzenColumn Size="12" SizeMD="12">
                             <ConsultationList Consultations="Consultations" RowSelected="RowSelected"/>
+                        </RadzenColumn>
+                        <RadzenColumn>
+                            @if (ApplicationState.SelectedConsultationId > 0 )
+                            {
+                                <button class="btn btn-sm btn-danger" @onclick="SetAsErroneous">Mark as erroneous record</button>
+                            }
                         </RadzenColumn>
                     </RadzenRow>
                 </RadzenStack>
@@ -20,73 +26,101 @@
         <RadzenStack>
             <MudExpansionPanels MultiExpansion="true">
                 <MudExpansionPanel Text="Baseline Details">
-                        <RadzenStack Gap="1rem">
-                            <RadzenRow AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="12">
-                                    <BaselineDetailList/>
-                                </RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="12">
+                                <BaselineDetailList/>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Current Medications">
-                        <RadzenStack Gap="1rem">
-                            <RadzenRow AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="12">
-                                    <DexGrid DataSource="ActiveDiagnosis" Height="250px" >
-                                        <DexGridColumns>
-                                            <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="Info"/>
-                                        </DexGridColumns>
-                                    </DexGrid>
-                                </RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="12">
+                                <DexGrid DataSource="ActiveDiagnosis" Height="250px">
+                                    <DexGridColumns>
+                                        <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="Info"/>
+                                    </DexGridColumns>
+                                </DexGrid>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Active Diagnosis">
-                        <RadzenStack Gap="1rem">
-                            <RadzenRow AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="12">
-                                    <DexGrid DataSource="ActiveDiagnosis" Height="250px">
-                                        <DexGridColumns>
-                                            <GridColumn Field="@nameof(ConsultationNoteDto.Date)" HeaderText="Date" Format="d" Type="ColumnType.Date" Width="100px" />
-                                            <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText=""/>
-                                        </DexGridColumns>
-                                    </DexGrid>
-                                </RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="12">
+                                <DexGrid DataSource="ActiveDiagnosis" Height="250px">
+                                    <DexGridColumns>
+                                        <GridColumn Field="@nameof(ConsultationNoteDto.Date)" HeaderText="Date"
+                                                    Format="d" Type="ColumnType.Date" Width="100px"/>
+                                        <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText=""/>
+                                    </DexGridColumns>
+                                </DexGrid>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Social & Past Medical History">
-                        <RadzenStack Gap="1rem">
-                            <RadzenRow AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="12">
-                                    <DexGrid DataSource="PastMedicalHistory" Height="250px">
-                                        <DexGridColumns>
-                                            <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="Info"/>
-                                        </DexGridColumns>
-                                    </DexGrid>
-                                </RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="12">
+                                <DexGrid DataSource="PastMedicalHistory" Height="250px">
+                                    <DexGridColumns>
+                                        <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="Info"/>
+                                    </DexGridColumns>
+                                </DexGrid>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
                 </MudExpansionPanel>
                 <MudExpansionPanel Text="Patient Documents">
-                        <RadzenStack Gap="1rem">
-                            <RadzenRow AlignItems="AlignItems.Center">
-                                <RadzenColumn Size="12" SizeMD="3">
-                                    <RadzenLabel Text="Trans #" Component="TransId"/>
-                                </RadzenColumn>
-                                <RadzenColumn Size="12" SizeMD="9">
-                                    <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
-                                </RadzenColumn>
-                            </RadzenRow>
-                        </RadzenStack>
+                    <RadzenStack Gap="1rem">
+                        <RadzenRow AlignItems="AlignItems.Center">
+                            <RadzenColumn Size="12" SizeMD="3">
+                                <RadzenLabel Text="Trans #" Component="TransId"/>
+                            </RadzenColumn>
+                            <RadzenColumn Size="12" SizeMD="9">
+                                <RadzenTextBox Disabled="true" Placeholder="S4485" Style="width: 100%;" Name="TransId"/>
+                            </RadzenColumn>
+                        </RadzenRow>
+                    </RadzenStack>
                 </MudExpansionPanel>
             </MudExpansionPanels>
         </RadzenStack>
     </RadzenColumn>
 </RadzenRow>
+
 @code{
     [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
     [Parameter] public List<GetConsultationDetailDto> Consultations { get; set; } = new();
     [Parameter] public List<ConsultationNoteDto> PastMedicalHistory { get; set; } = new();
     [Parameter] public List<ConsultationNoteDto> ActiveDiagnosis { get; set; } = new();
+
+    protected override void OnInitialized()
+    {
+        ApplicationState.SelectedConsultationId = 0;
+    }
+
+    private async Task SetAsErroneous()
+    {
+        try
+        {
+            var res = await UnitOfWork.Consultation.MarkAsErroneousRecord();
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessage(res.Messages.First());
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+        }
+    }
+
 }

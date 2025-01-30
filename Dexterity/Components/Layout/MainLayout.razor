@@ -75,19 +75,26 @@
 
     protected override async Task OnInitializedAsync()
     {
-        _hubConnection = _hubConnection.TryInitialize(NavigationManager);
-        await _hubConnection.StartAsync();
-        _hubConnection.On<string, Guid, Guid>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
+        try
         {
-            if (ApplicationState.CurrentUser.UserId == receiverUserId)
+            _hubConnection = _hubConnection.TryInitialize(NavigationManager);
+            await _hubConnection.StartAsync();
+            _hubConnection.On<string, Guid, Guid>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
             {
-                JsRuntime.InvokeAsync<string>("PlayAudio", "notification");
-                Snackbar.SuccessMessage(message);
-            }
-        });
-        await _hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, ApplicationState.CurrentUser.UserId);
-        // Snackbar.SuccessMessage($"Logged In As {ApplicationState.CurrentUser.Name}");
-        await CheckPasswordReset();
+                if (ApplicationState.CurrentUser.UserId == receiverUserId)
+                {
+                    JsRuntime.InvokeAsync<string>("PlayAudio", "notification");
+                    Snackbar.SuccessMessage(message);
+                }
+            });
+            await _hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, ApplicationState.CurrentUser.UserId);
+            Snackbar.SuccessMessage($"Logged In As {ApplicationState.CurrentUser.Name}");
+            await CheckPasswordReset();
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+        }
     }
 
     private void ToggleDrawer()

@@ -29,7 +29,7 @@
                         @{
                             var patient = (context as PatientListDto);
                             <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => EditPatient(patient.Id)"/>
-                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(patient.Id)"/>
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeletePatient(patient.Id)" Disabled/>
                         }
                     </Template>
                 </GridColumn>

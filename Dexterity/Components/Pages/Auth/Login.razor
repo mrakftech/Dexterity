@@ -2,106 +2,166 @@
 @page "/"
 @using Domain.Entities.UserAccounts
 @using global::Services.Features.UserAccounts.Dtos.Auth
-<div class="d-lg-flex half" style="height: 15px">
+<style>
+    .element-center {
+        max-width: fit-content;
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+@if (HubConnection.State == HubConnectionState.Connected)
+{
+    <div class="d-lg-flex half" style="height: 15px">
 
-    <div class="bg order-1 order-md-2"
-         style="background-image: url('assets/images/login-screen-image.png');border-top-right-radius: 20px;border-bottom-right-radius:20px ">
-    </div>
-    <div class="contents order-2 order-md-1" style="border-top-left-radius: 20px;border-bottom-left-radius:20px ">
-        <div class="container">
-            <div class="row align-items-center justify-content-center">
-                <div class="col-md-7">
-                    <img src="assets/images/large_logo.png" alt="logo" class="img-fluid logo"/>
-                    <h1 style="color: crimson;font-size: 28px">
-                        <strong>General Practice</strong>
-                    </h1>
-                    <h3 style="color: darkblue;font-size: 20px">
-                        <strong>Management Software</strong>
-                    </h3>
-                    <div class="mt-5">
-                        <MudItem Style="@($"display:{LoginBoxDisplay}")">
-                            <DexForm Model="@_loginDto" OnValidSubmit="LoginUser">
-                                <Fields>
-                                    <FormItem Field="@nameof(_loginDto.Username)" LabelText="Username"></FormItem>
-                                    <FormItem Field="@nameof(_loginDto.Password)" LabelText="Password" EditorType="FormEditorType.Password"></FormItem>
-                                </Fields>
-                                <Buttons>
-                                    <DexLoadingButton Name="Login" Processing="_processing" Type="MudButtonType.Submit" Icon="fas fa-sign-in"></DexLoadingButton>
-                                </Buttons>
-                            </DexForm>
+        <div class="bg order-1 order-md-2"
+             style="background-image: url('assets/images/login-screen-image.png');border-top-right-radius: 20px;border-bottom-right-radius:20px ">
+        </div>
+        <div class="contents order-2 order-md-1" style="border-top-left-radius: 20px;border-bottom-left-radius:20px ">
+            <div class="container">
+                <div class="row align-items-center justify-content-center">
+                    <div class="col-md-7">
+                        <img src="assets/images/large_logo.png" alt="logo" class="img-fluid logo"/>
+                        <h1 style="color: crimson;font-size: 28px">
+                            <strong>General Practice</strong>
+                        </h1>
+                        <h3 style="color: darkblue;font-size: 20px">
+                            <strong>Management Software</strong>
+                        </h3>
+                        <div class="mt-5">
+                            <MudItem Style="@($"display:{LoginBoxDisplay}")">
+                                <DexForm Model="@_loginDto" OnValidSubmit="LoginUser">
+                                    <Fields>
+                                        <FormItem Field="@nameof(_loginDto.Username)" LabelText="Username"></FormItem>
+                                        <FormItem Field="@nameof(_loginDto.Password)" LabelText="Password"
+                                                  EditorType="FormEditorType.Password"></FormItem>
+                                    </Fields>
+                                    <Buttons>
+                                        <DexLoadingButton Name="Login" Processing="_processing"
+                                                          Type="MudButtonType.Submit"
+                                                          Icon="fas fa-sign-in"></DexLoadingButton>
 
-                        </MudItem>
-                        <MudItem Style="@($"display:{ClinicBoxDisplay}")">
-                            <label>Select Practice:</label>
-                            <SfDropDownList TValue="int" Placeholder="Select Practice" TItem="UserClinic"
-                                            @bind-Value="@_clinicId" DataSource="@_clinics">
-                                <DropDownListFieldSettings Value="ClinicId" Text="Clinic.Name"></DropDownListFieldSettings>
-                            </SfDropDownList>
-                            <DexLoadingButton Name="Proceed" Processing="_processing" Click="NavigateToDashboard"></DexLoadingButton>
-                        </MudItem>
+                                    </Buttons>
+                                </DexForm>
+
+                            </MudItem>
+                            <MudItem Style="@($"display:{ClinicBoxDisplay}")">
+                                <label>Select Practice:</label>
+                                <SfDropDownList TValue="int" Placeholder="Select Practice" TItem="UserClinic"
+                                                @bind-Value="@_clinicId" DataSource="@Clinics">
+                                    <DropDownListFieldSettings Value="ClinicId"
+                                                               Text="Clinic.Name"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                                <DexLoadingButton Name="Proceed" Processing="_processing"
+                                                  Click="NavigateToDashboard"></DexLoadingButton>
+                            </MudItem>
+                        </div>
                     </div>
-                </div>
 
+                </div>
             </div>
         </div>
-    </div>
 
-</div>
+    </div>
+}
+else
+{
+    <div class="element-center" >
+        <MudCard >
+            <MudCardHeader>
+                <CardHeaderContent>
+                    <MudText Typo="Typo.h6" Class="validation-message text-bold">SERVER ERROR!</MudText>
+                </CardHeaderContent>
+            </MudCardHeader>
+            <MudCardContent>
+                <MudText> No server connection has been made.
+                </MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <DexLoadingButton Name="Reconnect to server" Processing="_processing"
+                                  Click="ReconnectToServer"/>
+            </MudCardActions>
+        </MudCard>  
+    </div>
+  
+}
+
+
 @code {
-    private LoginDto _loginDto = new();
+    [CascadingParameter] public HubConnection HubConnection { get; set; }
+    private readonly LoginDto _loginDto = new();
     private bool _processing;
     private string LoginBoxDisplay { get; set; } = "";
     private string ClinicBoxDisplay { get; set; } = "none";
     int _clinicId = 0;
-    private List<UserClinic> _clinics { get; set; } = new();
-
+    private List<UserClinic> Clinics { get; set; } = [];
 
     private async Task LoginUser()
     {
-        _processing = true;
-        var res = await UnitOfWork.User.LoginAsync(_loginDto);
-        if (res.Succeeded)
+        try
         {
-            Snackbar.SuccessMessage(res.Messages.First());
-            await Task.Delay(1500);
-            LoginBoxDisplay = "none";
-            ClinicBoxDisplay = "";
-            _clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
-        }
-        else
-        {
-            Snackbar.FailMessage(res.Messages.First());
-
-            foreach (var item in res.Messages)
+            _processing = true;
+            var res = await UnitOfWork.User.LoginAsync(_loginDto);
+            if (res.Succeeded)
             {
-                Console.WriteLine(item);
+                Snackbar.SuccessMessage(res.Messages.First());
+                await Task.Delay(500);
+                LoginBoxDisplay = "none";
+                ClinicBoxDisplay = "";
+                Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
             }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+
+                foreach (var item in res.Messages)
+                {
+                    Console.WriteLine(item);
+                }
+            }
+
+            _processing = false;
         }
-
-        await Task.Delay(2500);
-
-        _processing = false;
+        catch (Exception e)
+        {
+            _processing = false;
+            Console.WriteLine(e);
+        }
     }
 
     private async Task NavigateToDashboard()
     {
         _processing = true;
-        if (_clinicId > 0)
+        try
         {
-            ApplicationState.CurrentUser.ClinicId = _clinicId;
-            await Task.Delay(1500);
-            if (ApplicationState.CurrentUser.ClinicId > 0)
+            if (_clinicId > 0)
             {
-                NavigationManager.NavigateTo("/home");
+                ApplicationState.CurrentUser.ClinicId = _clinicId;
+                await Task.Delay(500);
+                if (ApplicationState.CurrentUser.ClinicId > 0)
+                {
+                    NavigationManager.NavigateTo("/home");
+                }
             }
-
-            _processing = false;
+            else
+            {
+                Snackbar.FailMessage("Select Clinic");
+            }
         }
-        else
+        catch (Exception e)
         {
-            Snackbar.FailMessage("Select Clinic");
-            _processing = false;
+            Console.WriteLine(e);
+            throw;
         }
+
+        _processing = false;
     }
-    
+
+    private async Task ReconnectToServer()
+    {
+        _processing = true;
+        await Task.Delay(1500);
+        NavigationManager.NavigateTo("/", true);
+        _processing = false;
+    }
+
 }

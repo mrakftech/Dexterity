@@ -102,13 +102,12 @@
                                  Click="FindPatient">
             </RadzenPanelMenuItem>
         </NavigationItems>
-     
         <DexContentTabs>
             <PatientConsultationCard Patient="Patient"/>
             <MudTabs @ref="_tabs">
                 <MudTabPanel Text="">
                     <ConsultationDetails Consultations="Consultations"
-                                         RowSelected="RowSelectHandler"
+                                         RowSelected="SelectConsultationRow"
                                          ActiveDiagnosis="ActiveDiagnosis"
                                          PastMedicalHistory="PastMedicalHistory"/>
                 </MudTabPanel>
@@ -251,7 +250,7 @@
         }
     }
 
-    public void RowSelectHandler(RowSelectEventArgs<GetConsultationDetailDto> args)
+    public void SelectConsultationRow(RowSelectEventArgs<GetConsultationDetailDto> args)
     {
         if (args.Data.Id > 0)
         {
