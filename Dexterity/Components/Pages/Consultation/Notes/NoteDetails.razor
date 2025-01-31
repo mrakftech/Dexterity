@@ -9,9 +9,11 @@
             <FormItem Field="@nameof(UpsertConsultationNoteDto.HealthCodeId)" ColumnSpan="2">
                 <Template>
                     <label class="e-form-label">ICPC-2 OR ICD-10</label>
-                    <SfAutoComplete TValue="string" TItem="HealthCode" Placeholder="ICPC-2 OR ICD-10" DataSource="@HealthCodes" @bind-Value="_healthCode">
+                    <SfAutoComplete TValue="string" TItem="HealthCode" Placeholder="ICPC-2 OR ICD-10"
+                                    DataSource="@HealthCodes" @bind-Value="_healthCode">
                         <AutoCompleteFieldSettings Value="Code" Text="Code"/>
-                        <AutoCompleteEvents TValue="string" TItem="HealthCode" ValueChange="ChangeHealthCode"></AutoCompleteEvents>
+                        <AutoCompleteEvents TValue="string" TItem="HealthCode"
+                                            ValueChange="ChangeHealthCode"></AutoCompleteEvents>
                     </SfAutoComplete>
                 </Template>
             </FormItem>
@@ -21,27 +23,39 @@
                     <DexInputBox @bind-FieldDataSource="_healthCodeDescription"/>
                 </Template>
             </FormItem>
-            <FormItem ColumnSpan="1" Field="@nameof(UpsertConsultationNoteDto.Date)" EditorType="FormEditorType.DatePicker"></FormItem>
+            <FormItem ColumnSpan="1" Field="@nameof(UpsertConsultationNoteDto.Date)"
+                      EditorType="FormEditorType.DatePicker"></FormItem>
             <FormItem ColumnSpan="4" Field="@nameof(UpsertConsultationNoteDto.Date)">
                 <Template>
                     <label class="e-form-label">[Select Template Note]</label>
-                    <SfDropDownList TValue="int" TItem="NoteTemplateDto" Placeholder="Select a note template" DataSource="@NoteTemplates">
+                    <SfDropDownList TValue="int" TItem="NoteTemplateDto" Placeholder="Select a note template"
+                                    DataSource="@NoteTemplates">
                         <DropDownListFieldSettings Value="Id" Text="Note"></DropDownListFieldSettings>
-                        <DropDownListEvents TValue="int" TItem="NoteTemplateDto" ValueChange="OnValueChange"></DropDownListEvents>
+                        <DropDownListEvents TValue="int" TItem="NoteTemplateDto"
+                                            ValueChange="OnValueChange"></DropDownListEvents>
                     </SfDropDownList>
                 </Template>
             </FormItem>
-            <FormItem ColumnSpan="1" LabelText="Past History" Field="@nameof(UpsertConsultationNoteDto.IsPastHistory)" EditorType="FormEditorType.Checkbox"></FormItem>
-            <FormItem ColumnSpan="1" LabelText="Family History" Field="@nameof(UpsertConsultationNoteDto.IsFamilyHistory)" EditorType="FormEditorType.Checkbox"></FormItem>
-            <FormItem ColumnSpan="1" LabelText="Active Condition" Field="@nameof(UpsertConsultationNoteDto.IsActiveCondition)" EditorType="FormEditorType.Checkbox"></FormItem>
-            <FormItem ColumnSpan="1" LabelText="Social History" Field="@nameof(UpsertConsultationNoteDto.IsSocialHistory)" EditorType="FormEditorType.Checkbox"></FormItem>
-            <FormItem ColumnSpan="1" LabelText="Private" Field="@nameof(UpsertConsultationNoteDto.IsPrivate)" EditorType="FormEditorType.Checkbox"></FormItem>
-            <FormItem ColumnSpan="5" Field="@nameof(UpsertConsultationNoteDto.Notes)" EditorType="FormEditorType.TextArea"></FormItem>
+            <FormItem ColumnSpan="1" LabelText="Past History" Field="@nameof(UpsertConsultationNoteDto.IsPastHistory)"
+                      EditorType="FormEditorType.Checkbox"></FormItem>
+            <FormItem ColumnSpan="1" LabelText="Family History"
+                      Field="@nameof(UpsertConsultationNoteDto.IsFamilyHistory)"
+                      EditorType="FormEditorType.Checkbox"></FormItem>
+            <FormItem ColumnSpan="1" LabelText="Active Condition"
+                      Field="@nameof(UpsertConsultationNoteDto.IsActiveCondition)"
+                      EditorType="FormEditorType.Checkbox"></FormItem>
+            <FormItem ColumnSpan="1" LabelText="Social History"
+                      Field="@nameof(UpsertConsultationNoteDto.IsSocialHistory)"
+                      EditorType="FormEditorType.Checkbox"></FormItem>
+            <FormItem ColumnSpan="1" LabelText="Private" Field="@nameof(UpsertConsultationNoteDto.IsPrivate)"
+                      EditorType="FormEditorType.Checkbox"></FormItem>
+            <FormItem ColumnSpan="5" Field="@nameof(UpsertConsultationNoteDto.Notes)"
+                      EditorType="FormEditorType.TextArea"></FormItem>
 
 
         </Fields>
         <Buttons>
-            @if (_id == 0)
+            @if (_id == Guid.Empty)
             {
                 <DexLoadingButton Name="@("Save")" Type="MudButtonType.Submit"/>
             }
@@ -54,10 +68,11 @@
     </DexForm>
 </div>
 <div class="m-2">
-    <SfGrid DataSource="Notes" Height="200" >
+    <SfGrid DataSource="Notes" Height="200">
         <GridEvents RowSelected="RowSelected" TValue="ConsultationNoteDto"></GridEvents>
         <GridColumns>
-            <GridColumn Field="@nameof(ConsultationNoteDto.Date)" Format="g" Type="ColumnType.DateTime" HeaderText="Date" Width="150px"></GridColumn>
+            <GridColumn Field="@nameof(ConsultationNoteDto.Date)" Format="g" Type="ColumnType.DateTime"
+                        HeaderText="Date" Width="150px"></GridColumn>
             <GridColumn Field="@nameof(ConsultationNoteDto.Type)" HeaderText="Type"/>
             <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="Note"/>
             <GridColumn Field="@nameof(ConsultationNoteDto.IsActiveCondition)" HeaderText="Status">
@@ -90,7 +105,7 @@
     private bool _loading;
     private string _healthCode = "";
     private string _healthCodeDescription = "No Codes selected";
-    private int _id;
+    private Guid _id;
 
     protected override async Task OnInitializedAsync()
     {
@@ -118,7 +133,6 @@
 
     private async Task SaveNote()
     {
-        NoteDto.ConsultationDetailId = ApplicationState.SelectedConsultation.Id;
         var res = await UnitOfWork.Consultation.UpsertConsultationNote(_id, NoteDto);
         if (res.Succeeded)
         {
@@ -140,7 +154,7 @@
 
     public async Task RowSelected(RowSelectEventArgs<ConsultationNoteDto> args)
     {
-        if (args.Data.Id > 0)
+        if (args.Data.Id != Guid.Empty)
         {
             _id = args.Data.Id;
             _healthCode = args.Data.HealthCode.Code;
@@ -149,7 +163,7 @@
         }
         else
         {
-            _id = 0;
+            _id = Guid.Empty;
         }
 
         StateHasChanged();
@@ -158,7 +172,7 @@
     private void NewNote()
     {
         NoteDto = new UpsertConsultationNoteDto();
-        _id = 0;
+        _id = Guid.Empty;
         _healthCode = string.Empty;
         _healthCodeDescription = string.Empty;
     }

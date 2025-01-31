@@ -92,7 +92,7 @@ public class ConsultationService(
         }
     }
 
-    public async Task<IResult> EditConsultation(int id, EditConsultationDto request)
+    public async Task<IResult> EditConsultation(Guid id, EditConsultationDto request)
     {
         var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == id);
         if (consultation is null)
@@ -109,7 +109,7 @@ public class ConsultationService(
         return await Result.SuccessAsync("Consultation has been saved.");
     }
 
-    public async Task<EditConsultationDto> GetConsultationDetail(int id)
+    public async Task<EditConsultationDto> GetConsultationDetail(Guid id)
     {
         var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (consultation is null)
@@ -125,7 +125,7 @@ public class ConsultationService(
         };
     }
 
-    public async Task<IResult> FinishConsultation(int id)
+    public async Task<IResult> FinishConsultation(Guid id)
     {
         var consultation = await context.ConsultationDetails.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (consultation is null)
@@ -140,14 +140,16 @@ public class ConsultationService(
 
     public async Task<IResult> MarkAsErroneousRecord()
     {
-        var consultation = await context.ConsultationDetails.FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedConsultation.Id);
+        var consultation =
+            await context.ConsultationDetails.FirstOrDefaultAsync(x =>
+                x.Id == ApplicationState.SelectedConsultation.Id);
         if (consultation is null)
             return await Result.FailAsync("Consultation not found.");
         consultation.IsErroneousRecord = !consultation.IsErroneousRecord;
         context.ChangeTracker.Clear();
         context.ConsultationDetails.Update(consultation);
-       await context.SaveChangesAsync();
-       return await Result.SuccessAsync("Consultation has been saved.");
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Consultation has been saved.");
     }
 
     #endregion
@@ -245,14 +247,15 @@ public class ConsultationService(
             .Include(x => x.HealthCode)
             .Include(x => x.ConsultationDetail)
             .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId && x.IsActiveCondition)
+            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId &&
+                        x.IsActiveCondition)
             .AsNoTracking()
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
         return mapped;
     }
 
-    private async Task<List<ConsultationNoteDto>> GetActiveDiagonsisByConsultationId(int consulataionId)
+    private async Task<List<ConsultationNoteDto>> GetActiveDiagonsisByConsultationId(Guid consulataionId)
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
@@ -269,22 +272,24 @@ public class ConsultationService(
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
             .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId && x.IsPastHistory ||
-                        x.IsScoialHistory ||
-                        x.IsFamilyHistory)
+            .Where(x =>
+                x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId && x.IsPastHistory ||
+                x.IsScoialHistory ||
+                x.IsFamilyHistory)
             .AsNoTracking()
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
         return mapped;
     }
 
-    public async Task<IResult> UpsertConsultationNote(int id, UpsertConsultationNoteDto request)
+    public async Task<IResult> UpsertConsultationNote(Guid id, UpsertConsultationNoteDto request)
     {
         try
         {
-            if (id == 0)
+            if (id == Guid.Empty)
             {
                 var note = mapper.Map<ConsultationNote>(request);
+                note.ConsultationDetailId = ApplicationState.SelectedConsultation.Id;
                 await context.ConsultationNotes.AddAsync(note);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("Note has been added.");
@@ -305,7 +310,7 @@ public class ConsultationService(
         }
     }
 
-    public async Task<ConsultationNoteDto> GetConsultationNote(int id)
+    public async Task<ConsultationNoteDto> GetConsultationNote(Guid id)
     {
         var note = await context.ConsultationNotes
             .Include(x => x.HealthCode)
@@ -313,14 +318,14 @@ public class ConsultationService(
         return note is null ? new ConsultationNoteDto() : mapper.Map<ConsultationNoteDto>(note);
     }
 
-    public async Task<UpsertConsultationNoteDto> GetConsultationEditNote(int id)
+    public async Task<UpsertConsultationNoteDto> GetConsultationEditNote(Guid id)
     {
         var note = await context.ConsultationNotes
             .FirstOrDefaultAsync(x => x.Id == id);
         return note is null ? new UpsertConsultationNoteDto() : mapper.Map<UpsertConsultationNoteDto>(note);
     }
 
-    public async Task<IResult<int>> DeleteConsultationNote(int id)
+    public async Task<IResult<int>> DeleteConsultationNote(Guid id)
     {
         var note = await context.ConsultationNotes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (note is null)
@@ -787,7 +792,8 @@ public class ConsultationService(
         return await context.PatientInvestigations
             .Include(x => x.Investigation)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId && x.Status != InvestigationStatus.Cancelled)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId &&
+                        x.Status != InvestigationStatus.Cancelled)
             .ToListAsync();
     }
 

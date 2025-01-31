@@ -12,7 +12,7 @@
                             <ConsultationList Consultations="Consultations" RowSelected="RowSelected"/>
                         </RadzenColumn>
                         <RadzenColumn>
-                            @if (ApplicationState.SelectedConsultation.Id > 0)
+                            @if (ApplicationState.SelectedConsultation.Id != Guid.Empty)
                             {
                                 var isErroneous = ApplicationState.SelectedConsultation.Detail.IsErroneousRecord;
                                 if (isErroneous)
@@ -121,7 +121,7 @@
 
     protected override void OnInitialized()
     {
-        ApplicationState.SelectedConsultation.Id = 0;
+        ApplicationState.SelectedConsultation.Id = Guid.Empty;
         ApplicationState.SelectedConsultation.Detail = null;
     }
 

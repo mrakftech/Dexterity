@@ -220,7 +220,7 @@
         }
     }
 
-    private async Task EditBeginConsultationDialog(int id)
+    private async Task EditBeginConsultationDialog(Guid id)
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
@@ -233,7 +233,7 @@
         }
     }
 
-    private async Task FinishConsultationDialog(int id)
+    private async Task FinishConsultationDialog(Guid id)
     {
         var parameters = new DialogParameters();
         parameters.Add("ContentText", "Are you sure you want to complete this Consultation?");
@@ -252,7 +252,7 @@
 
     public void SelectConsultationRow(RowSelectEventArgs<GetConsultationDetailDto> args)
     {
-        if (args.Data.Id > 0)
+        if (args.Data.Id !=Guid.Empty)
         {
             _isConsultationSelected = true;
             ApplicationState.SelectedConsultation.Id = args.Data.Id;
@@ -262,7 +262,7 @@
         else
         {
             _isConsultationSelected = false;
-            ApplicationState.SelectedConsultation.Id = 0;
+            ApplicationState.SelectedConsultation.Id = Guid.Empty;
             ApplicationState.SelectedConsultation.Detail = null;
         }
 

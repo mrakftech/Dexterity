@@ -12,7 +12,7 @@ public class WaitingAppointment
     public Guid PatientId { get; set; }
     public Patient Patient { get; set; }
 
-    public int AppointmentId { get; set; }
+    public Guid AppointmentId { get; set; }
     public Appointment Appointment { get; set; }
 
     public Clinic Clinic { get; set; }

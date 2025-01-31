@@ -6,7 +6,7 @@ namespace Services.Features.Appointments.Dtos;
 
 public class AppointmentDto 
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Subject { get; set; }
     public string Location { get; set; }
     public DateTime StartTime { get; set; } =DateTime.Now;
@@ -22,9 +22,9 @@ public class AppointmentDto
     public string Status { get; set; }
     public int Duration { get; set; }
     public int CancelReasonId { get; set; }
-    
-    [Range(1, int.MaxValue, ErrorMessage = "Please select type")]
-    public int AppointmentTypeId { get; set; }
+   
+    [NotEmpty(ErrorMessage = "Please select type")]
+    public Guid AppointmentTypeId { get; set; }
     
     public int ClinicId { get; set; }
     

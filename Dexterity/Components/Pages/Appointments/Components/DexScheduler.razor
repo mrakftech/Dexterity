@@ -162,7 +162,7 @@
         if (args.Type == PopupType.Editor)
         {
             args.Cancel = true; //to prevent the default editor window
-            var action = args.Data.Id == 0 ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
+            var action = args.Data.Id == Guid.Empty ? "CellClick" : "AppointmentClick"; //to check whether the window opens on cell or appointment
             var parameters = new DialogParameters();
             parameters.Add("StartDate", args.Data.StartTime);
             parameters.Add("PatientList", PatientList);

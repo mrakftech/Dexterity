@@ -27,7 +27,7 @@
                     <FormItem Field="@nameof(AppointmentDto.AppointmentTypeId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Appointment Type:</label>
-                            <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type"
+                            <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type"
                                             DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
@@ -80,7 +80,7 @@ else
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
     List<HealthcareDto> HealthCares { get; set; } = new();
     List<PatientListDto> PatientList { get; set; } = new();
     List<AppointmentTypeDto> AppointmentTypes { get; set; } = new();

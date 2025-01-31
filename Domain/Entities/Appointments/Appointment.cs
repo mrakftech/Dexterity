@@ -5,9 +5,9 @@ using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Appointments;
 
-public class Appointment : IBaseActionBy, IBaseActionOn
+public class Appointment : IBaseActionBy, IBaseActionOn,IBaseId
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public string Subject { get; set; }
     public string Location { get; set; }
     public DateTime StartTime { get; set; }
@@ -26,7 +26,7 @@ public class Appointment : IBaseActionBy, IBaseActionOn
     public int CancelReasonId { get; set; }
 
     public AppointmentType AppointmentType { get; set; }
-    public int AppointmentTypeId { get; set; }
+    public Guid AppointmentTypeId { get; set; }
 
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
@@ -39,8 +39,6 @@ public class Appointment : IBaseActionBy, IBaseActionOn
 
     public User Hcp { get; set; }
     public Guid HcpId { get; set; }
-
-
     public Guid CreatedBy { get; set; }
     public Guid? ModifiedBy { get; set; }
     public DateTime CreatedDate { get; set; }

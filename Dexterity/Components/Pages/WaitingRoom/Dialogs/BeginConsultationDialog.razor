@@ -32,7 +32,7 @@
 
 @code {
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int AppointmentId { get; set; }
+    [Parameter] public Guid AppointmentId { get; set; }
     private bool _processing;
     [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
     private BeginConsultationDto ConsultationDto { get; set; } = new();

@@ -128,7 +128,7 @@
 
 
     private Guid _patientId = Guid.Empty;
-    private int _appointmentId = 0;
+    private Guid _appointmentId ;
     private string _status;
 
     protected override async Task OnInitializedAsync()
@@ -144,7 +144,7 @@
     private void ClickChangedTab(int tabIndex)
     {
         _patientId = Guid.Empty;
-        _appointmentId = 0;
+        _appointmentId = Guid.Empty;
         _disableBtns = true;
         _disableConsultationBtn = true;
         _tabs.ActivatePanel(tabIndex);

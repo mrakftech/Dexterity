@@ -13,7 +13,6 @@ public class UpsertConsultationNoteDto
     public bool IsSocialHistory { get; set; }
     public bool IsPrivate { get; set; }
     [Required] public string Notes { get; set; }
-    public int ConsultationDetailId { get; set; }
 
 
     [Range(1, int.MaxValue,ErrorMessage = "Please Select code")]

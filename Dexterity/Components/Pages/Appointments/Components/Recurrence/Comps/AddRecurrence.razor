@@ -23,9 +23,9 @@
         <MudStack Row>
             <MudItem md="6">
                 <label>Appointment Type:</label>
-                <SfDropDownList TValue="int" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
+                <SfDropDownList TValue="Guid" TItem="AppointmentTypeDto" Placeholder="Select type" DataSource="@AppointmentTypes" @bind-Value="@Appointment.AppointmentTypeId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="int" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
+                    <DropDownListEvents TValue="Guid" TItem="AppointmentTypeDto" ValueChange="OnAppointmentTypeChanged"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem md="6">
@@ -108,7 +108,7 @@
         }
     }
 
-    Task OnAppointmentTypeChanged(ChangeEventArgs<int, AppointmentTypeDto> args)
+    Task OnAppointmentTypeChanged(ChangeEventArgs<Guid, AppointmentTypeDto> args)
     {
         var appointmentType = args.ItemData;
         Appointment.AppointmentTypeId = appointmentType.Id;
@@ -133,7 +133,7 @@
             return;
         }
 
-        if (Appointment.AppointmentTypeId == 0)
+        if (Appointment.AppointmentTypeId == Guid.Empty)
         {
             _error = "Please select appointment type";
             return;

@@ -37,7 +37,7 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
     private EditConsultationDto ConsultationDto { get; set; } = new();
     private List<ClinicSiteDto> ClinicSites { get; set; } = new();
     private bool _loading;
@@ -45,7 +45,7 @@
     protected override async Task OnInitializedAsync()
     {
         await GetClinicSites();
-        if (Id > 0)
+        if (Id !=Guid.Empty)
         {
 
             ConsultationDto = await UnitOfWork.Consultation.GetConsultationDetail(Id);

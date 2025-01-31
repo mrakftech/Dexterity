@@ -27,5 +27,5 @@ public class AdministerShot : IBaseId
 
 
     public ConsultationDetail ConsultationDetail { get; set; }
-    public int? ConsultationDetailId { get; set; }
+    public Guid? ConsultationDetailId { get; set; }
 }

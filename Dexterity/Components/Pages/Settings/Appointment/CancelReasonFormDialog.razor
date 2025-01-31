@@ -8,7 +8,8 @@
                 <FormItem Field="@nameof(AppointmentCancellationReason.Reason)" LabelText="Name"></FormItem>
             </Fields>
             <Buttons>
-                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing" Icon="fas fa-floppy-disk"></DexLoadingButton>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="@_processing"
+                                  Icon="fas fa-floppy-disk"></DexLoadingButton>
             </Buttons>
         </DexForm>
     </Content>
@@ -16,13 +17,13 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
     private AppointmentCancellationReason CancellationReason { get; set; } = new();
     private bool _processing;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id > 0)
+        if (Id != Guid.Empty)
         {
             var s = await UnitOfWork.Setting.GetAppointmentCancelReason(Id);
             CancellationReason = s.Data;

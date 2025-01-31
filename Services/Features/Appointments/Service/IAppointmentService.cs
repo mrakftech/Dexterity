@@ -9,14 +9,14 @@ public interface IAppointmentService
     Task<List<SearchAppointmentDto>> FindAppointments();
     Task<List<AppointmentHistoryDto>> GetAppointmentHistory(Guid patientId);
     Task<List<AppointmentDto>> GetAllAppointments(DateTime startDate, DateTime endDate);
-    Task<IResult<AppointmentDto>> GetAppointment(int id);
+    Task<IResult<AppointmentDto>> GetAppointment(Guid id);
 
     Task<IResult> CreateAppointment(AppointmentDto appointment);
     Task UpdateAppointment(AppointmentDto appointment);
-    Task DeleteAppointment(int id);
+    Task DeleteAppointment(Guid id);
     Task<IResult> DeleteAppointmentSeries(Guid id);
-    Task<IResult> CancelAppointment(int id, int cancelReasonId);
-    Task<IResult> SaveAppointment(int id, AppointmentDto appointment);
+    Task<IResult> CancelAppointment(Guid appointmentId, int cancelReasonId);
+    Task<IResult> SaveAppointment(Guid id, AppointmentDto appointment);
 
     #region Recurring
     Task<bool> IsSlotAvaiable(DateTime date, Guid hcpId);

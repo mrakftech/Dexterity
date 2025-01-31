@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Database.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDatabase : Migration
+    public partial class UpdateDatabase612P : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -67,8 +67,7 @@ namespace Database.Migrations
                 schema: "Setting",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Reason = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     IsDefault = table.Column<bool>(type: "bit", nullable: false)
                 },
@@ -78,12 +77,26 @@ namespace Database.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AppointmentSlots",
+                schema: "Scheduler",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsAvailable = table.Column<bool>(type: "bit", nullable: false),
+                    HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AppointmentSlots", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "AppointmentTypes",
                 schema: "Setting",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     Active = table.Column<bool>(type: "bit", nullable: false)
@@ -1038,21 +1051,22 @@ namespace Database.Migrations
                 schema: "Scheduler",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Subject = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Location = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     StartTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndTime = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Description = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     IsAllDay = table.Column<bool>(type: "bit", nullable: false),
+                    IsSeries = table.Column<bool>(type: "bit", nullable: false),
+                    CustomRecurrenceId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     RecurrenceRule = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecurrenceException = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     RecurrenceID = table.Column<int>(type: "int", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Duration = table.Column<int>(type: "int", nullable: false),
                     CancelReasonId = table.Column<int>(type: "int", nullable: false),
-                    AppointmentTypeId = table.Column<int>(type: "int", nullable: false),
+                    AppointmentTypeId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClinicId = table.Column<int>(type: "int", nullable: false),
                     ClinicSiteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -1162,8 +1176,7 @@ namespace Database.Migrations
                 schema: "Consultation",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ConsultationDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     ConsultationType = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConsultationClass = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -1171,7 +1184,8 @@ namespace Database.Migrations
                     ClinicSiteId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    IsFinished = table.Column<bool>(type: "bit", nullable: false)
+                    IsFinished = table.Column<bool>(type: "bit", nullable: false),
+                    IsErroneousRecord = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1782,7 +1796,7 @@ namespace Database.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     PatientId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    AppointmentId = table.Column<int>(type: "int", nullable: false),
+                    AppointmentId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ClinicId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -1814,8 +1828,7 @@ namespace Database.Migrations
                 schema: "Consultation",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Date = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Type = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Status = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -1825,7 +1838,7 @@ namespace Database.Migrations
                     IsScoialHistory = table.Column<bool>(type: "bit", nullable: false),
                     IsPrivate = table.Column<bool>(type: "bit", nullable: false),
                     Notes = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConsultationDetailId = table.Column<int>(type: "int", nullable: false),
+                    ConsultationDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     HealthCodeId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
@@ -1862,7 +1875,7 @@ namespace Database.Migrations
                     HcpId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ImmunisationScheduleId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
                     ShotBatchId = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
-                    ConsultationDetailId = table.Column<int>(type: "int", nullable: true)
+                    ConsultationDetailId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -2622,6 +2635,10 @@ namespace Database.Migrations
             migrationBuilder.DropTable(
                 name: "AppointmentCancellationReasons",
                 schema: "Setting");
+
+            migrationBuilder.DropTable(
+                name: "AppointmentSlots",
+                schema: "Scheduler");
 
             migrationBuilder.DropTable(
                 name: "AssignedInvestigationGroups",

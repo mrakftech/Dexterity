@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250106131526_UpdateDatabase614P")]
-    partial class UpdateDatabase614P
+    [Migration("20250131131839_UpdateDatabase612P")]
+    partial class UpdateDatabase612P
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -27,14 +27,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.Appointment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppointmentTypeId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AppointmentTypeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CancelReasonId")
                         .HasColumnType("int");
@@ -50,6 +48,9 @@ namespace Database.Migrations
 
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CustomRecurrenceId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Description")
                         .HasColumnType("nvarchar(max)");
@@ -67,6 +68,9 @@ namespace Database.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsSeries")
                         .HasColumnType("bit");
 
                     b.Property<string>("Location")
@@ -116,11 +120,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentCancellationReason", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -140,6 +142,9 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<bool>("IsAvailable")
                         .HasColumnType("bit");
 
@@ -153,11 +158,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentType", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -315,11 +318,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Detail.ConsultationDetail", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClinicSiteId")
                         .HasColumnType("uniqueidentifier");
@@ -335,6 +336,9 @@ namespace Database.Migrations
 
                     b.Property<Guid>("HcpId")
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsErroneousRecord")
+                        .HasColumnType("bit");
 
                     b.Property<bool>("IsFinished")
                         .HasColumnType("bit");
@@ -533,8 +537,8 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("ConsultationDetailId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ConsultationDetailId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
@@ -728,14 +732,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Notes.ConsultationNote", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ConsultationDetailId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ConsultationDetailId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -3224,8 +3226,8 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");

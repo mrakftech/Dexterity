@@ -18,7 +18,7 @@
 </MudDialog>
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int AppointmentId { get; set; }
+    [Parameter] public Guid AppointmentId { get; set; }
     private List<AppointmentCancellationReason> Reasons { get; set; } = new();
     private bool _processing;
     int _reasonId;

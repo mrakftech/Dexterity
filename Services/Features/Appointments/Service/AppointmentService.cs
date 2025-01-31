@@ -11,7 +11,7 @@ namespace Services.Features.Appointments.Service;
 
 public class AppointmentService(ApplicationDbContext context, IMapper mapper) : IAppointmentService
 {
-    public async Task<IResult<AppointmentDto>> GetAppointment(int id)
+    public async Task<IResult<AppointmentDto>> GetAppointment(Guid id)
     {
         var appointment = await context.Appointments
             .Include(x => x.Patient)
@@ -46,11 +46,13 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         return data;
     }
 
-    public async Task<IResult> SaveAppointment(int id, AppointmentDto request)
+   
+
+    public async Task<IResult> SaveAppointment(Guid id, AppointmentDto request)
     {
         try
         {
-            if (id == 0)
+            if (id == Guid.Empty)
             {
                 if (await IsSlotAvaiable(request.StartTime, request.HcpId))
                 {
@@ -129,11 +131,11 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         return await Result.SuccessAsync("Appointment series has been deleted");
     }
 
-    public async Task<IResult> CancelAppointment(int id, int cancelReasonId)
+    public async Task<IResult> CancelAppointment(Guid appointmentId, int cancelReasonId)
     {
         try
         {
-            var appointment = await context.Appointments.Include(x => x.Patient).FirstOrDefaultAsync(x => x.Id == id);
+            var appointment = await context.Appointments.Include(x => x.Patient).FirstOrDefaultAsync(x => x.Id == appointmentId);
             if (appointment == null)
                 return await Result<AppointmentDto>.FailAsync("Appointment not found");
             appointment.Status = AppointmentConstants.Status.Cancelled;
@@ -199,7 +201,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         }
     }
 
-    public async Task DeleteAppointment(int appointmentId)
+    public async Task DeleteAppointment(Guid appointmentId)
     {
         var appointmentInDb = await context.Appointments
             .FirstOrDefaultAsync(x => x.Id == appointmentId);

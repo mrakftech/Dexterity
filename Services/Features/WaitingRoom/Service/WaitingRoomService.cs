@@ -57,7 +57,7 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
         var data = mapper.Map<List<WaitingPatientDto>>(appointments);
         return data;
     }
-    public async Task<IResult> UpdateWaitingAppointment(int appointmentId, string status)
+    public async Task<IResult> UpdateWaitingAppointment(Guid appointmentId, string status)
     {
         var appointment = await context.WaitingAppointments
             .FirstOrDefaultAsync(x => x.AppointmentId == appointmentId);

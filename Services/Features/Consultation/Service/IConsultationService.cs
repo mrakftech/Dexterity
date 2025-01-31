@@ -19,10 +19,10 @@ namespace Services.Features.Consultation.Service;
 public interface IConsultationService
 {
     Task<IResult> BeginConsultation(BeginConsultationDto request);
-    Task<IResult> EditConsultation(int id, EditConsultationDto request);
+    Task<IResult> EditConsultation(Guid id, EditConsultationDto request);
     Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId);
-    Task<EditConsultationDto> GetConsultationDetail(int id);
-    Task<IResult> FinishConsultation(int id);
+    Task<EditConsultationDto> GetConsultationDetail(Guid id);
+    Task<IResult> FinishConsultation(Guid id);
     Task<IResult> MarkAsErroneousRecord();
 
 
@@ -40,10 +40,10 @@ public interface IConsultationService
     Task<List<ConsultationNoteDto>> GetConsultationNotes();
     Task<List<ConsultationNoteDto>> GetActiveDiagonsisByPatient();
     Task<List<ConsultationNoteDto>> GetPastMedicalHistory();
-    Task<IResult> UpsertConsultationNote(int id, UpsertConsultationNoteDto request);
-    Task<UpsertConsultationNoteDto> GetConsultationEditNote(int id);
-    Task<ConsultationNoteDto> GetConsultationNote(int id);
-    Task<IResult<int>> DeleteConsultationNote(int id);
+    Task<IResult> UpsertConsultationNote(Guid id, UpsertConsultationNoteDto request);
+    Task<UpsertConsultationNoteDto> GetConsultationEditNote(Guid id);
+    Task<ConsultationNoteDto> GetConsultationNote(Guid id);
+    Task<IResult<int>> DeleteConsultationNote(Guid id);
 
     #endregion
 

@@ -9,6 +9,6 @@ public class WaitingPatientDto
     public string Hcp { get; set; }
     public string Status { get; set; }
     public string PersonalBalance { get; set; }
-    public int AppointmentId { get; set; }
+    public Guid AppointmentId { get; set; }
     public Guid PatientId { get; set; }
 }

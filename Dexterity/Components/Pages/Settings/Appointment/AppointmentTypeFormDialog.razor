@@ -16,14 +16,14 @@
 
 @code {
     [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
-    [Parameter] public int Id { get; set; }
+    [Parameter] public Guid Id { get; set; }
     private AppointmentTypeDto AppointmentTypeDto { get; set; } = new();
     private bool _processing;
     private string _title;
 
     protected override async Task OnInitializedAsync()
     {
-        if (Id > 0)
+        if (Id !=Guid.Empty)
         {
             var s = await UnitOfWork.Setting.GetAppointmentType(Id);
             AppointmentTypeDto = s.Data;

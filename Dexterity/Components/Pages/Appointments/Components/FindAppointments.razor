@@ -44,7 +44,7 @@
         AppointmentList = await UnitOfWork.Appointment.FindAppointments();
     }
 
-    private async Task DeleteAppointment(int id)
+    private async Task DeleteAppointment(Guid id)
     {
         var parameters = new DialogParameters();
 
@@ -58,7 +58,7 @@
         }
     }
 
-    private async Task EditAppointment(int id)
+    private async Task EditAppointment(Guid id)
     {
         var parameters = new DialogParameters {{"Id", id}};
         var options = new DialogOptions()

@@ -43,7 +43,7 @@ namespace Dexterity.Adapters
         //Performs Delete operation
         public async override Task<object> RemoveAsync(DataManager dataManager, object data, string keyField, string key)
         {
-            int id = (int)data;
+            var id = (Guid)data;
             await _unitOfWork.DeleteAppointment(id);
             return data;
         }

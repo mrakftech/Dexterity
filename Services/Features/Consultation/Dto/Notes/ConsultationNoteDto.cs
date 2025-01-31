@@ -5,7 +5,7 @@ namespace Services.Features.Consultation.Dto.Notes;
 
 public class ConsultationNoteDto
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public DateTime Date { get; set; }
     public string Type { get; set; } 
     public bool IsPastHistory { get; set; }
@@ -15,7 +15,7 @@ public class ConsultationNoteDto
     public bool IsPrivate { get; set; }
     public string Notes { get; set; }
     public string DoctorName { get; set; }
-    public int ConsultationDetailId { get; set; }
+    public Guid ConsultationDetailId { get; set; }
     
     public HealthCode HealthCode { get; set; }
 }

@@ -2,7 +2,7 @@
 <TabTitle Title="Appointment Type" Icon="appointment-type.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentTypeModal(0)" Variant="Variant.Filled">Add Appointment Type</MudButton>
+            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentTypeModal(Guid.Empty)" Variant="Variant.Filled">Add Appointment Type</MudButton>
             <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAppointmentTypeList" Variant="Variant.Filled">Load Appointment Types</MudButton>
         </MudStack>
     </ActionButtons>
@@ -46,9 +46,9 @@
         _processing = false;
     }
 
-    private async Task UpsertAppointmentTypeModal(int id)
+    private async Task UpsertAppointmentTypeModal(Guid id)
     {
-        var title = id == 0 ? "New Appointment Type" : "Edit Appointment Type";
+        var title = id == Guid.Empty ? "New Appointment Type" : "Edit Appointment Type";
         var parameters = new DialogParameters { { "Id", id } };
         var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
         var dialogresult = await DialogService.ShowAsync<AppointmentTypeFormDialog>(title, parameters, options);
@@ -59,7 +59,7 @@
         }
     }
 
-    private async Task DeleteAppointmentType(int id)
+    private async Task DeleteAppointmentType(Guid id)
     {
         var parameters = new DialogParameters();
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);

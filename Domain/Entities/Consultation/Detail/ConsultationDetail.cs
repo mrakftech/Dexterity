@@ -6,9 +6,9 @@ using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Consultation.Detail;
 
-public class ConsultationDetail : IErrorFlag
+public class ConsultationDetail : IErrorFlag, IBaseId
 {
-    public int Id { get; set; }
+    public Guid Id { get; set; }
     public DateTime ConsultationDate { get; set; }
     public string ConsultationType { get; set; }
     public string ConsultationClass { get; set; }

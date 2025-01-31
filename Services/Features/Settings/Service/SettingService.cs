@@ -230,7 +230,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
-    public async Task<IResult<AppointmentTypeDto>> GetAppointmentType(int id)
+    public async Task<IResult<AppointmentTypeDto>> GetAppointmentType(Guid id)
     {
         var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
 
@@ -242,9 +242,11 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result<AppointmentTypeDto>.SuccessAsync(data);
     }
 
-    public async Task<IResult> SaveAppointmentType(int id, AppointmentTypeDto request)
+  
+
+    public async Task<IResult> SaveAppointmentType(Guid id, AppointmentTypeDto request)
     {
-        if (id == 0)
+        if (id == Guid.Empty)
         {
             var appt = mapper.Map<AppointmentType>(request);
             await context.AppointmentTypes.AddAsync(appt);
@@ -259,7 +261,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Appointment Type saved.");
     }
 
-    public async Task<IResult> DeleteAppointmentType(int id)
+    public async Task<IResult> DeleteAppointmentType(Guid id)
     {
         var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
         if (appointmentType == null)
@@ -278,7 +280,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await context.AppointmentCancellationReasons.ToListAsync();
     }
 
-    public async Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(int id)
+    public async Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(Guid id)
     {
         var appointmentType = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
 
@@ -288,9 +290,9 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result<AppointmentCancellationReason>.SuccessAsync(appointmentType);
     }
 
-    public async Task<IResult> SaveAppointmentCancelReason(int id, AppointmentCancellationReason request)
+    public async Task<IResult> SaveAppointmentCancelReason(Guid id, AppointmentCancellationReason request)
     {
-        if (id == 0)
+        if (id == Guid.Empty)
         {
             await context.AppointmentCancellationReasons.AddAsync(request);
         }
@@ -303,7 +305,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Appointment cancel reason saved.");
     }
 
-    public async Task<IResult> DeleteAppointmentCancelReason(int id)
+    public async Task<IResult> DeleteAppointmentCancelReason(Guid id)
     {
         var cancellationReason = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
         if (cancellationReason == null)

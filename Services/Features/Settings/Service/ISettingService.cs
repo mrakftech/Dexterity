@@ -1,5 +1,4 @@
 ﻿using Domain.Entities.Appointments;
-using Domain.Entities.Consultation;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.Settings.Drugs;
@@ -55,18 +54,18 @@ public interface ISettingService
     #region Appointment Type
 
     public Task<List<AppointmentTypeDto>> GetAppointmentTypes();
-    public Task<IResult<AppointmentTypeDto>> GetAppointmentType(int id);
-    public Task<IResult> SaveAppointmentType(int id, AppointmentTypeDto request);
-    public Task<IResult> DeleteAppointmentType(int id);
+    public Task<IResult<AppointmentTypeDto>> GetAppointmentType(Guid id);
+    public Task<IResult> SaveAppointmentType(Guid id, AppointmentTypeDto request);
+    public Task<IResult> DeleteAppointmentType(Guid id);
 
     #endregion
 
     #region Appointment Cancel Reason
 
     public Task<List<AppointmentCancellationReason>> GetAppointmentCancelReasons();
-    public Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(int id);
-    public Task<IResult> SaveAppointmentCancelReason(int id, AppointmentCancellationReason request);
-    public Task<IResult> DeleteAppointmentCancelReason(int id);
+    public Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(Guid id);
+    public Task<IResult> SaveAppointmentCancelReason(Guid id, AppointmentCancellationReason request);
+    public Task<IResult> DeleteAppointmentCancelReason(Guid id);
 
     #endregion
 

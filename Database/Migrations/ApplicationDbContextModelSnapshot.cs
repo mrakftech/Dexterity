@@ -24,14 +24,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.Appointment", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("AppointmentTypeId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AppointmentTypeId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("CancelReasonId")
                         .HasColumnType("int");
@@ -119,11 +117,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentCancellationReason", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("IsDefault")
                         .HasColumnType("bit");
@@ -159,11 +155,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Appointments.AppointmentType", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<bool>("Active")
                         .HasColumnType("bit");
@@ -321,11 +315,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Detail.ConsultationDetail", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("ClinicSiteId")
                         .HasColumnType("uniqueidentifier");
@@ -542,8 +534,8 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<int?>("ConsultationDetailId")
-                        .HasColumnType("int");
+                    b.Property<Guid?>("ConsultationDetailId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
@@ -737,14 +729,12 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Notes.ConsultationNote", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
+                        .HasColumnType("uniqueidentifier");
 
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<int>("ConsultationDetailId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("ConsultationDetailId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
@@ -3233,8 +3223,8 @@ namespace Database.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("AppointmentId")
-                        .HasColumnType("int");
+                    b.Property<Guid>("AppointmentId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int>("ClinicId")
                         .HasColumnType("int");

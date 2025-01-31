@@ -16,7 +16,7 @@ public static class ApplicationState
     public static class SelectedConsultation
     {
         public static GetConsultationDetailDto Detail { get; set; }
-        public static int Id { get; set; }
+        public static Guid Id { get; set; }
     }
 
     public static class Auth
