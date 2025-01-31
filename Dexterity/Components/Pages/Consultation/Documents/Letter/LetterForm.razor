@@ -10,7 +10,7 @@
                 <FormItem Field="@nameof(LetterDto.LetterTypeId)">
                     <Template>
                         <label class="e-form-label">Patient</label>
-                        <span>@ApplicationState.SelectedPatientName</span>
+                        <span>@ApplicationState.SelectedPatient.PatientName</span>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(LetterDto.LetterDt)" LabelText="Date" />
@@ -79,7 +79,7 @@
 
     private async Task GetHcps()
     {
-        _hcps = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+        _hcps = await UnitOfWork.User.GetDoctors(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task GetLetterType()

@@ -47,7 +47,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             EndHour = userInDb.EndHour,
             RoleId = userInDb.RoleId,
         };
-        ApplicationState.CurrentUser = response;
+        ApplicationState.Auth.CurrentUser = response;
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
     }
 
@@ -107,7 +107,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
                 request.RoleId = request.RoleId;
                 request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
-                request.CreatedBy = ApplicationState.CurrentUser.UserId;
+                request.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
                 var hashPassword = SecurePasswordHasher.Hash(request.Password);
                 var user = mapper.Map<User>(request);
                 user.WorkingDays = request.WorkingDays;
@@ -125,7 +125,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
                 var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
                 request.RoleId = request.RoleId;
-                request.ModifiedBy = ApplicationState.CurrentUser.UserId;
+                request.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
                 request.ModifiedDate = DateTime.Today;
                 request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
                 userInDb = mapper.Map(request, userInDb);
@@ -162,8 +162,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public void Logout()
     {
-        ApplicationState.CurrentUser = new LoginResponseDto();
-        ApplicationState.IsLoggedIn = false;
+        ApplicationState.Auth.CurrentUser = new LoginResponseDto();
+        ApplicationState.Auth.IsLoggedIn = false;
     }
 
     #endregion
@@ -185,7 +185,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<bool> IsAdmin()
     {
         var isAdmin = await context.Roles.FirstOrDefaultAsync(x =>
-            x.Id == ApplicationState.CurrentUser.RoleId && x.Name == RoleConstants.AdministratorRole);
+            x.Id == ApplicationState.Auth.CurrentUser.RoleId && x.Name == RoleConstants.AdministratorRole);
         return isAdmin is not null;
     }
 
@@ -208,7 +208,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             var role = new Role()
             {
                 Name = name,
-                CreatedBy = ApplicationState.CurrentUser.UserId,
+                CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                 CreatedDate = DateTime.Today,
             };
             context.Roles.Add(role);
@@ -225,7 +225,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
 
             roleInDb.Name = name;
-            roleInDb.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            roleInDb.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
             roleInDb.ModifiedDate = DateTime.Today;
         }
 
@@ -272,7 +272,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> ResetPassword(ResetPasswordDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
-            .FirstOrDefaultAsync(x => x.Id == ApplicationState.CurrentUser.UserId);
+            .FirstOrDefaultAsync(x => x.Id == ApplicationState.Auth.CurrentUser.UserId);
 
         if (userInDb == null)
         {
@@ -359,7 +359,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             .ToListAsync();
 
         return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>)
-            .Where(data => data.Id != ApplicationState.CurrentUser.UserId).ToList();
+            .Where(data => data.Id != ApplicationState.Auth.CurrentUser.UserId).ToList();
     }
 
     #endregion

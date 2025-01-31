@@ -58,12 +58,12 @@
 
     private async Task GetAccountDetails()
     {
-        PatientAccount = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatientId);
+        PatientAccount = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatient.PatientId);
     }
 
     private async Task GetHealthCares()
     {
-        HealthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+        HealthCares = await UnitOfWork.User.GetDoctors(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task GetChargeTypes()

@@ -62,7 +62,7 @@
 
     private async Task GetHealthCares()
     {
-        _healthCares = await UnitOfWork.User.GetDoctors(ApplicationState.CurrentUser.ClinicId);
+        _healthCares = await UnitOfWork.User.GetDoctors(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task SavePatientCustomForm()

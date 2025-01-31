@@ -65,7 +65,7 @@
     {
         _processing = true;
 
-        var members= await UnitOfWork.Patient.GetFamilyMembers(ApplicationState.SelectedPatientId);
+        var members= await UnitOfWork.Patient.GetFamilyMembers(ApplicationState.SelectedPatient.PatientId);
         NextOfKins = members.Where(x => x.IsCarer == false).ToList();
         PatientCarers = members.Where(x => x.IsCarer == true).ToList();
         _processing = false;

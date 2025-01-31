@@ -81,14 +81,14 @@
             await _hubConnection.StartAsync();
             _hubConnection.On<string, Guid, Guid>("ReceiveChatNotification", (message, receiverUserId, senderUserId) =>
             {
-                if (ApplicationState.CurrentUser.UserId == receiverUserId)
+                if (ApplicationState.Auth.CurrentUser.UserId == receiverUserId)
                 {
                     JsRuntime.InvokeAsync<string>("PlayAudio", "notification");
                     Snackbar.SuccessMessage(message);
                 }
             });
-            await _hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, ApplicationState.CurrentUser.UserId);
-            Snackbar.SuccessMessage($"Logged In As {ApplicationState.CurrentUser.Name}");
+            await _hubConnection.SendAsync(ApplicationConstants.SignalR.OnConnect, ApplicationState.Auth.CurrentUser.UserId);
+            Snackbar.SuccessMessage($"Logged In As {ApplicationState.Auth.CurrentUser.Name}");
             await CheckPasswordReset();
         }
         catch (Exception e)
@@ -109,8 +109,8 @@
 
     private async Task CheckPasswordReset()
     {
-        if (ApplicationState.CurrentUser.IsForceReset &&
-            ApplicationState.CurrentUser.RoleName != RoleConstants.AdministratorRole)
+        if (ApplicationState.Auth.CurrentUser.IsForceReset &&
+            ApplicationState.Auth.CurrentUser.RoleName != RoleConstants.AdministratorRole)
         {
             var parameters = new DialogParameters();
             var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };

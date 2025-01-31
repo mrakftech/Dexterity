@@ -10,7 +10,7 @@ public class AdministerShotDto
     public DateTime DueDate { get; set; }
     public DateTime GivenDate { get; set; } = DateTime.UtcNow;
     [Required(ErrorMessage = "Required")] public string Side { get; set; }
-    [NotEmpty(ErrorMessage = "Required")] public Guid HcpId { get; set; } = ApplicationState.CurrentUser.UserId;
+    [NotEmpty(ErrorMessage = "Required")] public Guid HcpId { get; set; } = ApplicationState.Auth.CurrentUser.UserId;
     public string ShotName { get; set; }
     public string ShotDose { get; set; }
     public string ShotMethod { get; set; }

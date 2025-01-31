@@ -66,7 +66,7 @@
     protected override async Task OnInitializedAsync()
     {
         _userTaskLoading = true;
-        Tasks = await UnitOfWork.Messaging.GetUserTasksByPatient(ApplicationState.SelectedPatientId);
+        Tasks = await UnitOfWork.Messaging.GetUserTasksByPatient(ApplicationState.SelectedPatient.PatientId);
         _userTaskLoading = false;
     }
 

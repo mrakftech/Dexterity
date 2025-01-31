@@ -419,14 +419,14 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<PomrGroup>> GetAllPomrGroups()
     {
-        return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId).ToListAsync();
+        return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId).ToListAsync();
     }
 
     public async Task<IResult> SavePomrGroup(int id, PomrGroup request)
     {
         if (id == 0)
         {
-            request.ClinicId = ApplicationState.CurrentUser.ClinicId;
+            request.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
             await context.PomrGroups.AddAsync(request);
             await context.SaveChangesAsync();
         }

@@ -118,7 +118,7 @@
 
     private async Task SaveNote()
     {
-        NoteDto.ConsultationDetailId = ApplicationState.SelectedConsultationId;
+        NoteDto.ConsultationDetailId = ApplicationState.SelectedConsultation.Id;
         var res = await UnitOfWork.Consultation.UpsertConsultationNote(_id, NoteDto);
         if (res.Succeeded)
         {

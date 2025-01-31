@@ -16,7 +16,7 @@
                 <FormItem Field="@nameof(PatientInvestigation.Date)">
                     <Template>
                         <label class="e-form-label">Patient Name:</label>
-                        <span>@ApplicationState.SelectedPatientName</span>
+                        <span>@ApplicationState.SelectedPatient.PatientName</span>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(PatientInvestigation.HcpId)">
@@ -49,7 +49,7 @@
 
     private async Task GetHealthCares()
     {
-        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        var users = await UnitOfWork.User.GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
         _healthCares = users.Where(x => x.UserType == UserTypeConstants.Doctor).ToList();
     }
 

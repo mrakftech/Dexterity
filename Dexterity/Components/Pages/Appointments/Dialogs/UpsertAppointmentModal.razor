@@ -165,7 +165,7 @@ else
 
     private async Task GetClinicSites()
     {
-        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.CurrentUser.ClinicId);
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task SaveAppointment()

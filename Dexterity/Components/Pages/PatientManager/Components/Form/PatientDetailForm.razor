@@ -158,7 +158,7 @@
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+            .GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private void OnGMSStatusChange(Microsoft.AspNetCore.Components.ChangeEventArgs args)

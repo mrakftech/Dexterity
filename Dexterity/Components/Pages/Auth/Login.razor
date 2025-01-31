@@ -107,7 +107,7 @@ else
                 await Task.Delay(500);
                 LoginBoxDisplay = "none";
                 ClinicBoxDisplay = "";
-                Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.CurrentUser.UserId);
+                Clinics = await UnitOfWork.User.GetUserClinics(ApplicationState.Auth.CurrentUser.UserId);
             }
             else
             {
@@ -135,9 +135,9 @@ else
         {
             if (_clinicId > 0)
             {
-                ApplicationState.CurrentUser.ClinicId = _clinicId;
+                ApplicationState.Auth.CurrentUser.ClinicId = _clinicId;
                 await Task.Delay(500);
-                if (ApplicationState.CurrentUser.ClinicId > 0)
+                if (ApplicationState.Auth.CurrentUser.ClinicId > 0)
                 {
                     NavigationManager.NavigateTo("/home");
                 }

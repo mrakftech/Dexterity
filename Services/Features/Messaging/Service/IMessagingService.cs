@@ -37,11 +37,9 @@ public interface IMessagingService
 
     #region Instant Messsaging
     Task<List<UserResponseDto>> GetUsers();
-
     public Task<User> GetUserDetailsAsync(Guid userId);
     public Task<IResult> SaveMessageAsync(ChatMessage message);
     public List<ChatMessage> GetConversationAsync(Guid contactId);
-
 
     #endregion
 }

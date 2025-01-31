@@ -15,6 +15,6 @@ public class UpsertReminderDto
     public bool IsActive { get; set; }
 
 
-    public Guid HcpId { get; set; } = ApplicationState.CurrentUser.UserId;
-    public Guid PatientId { get; set; } = ApplicationState.SelectedPatientId;
+    public Guid HcpId { get; set; } = ApplicationState.Auth.CurrentUser.UserId;
+    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.PatientId;
 }

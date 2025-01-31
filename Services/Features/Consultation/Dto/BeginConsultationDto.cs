@@ -11,6 +11,6 @@ public class BeginConsultationDto
     public string Pomr { get; set; }
     public Guid ClinicSiteId { get; set; }
 
-    public string PatientName { get; set; } = ApplicationState.SelectedPatientName;
-    public string DoctorName { get; set; } = ApplicationState.CurrentUser.Name;
+    public string PatientName { get; set; } = ApplicationState.SelectedPatient.PatientName;
+    public string DoctorName { get; set; } = ApplicationState.Auth.CurrentUser.Name;
 }

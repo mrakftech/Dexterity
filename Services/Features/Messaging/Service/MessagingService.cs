@@ -54,31 +54,31 @@ public class MessagingService(
         return view switch
         {
             UserTaskConstants.All => await context.UserTasks
-                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
-                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                .Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId &&
+                            x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
                 .Include(x => x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.DayView => await context.UserTasks
-                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
-                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                .Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId &&
+                            x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
                 .Where(x => x.TaskDate.Date == DateTime.Today.Date)
                 .Include(x => x.AssignedBy)
                 .ToListAsync(),
 
             UserTaskConstants.WeekView => await context.UserTasks
-                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
+                .Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId &&
                             x.TaskDate.Date < startOfWeek.AddDays(7) &&
-                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                            x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
                 .Include(x => x.AssignedBy)
                 .ToListAsync(),
             UserTaskConstants.MonthView => await context.UserTasks
-                .Where(x => x.UserId == ApplicationState.CurrentUser.UserId &&
+                .Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId &&
                             x.TaskDate.Date.Month == DateTime.Today.Date.Month &&
-                            x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+                            x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
                 .Include(x => x.AssignedBy)
                 .ToListAsync(),
 
-            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.CurrentUser.UserId)
+            _ => await context.UserTasks.Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId)
                 .Include(x => x.AssignedBy).ToListAsync(),
         };
     }
@@ -92,12 +92,12 @@ public class MessagingService(
             var task = mapper.Map<UserTask>(dto);
             task.Id = Guid.NewGuid();
             task.CreatedAt = DateTime.Now;
-            task.ClinicId = ApplicationState.CurrentUser.ClinicId;
+            task.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
 
             if (healthCares.Count == 0)
             {
                 //Personal Tasks
-                task.UserId = ApplicationState.CurrentUser.UserId;
+                task.UserId = ApplicationState.Auth.CurrentUser.UserId;
                 await context.UserTasks.AddAsync(task);
             }
             else
@@ -106,7 +106,7 @@ public class MessagingService(
                 foreach (var item in healthCares)
                 {
                     task.UserId = item.Id;
-                    task.AssignedById = ApplicationState.CurrentUser.UserId;
+                    task.AssignedById = ApplicationState.Auth.CurrentUser.UserId;
                     await context.UserTasks.AddAsync(task);
                 }
             }
@@ -278,10 +278,10 @@ public class MessagingService(
     {
         var users = await context.UserClinics
             .AsNoTracking()
-            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            .Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
             .Select(x => x.User)
             .ToListAsync();
-        var allUsers = users.Where(user => user.Id != ApplicationState.CurrentUser.UserId).ToList();
+        var allUsers = users.Where(user => user.Id != ApplicationState.Auth.CurrentUser.UserId).ToList();
 
         return mapper.Map<List<UserResponseDto>>(allUsers);
     }
@@ -304,7 +304,7 @@ public class MessagingService(
 
     public List<ChatMessage> GetConversationAsync(Guid contactId)
     {
-        var userId = ApplicationState.CurrentUser.UserId;
+        var userId = ApplicationState.Auth.CurrentUser.UserId;
 
         var chats =  context.ChatMessages
             .Where(h => (h.FromUserId == contactId && h.ToUserId == userId) ||

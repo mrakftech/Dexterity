@@ -110,7 +110,7 @@ else
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+            .GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task GetPatients()
@@ -125,7 +125,7 @@ else
 
     private async Task GetClinicSites()
     {
-        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.CurrentUser.ClinicId);
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)

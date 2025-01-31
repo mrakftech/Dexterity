@@ -67,7 +67,7 @@
     {
         if (tabIndex is 0 or  4)
         {
-            ApplicationState.SelectedPatientId = Guid.Empty;
+            ApplicationState.SelectedPatient.PatientId = Guid.Empty;
         }
 
         _tabs.ActivatePanel(tabIndex);

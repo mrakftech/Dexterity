@@ -226,7 +226,7 @@
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-            .GetDoctors(ApplicationState.CurrentUser.ClinicId);
+            .GetDoctors(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task SaveReminder()

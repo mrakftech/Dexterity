@@ -35,7 +35,7 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
             .Include(x => x.Patient.PatientAccount)
             .Where(x => x.Appointment.StartTime.Date == todayDate
             && x.Status == status
-            && x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            && x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
             .ToListAsync();
 
 
@@ -49,7 +49,7 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
             .Include(x => x.Appointment)
             .Include(x => x.Patient)
             .Include(x => x.Patient.PatientAccount)
-            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId 
+            .Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId 
             && x.Appointment.StartTime.Date == todayDate)
             .ToListAsync();
 
@@ -92,7 +92,7 @@ public class WaitingRoomService(ApplicationDbContext context, IMapper mapper) : 
                 {
                     PatientId = item.PatientId,
                     AppointmentId = item.Id,
-                    ClinicId = ApplicationState.CurrentUser.ClinicId,
+                    ClinicId = ApplicationState.Auth.CurrentUser.ClinicId,
                     Status = AppointmentConstants.WaitingStatus.Expected
                 };
                 list.Add(waitAppt);

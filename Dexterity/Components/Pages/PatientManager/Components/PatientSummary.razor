@@ -16,7 +16,7 @@
 <TabTitle Title="@_title">
 </TabTitle>
 
-@if (ApplicationState.SelectedPatientId != Guid.Empty)
+@if (ApplicationState.SelectedPatient.PatientId != Guid.Empty)
 {
     if (!_loading)
     {
@@ -102,15 +102,15 @@ else
     private async Task GetPateintSummary()
     {
         _loading = true;
-        _title = ApplicationState.SelectedPatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
-        var summary = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
+        _title = ApplicationState.SelectedPatient.PatientId == Guid.Empty ? "Search Patient" : "Patient Summary";
+        var summary = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatient.PatientId);
         Patient = summary;
         _loading = false;
     }
 
     private async Task SelectPatient(Guid patientId)
     {
-        ApplicationState.SelectedPatientId = patientId;
+        ApplicationState.SelectedPatient.PatientId = patientId;
         await GetPateintSummary();
         StateHasChanged();
     }

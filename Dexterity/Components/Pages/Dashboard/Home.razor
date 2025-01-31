@@ -124,7 +124,7 @@
     private static int _consCounts;
     private static int _docCounts;
     private static int _staffCounts;
-    private static int _clinicId = ApplicationState.CurrentUser.ClinicId;
+    private static int _clinicId = ApplicationState.Auth.CurrentUser.ClinicId;
     private bool _loading;
 
     protected override async Task OnInitializedAsync()
@@ -158,7 +158,7 @@
         }
         else
         {
-            _clinicId = ApplicationState.CurrentUser.ClinicId;
+            _clinicId = ApplicationState.Auth.CurrentUser.ClinicId;
         }
     }
 

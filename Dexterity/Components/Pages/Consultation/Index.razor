@@ -46,12 +46,12 @@
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Begin Consultation" Icon="fas fa-person-booth" Click="OpenBeginConsultationDialog"/>
                 <DexMenuItem Text="Edit Consultation" Icon="fas fa-pencil" Disabled="@(!_isConsultationSelected)"
-                             Click="() => EditBeginConsultationDialog(ApplicationState.SelectedConsultationId)"/>
+                             Click="() => EditBeginConsultationDialog(ApplicationState.SelectedConsultation.Id)"/>
                 @if (!_isConsultationFinish)
                 {
                     <DexMenuItem Text="Finish Consultation" Icon="fas fa-flag-checkered"
                                  Disabled="@(!_isConsultationSelected)"
-                                 Click="() => FinishConsultationDialog(ApplicationState.SelectedConsultationId)"/>
+                                 Click="() => FinishConsultationDialog(ApplicationState.SelectedConsultation.Id)"/>
                 }
                 <hr class="hr-custom"/>
                 <DexMenuItem Text="Open Consultation" Icon="fas fa-users"/>
@@ -152,11 +152,11 @@
     {
         ClickChangedTab(0);
         _loading = true;
-        if (ApplicationState.SelectedPatientId != Guid.Empty)
+        if (ApplicationState.SelectedPatient.PatientId != Guid.Empty)
         {
             _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
-            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatientId);
-            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatientId);
+            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatient.PatientId);
+            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatient.PatientId);
             await GetPatientSummary();
             await GetConsultations();
             await GetConsultationNotes();
@@ -182,8 +182,8 @@
 
     private async Task GetPatientSummary()
     {
-        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatientId);
-        ApplicationState.SelectedPatientSummary = Patient;
+        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatient.PatientId);
+        ApplicationState.SelectedPatient.PatientSummary = Patient;
     }
 
     private void FindPatient()
@@ -205,7 +205,7 @@
 
     private async Task GetConsultations()
     {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatientId);
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatient.PatientId);
     }
 
     private async Task OpenBeginConsultationDialog()
@@ -255,13 +255,15 @@
         if (args.Data.Id > 0)
         {
             _isConsultationSelected = true;
-            ApplicationState.SelectedConsultationId = args.Data.Id;
+            ApplicationState.SelectedConsultation.Id = args.Data.Id;
+            ApplicationState.SelectedConsultation.Detail = args.Data;
             _isConsultationFinish = args.Data.IsFinish;
         }
         else
         {
             _isConsultationSelected = false;
-            ApplicationState.SelectedConsultationId = 0;
+            ApplicationState.SelectedConsultation.Id = 0;
+            ApplicationState.SelectedConsultation.Detail = null;
         }
 
         StateHasChanged();
@@ -301,7 +303,7 @@
 
     private async Task GetImmunisationSchedules()
     {
-        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatientId);
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatient.PatientId);
     }
 
     #endregion

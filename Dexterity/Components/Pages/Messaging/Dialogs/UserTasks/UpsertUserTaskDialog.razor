@@ -127,7 +127,7 @@
 
     private async Task GetHealthCares()
     {
-        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+        HealthCares = await UnitOfWork.User.GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task SaveUserTask()

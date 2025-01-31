@@ -15,7 +15,7 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        SmsHistories = await UnitOfWork.Messaging.GetSmsHistory(ApplicationState.SelectedPatientId);
+        SmsHistories = await UnitOfWork.Messaging.GetSmsHistory(ApplicationState.SelectedPatient.PatientId);
         _loading = false;
     }
 

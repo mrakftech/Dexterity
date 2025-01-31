@@ -9,7 +9,7 @@ public class UpsertDrugAllergyDto
     public string DrugAllergyName { get; set; } = "Paracetamol";
     public string Notes { get; set; }
     public int DrugId { get; set; }
-    public Guid PatientId { get; set; } = ApplicationState.SelectedPatientId;
-    public string PatientName { get; set; } = ApplicationState.SelectedPatientName;
+    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.PatientId;
+    public string PatientName { get; set; } = ApplicationState.SelectedPatient.PatientName;
 
 }

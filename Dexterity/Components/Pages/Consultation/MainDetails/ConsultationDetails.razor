@@ -12,9 +12,30 @@
                             <ConsultationList Consultations="Consultations" RowSelected="RowSelected"/>
                         </RadzenColumn>
                         <RadzenColumn>
-                            @if (ApplicationState.SelectedConsultationId > 0 )
+                            @if (ApplicationState.SelectedConsultation.Id > 0)
                             {
-                                <button class="btn btn-sm btn-danger" @onclick="SetAsErroneous">Mark as erroneous record</button>
+                                var isErroneous = ApplicationState.SelectedConsultation.Detail.IsErroneousRecord;
+                                if (isErroneous)
+                                {
+                                    
+                                    <button
+                                        class="btn btn-sm btn-info"
+                                        @onclick="SetAsErroneous">Mark as valid
+                                    </button>
+                                    <button
+                                        class="btn btn-sm btn-info"
+                                        @onclick="SetAsErroneous">Assign 
+                                    </button>
+                                }
+                                else
+                                {
+                                    <button
+                                        class="btn btn-sm btn-danger"
+                                        @onclick="SetAsErroneous">Mark as erroneous record
+                                    </button>
+                                  
+                                }
+                                
                             }
                         </RadzenColumn>
                     </RadzenRow>
@@ -100,7 +121,8 @@
 
     protected override void OnInitialized()
     {
-        ApplicationState.SelectedConsultationId = 0;
+        ApplicationState.SelectedConsultation.Id = 0;
+        ApplicationState.SelectedConsultation.Detail = null;
     }
 
     private async Task SetAsErroneous()

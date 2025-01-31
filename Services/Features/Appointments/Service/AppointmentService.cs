@@ -27,7 +27,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     {
         var data = await context.Appointments
             .Include(x => x.Patient)
-            .Where(x => x.ClinicId == ApplicationState.CurrentUser.ClinicId)
+            .Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
             .AsNoTracking()
             .ToListAsync();
         return mapper.Map<List<SearchAppointmentDto>>(data);
@@ -59,9 +59,9 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
                 var appointment = new Appointment();
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
-                appointment.CreatedBy = ApplicationState.CurrentUser.UserId;
+                appointment.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
                 appointment.ClinicSiteId = request.ClinicSiteId;
-                appointment.ClinicId = ApplicationState.CurrentUser.ClinicId;
+                appointment.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
                 appointment.CreatedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
@@ -91,7 +91,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 if (appointment == null) return await Result.FailAsync("Appointment not found.");
 
                 appointment.Subject = $"{request.PatientName}, {request.Type}";
-                appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
+                appointment.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
                 appointment.ModifiedDate = DateTime.Now;
                 appointment.StartTime = request.StartTime;
                 appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
@@ -155,7 +155,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             .Include(x => x.AppointmentType)
             .Where(evt => evt.StartTime >= StartDate
                           && evt.EndTime <= EndDate
-                          || evt.RecurrenceRule != null && evt.ClinicId == ApplicationState.CurrentUser.ClinicId
+                          || evt.RecurrenceRule != null && evt.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId
             )
             .AsNoTracking()
             .ToListAsync();
@@ -167,8 +167,8 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     {
         var appointment = mapper.Map<Appointment>(request);
         appointment.EndTime = request.StartTime.AddMinutes(request.Duration);
-        appointment.ClinicId = ApplicationState.CurrentUser.ClinicId;
-        appointment.CreatedBy = ApplicationState.CurrentUser.UserId;
+        appointment.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
+        appointment.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
         appointment.CreatedDate = DateTime.Now;
         appointment.Status = AppointmentConstants.Status.Active;
         context.ChangeTracker.Clear();
@@ -184,7 +184,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
         if (appointment != null)
         {
-            appointment.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            appointment.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
             appointment.ModifiedDate = DateTime.Now;
             appointment.StartTime = request.StartTime;
             appointment.EndTime = request.EndTime;
@@ -220,7 +220,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     public async Task<List<AppointmentSlotDto>> GetAllFreeSlots()
     {
         var slots = await context.AppointmentSlots.OrderBy(x => x.StartTime)
-            .Where(x => x.HcpId == ApplicationState.CurrentUser.UserId).ToListAsync();
+            .Where(x => x.HcpId == ApplicationState.Auth.CurrentUser.UserId).ToListAsync();
         return mapper.Map<List<AppointmentSlotDto>>(slots);
     }
 
@@ -306,7 +306,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             {
                 StartTime = s,
                 IsAvailable = available,
-                HcpId = ApplicationState.CurrentUser.UserId,
+                HcpId = ApplicationState.Auth.CurrentUser.UserId,
             };
             slots.Add(evnt);
         }
@@ -322,7 +322,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     {
         context.ChangeTracker.Clear();
         context.AppointmentSlots.RemoveRange(context.AppointmentSlots.AsNoTracking()
-            .Where(x => x.HcpId == ApplicationState.CurrentUser.UserId));
+            .Where(x => x.HcpId == ApplicationState.Auth.CurrentUser.UserId));
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Appointment Slots Cleared");
     }
@@ -331,7 +331,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     {
         var slotInDb =
             await context.AppointmentSlots.FirstOrDefaultAsync(x =>
-                x.Id == id && x.HcpId == ApplicationState.CurrentUser.UserId);
+                x.Id == id && x.HcpId == ApplicationState.Auth.CurrentUser.UserId);
         if (slotInDb == null) return await Result.FailAsync("Slot not found");
         slotInDb.StartTime = startDate;
         slotInDb.IsAvailable = true;
@@ -347,7 +347,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         try
         {
             var isAllSlotSelected = await context.AppointmentSlots.AsNoTracking()
-                .AnyAsync(x => x.IsAvailable == false && x.HcpId == ApplicationState.CurrentUser.UserId);
+                .AnyAsync(x => x.IsAvailable == false && x.HcpId == ApplicationState.Auth.CurrentUser.UserId);
 
             if (isAllSlotSelected)
             {
@@ -364,12 +364,12 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                     HcpId = appointment.HcpId,
                     ClinicSiteId = appointment.ClinicSiteId,
                     AppointmentTypeId = appointment.AppointmentTypeId,
-                    ClinicId = ApplicationState.CurrentUser.ClinicId,
+                    ClinicId = ApplicationState.Auth.CurrentUser.ClinicId,
                     Status = AppointmentConstants.Status.Active,
                     Duration = appointment.Duration,
                     Location = appointment.Location,
                     Subject = $"{appointment.PatientName}, {appointment.Type}",
-                    CreatedBy = ApplicationState.CurrentUser.UserId,
+                    CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                     CreatedDate = DateTime.Now,
                     Description = appointment.Description,
                     IsSeries = true,

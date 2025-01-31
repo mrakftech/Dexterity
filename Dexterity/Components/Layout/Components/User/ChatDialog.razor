@@ -172,8 +172,8 @@
                 }
             });
             await GetUsersAsync();
-            CurrentUserId = ApplicationState.CurrentUser.UserId;
-            CurrentUserName = ApplicationState.CurrentUser.Name;
+            CurrentUserId = ApplicationState.Auth.CurrentUser.UserId;
+            CurrentUserName = ApplicationState.Auth.CurrentUser.Name;
             if (ContactId != Guid.Empty)
             {
                 await LoadUserChat(ContactId);

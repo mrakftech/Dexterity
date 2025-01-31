@@ -68,8 +68,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
             patient.UniqueNumber = CryptographyHelper.GetUniqueKey(8);
             patient.MobilePhone = DexHelperMethod.GetMobileFormat(request.Mobile);
             patient.Address.AddressLine1 = request.AddressLine1;
-            patient.CreatedBy = ApplicationState.CurrentUser.UserId;
-            patient.ClinicId = ApplicationState.CurrentUser.ClinicId;
+            patient.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            patient.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
             patient.RegistrationDate = DateTime.Now;
             patient.Gender = request.Gender.ToString();
             await context.Patients.AddAsync(patient, cancellationToken);
@@ -154,8 +154,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
             var patient = mapper.Map<Patient>(request);
             patient.Id = Guid.NewGuid();
             patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
-            patient.ClinicId = ApplicationState.CurrentUser.ClinicId;
-            patient.CreatedBy = ApplicationState.CurrentUser.UserId;
+            patient.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
+            patient.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
             patient.CreatedDate = DateTime.Now;
             patient.RegistrationDate = DateTime.Now;
             patient.Gender = request.Gender.ToString();
@@ -203,8 +203,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
             }
 
             var patient = mapper.Map(request, patientInDb);
-            patient.ClinicId = ApplicationState.CurrentUser.ClinicId;
-            patient.ModifiedBy = ApplicationState.CurrentUser.UserId;
+            patient.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
+            patient.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
             patient.ModifiedDate = DateTime.Now;
             patient.RegistrationDate = DateTime.Now;
             patient.Gender = request.Gender.ToString();
@@ -400,7 +400,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
             Type = request.AlertType.ToString(),
             Severity = request.Severity.ToString(),
             AlertCategoryId = request.AlertCategoryId,
-            CreatedBy = ApplicationState.CurrentUser.UserId,
+            CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
             CreatedDate = DateTime.Now,
             PatientId = request.PatientId
         };
@@ -422,7 +422,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
         alert.IsDeleted = true;
         alert.ModifiedDate = DateTime.Now;
-        alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
+        alert.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
         context.ChangeTracker.Clear();
         context.PatientAlerts.Update(alert);
         await context.SaveChangesAsync();
@@ -440,7 +440,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
         alert.IsResolved = true;
         alert.ModifiedDate = DateTime.Now;
-        alert.ModifiedBy = ApplicationState.CurrentUser.UserId;
+        alert.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
         context.ChangeTracker.Clear();
         context.PatientAlerts.Update(alert);
         await context.SaveChangesAsync();
@@ -816,7 +816,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
             var previousBalance = GetBroughtForwardBalance(request.AccountId);
             var chargedTransaction = new PatientTransaction
             {
-                CreatedBy = ApplicationState.CurrentUser.UserId,
+                CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                 CreatedDate = request.Date,
                 TransactionType = TransactionType.Charge,
                 PatientAccountType = request.ChargeTo,
@@ -858,7 +858,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         previousBalance -= request.PaidAmount;
         var paymentTransaction = new PatientTransaction()
         {
-            CreatedBy = ApplicationState.CurrentUser.UserId,
+            CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
             CreatedDate = request.Date,
             TransactionType = TransactionType.Payment,
             PatientAccountType = request.ChargeTo,
@@ -886,7 +886,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
                 var transaction = new PatientTransaction()
                 {
-                    CreatedBy = ApplicationState.CurrentUser.UserId,
+                    CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                     CreatedDate = request.Date,
                     TransactionType = TransactionType.Payment,
                     PatientAccountType = request.PaymentTo,
@@ -924,7 +924,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
                 var transaction = new PatientTransaction()
                 {
-                    CreatedBy = ApplicationState.CurrentUser.UserId,
+                    CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                     CreatedDate = request.Date,
                     TransactionType = TransactionType.Payment,
                     PatientAccountType = request.PaymentTo,
@@ -1083,7 +1083,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
                      Type = request.AlertType.ToString(),
                      Severity = request.Severity.ToString(),
                      AlertCategoryId = request.AlertCategoryId,
-                     CreatedBy = ApplicationState.CurrentUser.UserId,
+                     CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
                      CreatedDate = DateTime.Now,
                      PatientId = item.Id
                  }))
@@ -1148,7 +1148,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     public async Task<List<PatientAllergyDto>> GetPatientAllergies()
     {
         var list = await context.PatientAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId)
             .ToListAsync();
         var data = mapper.Map<List<PatientAllergyDto>>(list);
         return data;
@@ -1210,7 +1210,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     public async Task<List<DrugAllergyDto>> GetPatientDrugAllergies()
     {
         var list = await context.PatientDrugAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.SelectedPatientId)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId)
             .ToListAsync();
         var data = mapper.Map<List<DrugAllergyDto>>(list);
         return data;
@@ -1275,13 +1275,13 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         {
             var patient = await context.Patients.AsNoTracking()
                 .Include(x => x.PatientAccount)
-                .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatientId);
+                .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatient.PatientId);
 
             var allergyCount = await context.PatientAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.SelectedPatientId);
+                x.PatientId == ApplicationState.SelectedPatient.PatientId);
 
             var drugAllergyCount = await context.PatientDrugAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.SelectedPatientId);
+                x.PatientId == ApplicationState.SelectedPatient.PatientId);
 
             if (allergyCount > 0 || drugAllergyCount > 0)
             {
@@ -1292,7 +1292,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
                 patient.NkaFlag = true;
             }
 
-            patient.PatientAccount!.PatientId = ApplicationState.SelectedPatientId;
+            patient.PatientAccount!.PatientId = ApplicationState.SelectedPatient.PatientId;
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             await context.SaveChangesAsync();

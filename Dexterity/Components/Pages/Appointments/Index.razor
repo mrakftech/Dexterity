@@ -78,7 +78,7 @@
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-            .GetUsersByClinic(ApplicationState.CurrentUser.ClinicId);
+            .GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task GetPatients()
@@ -92,8 +92,8 @@
         parameters.Add("StartDate", dateTime);
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
-        parameters.Add("HcpId", ApplicationState.CurrentUser.UserId);
-        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatientId);
+        parameters.Add("HcpId", ApplicationState.Auth.CurrentUser.UserId);
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.PatientId);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
