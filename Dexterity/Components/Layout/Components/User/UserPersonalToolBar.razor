@@ -14,18 +14,18 @@
 
 @code {
 
-private async Task OpenUserTaskModal(MouseEventArgs obj)
-{
-var parameters = new DialogParameters();
-var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
-await DialogService.ShowAsync<UserTasksTab>("", parameters, options);
-}
+    private async Task OpenUserTaskModal(MouseEventArgs obj)
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<UserTasksTab>("", parameters, options);
+    }
 
-private async Task OpenChatDialog()
-{
-var parameters = new DialogParameters();
-var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
-await DialogService.ShowAsync<ChatDialog>("", parameters, options);
-}
+    private async Task OpenChatDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<ChatDialog>("", parameters, options);
+    }
 
 }

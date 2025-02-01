@@ -2,6 +2,8 @@
 using DailyCo.Extensions;
 using Dexterity.Adapters;
 using Services.Contracts.Repositroy;
+using Services.Features.Admin.Interfaces;
+using Services.Features.Admin.Service;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
 using Services.Features.Dashboard;
@@ -31,6 +33,7 @@ public static class ServicesCollectionExtension
         services.AddTransient<IMailService, MailService>();
         services.AddTransient<IFileManagerService, FileManagerService>();
         services.AddTransient<IDashboardService, DashboardService>();
+        services.AddTransient<IFlagService, FlagService>();
         services.AddScoped<AppointmentDataAdaptor>();
 
 

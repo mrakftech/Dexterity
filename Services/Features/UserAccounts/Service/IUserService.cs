@@ -13,8 +13,7 @@ public interface IUserService
     Task<UserResponseDto> GetUser(Guid id);
     Task<IResult> SaveUser(Guid id, CreateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
-
-
+    Task<List<Guid>> GetAdminIds();
     void Logout();
 
 

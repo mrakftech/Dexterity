@@ -60,7 +60,6 @@ public class ConsultationService(
                 Type = item.ConsultationType,
                 IsFinish = item.IsFinished,
                 Hcp = item.Hcp.FullName,
-                IsErroneousRecord = item.IsErroneousRecord,
                 ActiveDiagnosisNotes = activeDiagnosisNotes
             };
             list.Add(data);
@@ -138,19 +137,6 @@ public class ConsultationService(
         return await Result.SuccessAsync("Consultation has been finished.");
     }
 
-    public async Task<IResult> MarkAsErroneousRecord()
-    {
-        var consultation =
-            await context.ConsultationDetails.FirstOrDefaultAsync(x =>
-                x.Id == ApplicationState.SelectedConsultation.Id);
-        if (consultation is null)
-            return await Result.FailAsync("Consultation not found.");
-        consultation.IsErroneousRecord = !consultation.IsErroneousRecord;
-        context.ChangeTracker.Clear();
-        context.ConsultationDetails.Update(consultation);
-        await context.SaveChangesAsync();
-        return await Result.SuccessAsync("Consultation has been saved.");
-    }
 
     #endregion
 
@@ -233,9 +219,8 @@ public class ConsultationService(
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
-            .Include(x => x.ConsultationDetail)
-            .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId)
+            .Include(x => x.Hcp)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId)
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
         return mapped;
@@ -245,9 +230,8 @@ public class ConsultationService(
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
-            .Include(x => x.ConsultationDetail)
-            .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId &&
+            .Include(x => x.Hcp)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId &&
                         x.IsActiveCondition)
             .AsNoTracking()
             .ToListAsync();
@@ -259,8 +243,8 @@ public class ConsultationService(
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
-            .Include(x => x.ConsultationDetail.Hcp)
-            .Where(x => x.ConsultationDetailId == consulataionId && x.IsActiveCondition)
+            .Include(x => x.Hcp)
+            .Where(x => x.IsActiveCondition)
             .AsNoTracking()
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
@@ -271,9 +255,9 @@ public class ConsultationService(
     {
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
-            .Include(x => x.ConsultationDetail.Hcp)
+            .Include(x => x.Hcp)
             .Where(x =>
-                x.ConsultationDetail.PatientId == ApplicationState.SelectedPatient.PatientId && x.IsPastHistory ||
+                x.PatientId == ApplicationState.SelectedPatient.PatientId && x.IsPastHistory ||
                 x.IsScoialHistory ||
                 x.IsFamilyHistory)
             .AsNoTracking()
@@ -289,7 +273,6 @@ public class ConsultationService(
             if (id == Guid.Empty)
             {
                 var note = mapper.Map<ConsultationNote>(request);
-                note.ConsultationDetailId = ApplicationState.SelectedConsultation.Id;
                 await context.ConsultationNotes.AddAsync(note);
                 await context.SaveChangesAsync();
                 return await Result.SuccessAsync("Note has been added.");
@@ -595,7 +578,7 @@ public class ConsultationService(
             administerShotInDb.IsDue = false;
             administerShotInDb.IsGiven = true;
             administerShotInDb.IsCancelled = false;
-            administerShotInDb.ConsultationDetailId = ApplicationState.SelectedConsultation.Id;
+            administerShotInDb.PatientId = ApplicationState.SelectedPatient.PatientId;
             context.AdministerShots.Update(administerShotInDb);
             await settingService.DecreaseBatchQty(administerShotInDb.ShotBatch.BatchId, 1);
             await context.SaveChangesAsync();

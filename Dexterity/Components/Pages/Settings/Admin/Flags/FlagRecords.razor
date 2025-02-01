@@ -1,0 +1,68 @@
+﻿@using Domain.Entities.Common
+@using Services.Features.Admin.Dtos.FlagRecords
+<TabTitle Title="Flag Records">
+    <ActionButtons>
+       <MudItem md="2">
+            <MudSelect T="string" Label="" Placeholder="Sort By" Dense
+                       Margin="Margin.Dense" ValueChanged="SelectedValue" Variant="Variant.Outlined">
+                <MudSelectItem Value="@(nameof(FlagRecordStatus.Flagged))">Flagged Records</MudSelectItem>
+                <MudSelectItem Value="@(nameof(FlagRecordStatus.Resolved))">Resolved Records</MudSelectItem>
+            </MudSelect>
+       </MudItem>
+    </ActionButtons>
+</TabTitle>
+<SfGrid DataSource="@FlagRecordList" Height="350px">
+    <GridColumns>
+        <GridColumn Field="@nameof(GetFlagRecordDto.CreatedDate)" HeaderText="Created Date"/>
+        <GridColumn Field="@nameof(GetFlagRecordDto.FlaggedBy)" HeaderText="Flagged By"/>
+        <GridColumn Field="@nameof(GetFlagRecordDto.ResolvedBy)" HeaderText="Resolved By"/>
+        <GridColumn Field="@nameof(GetFlagRecordDto.Reason)" HeaderText="Reason"/>
+        <GridColumn Field="@nameof(GetFlagRecordDto.ModuleName)" HeaderText="Resolved By"/>
+        <GridColumn Field="@nameof(GetFlagRecordDto.Id)" HeaderText="Actions">
+            <Template>
+                @{
+                    var item = (context as GetFlagRecordDto);
+                    if (item.Status== nameof(FlagRecordStatus.Flagged))
+                    {
+                        <button class="btn btn-sm btn-info" @onclick="()=>OpenResolveRecordDialog(item.Id)">Resolve</button>
+                    }
+                }
+            </Template>
+        </GridColumn>
+    </GridColumns>
+</SfGrid>
+
+@code {
+    private List<GetFlagRecordDto> FlagRecordList { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetFlagRecords(null);
+    }
+
+    private async Task GetFlagRecords(string status)
+    {
+        var res = await UnitOfWork.Flag.GetFlagRecords(status);
+        FlagRecordList = res.Data;
+    }
+
+    private async Task OpenResolveRecordDialog(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<ResolveIssueDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetFlagRecords(null);
+        }
+    }
+
+    private async Task SelectedValue(string status)
+    {
+        await GetFlagRecords(status);
+
+    }
+
+}

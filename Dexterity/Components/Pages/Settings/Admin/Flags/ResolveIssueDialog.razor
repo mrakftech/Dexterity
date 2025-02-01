@@ -1,0 +1,74 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.Admin.Dtos.FlagRecords
+<DexDialog>
+    <DialogTitle>Resolve Flag Record</DialogTitle>
+    <Content>
+        <DexForm Model="@ResolvedRecordData" OnValidSubmit="ResolvedFlagRecord">
+            <Fields>
+                <FormItem Field="@nameof(ResolvedRecordDto.ReassignedId)" ColumnSpan="2">
+                    <Template>
+                        <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"/>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Resolve Record" Processing="_processing"
+                                  Type="MudButtonType.Submit"
+                ></DexLoadingButton>
+
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private ResolvedRecordDto ResolvedRecordData { get; set; } = new();
+    private bool _processing;
+    private List<PatientListDto> PatientList { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPatients();
+    }
+
+    private async Task ResolvedFlagRecord()
+    {
+        try
+        {
+            var res = await UnitOfWork.Flag.ReassignedRecord(Id, ResolvedRecordData);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessage(res.Messages.First());
+                MudDialog.Close();
+            }
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+        }
+    }
+
+    private async Task GetPatients()
+    {
+        PatientList = await UnitOfWork.Patient.GetPatients();
+    }
+
+    private void ChangePatient(ChangeEventArgs<string, PatientListDto> args)
+    {
+        var patient = args.ItemData;
+        if (patient != null)
+        {
+            ResolvedRecordData.ReassignedId = patient.Id;
+            StateHasChanged();
+        }
+        else
+        {
+            ResolvedRecordData.ReassignedId = Guid.Empty;
+        }
+
+        MudDialog.StateHasChanged();
+    }
+
+}

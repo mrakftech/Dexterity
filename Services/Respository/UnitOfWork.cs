@@ -2,6 +2,8 @@ using AutoMapper;
 using ClickATell.Services;
 using Database;
 using Services.Contracts.Repositroy;
+using Services.Features.Admin.Interfaces;
+using Services.Features.Admin.Service;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
 using Services.Features.Dashboard;
@@ -26,6 +28,7 @@ public sealed class UnitOfWork(
     IWaitingRoomService waitingRoom,
     IFileManagerService fileManager,
     IMailService mail,
+    IFlagService flagService,
     SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
@@ -43,6 +46,7 @@ public sealed class UnitOfWork(
             return dashboard;
         }
     }
+
 
     public IConsultationService Consultation
     {
@@ -147,7 +151,18 @@ public sealed class UnitOfWork(
             return fileManager;
         }
     }
+    public IFlagService Flag   
+    {
+        get
+        {
+            if (flagService == null)
+            {
+                flagService = new FlagService(context,mapper);
+            }
 
+            return flagService;
+        }
+    }
     private void Dispose(bool disposing)
     {
         if (!_disposed)

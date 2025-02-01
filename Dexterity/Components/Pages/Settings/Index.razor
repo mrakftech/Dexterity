@@ -13,6 +13,8 @@
 @using Dexterity.Components.Pages.Settings.SketchTemplate
 @using Dexterity.Components.Pages.Settings.CustomForms
 @using Dexterity.Components.Pages.Settings.DmsCategory
+@using Dexterity.Components.Pages.Settings.Admin
+@using Dexterity.Components.Pages.Settings.Admin.Flags
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
@@ -38,6 +40,9 @@
                 <DexMenuItem Text="Sms Templates" Icon="fas fa-comment-sms" Click="@(() => ClickChanged(0))"/>
                 <DexMenuItem Text="Email Templates" Icon="fas fa-envelope-open-text" Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Clinics" Icon="fas fa-house-chimney-medical" Click="@(() => ClickChanged(2))"/>
+            </RadzenPanelMenuItem >
+            <RadzenPanelMenuItem Text="Admin Settings" Icon="@DexHelperMethod.FaIcon("wrench-16")">
+                <DexMenuItem Text="Flag Records" Icon="fas fa-flag" Click="@(() => ClickChanged(15))"/>
             </RadzenPanelMenuItem>
         </NavigationItems>
         <DexContentTabs>
@@ -86,6 +91,9 @@
                 </MudTabPanel>
                 <MudTabPanel>
                     <DmsCategoryDetails/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <FlagRecords/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

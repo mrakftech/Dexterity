@@ -3,7 +3,7 @@
 @using Services.Features.Consultation.Dto.Notes
 @using Dexterity.Components.Pages.Consultation.BaselineDetail
 <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">
-    <RadzenColumn Size="12" SizeMD="5">
+    <RadzenColumn Size="12" SizeMD="7">
         <RadzenStack>
             <RadzenFieldset Text="">
                 <RadzenStack Gap="1rem">
@@ -11,39 +11,12 @@
                         <RadzenColumn Size="12" SizeMD="12">
                             <ConsultationList Consultations="Consultations" RowSelected="RowSelected"/>
                         </RadzenColumn>
-                        <RadzenColumn>
-                            @if (ApplicationState.SelectedConsultation.Id != Guid.Empty)
-                            {
-                                var isErroneous = ApplicationState.SelectedConsultation.Detail.IsErroneousRecord;
-                                if (isErroneous)
-                                {
-                                    
-                                    <button
-                                        class="btn btn-sm btn-info"
-                                        @onclick="SetAsErroneous">Mark as valid
-                                    </button>
-                                    <button
-                                        class="btn btn-sm btn-info"
-                                        @onclick="SetAsErroneous">Assign 
-                                    </button>
-                                }
-                                else
-                                {
-                                    <button
-                                        class="btn btn-sm btn-danger"
-                                        @onclick="SetAsErroneous">Mark as erroneous record
-                                    </button>
-                                  
-                                }
-                                
-                            }
-                        </RadzenColumn>
                     </RadzenRow>
                 </RadzenStack>
             </RadzenFieldset>
         </RadzenStack>
     </RadzenColumn>
-    <RadzenColumn Size="12" SizeMD="7">
+    <RadzenColumn Size="12" SizeMD="5">
         <RadzenStack>
             <MudExpansionPanels MultiExpansion="true">
                 <MudExpansionPanel Text="Baseline Details">
@@ -123,26 +96,6 @@
     {
         ApplicationState.SelectedConsultation.Id = Guid.Empty;
         ApplicationState.SelectedConsultation.Detail = null;
-    }
-
-    private async Task SetAsErroneous()
-    {
-        try
-        {
-            var res = await UnitOfWork.Consultation.MarkAsErroneousRecord();
-            if (res.Succeeded)
-            {
-                Snackbar.SuccessMessage(res.Messages.First());
-            }
-            else
-            {
-                Snackbar.FailMessage(res.Messages.First());
-            }
-        }
-        catch (Exception e)
-        {
-            Snackbar.FailMessage(e.Message);
-        }
     }
 
 }

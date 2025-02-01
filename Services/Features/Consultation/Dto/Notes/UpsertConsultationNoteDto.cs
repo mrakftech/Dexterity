@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using Services.State;
 using Shared.Constants.Module.Consultation;
 
 namespace Services.Features.Consultation.Dto.Notes;
@@ -12,9 +13,11 @@ public class UpsertConsultationNoteDto
     public bool IsActiveCondition { get; set; }
     public bool IsSocialHistory { get; set; }
     public bool IsPrivate { get; set; }
+    public Guid HcpId { get; set; } = ApplicationState.Auth.CurrentUser.UserId;
+    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.PatientId;
     [Required] public string Notes { get; set; }
 
 
-    [Range(1, int.MaxValue,ErrorMessage = "Please Select code")]
+    [Range(1, int.MaxValue, ErrorMessage = "Please Select code")]
     public int HealthCodeId { get; set; }
 }

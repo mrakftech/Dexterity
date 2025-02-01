@@ -6,7 +6,7 @@ using Domain.Entities.UserAccounts;
 
 namespace Domain.Entities.Consultation.Detail;
 
-public class ConsultationDetail : IErrorFlag, IBaseId
+public class ConsultationDetail :  IBaseId
 {
     public Guid Id { get; set; }
     public DateTime ConsultationDate { get; set; }
@@ -22,9 +22,5 @@ public class ConsultationDetail : IErrorFlag, IBaseId
 
     public Guid PatientId { get; set; }
     public Patient Patient { get; set; }
-
     public bool IsFinished { get; set; }
-    public bool IsErroneousRecord { get; set; }
-
-    public virtual ICollection<ConsultationNote> Notes { get; set; }
 }

@@ -1,0 +1,102 @@
+﻿@using Services.Features.Admin.Dtos.FlagRecords
+@using Shared.Constants.Module.Common
+<DexDialog>
+    <DialogTitle>Flag Record</DialogTitle>
+    <Content>
+        <DexForm Model="@FlagRecordData" OnValidSubmit="AddFlagRecord">
+            <Fields>
+                <FormItem Field="@nameof(FlagRecordData.Reason)" LabelText="Flag Reason">
+                    <Template>
+                        <label class="e-form-label">Select Reason</label>
+                        <SfDropDownList TValue="string"
+                                        TItem="FlagRecordConstant.FlagReason"
+                                        Placeholder=""
+                                        DataSource="@FlagRecordConstant.FlagReasons"
+                                        @bind-Value="@FlagRecordData.Reason">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(FlagRecordDto.Description)" LabelText="Description"></FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Flag Record" Processing="_processing"
+                                  Type="MudButtonType.Submit"
+                ></DexLoadingButton>
+
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public HubConnection HubConnection { get; set; }
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public string ModuleName { get; set; }
+    [Parameter] public Guid RecordId { get; set; }
+    public FlagRecordDto FlagRecordData { get; set; } = new();
+    private bool _processing;
+    protected override async Task OnInitializedAsync()
+    {
+        HubConnection = HubConnection.TryInitialize(NavigationManager);
+        if (HubConnection.State == HubConnectionState.Disconnected)
+        {
+            await HubConnection.StartAsync();
+            // Snackbar.SuccessMessage($"Connection has been made.{HubConnection.ConnectionId}");
+        } 
+    }
+
+    private async Task AddFlagRecord()
+    {
+        try
+        {
+            _processing = true;
+            FlagRecordData.RecordId = RecordId;
+            FlagRecordData.ModuleName = ModuleName;
+            var res = await UnitOfWork.Flag.FlagRecord(FlagRecordData);
+            if (res.Succeeded)
+            {
+                await SendMessages();
+                await Task.Delay(1000);
+                Snackbar.SuccessMessage(res.Messages.First());
+                MudDialog.Close();
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+
+            _processing = false;
+        }
+        catch (Exception e)
+        {
+            _processing = false;
+            Snackbar.FailMessage(e.Message);
+        }
+    }
+
+    private async Task SendMessages()
+    {
+        try
+        {
+            var adminIds = await UnitOfWork.User.GetAdminIds();
+            foreach (var adminId in adminIds)
+            {
+                var chatHistory = new ChatMessage()
+                {
+                    Message = FlagRecordData.Description,
+                    ToUserId = adminId,
+                    CreatedDate = DateTime.Now,
+                    FromUserId = ApplicationState.Auth.CurrentUser.UserId,
+                };
+                await UnitOfWork.Messaging.SaveMessageAsync(chatHistory);
+                await HubConnection.SendAsync("SendMessageAsync", chatHistory, ApplicationState.Auth.CurrentUser.Name);
+            }
+        }
+        catch (Exception e)
+        {
+           Snackbar.FailMessage(e.Message);
+        }
+    }
+
+}

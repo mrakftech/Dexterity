@@ -1,5 +1,6 @@
 ﻿using Domain.Contracts;
 using Domain.Entities.Consultation.Detail;
+using Domain.Entities.PatientManagement;
 using Domain.Entities.Settings.Consultation.Immunisation;
 using Domain.Entities.UserAccounts;
 
@@ -25,7 +26,6 @@ public class AdministerShot : IBaseId
     public ShotBatch ShotBatch { get; set; }
     public Guid? ShotBatchId { get; set; }
 
-
-    public ConsultationDetail ConsultationDetail { get; set; }
-    public Guid? ConsultationDetailId { get; set; }
+    public Guid PatientId { get; set; }
+    public Patient Patient { get; set; }
 }

@@ -159,6 +159,14 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("User has been deleted.");
     }
 
+    public async Task<List<Guid>> GetAdminIds()
+    {
+        var adminRole = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.AdministratorRole);
+        return await context.Users
+            .Where(x => x.RoleId == adminRole.Id)
+            .Select(x => x.Id).ToListAsync();
+    }
+
 
     public void Logout()
     {

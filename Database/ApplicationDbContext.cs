@@ -1,6 +1,7 @@
 ﻿using Database.Configurations;
 using Database.Configurations.AppointmentFluentApi;
 using Domain.Entities.Appointments;
+using Domain.Entities.Common;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
@@ -181,6 +182,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<ScannedDocument> ScannedDocuments { get; set; }
     public DbSet<PatientSketch> PatientSketches { get; set; }
     public DbSet<PatientCustomForm> PatientCustomForms { get; set; }
+
+    #endregion
+
+    #region Common
+
+    public DbSet<FlagRecord> FlagRecords { get; set; }
+    
 
     #endregion
 }

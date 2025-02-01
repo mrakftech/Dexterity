@@ -1,54 +1,27 @@
-﻿@using Services.Features.Consultation.Dto.Notes
-@using Icons = Shared.Constants.Application.Icons
+﻿@using Dexterity.Components.Layout.Components.Common
+@using Shared.Constants.Module.Common
 @using Services.Features.Consultation.Dto
 
 <SfGrid DataSource="@Consultations" Height="350px">
-    <GridEvents RowSelected="RowSelected" TValue="GetConsultationDetailDto" ></GridEvents>
-    <GridTemplates>
-        <DetailTemplate>
-            @{
-                var con = (context as GetConsultationDetailDto);
-                <SfGrid DataSource="con.ActiveDiagnosisNotes" Height="100px">
-                    <GridColumns>
-                        <GridColumn Field="@nameof(ConsultationNoteDto.HealthCode.Code)" HeaderText="NOTES"
-                                    Width="120px">
-                            <Template Context="noteContext">
-                                @{
-                                    var item = (noteContext as ConsultationNoteDto);
-                                    <div class="ml-3" style="font-weight: bolder;">
-                                        <span class="fas fa-notes-medical"> </span>
-                                        @item!.HealthCode.Code
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-                        <GridColumn Field="@nameof(ConsultationNoteDto.Notes)" HeaderText="">
-                            <Template Context="noteContext">
-                                @{
-                                    var item = (noteContext as ConsultationNoteDto);
-                                    <div class="ml-3">
-                                        @item!.Notes
-                                    </div>
-                                }
-                            </Template>
-                        </GridColumn>
-
-                    </GridColumns>
-                </SfGrid>
-            }
-
-        </DetailTemplate>
-        <EmptyRecordTemplate>
-            <span>No records to display, create new item</span>
-        </EmptyRecordTemplate>
-    </GridTemplates>
+    <GridEvents RowSelected="RowSelected" TValue="GetConsultationDetailDto"></GridEvents>
     <GridColumns>
         <GridColumn Field="@nameof(GetConsultationDetailDto.Date)" HeaderText="Date" Format="d" Type="ColumnType.Date"/>
         <GridColumn Field="@nameof(GetConsultationDetailDto.Hcp)" HeaderText="HCP"/>
         <GridColumn Field="@nameof(GetConsultationDetailDto.Type)" HeaderText="Type"/>
+        <GridColumn Field="@nameof(GetConsultationDetailDto.Id)" HeaderText="Actions">
+            <Template>
+                @{
+                    var item = (context as GetConsultationDetailDto);
+                    <MudTooltip Text="Flag Record">
+                        <MudIconButton Color="Color.Secondary" Icon="@MudIcons.Material.Filled.Flag"
+                                       OnClick="()=>OpenFlagDialog(item.Id)"/>
+                    </MudTooltip>
+                }
+            </Template>
+        </GridColumn>
     </GridColumns>
 </SfGrid>
-<style type="text/css" class="cssStyles">
+<style  class="cssStyles">
     .detailtable td {
         font-size: 13px;
         padding: 4px;
@@ -63,5 +36,18 @@
 
     [Parameter] public List<GetConsultationDetailDto> Consultations { get; set; } = new();
     [Parameter] public EventCallback<RowSelectEventArgs<GetConsultationDetailDto>> RowSelected { get; set; }
-    
+
+    private async Task OpenFlagDialog(Guid recordId)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("RecordId", recordId);
+        parameters.Add("ModuleName", FlagRecordConstant.Module.ConsultationDetail);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<FlagRecordDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
 }

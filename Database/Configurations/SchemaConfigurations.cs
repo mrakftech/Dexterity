@@ -1,4 +1,5 @@
 ﻿using Domain.Entities.Appointments;
+using Domain.Entities.Common;
 using Domain.Entities.Consultation;
 using Domain.Entities.Consultation.Common;
 using Domain.Entities.Consultation.Detail;
@@ -40,6 +41,8 @@ public static class SchemaConfigurations
         builder.Entity<UserClinic>(entity => { entity.ToTable(name: "UserClinics", "Identity"); });
 
 
+        builder.Entity<FlagRecord>(entity => { entity.ToTable(name: "FlagRecords", "Common"); });
+        
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
         builder.Entity<ChatMessage>(entity => { entity.ToTable(name: "ChatMessages", "Messaging"); });
 

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20250131131839_UpdateDatabase612P")]
-    partial class UpdateDatabase612P
+    [Migration("20250201193651_InitialDatabase")]
+    partial class InitialDatabase
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,54 @@ namespace Database.Migrations
                     b.ToTable("AppointmentTypes", "Setting");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Common.FlagRecord", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("CurrentPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("FlaggedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModuleName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid?>("ReassignedToPatientId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("RecordId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ResolvedById")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("FlaggedById");
+
+                    b.HasIndex("ResolvedById");
+
+                    b.ToTable("FlagRecords", "Common");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.Common.Reminder", b =>
                 {
                     b.Property<int>("Id")
@@ -336,9 +384,6 @@ namespace Database.Migrations
 
                     b.Property<Guid>("HcpId")
                         .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsErroneousRecord")
-                        .HasColumnType("bit");
 
                     b.Property<bool>("IsFinished")
                         .HasColumnType("bit");
@@ -537,9 +582,6 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid?>("ConsultationDetailId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("DueDate")
                         .HasColumnType("datetime2");
 
@@ -564,6 +606,9 @@ namespace Database.Migrations
                     b.Property<bool>("IsGiven")
                         .HasColumnType("bit");
 
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<Guid?>("ShotBatchId")
                         .HasColumnType("uniqueidentifier");
 
@@ -572,11 +617,11 @@ namespace Database.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConsultationDetailId");
-
                     b.HasIndex("HcpId");
 
                     b.HasIndex("ImmunisationScheduleId");
+
+                    b.HasIndex("PatientId");
 
                     b.HasIndex("ShotBatchId");
 
@@ -736,11 +781,11 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("ConsultationDetailId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<DateTime>("Date")
                         .HasColumnType("datetime2");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<int?>("HealthCodeId")
                         .HasColumnType("int");
@@ -763,17 +808,16 @@ namespace Database.Migrations
                     b.Property<string>("Notes")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Type")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<Guid>("PatientId")
+                        .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ConsultationDetailId");
+                    b.HasIndex("HcpId");
 
                     b.HasIndex("HealthCodeId");
+
+                    b.HasIndex("PatientId");
 
                     b.ToTable("Notes", "Consultation");
                 });
@@ -3292,6 +3336,23 @@ namespace Database.Migrations
                     b.Navigation("Patient");
                 });
 
+            modelBuilder.Entity("Domain.Entities.Common.FlagRecord", b =>
+                {
+                    b.HasOne("Domain.Entities.UserAccounts.User", "FlaggedBy")
+                        .WithMany()
+                        .HasForeignKey("FlaggedById")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Domain.Entities.UserAccounts.User", "ResolvedBy")
+                        .WithMany()
+                        .HasForeignKey("ResolvedById");
+
+                    b.Navigation("FlaggedBy");
+
+                    b.Navigation("ResolvedBy");
+                });
+
             modelBuilder.Entity("Domain.Entities.Consultation.Common.Reminder", b =>
                 {
                     b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
@@ -3438,10 +3499,6 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Immunisations.AdministerShot", b =>
                 {
-                    b.HasOne("Domain.Entities.Consultation.Detail.ConsultationDetail", "ConsultationDetail")
-                        .WithMany()
-                        .HasForeignKey("ConsultationDetailId");
-
                     b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
                         .WithMany("AdministerShots")
                         .HasForeignKey("HcpId")
@@ -3451,15 +3508,21 @@ namespace Database.Migrations
                         .WithMany()
                         .HasForeignKey("ImmunisationScheduleId");
 
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Domain.Entities.Settings.Consultation.Immunisation.ShotBatch", "ShotBatch")
                         .WithMany()
                         .HasForeignKey("ShotBatchId");
 
-                    b.Navigation("ConsultationDetail");
-
                     b.Navigation("Hcp");
 
                     b.Navigation("ImmunisationSchedule");
+
+                    b.Navigation("Patient");
 
                     b.Navigation("ShotBatch");
                 });
@@ -3549,9 +3612,9 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Notes.ConsultationNote", b =>
                 {
-                    b.HasOne("Domain.Entities.Consultation.Detail.ConsultationDetail", "ConsultationDetail")
-                        .WithMany("Notes")
-                        .HasForeignKey("ConsultationDetailId")
+                    b.HasOne("Domain.Entities.UserAccounts.User", "Hcp")
+                        .WithMany()
+                        .HasForeignKey("HcpId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -3559,9 +3622,17 @@ namespace Database.Migrations
                         .WithMany()
                         .HasForeignKey("HealthCodeId");
 
-                    b.Navigation("ConsultationDetail");
+                    b.HasOne("Domain.Entities.PatientManagement.Patient", "Patient")
+                        .WithMany()
+                        .HasForeignKey("PatientId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Hcp");
 
                     b.Navigation("HealthCode");
+
+                    b.Navigation("Patient");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Prescription", b =>
@@ -4049,11 +4120,6 @@ namespace Database.Migrations
                     b.Navigation("Clinic");
 
                     b.Navigation("Patient");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Consultation.Detail.ConsultationDetail", b =>
-                {
-                    b.Navigation("Notes");
                 });
 
             modelBuilder.Entity("Domain.Entities.Consultation.Documents.ConsultationLetter", b =>

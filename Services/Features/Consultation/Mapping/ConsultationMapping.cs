@@ -31,7 +31,7 @@ public class ConsultationMapping : Profile
 
 
         CreateMap<ConsultationNote, ConsultationNoteDto>()
-            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.ConsultationDetail.Hcp.FullName))
+            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ReverseMap();
         CreateMap<ConsultationNote, UpsertConsultationNoteDto>().ReverseMap();
 

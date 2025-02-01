@@ -137,8 +137,4 @@
       <UpToDateCheckInput Remove="Components\Pages\PatientManager\Components\Summary\ContactDetails.razor" />
     </ItemGroup>
 
-    <ItemGroup>
-      <Folder Include="Components\Layout\Components\Common\" />
-    </ItemGroup>
-
 </Project>

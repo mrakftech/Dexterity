@@ -1,3 +1,4 @@
+using Services.Features.Admin.Interfaces;
 using Services.Features.Appointments.Service;
 using Services.Features.Consultation.Service;
 using Services.Features.Dashboard;
@@ -20,4 +21,5 @@ public interface IUnitOfWork: IDisposable
     IConsultationService Consultation { get; }
     IFileManagerService FileService { get; }
     IDashboardService Dashboard { get; }
+    IFlagService Flag { get; }
 }
