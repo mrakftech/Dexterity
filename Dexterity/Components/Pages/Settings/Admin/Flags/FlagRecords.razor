@@ -37,7 +37,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await GetFlagRecords(null);
+        await GetFlagRecords(nameof(FlagRecordStatus.Flagged));
     }
 
     private async Task GetFlagRecords(string status)
@@ -55,14 +55,13 @@
         var result = await dialogresult.Result;
         if (!result.Canceled)
         {
-            await GetFlagRecords(null);
+            await GetFlagRecords(nameof(FlagRecordStatus.Flagged));
         }
     }
 
     private async Task SelectedValue(string status)
     {
         await GetFlagRecords(status);
-
     }
 
 }

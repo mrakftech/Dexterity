@@ -62,3 +62,8 @@ h1:focus {
 .nav-tabs > li > .nav-link.active {
     border-color: #0077B5;
 }
+.element-center {
+    max-width: fit-content;
+    margin-left: auto;
+    margin-right: auto;
+}

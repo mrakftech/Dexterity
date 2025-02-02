@@ -1,4 +1,4 @@
-﻿<MudProgressLinear Color="Color.Primary" Indeterminate="true" Class="my-7" />
+﻿<MudProgressLinear Color="@Color" Indeterminate="true" Class="my-7" />
 @code {
-    
+    [Parameter] public Color Color { get; set; } = Color.Primary;
 }

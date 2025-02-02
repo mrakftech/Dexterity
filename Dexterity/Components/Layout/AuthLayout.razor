@@ -1,4 +1,7 @@
 ﻿@inherits LayoutComponentBase
+<link href="_content/Syncfusion.Blazor.Themes/bootstrap.css" rel="stylesheet"/>
+<MudThemeProvider Theme="_currentTheme"/>
+<MudSnackbarProvider/>
 <style>
     body {
         font-family: "Open Sans", serif;
@@ -7,25 +10,37 @@
         background-attachment: fixed;
         background-position: center;
         background-size: cover;
-        
+
     }
 
 </style>
-<link href="_content/Syncfusion.Blazor.Themes/bootstrap.css" rel="stylesheet" />
 
-<MudThemeProvider Theme="_currentTheme"/>
-<MudSnackbarProvider/>
 <MudContainer MaxWidth="MaxWidth.Medium" Class="d-flex align-center " Style="height: 20px;margin-top: 25%">
-    <CascadingValue Value="_hubConnection">
-        @Body
-    </CascadingValue>
+    @if (!_loadingScreen)
+    {
+
+        <CascadingValue Value="_hubConnection">
+            @Body
+        </CascadingValue>
+
+    }
+    else
+    {
+        <DexSplashScreen/>
+    }
+  
 </MudContainer>
+
 
 @code {
     private readonly MudTheme _currentTheme = DexterityTheme.DefaultTheme;
     private HubConnection _hubConnection;
+    private bool _loadingScreen;
+
     protected override async Task OnInitializedAsync()
     {
+        _loadingScreen = true;
+        await Task.Delay(2000);
         try
         {
             _hubConnection = _hubConnection.TryInitialize(NavigationManager);
@@ -36,7 +51,8 @@
             Snackbar.FailMessage(e.Message);
             Console.WriteLine(e);
         }
-        
+
+        _loadingScreen = false;
     }
 
 }

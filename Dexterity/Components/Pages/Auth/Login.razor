@@ -2,13 +2,7 @@
 @page "/"
 @using Domain.Entities.UserAccounts
 @using global::Services.Features.UserAccounts.Dtos.Auth
-<style>
-    .element-center {
-        max-width: fit-content;
-        margin-left: auto;
-        margin-right: auto;
-    }
-</style>
+
 @if (HubConnection.State == HubConnectionState.Connected)
 {
     <div class="d-lg-flex half" style="height: 15px">
@@ -16,7 +10,8 @@
         <div class="bg order-1 order-md-2"
              style="background-image: url('assets/images/login-screen-image.png');border-top-right-radius: 20px;border-bottom-right-radius:20px ">
         </div>
-        <div class="contents order-2 order-md-1" style="border-top-left-radius: 20px;border-bottom-left-radius:20px ">
+        <div class="contents order-2 order-md-1"
+             style="border-top-left-radius: 20px;border-bottom-left-radius:20px ">
             <div class="container">
                 <div class="row align-items-center justify-content-center">
                     <div class="col-md-7">
@@ -31,7 +26,8 @@
                             <MudItem Style="@($"display:{LoginBoxDisplay}")">
                                 <DexForm Model="@_loginDto" OnValidSubmit="LoginUser">
                                     <Fields>
-                                        <FormItem Field="@nameof(_loginDto.Username)" LabelText="Username"></FormItem>
+                                        <FormItem Field="@nameof(_loginDto.Username)"
+                                                  LabelText="Username"></FormItem>
                                         <FormItem Field="@nameof(_loginDto.Password)" LabelText="Password"
                                                   EditorType="FormEditorType.Password"></FormItem>
                                     </Fields>
@@ -65,8 +61,8 @@
 }
 else
 {
-    <div class="element-center" >
-        <MudCard >
+    <div class="element-center">
+        <MudCard>
             <MudCardHeader>
                 <CardHeaderContent>
                     <MudText Typo="Typo.h6" Class="validation-message text-bold">SERVER ERROR!</MudText>
@@ -80,10 +76,10 @@ else
                 <DexLoadingButton Name="Reconnect to server" Processing="_processing"
                                   Click="ReconnectToServer"/>
             </MudCardActions>
-        </MudCard>  
+        </MudCard>
     </div>
-  
 }
+
 
 
 @code {
@@ -94,6 +90,11 @@ else
     private string ClinicBoxDisplay { get; set; } = "none";
     int _clinicId = 0;
     private List<UserClinic> Clinics { get; set; } = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        
+    }
 
     private async Task LoginUser()
     {
@@ -159,8 +160,17 @@ else
     private async Task ReconnectToServer()
     {
         _processing = true;
-        await Task.Delay(1500);
-        NavigationManager.NavigateTo("/", true);
+        await Task.Delay(500);
+        try
+        {
+            HubConnection = HubConnection.TryInitialize(NavigationManager);
+            await HubConnection.StartAsync();
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+            Console.WriteLine(e);
+        }
         _processing = false;
     }
 
