@@ -35,6 +35,7 @@ public static class SchemaConfigurations
 {
     public static void Configure(ModelBuilder builder)
     {
+        builder.Entity<UserType>(entity => { entity.ToTable(name: "UserTypes", "Identity"); });
         builder.Entity<User>(entity => { entity.ToTable(name: "Users", "Identity"); });
         builder.Entity<Role>(entity => { entity.ToTable(name: "Roles", "Identity"); });
         builder.Entity<PermissionClaim>(entity => { entity.ToTable(name: "Permissions", "Identity"); });
@@ -42,6 +43,7 @@ public static class SchemaConfigurations
 
 
         builder.Entity<FlagRecord>(entity => { entity.ToTable(name: "FlagRecords", "Common"); });
+        builder.Entity<AppModule>(entity => { entity.ToTable(name: "AppModules", "Common"); });
         
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
         builder.Entity<ChatMessage>(entity => { entity.ToTable(name: "ChatMessages", "Messaging"); });

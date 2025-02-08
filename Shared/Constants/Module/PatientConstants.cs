@@ -4,33 +4,33 @@ public static class PatientConstants
 {
     public static List<Ethnicity> Ethnicities { get; set; } =
     [
-        new Ethnicity(1, "White Irish"),
-        new Ethnicity(2, "Irish Travelers"),
-        new Ethnicity(3, "Other White"),
-        new Ethnicity(4, "Black Irish or African"),
-        new Ethnicity(5, "Other Black"),
-        new Ethnicity(6, "Chinese"),
-        new Ethnicity(7, "Other Asian"),
-        new Ethnicity(8, "Other"),
-        new Ethnicity(9, "Not stated")
+        new(1, "White Irish"),
+        new(2, "Irish Travelers"),
+        new(3, "Other White"),
+        new(4, "Black Irish or African"),
+        new(5, "Other Black"),
+        new(6, "Chinese"),
+        new(7, "Other Asian"),
+        new(8, "Other"),
+        new(9, "Not stated")
     ];
 
     public static List<MaritalStatus> MaritalStatusList { get; set; } =
     [
-        new MaritalStatus(1, "Married"),
-        new MaritalStatus(2, "Divorced"),
-        new MaritalStatus(3, "Seprated"),
-        new MaritalStatus(4, "Widowed"),
-        new MaritalStatus(5, "Single"),
+        new(1, "Married"),
+        new(2, "Divorced"),
+        new(3, "Seprated"),
+        new(4, "Widowed"),
+        new(5, "Single"),
     ];
 
     public static List<Relationship> RelationshipList { get; set; } =
     [
-        new Relationship(1, "Aunt"),
-        new Relationship(1, "Uncle"),
-        new Relationship(2, "Spouse"),
-        new Relationship(3, "Siblings"),
-        new Relationship(4, "Cousin"),
+        new(1, "Aunt"),
+        new(1, "Uncle"),
+        new(2, "Spouse"),
+        new(3, "Siblings"),
+        new(4, "Cousin"),
     ];
 
     public static string CalculateAge(DateTime dateOfBirth)

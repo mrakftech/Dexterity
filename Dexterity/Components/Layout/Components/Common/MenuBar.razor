@@ -1,0 +1,34 @@
+﻿@code {
+
+    private void ExitApplication()
+    {
+        Snackbar.SuccessMessage("TEsting");
+        System.Environment.Exit(0);
+    }
+
+}
+
+<RadzenMenu >
+    <RadzenMenuItem Text="File" >
+        <RadzenMenuItem Text="Lock Screen" ></RadzenMenuItem>
+        <RadzenMenuItem Text="Log Off" ></RadzenMenuItem>
+        <RadzenMenuItem Text="Exit" Click="ExitApplication"></RadzenMenuItem>
+    </RadzenMenuItem>
+    <RadzenMenuItem Text="Edit" >
+        <RadzenMenuItem Text="Preferences" ></RadzenMenuItem>
+    </RadzenMenuItem>
+    <RadzenMenuItem Text="Help" >
+        <RadzenMenuItem Text="Index"></RadzenMenuItem>
+        <RadzenMenuItem Text="Video Tutorials"></RadzenMenuItem>
+        <RadzenMenuItem Text="News"></RadzenMenuItem>
+        <RadzenMenuItem Text="Online Forum"></RadzenMenuItem>
+        <RadzenMenuItem Text="Online Forum"></RadzenMenuItem>
+        <RadzenMenuItem Text="Browse Knowledgebase"></RadzenMenuItem>
+        <RadzenMenuItem Text="Ask A Question"></RadzenMenuItem>
+        <RadzenMenuItem Text="What’s New"></RadzenMenuItem>
+        <RadzenMenuItem Text="About"></RadzenMenuItem>
+    </RadzenMenuItem>
+</RadzenMenu>
+<style>
+ 
+</style>

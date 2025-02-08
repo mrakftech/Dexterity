@@ -8,13 +8,17 @@
 <InnerLayout DrawerWidth="150px" ShowHeader="false">
     <NavigationItems >
         <DexMenuItem Text="Users" Icon="users-icon" Click="@(() => ClickChanged(0))"/>
-        <DexMenuItem Text="Permission" Icon="permissions-icon" Click="@(() => ClickChanged(1))"/>
+        <DexMenuItem Text="User Type" Icon="users-icon" Click="@(() => ClickChanged(1))"/>
+        <DexMenuItem Text="Permission" Icon="permissions-icon" Click="@(() => ClickChanged(2))"/>
     </NavigationItems>
 
     <DexContentTabs>
         <MudTabs @ref="_tabs">
             <MudTabPanel Text="">
                 <UserList/>
+            </MudTabPanel>
+            <MudTabPanel Text="">
+                <UserTypeList/>
             </MudTabPanel>
             <MudTabPanel Text="">
                 <Permissions/>

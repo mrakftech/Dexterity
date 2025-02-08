@@ -23,6 +23,8 @@ public static class ApplicationState
     {
         public static LoginResponseDto CurrentUser { get; set; }
         public static bool IsLoggedIn { get; set; }
+        public static Guid SelectedModuleId { get; set; }
+        
     }
 
     public static class Telehealth

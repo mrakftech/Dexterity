@@ -22,6 +22,7 @@ namespace Database.Configurations
                         c => c.ToList()
                     )
                 );
+            
         }
     }
 }

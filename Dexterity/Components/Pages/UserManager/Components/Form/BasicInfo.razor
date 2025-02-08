@@ -1,19 +1,20 @@
-﻿@using Services.Features.UserAccounts.Dtos.User
+﻿@using Domain.Entities.UserAccounts
+@using Services.Features.UserAccounts.Dtos.User
 <FormGroup LabelText="Basic Information" ColumnCount="2" ColumnSpacing="20px">
     <FormItem Field="@nameof(CreateUserDto.FirstName)" LabelText="First Name" ColumnSpan="1"></FormItem>
     <FormItem Field="@nameof(CreateUserDto.LastName)" LabelText="Last Name" ColumnSpan="1"></FormItem>
     <FormItem Field="@nameof(CreateUserDto.Email)" LabelText="Email" ColumnSpan="1"></FormItem>
     <FormItem Field="@nameof(CreateUserDto.Phone)" LabelText="Phone" ColumnSpan="1"></FormItem>
     <FormItem Field="@nameof(CreateUserDto.Mcn)" LabelText="MCN" ColumnSpan="2"></FormItem>
-    <FormItem Field="@nameof(CreateUserDto.UserType)" ColumnSpan="1" EditorType="FormEditorType.DropDownList">
+    <FormItem Field="@nameof(CreateUserDto.UserTypeId)" ColumnSpan="1" EditorType="FormEditorType.DropDownList">
         <Template>
             <label class="e-form-label">User Type</label>
           
-            <SfDropDownList TValue="string" TItem="UserTypeConstants.UserType" 
-                            Placeholder="Select role" 
-                            DataSource="@UserTypeConstants.UserTypeList" 
-                            @bind-Value="@UserDto.UserType">
-                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+            <SfDropDownList TValue="Guid" TItem="UserType" 
+                            Placeholder="Select user type" 
+                            DataSource="@_userTypes" 
+                            @bind-Value="@UserDto.UserTypeId">
+                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
             </SfDropDownList>
         </Template>
     </FormItem>
@@ -71,13 +72,15 @@
 @code {
     [Parameter] public Guid UserId { get; set; } = Guid.Empty;
     [Parameter] public CreateUserDto UserDto { get; set; } = new();
-    private List<WeekDay> WeekDays { get; set; } = new List<WeekDay>();
+    private List<WeekDay> WeekDays { get; set; } = new();
+    private List<UserType> _userTypes  = new();
     private List<ApplicationConstants.ResetDuration> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
     private List<RoleResponseDto> Roles { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
         await GetRoles();
+       await GetUserTypes();
         GetWeekDays();
     }
 
@@ -93,7 +96,10 @@
         }
     }
 
-
+    private async Task GetUserTypes()
+    {
+        _userTypes = await UnitOfWork.User.GetUserTypes();
+    }
     private async Task GetRoles()
     {
         Roles = await UnitOfWork.User.GetRoles();

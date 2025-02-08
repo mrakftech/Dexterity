@@ -4,6 +4,8 @@ public static class ApplicationConstants
 {
     public const string DefaultPassword = "Dexterity123@";
     public const string AppRegion = "US";
+    public const int SeedFakeUsersCount = 2;
+    public const int SeedFakePatientsCount = 20;
 
 
     public static List<ResetDuration> GetPasswordResetDuration()

@@ -20,11 +20,11 @@ public static class UserTaskConstants
     }
     public static List<TaskStatus> TaskStatusList { get; set; } =
     [
-        new TaskStatus(1, "Active"),
-        new TaskStatus(2, "Inactive"),
-        new TaskStatus(3, "In Progress"),
-        new TaskStatus(4, "Complete"),
-        new TaskStatus(5, "Cancelled"),
+        new(1, "Active"),
+        new(2, "Inactive"),
+        new(3, "In Progress"),
+        new(4, "Complete"),
+        new(5, "Cancelled"),
     ];
 
     public class TaskStatus(int id, string name)

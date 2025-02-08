@@ -29,11 +29,25 @@ public sealed class UnitOfWork(
     IFileManagerService fileManager,
     IMailService mail,
     IFlagService flagService,
+    IAppService appService,
     SmsEndpoints smsEndpoints,
     ApplicationDbContext context)
     : IUnitOfWork
 {
     private bool _disposed;
+    
+    public IAppService App   
+    {
+        get
+        {
+            if (appService == null)
+            {
+                appService = new AppService(context);
+            }
+
+            return appService;
+        }
+    }
     public IDashboardService Dashboard   
     {
         get

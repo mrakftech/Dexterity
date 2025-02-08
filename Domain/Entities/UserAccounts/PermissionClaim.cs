@@ -6,6 +6,7 @@ public class PermissionClaim: IBaseId
 {
     public Guid Id { get; set; }
     public string ModuleName { get; set; }
+    public Guid ModuleId { get; set; }
     public string ClaimName { get; set; } 
     public bool Allowed { get; set; }
 

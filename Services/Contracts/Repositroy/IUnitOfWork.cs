@@ -12,6 +12,7 @@ namespace Services.Contracts.Repositroy;
 
 public interface IUnitOfWork: IDisposable
 {
+    IAppService App { get; }
     IUserService User { get; }
     IPatientService Patient { get; }
     ISettingService Setting { get; }

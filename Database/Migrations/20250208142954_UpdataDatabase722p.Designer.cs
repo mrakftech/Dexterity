@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250208142954_UpdataDatabase722p")]
+    partial class UpdataDatabase722p
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3246,8 +3249,8 @@ namespace Database.Migrations
                     b.Property<TimeSpan>("StartHour")
                         .HasColumnType("time");
 
-                    b.Property<Guid>("UserTypeId")
-                        .HasColumnType("uniqueidentifier");
+                    b.Property<string>("UserType")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Username")
                         .HasColumnType("nvarchar(max)");
@@ -3258,8 +3261,6 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("RoleId");
-
-                    b.HasIndex("UserTypeId");
 
                     b.ToTable("Users", "Identity");
                 });
@@ -3285,24 +3286,6 @@ namespace Database.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserClinics", "Identity");
-                });
-
-            modelBuilder.Entity("Domain.Entities.UserAccounts.UserType", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<bool>("IsDefualt")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("UserTypes", "Identity");
                 });
 
             modelBuilder.Entity("Domain.Entities.WaitingRoom.WaitingAppointment", b =>
@@ -4116,15 +4099,7 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.UserAccounts.UserType", "UserType")
-                        .WithMany()
-                        .HasForeignKey("UserTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Role");
-
-                    b.Navigation("UserType");
                 });
 
             modelBuilder.Entity("Domain.Entities.UserAccounts.UserClinic", b =>

@@ -34,6 +34,7 @@ public static class ServicesCollectionExtension
         services.AddTransient<IFileManagerService, FileManagerService>();
         services.AddTransient<IDashboardService, DashboardService>();
         services.AddTransient<IFlagService, FlagService>();
+        services.AddTransient<IAppService, AppService>();
         services.AddScoped<AppointmentDataAdaptor>();
 
 

@@ -16,7 +16,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 {
     #region User
 
-    [Obsolete]
+    [Obsolete("Obsolete")]
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
@@ -51,35 +51,15 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
     }
 
-    public async Task<List<UserResponseDto>> GetUsers(string usertype = null)
+    public async Task<List<UserResponseDto>> GetUsers()
     {
-        var userList = new List<User>();
-        switch (usertype)
-        {
-            case null:
-                userList = await context.Users
-                    .Include(x => x.Role)
-                    .Include(x => x.UserClinics)
-                    .Where(x => x.IsDeleted == false)
-                    .OrderByDescending(x => x.CreatedDate)
-                    .ToListAsync();
-                break;
-            case UserTypeConstants.Doctor:
-                userList = await context.Users
-                    .Include(x => x.Role)
-                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
-                    .OrderByDescending(x => x.CreatedDate)
-                    .ToListAsync();
-                break;
-            case UserTypeConstants.Nurse:
-                userList = await context.Users
-                    .Include(x => x.Role)
-                    .Where(x => x.IsDeleted == false && x.UserType == usertype)
-                    .OrderByDescending(x => x.CreatedDate)
-                    .ToListAsync();
-                break;
-        }
-
+        var userList = await context.Users
+            .Include(x => x.Role)
+            .Include(x => x.UserType)
+            .Include(x => x.UserClinics)
+            .Where(x => x.IsDeleted == false)
+            .OrderByDescending(x => x.CreatedDate)
+            .ToListAsync();
         var users = mapper.Map<List<UserResponseDto>>(userList);
         return users;
     }
@@ -197,12 +177,15 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return isAdmin is not null;
     }
 
+
     public async Task<List<RoleResponseDto>> GetRoles()
     {
         var role = await context.Roles.ToListAsync();
         var data = mapper.Map<List<RoleResponseDto>>(role);
         return data;
     }
+
+    
 
     public async Task<IResult> SaveRole(string name, Guid id)
     {
@@ -255,11 +238,19 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-    #region Permissions
+    #region Persmissions
 
-    public async Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, string module)
+    public bool CheckPermission(string claimName)
     {
-        var permissions = await context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleName == module)
+        var permissionClaim = context.PermissionClaims.FirstOrDefault(x =>
+            x.RoleId == ApplicationState.Auth.CurrentUser.RoleId &&
+            x.ModuleId == ApplicationState.Auth.SelectedModuleId && x.ClaimName == claimName);
+        return permissionClaim is not null && permissionClaim.Allowed;
+    }
+
+    public async Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, Guid moduleId)
+    {
+        var permissions = await context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleId == moduleId)
             .ToListAsync();
         var data = mapper.Map<List<PermissionResponseDto>>(permissions);
         return data;
@@ -294,6 +285,62 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Password has been reset");
     }
 
+    #endregion
+
+    #region User Types
+    public async Task<List<UserType>> GetUserTypes()
+    {
+        return await context.UserTypes.ToListAsync();
+    }
+
+    public async Task<IResult> SaveUserType(string name, Guid id)
+    {
+        if (context.UserTypes.Any(x => x.Name == name))
+        {
+            return await Result.FailAsync("Role name is already avaialble");
+        }
+
+        if (id == Guid.Empty)
+        {
+            var userType = new UserType()
+            {
+                Name = name,
+            };
+            context.UserTypes.Add(userType);
+        }
+        else
+        {
+            var userType = await context.UserTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
+
+            if (userType == null)
+                return await Result.FailAsync("User type not found");
+
+            if (userType.IsDefualt)
+                return await Result.FailAsync("Default user type can't be update.");
+
+
+            userType.Name = name;
+            context.UserTypes.Update(userType);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("User Type has been saved.");
+    }
+    public async Task<IResult> DeleteUserType(Guid id)
+    {
+        var userType = await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
+        if (userType == null)
+            return await Result.FailAsync("User Type not found");
+        if (userType.IsDefualt)
+            return await Result.FailAsync("Default user Type can't be delete.");
+        context.UserTypes.Remove(userType);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("User Type has been deleted.");
+    }
+    public async Task<UserType> GetUserType(Guid id)
+    {
+        return await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
+    }
     #endregion
 
     #region User Clinic
@@ -360,14 +407,26 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<HealthcareDto>> GetDoctors(int clinicId)
     {
+        var userTypeId = await GetUserType(UserTypeConstants.Doctor);
         var users = await context.UserClinics
             .AsNoTracking()
             .Where(x => x.ClinicId == clinicId)
             .Select(x => x.User)
+            .Include(user => user.UserType)
             .ToListAsync();
 
-        return users.Where(x => x.UserType == UserTypeConstants.Doctor).Select(mapper.Map<HealthcareDto>)
+        return users.Where(x => x.UserTypeId == userTypeId).Select(mapper.Map<HealthcareDto>)
             .Where(data => data.Id != ApplicationState.Auth.CurrentUser.UserId).ToList();
+    }
+
+    #endregion
+
+    #region Private Methods
+
+    private async Task<Guid> GetUserType(string userType)
+    {
+        var userTypeInDb = await context.UserTypes.FirstOrDefaultAsync(x => x.Name == userType);
+        return userTypeInDb?.Id ?? Guid.Empty;
     }
 
     #endregion

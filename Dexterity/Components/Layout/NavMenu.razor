@@ -1,36 +1,52 @@
-﻿@using Dexterity.Components.Pages.Messaging.Dialogs
-<MudNavMenu Style="margin-top: 30px;">
-    <MudItem Style="margin-left:0px">
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-home" IconColor="MudColor.Info" Href="/home">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Dashboard</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-calendar-check" IconColor="MudColor.Info" Href="/appointments">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Appointment</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-hourglass-start" IconColor="MudColor.Info" Href="/waiting-room">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Waiting Room</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-user-doctor-message" IconColor="MudColor.Info" Href="/consultation">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Consultation</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-hospital-user" IconColor="MudColor.Info" Href="/patient-management">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Patient Manager</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-file-invoice" IconColor="MudColor.Info" Href="/reporting">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Reporting</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-message-dots" IconColor="MudColor.Info" Href="/messaging">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Messaging</MudText>
-        </MudNavLink>
-        <MudNavLink Match="NavLinkMatch.All" Icon="far fa-gear" IconColor="MudColor.Info" Href="/settings">
-            <MudText Color="MudColor.Info" Align="MudAlign.Left">Settings</MudText>
-        </MudNavLink>
-    </MudItem>
-    <MudSpacer/>
-</MudNavMenu>
+﻿@using Domain.Entities.Common
+@using Dexterity.Components.Pages.Messaging.Dialogs
+@if (_loading)
+{
+    <DexProgressBar/>
+}
+else
+{
+    <MudNavMenu Style="margin-top: 30px;">
+        <MudItem Style="margin-left:0px">
+            @foreach (var item in _appNavigations)
+            {
+                <MudNavLink Match="NavLinkMatch.All" Icon="@item.Icon" IconColor="MudColor.Info"
+                            OnClick="()=>SelectNav(item.Id,item.Href)">
+                    <MudText Color="MudColor.Info" Align="MudAlign.Left">@item.Name</MudText>
+                </MudNavLink>
+            }
+        </MudItem>
+        <MudSpacer/>
+    </MudNavMenu>
+    <TelehealthDialog/>
+}
 
-<TelehealthDialog/>
 
 @code {
+    private List<AppModule> _appNavigations = new();
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetAppNavigations();
+        _loading = false;
+    }
+
+    private async Task GetAppNavigations()
+    {
+        _appNavigations = await UnitOfWork.App.GetAppNavigations();
+    }
+
+    private void Logout()
+    {
+        NavigationManager.NavigateTo("/");
+    }
+
+    private void SelectNav(Guid id, string href)
+    {
+        NavigationManager.NavigateTo(href);
+        ApplicationState.Auth.SelectedModuleId = id;
+    }
 
 }

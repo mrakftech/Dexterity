@@ -9,7 +9,7 @@ public interface IUserService
 {
     Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto);
 
-    Task<List<UserResponseDto>> GetUsers(string usertype=null);
+    Task<List<UserResponseDto>> GetUsers();
     Task<UserResponseDto> GetUser(Guid id);
     Task<IResult> SaveUser(Guid id, CreateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
@@ -31,13 +31,24 @@ public interface IUserService
 
     #region Permissions
 
-    Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, string module);
+    bool CheckPermission(string claimName);
+    Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, Guid moduleId);
     Task<IResult> UpdatePermissions(List<UpdatePermissionDto> request);
     Task<IResult> ResetPassword(ResetPasswordDto dto);
+    Task<IResult> DeleteUserType(Guid id);
+    Task<UserType> GetUserType(Guid id);
+
+    #endregion
+    
+    #region User Types  
+    Task<List<UserType>> GetUserTypes();
+    Task<IResult> SaveUserType(string name, Guid id);
 
     #endregion
 
+
     #region User Clinics
+
     Task<List<UserClinic>> GetUserClinics(Guid userId);
 
     Task<IResult> SaveUserClinic(int id, UserClinic request);

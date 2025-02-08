@@ -22,7 +22,7 @@ public class CreateUserDto
     [MinLength(6)]
     public string Password { get; set; }
 
-    [Required(ErrorMessage = "Required")] public string UserType { get; set; }
+    [NotEmpty(ErrorMessage = "Required")] public Guid UserTypeId { get; set; }
 
     [Required(ErrorMessage = "Required")] public string Mcn { get; set; }
 

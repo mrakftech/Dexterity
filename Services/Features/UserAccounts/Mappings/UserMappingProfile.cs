@@ -16,7 +16,9 @@ public class UserMappingProfile : Profile
             .ReverseMap();
 
         CreateMap<User, CreateUserDto>().ReverseMap();
-        CreateMap<User, UserResponseDto>().ReverseMap();
+        CreateMap<User, UserResponseDto>()
+            .ForMember(d => d.UserType, s => s.MapFrom(x => x.UserType.Name))
+            .ReverseMap();
         CreateMap<CreateUserDto, UserResponseDto>().ReverseMap();
         CreateMap<Role, RoleResponseDto>().ReverseMap();
         CreateMap<PermissionClaim, PermissionResponseDto>().ReverseMap();

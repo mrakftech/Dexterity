@@ -127,6 +127,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<Role> Roles { get; set; }
     public DbSet<User> Users { get; set; }
+    public DbSet<UserType> UserTypes { get; set; }
     public DbSet<UserClinic> UserClinics { get; set; }
     public DbSet<UserTask> UserTasks { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
@@ -188,6 +189,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     #region Common
 
     public DbSet<FlagRecord> FlagRecords { get; set; }
+    public DbSet<AppModule> AppModules { get; set; }
     
 
     #endregion

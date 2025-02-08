@@ -1,4 +1,5 @@
 ﻿@using Dexterity.Components.Pages.UserManager.Modals.Roles
+@using Domain.Entities.Common
 @using global::Services.Features.UserAccounts.Dtos.User
 @using Shared.Constants.Permission
 
@@ -9,27 +10,36 @@
             <MudItem>
                 <MudStack Row="true">
                     <MudItem>
-                        <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role" DataSource="@Roles">
+                        <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
+                                        DataSource="@Roles">
                             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                            <DropDownListEvents TValue="Guid" TItem="RoleResponseDto" ValueChange="RoleChanged"></DropDownListEvents>
+                            <DropDownListEvents TValue="Guid" TItem="RoleResponseDto"
+                                                ValueChange="RoleChanged"></DropDownListEvents>
                         </SfDropDownList>
                     </MudItem>
 
                     <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
-                        <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create</MudButton>
-                        <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary" Disabled="_isRolesActionButtonsDisabled">Edit</MudButton>
-                        <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled" OnClick="() => DeleteRole(_roleId)">Delete</MudButton>
+                        <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create Role
+                        </MudButton>
+                        <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary"
+                                   Disabled="_isRolesActionButtonsDisabled">Edit Role
+                        </MudButton>
+                        <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled"
+                                   OnClick="() => DeleteRole(_roleId)">Delete Role
+                        </MudButton>
                     </MudButtonGroup>
                 </MudStack>
             </MudItem>
             <MudItem>
-                <SfDropDownList TValue="string" TItem="Module" Enabled="!_isModuleDropdownDisabled" Placeholder="Modules" DataSource="@Modules">
-                    <DropDownListFieldSettings Value="Text" Text="Text"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="string" TItem="Module" ValueChange="ModuleChange"></DropDownListEvents>
+                <SfDropDownList TValue="AppModule" TItem="AppModule" Enabled="!_isModuleDropdownDisabled"
+                                Placeholder="Modules" DataSource="@Modules">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="AppModule" TItem="AppModule" ValueChange="ModuleChange"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem>
-                <DexSimpleButton Name="Load permissions" Disabled="_isLoadPermissionBtnDisabled" Click="LoadPermissions"></DexSimpleButton>
+                <DexSimpleButton Name="Load permissions" Disabled="_isLoadPermissionBtnDisabled"
+                                 Click="LoadPermissions"></DexSimpleButton>
             </MudItem>
             <MudItem>
                 <MudStack Row>
@@ -41,7 +51,8 @@
                 </MudStack>
             </MudItem>
             <MudItem Class="mb-10">
-                <DexSimpleButton Name="Save Permissions" Disabled="_isLoadPermissionBtnDisabled" Click="SavePermission"></DexSimpleButton>
+                <DexSimpleButton Name="Save Permissions" Disabled="_isLoadPermissionBtnDisabled"
+                                 Click="SavePermission"></DexSimpleButton>
             </MudItem>
         </MudStack>
     </MudItem>
@@ -49,7 +60,7 @@
 
 @code {
     private List<RoleResponseDto> Roles { get; set; } = new();
-    private List<Module> Modules { get; set; } = new();
+    private List<AppModule> Modules { get; set; } = new();
     public List<PermissionResponseDto> PermissionList { get; set; } = new();
     private bool _isModuleDropdownDisabled = true;
     private bool _isLoadPermissionBtnDisabled = true;
@@ -58,6 +69,7 @@
 
     private Guid _roleId;
     private string _moduleName = "";
+    private Guid _moduleId;
 
     private bool _create;
     private Guid _createId;
@@ -72,7 +84,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        GetModules();
+       await GetModules();
         await GetRoles();
     }
 
@@ -97,17 +109,18 @@
         }
     }
 
-    private void ModuleChange(ChangeEventArgs<string, Module> args)
+    private void ModuleChange(ChangeEventArgs<AppModule, AppModule> args)
     {
-        if (string.IsNullOrWhiteSpace(args.Value)) return;
+        if (args.Value is null) return;
         _isLoadPermissionBtnDisabled = false;
-        _moduleName = args.Value;
+        _moduleName = args.Value.Name;
+        _moduleId = args.Value.Id;
     }
 
     private async Task LoadPermissions()
     {
         _isSavePermissionBtnDisabled = false;
-        var permissions = await UnitOfWork.User.GetPermissions(_roleId, _moduleName);
+        var permissions = await UnitOfWork.User.GetPermissions(_roleId, _moduleId);
         foreach (var item in permissions)
         {
             switch (item.ClaimName)
@@ -181,8 +194,8 @@
     private async Task UpsertRoleModal(Guid id)
     {
         var title = id == Guid.Empty ? "New Role" : "Edit Role";
-        var parameters = new DialogParameters { { "Id", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertRoleModal>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
@@ -215,22 +228,10 @@
         public Guid Id { get; set; }
         public bool ClaimValue { get; set; }
     }
-    public class Module
+
+    private async Task GetModules()
     {
-        public string Id { get; set; } = string.Empty;
-        public string Text { get; set; } = string.Empty;
+        Modules = await UnitOfWork.App.GetAppModules();
     }
-    private void GetModules()
-    {
-        var list = new List<Module>();
-        foreach (var item in PermissionConstants.Modules)
-        {
-            list.Add(new Module()
-                {
-                    Id = "",
-                    Text = item
-                });
-        }
-        Modules = list;
-    }
+
 }

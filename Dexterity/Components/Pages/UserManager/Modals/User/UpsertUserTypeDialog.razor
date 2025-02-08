@@ -1,0 +1,49 @@
+﻿@using Domain.Entities.UserAccounts
+<MudDialog>
+    <TitleContent>User Type Details @UserTypeData.Name</TitleContent>
+    <DialogContent>
+        <DexForm Model="UserTypeData" OnValidSubmit="SaveUserType" ColumnCount="1">
+            <Fields>
+                <FormItem Field="@nameof(UserType.Name)" LabelText="Name">
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save User Type" Processing="_processing" Type="MudButtonType.Submit"
+                                  Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+    </DialogContent>
+</MudDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private UserType UserTypeData { get; set; } = new();
+    private bool _processing;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            UserTypeData = await UnitOfWork.User.GetUserType(Id);
+        }
+    }
+
+    private async Task SaveUserType()
+    {
+        _processing = true;
+        var res = await UnitOfWork.User.SaveUserType(UserTypeData.Name, Id);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+        _processing = false;
+
+    }
+
+}

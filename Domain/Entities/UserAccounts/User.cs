@@ -40,7 +40,6 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     public string Username { get; set; }
     public string Email { get; set; }
     public string PasswordHash { get; set; }
-    public string UserType { get; set; }
     public string Mcn { get; set; } = default!;
     public string Ban { get; set; } = default!;
     public bool IsUpdatePassword { get; set; }
@@ -61,6 +60,9 @@ public class User : IBaseId, IBaseActionOn, IBaseActionBy
     
     public Role Role { get; set; }
     public Guid RoleId { get; set; }
+    
+    public UserType UserType { get; set; }
+    public Guid UserTypeId { get; set; }
     public virtual ICollection<UserClinic> UserClinics { get; set; }
     public virtual ICollection<Patient> Patients { get; set; }
     public virtual ICollection<ChatMessage> ChatMessagesFromUsers { get; set; } 

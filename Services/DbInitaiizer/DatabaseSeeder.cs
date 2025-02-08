@@ -1,6 +1,7 @@
 using Bogus;
 using Database;
 using Domain.Entities.Appointments;
+using Domain.Entities.Common;
 using Domain.Entities.PatientManagement;
 using Domain.Entities.PatientManagement.Alert;
 using Domain.Entities.PatientManagement.Details;
@@ -27,6 +28,8 @@ public class DatabaseSeeder(
 {
     public void Initialize()
     {
+        SeedApplicationNavs();
+        SeedUserTypes();
         SeedClinics();
         SeedRoles();
         SeedUsers();
@@ -39,8 +42,126 @@ public class DatabaseSeeder(
         SeedFakeUserData();
         SeedSketchCategories();
         SeedDmsCategory();
-
     }
+
+    private void SeedUserTypes()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.UserTypes.Any())
+                return;
+
+            var roles = new List<UserType>()
+            {
+                new()
+                {
+                    Name = "Nurse",
+                    IsDefualt = true
+                },
+                new()
+                {
+                    Name = "Doctor",
+                    IsDefualt = true
+                }
+            };
+
+            await context.UserTypes.AddRangeAsync(roles);
+            await context.SaveChangesAsync();
+            logger.LogInformation("User Types seeded");
+        }).GetAwaiter().GetResult();
+    }
+
+    private void SeedApplicationNavs()
+    {
+        Task.Run(async () =>
+        {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            if (context.AppModules.Any())
+                return;
+
+            var c = new List<AppModule>()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Dashboard",
+                    Href = "/home",
+                    Icon = "far fa-home",
+                    Order = 1,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Appointment",
+                    Href = "/appointments",
+                    Icon = "far fa-calendar-check",
+                    Order = 2,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Waiting Room",
+                    Href = "/waiting-room",
+                    Icon = "far fa-hourglass-start",
+                    Order = 3,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Consultation",
+                    Href = "/consultation",
+                    Icon = "far fa-user-doctor-message",
+                    Order = 4,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Patient Manager",
+                    Href = "/patient-management",
+                    Icon = "far fa-hospital-user",
+                    Order = 5,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Reporting",
+                    Href = "/reporting",
+                    Icon = "far fa-file-invoice",
+                    Order = 6,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Messaging",
+                    Href = "/messaging",
+                    Icon = "far fa-message-dots",
+                    Order = 7,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Settings",
+                    Href = "/settings",
+                    Icon = "far fa-gear",
+                    Order = 8
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "User Manager",
+                    Href = "/user-manager",
+                    Icon = "fas fa-users-medical",
+                    Order = 9
+                },
+            };
+            await context.AppModules.AddRangeAsync(c);
+            await context.SaveChangesAsync();
+        }).GetAwaiter().GetResult();
+    }
+
     private void SeedDmsCategory()
     {
         Task.Run(async () =>
@@ -49,7 +170,7 @@ public class DatabaseSeeder(
 
             if (context.DocumentCategories.Any())
                 return;
-            
+
             var c = new DocumentCategory()
             {
                 Name = "General"
@@ -58,6 +179,7 @@ public class DatabaseSeeder(
             await context.SaveChangesAsync();
         }).GetAwaiter().GetResult();
     }
+
     private void SeedSketchCategories()
     {
         Task.Run(async () =>
@@ -178,7 +300,7 @@ public class DatabaseSeeder(
         {
             await using var context = await contextFactory.CreateDbContextAsync();
 
-            var userTypes = UserTypeConstants.UserTypes as IEnumerable<string>;
+            var userTypeIds = context.UserTypes.ToList().Select(x=>x.Id);
             var roleIds = context.Roles.Select(x => x.Id).ToList();
             if (context.Users.Count() == 2)
             {
@@ -192,13 +314,13 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.Email, x => x.Person.Email)
                     .RuleFor(x => x.ModifiedDate, DateTime.Today)
                     .RuleFor(x => x.Mcn, x => x.Phone.PhoneNumber())
-                    .RuleFor(x => x.UserType, x => x.PickRandom(userTypes))
+                    .RuleFor(x => x.UserTypeId, x => x.PickRandom(userTypeIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.IsActive, true)
                     .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.Phone, x => x.Person.Phone);
-                var users = fakeUsers.Generate(2);
+                var users = fakeUsers.Generate(ApplicationConstants.SeedFakeUsersCount);
                 await context.Users.AddRangeAsync(users);
                 await context.SaveChangesAsync();
                 foreach (var item in users)
@@ -229,8 +351,8 @@ public class DatabaseSeeder(
             {
                 var address = new PatientAddress() {AddressLine1 = "Testing London"};
                 var medical = new MedicalCardDetail() {GmsStatus = "Active", GmsPatientNumber = "M567890A"};
-                var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic").Id;
-                var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "User").Id;
+                var clinicId = context.Clinics.FirstOrDefault(x => x.Name == "Clinic")!.Id;
+                var hcpId = context.Users.FirstOrDefault(x => x.FirstName == "User")!.Id;
                 var util = PhoneNumberUtil.GetInstance();
                 var num = util.GetExampleNumber("US");
                 var fakePatients = new Faker<Patient>()
@@ -254,7 +376,7 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.PatientType, PatientType.Private.ToString())
                     .RuleFor(x => x.IhiNumber, CryptographyHelper.GetUniqueKey(17))
                     .RuleFor(x => x.CreatedBy, Guid.NewGuid());
-                var patients = fakePatients.Generate(20);
+                var patients = fakePatients.Generate(ApplicationConstants.SeedFakePatientsCount);
                 foreach (var patient in patients)
                 {
                     await context.Patients.AddAsync(patient);
@@ -274,12 +396,14 @@ public class DatabaseSeeder(
                 return;
             var list = new List<PermissionClaim>();
             var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.AdministratorRole);
-            foreach (var module in PermissionConstants.Modules)
+            var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
+            foreach (var module in modules)
             {
                 foreach (var claim in PermissionConstants.AllClaims)
                 {
                     var permissionClaim = new PermissionClaim();
-                    permissionClaim.ModuleName = module;
+                    permissionClaim.ModuleName = module.Name;
+                    permissionClaim.ModuleId = module.Id;
                     permissionClaim.RoleId = role.Id;
                     permissionClaim.ClaimName = claim;
                     permissionClaim.Allowed = true;
@@ -299,17 +423,22 @@ public class DatabaseSeeder(
             await using var context = await contextFactory.CreateDbContextAsync();
             if (context.PermissionClaims.Any())
                 return;
+
             var list = new List<PermissionClaim>();
-            var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.UserRole);
-            foreach (var module in PermissionConstants.Modules)
+            var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.Nurse);
+            var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
+            foreach (var module in modules)
             {
                 foreach (var claim in PermissionConstants.AllClaims)
                 {
-                    var permissionClaim = new PermissionClaim();
-                    permissionClaim.ModuleName = module;
-                    permissionClaim.RoleId = role.Id;
-                    permissionClaim.ClaimName = claim;
-                    permissionClaim.Allowed = false;
+                    var permissionClaim = new PermissionClaim
+                    {
+                        ModuleName = module.Name,
+                        ModuleId = module.Id,
+                        RoleId = role.Id,
+                        ClaimName = claim,
+                        Allowed = false
+                    };
                     list.Add(permissionClaim);
                 }
             }
@@ -341,6 +470,7 @@ public class DatabaseSeeder(
         Task.Run(async () =>
         {
             await using var context = await contextFactory.CreateDbContextAsync();
+            var userTypeInDb = await context.UserTypes.FirstOrDefaultAsync(x => x.Name == UserTypeConstants.Doctor);
 
             if (context.Users.Any())
                 return;
@@ -357,7 +487,7 @@ public class DatabaseSeeder(
                     IsActive = true,
                     Mcn = "00000000",
                     Ban = "00000000",
-                    UserType = UserTypeConstants.Doctor,
+                    UserTypeId = userTypeInDb.Id,
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
                     WorkingDays = new List<int> {1, 2, 3},
@@ -374,12 +504,12 @@ public class DatabaseSeeder(
                     Phone = "123589641",
                     Mcn = "00000000",
                     Ban = "00000000",
-                    UserType = UserTypeConstants.Doctor,
+                    UserTypeId = userTypeInDb.Id,
                     PasswordHash = passHash,
                     WorkingDays = new List<int> {1, 2, 3},
                     StartHour = new TimeSpan(9, 0, 0),
                     EndHour = new TimeSpan(17, 0, 0),
-                    RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.UserRole)!.Id
+                    RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.Nurse)!.Id
                 },
             };
 
@@ -414,31 +544,19 @@ public class DatabaseSeeder(
                 new()
                 {
                     CreatedDate = DateTime.Today,
-                    Name = RoleConstants.SuperAdministrator,
-                    IsDefualt = true
-                },
-                new()
-                {
-                    CreatedDate = DateTime.Today,
                     Name = RoleConstants.AdministratorRole,
                     IsDefualt = true
                 },
                 new()
                 {
                     CreatedDate = DateTime.Today,
-                    Name = RoleConstants.UserRole,
+                    Name = RoleConstants.Nurse,
                     IsDefualt = true
                 },
                 new()
                 {
                     CreatedDate = DateTime.Today,
                     Name = RoleConstants.Doctor,
-                    IsDefualt = true
-                },
-                new()
-                {
-                    CreatedDate = DateTime.Today,
-                    Name = RoleConstants.Nurse,
                     IsDefualt = true
                 },
                 new()
@@ -454,4 +572,5 @@ public class DatabaseSeeder(
             logger.LogInformation("Roles seeded");
         }).GetAwaiter().GetResult();
     }
+  
 }
