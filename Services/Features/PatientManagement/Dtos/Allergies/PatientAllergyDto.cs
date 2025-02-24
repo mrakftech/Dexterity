@@ -12,5 +12,5 @@ public class PatientAllergyDto
     public string DrugType { get; set; }
     public string DrugAllergyName { get; set; }
     
-    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.PatientId;
+    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.Id;
 }

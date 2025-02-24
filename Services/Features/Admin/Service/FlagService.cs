@@ -30,7 +30,7 @@ public class FlagService(ApplicationDbContext context, IMapper mapper) : IFlagSe
                 RecordId = flagRecordRecord.RecordId,
                 Reason = flagRecordRecord.Reason,
                 CreatedDate = DateTime.UtcNow,
-                CurrentPatientId = ApplicationState.SelectedPatient.PatientId,
+                CurrentPatientId = ApplicationState.SelectedPatient.Id,
                 FlaggedById = ApplicationState.Auth.CurrentUser.UserId,
                 Status = nameof(FlagRecordStatus.Flagged),
                 ModuleName = flagRecordRecord.ModuleName,

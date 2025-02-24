@@ -15,11 +15,11 @@ namespace Database.Configurations
                 .Property(e => e.WorkingDays)
                 .HasConversion(
                     v => JsonConvert.SerializeObject(v),
-                    v => JsonConvert.DeserializeObject<List<int>>(v),
-                    new ValueComparer<List<int>>(
+                    v => JsonConvert.DeserializeObject<int[]>(v),
+                    new ValueComparer<int[]>(
                         (c1, c2) => c1.SequenceEqual(c2),
                         c => c.Aggregate(0, (a, v) => HashCode.Combine(a, v.GetHashCode())),
-                        c => c.ToList()
+                        c => c.ToArray()
                     )
                 );
             

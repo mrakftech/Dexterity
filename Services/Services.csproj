@@ -22,9 +22,6 @@
         <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="27.2.4" />
 	</ItemGroup>
 	<ItemGroup>
-	  <Folder Include="Features\Messaging\Dtos\" />
-	</ItemGroup>
-	<ItemGroup>
 	  <Reference Include="PhoneNumbers">
 	    <HintPath>C:\Users\Muzammil\.nuget\packages\libphonenumber-csharp\8.13.40\lib\net7.0\PhoneNumbers.dll</HintPath>
 	  </Reference>

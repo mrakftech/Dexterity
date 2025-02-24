@@ -14,6 +14,8 @@ public class Appointment : IBaseActionBy, IBaseActionOn,IBaseId
     public DateTime EndTime { get; set; }
     public string Description { get; set; }
     public bool IsAllDay { get; set; }
+    public bool IsReadonly { get; set; }
+    public bool IsBlock { get; set; }
     public bool IsSeries { get; set; }
     public Guid CustomRecurrenceId { get; set; }
 

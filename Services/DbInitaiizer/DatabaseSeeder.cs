@@ -318,8 +318,8 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.IsActive, true)
-                    .RuleFor(x => x.PasswordHash, SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword))
-                    .RuleFor(x => x.Phone, x => x.Person.Phone);
+                    .RuleFor(x => x.PasswordHash, SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword))
+                    .RuleFor(x => x.MobileNumber, x => x.Person.Phone);
                 var users = fakeUsers.Generate(ApplicationConstants.SeedFakeUsersCount);
                 await context.Users.AddRangeAsync(users);
                 await context.SaveChangesAsync();
@@ -474,7 +474,7 @@ public class DatabaseSeeder(
 
             if (context.Users.Any())
                 return;
-            var passHash = SecurePasswordHasher.Hash(ApplicationConstants.DefaultPassword);
+            var passHash = SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword);
             var users = new List<User>()
             {
                 new()
@@ -483,16 +483,13 @@ public class DatabaseSeeder(
                     Email = "admin@dexterity.com",
                     FirstName = "Admin",
                     LastName = "Dexterity",
-                    Phone = "123589641",
+                    MobileNumber = "123589641",
                     IsActive = true,
                     Mcn = "00000000",
                     Ban = "00000000",
                     UserTypeId = userTypeInDb.Id,
                     PasswordHash = passHash,
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.AdministratorRole)!.Id,
-                    WorkingDays = new List<int> {1, 2, 3},
-                    StartHour = new TimeSpan(9, 0, 0),
-                    EndHour = new TimeSpan(17, 0, 0)
                 },
                 new()
                 {
@@ -501,14 +498,11 @@ public class DatabaseSeeder(
                     FirstName = "User",
                     LastName = "Dexterity",
                     IsActive = true,
-                    Phone = "123589641",
+                    MobileNumber = "123589641",
                     Mcn = "00000000",
                     Ban = "00000000",
                     UserTypeId = userTypeInDb.Id,
                     PasswordHash = passHash,
-                    WorkingDays = new List<int> {1, 2, 3},
-                    StartHour = new TimeSpan(9, 0, 0),
-                    EndHour = new TimeSpan(17, 0, 0),
                     RoleId = context.Roles.FirstOrDefault(x => x.Name == RoleConstants.Nurse)!.Id
                 },
             };

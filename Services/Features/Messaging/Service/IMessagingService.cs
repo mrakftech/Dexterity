@@ -1,6 +1,7 @@
 ﻿using Domain.Entities.Messaging;
 using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.UserAccounts;
+using Services.Features.Messaging.Dtos.InstantChat;
 using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Services.Features.UserAccounts.Dtos.User;
@@ -40,6 +41,7 @@ public interface IMessagingService
     public Task<User> GetUserDetailsAsync(Guid userId);
     public Task<IResult> SaveMessageAsync(ChatMessage message);
     public List<ChatMessage> GetConversationAsync(Guid contactId);
+    public Task<List<ChatHistoryDto>> GetConversationHistoryAsync(Guid userId);
 
     #endregion
 }

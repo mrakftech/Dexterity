@@ -152,11 +152,11 @@
     {
         ClickChangedTab(0);
         _loading = true;
-        if (ApplicationState.SelectedPatient.PatientId != Guid.Empty)
+        if (ApplicationState.SelectedPatient.Id != Guid.Empty)
         {
             _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
-            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatient.PatientId);
-            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatient.PatientId);
+            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.SelectedPatient.Id);
+            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.SelectedPatient.Id);
             await GetPatientSummary();
             await GetConsultations();
             await GetConsultationNotes();
@@ -182,8 +182,8 @@
 
     private async Task GetPatientSummary()
     {
-        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatient.PatientId);
-        ApplicationState.SelectedPatient.PatientSummary = Patient;
+        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatient.Id);
+        ApplicationState.SelectedPatient.Summary = Patient;
     }
 
     private void FindPatient()
@@ -205,7 +205,7 @@
 
     private async Task GetConsultations()
     {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatient.PatientId);
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.SelectedPatient.Id);
     }
 
     private async Task OpenBeginConsultationDialog()
@@ -303,7 +303,7 @@
 
     private async Task GetImmunisationSchedules()
     {
-        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatient.PatientId);
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.SelectedPatient.Id);
     }
 
     #endregion

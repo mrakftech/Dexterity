@@ -14,7 +14,10 @@ namespace Shared.Wrapper;
         {
             return new Result {Succeeded = false};
         }
-
+        public string GetFirstMessage()
+        {
+            return Messages[0];
+        }
         public static IResult Fail(string message)
         {
             return new Result {Succeeded = false, Messages = [message]};

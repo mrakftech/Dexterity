@@ -57,3 +57,6 @@ function printDiv() {
     // Close the new window after printing
     printWindow.close();
 }
+function printInvoke() {
+    window.print();
+}

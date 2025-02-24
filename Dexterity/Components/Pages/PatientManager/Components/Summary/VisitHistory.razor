@@ -17,7 +17,7 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        Appointments = await UnitOfWork.Appointment.GetAppointmentHistory(ApplicationState.SelectedPatient.PatientId);
+        Appointments = await UnitOfWork.Appointment.GetAppointmentHistory(ApplicationState.SelectedPatient.Id);
         _loading = false;
     }
 

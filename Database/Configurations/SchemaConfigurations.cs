@@ -47,6 +47,7 @@ public static class SchemaConfigurations
         
         builder.Entity<UserTask>(entity => { entity.ToTable(name: "UserTasks", "Messaging"); });
         builder.Entity<ChatMessage>(entity => { entity.ToTable(name: "ChatMessages", "Messaging"); });
+        builder.Entity<ChatHistory>(entity => { entity.ToTable(name: "ChatHistories", "Messaging"); });
 
 
         builder.Entity<EmailTemplate>(entity => { entity.ToTable(name: "EmailTemplates", "Setting"); });
@@ -162,6 +163,6 @@ public static class SchemaConfigurations
             .OnDelete(DeleteBehavior.NoAction);
         
         builder.Entity<AppointmentSlot>(entity => { entity.ToTable(name: "AppointmentSlots", "Scheduler"); });
-
+        builder.Entity<AvailabilityException>(entity => { entity.ToTable(name: "AvailabilityExceptions", "Scheduler"); });
     }
 }

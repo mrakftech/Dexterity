@@ -52,7 +52,7 @@
             FamilyMember.IsCarer = false;
         }
 
-        FamilyMember.PatientId = ApplicationState.SelectedPatient.PatientId;
+        FamilyMember.PatientId = ApplicationState.SelectedPatient.Id;
         var res = await UnitOfWork.Patient.SaveFamilyMember(Id, FamilyMember);
         if (res.Succeeded)
         {

@@ -1,0 +1,28 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.UserAccounts.Dtos.User
+@using Dexterity.Components.Pages.Appointments.Recurrence.Comps
+
+<InnerLayout ShowHeader="false">
+    <NavigationItems>
+        <DexMenuItem Text="Add New Recurrence" Icon="fas fa-calendar-plus" Click="@(() => ClickChanged(0))"/>
+    </NavigationItems>
+    <DexContentTabs>
+        <MudTabs @ref="tabs" >
+            <MudTabPanel Text="" >
+                <AddRecurrence HealthCares="HealthCares" PatientList="PatientList"/>
+            </MudTabPanel>
+        </MudTabs>
+    </DexContentTabs>
+</InnerLayout>
+
+@code{
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = [];
+    [Parameter] public List<PatientListDto> PatientList { get; set; } = [];
+    MudTabs tabs;
+    private void ClickChanged(int tabIndex)
+    {
+        tabs.ActivatePanel(tabIndex);
+    }
+
+
+}

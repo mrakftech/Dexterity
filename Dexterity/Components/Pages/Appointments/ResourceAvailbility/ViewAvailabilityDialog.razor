@@ -1,0 +1,89 @@
+﻿@using Services.Features.Appointments.Dtos
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
+    <DialogTitle>View Availability For - @_selectedhealthcareDto.Name </DialogTitle>
+    <Content>
+        @if (!_processing)
+        {
+            <MudStack>
+                <MudItem>
+                    <SfDropDownList TValue="HealthcareDto" TItem="HealthcareDto" Placeholder="Select Hcp"
+                                    DataSource="@HealthCares" @bind-Value="@_selectedhealthcareDto">
+                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        <DropDownListEvents TValue="HealthcareDto" TItem="HealthcareDto"
+                                            ValueChange="OnHcpValueChange"></DropDownListEvents>
+                    </SfDropDownList>
+                </MudItem>
+                <MudItem>
+                    <MudText Class="text-bold">@($"Availability Viewer For: {_selectedhealthcareDto.Name}")</MudText>
+                </MudItem>
+                <MudItem>
+                    <MudStack Row>
+                        <MudItem>
+                            <SfCalendar TValue="DateTime" @bind-Value="@DateValue"
+                                        CssClass="mini-calendar"/>
+                        </MudItem>
+                        <MudItem>
+                            <SfSchedule TValue="AppointmentDto"
+                                        Height="550px"
+                                        @bind-CurrentView="@_currentView"
+                                        WorkDays="@(new[] {1, 2, 3, 4, 5})"
+                                        ShowWeekend="false"
+                                        StartHour="09:00"
+                                        EndHour="17:00" AllowDragAndDrop="true" SelectedDate="DateValue">
+                                <ScheduleEvents TValue="AppointmentDto"></ScheduleEvents>
+                                <ScheduleEventSettings AllowAdding="false"
+                                                       AllowDeleting="false"
+                                                       AllowEditing="false"
+                                                       TValue="AppointmentDto"
+                                                       DataSource="@_dataSource"></ScheduleEventSettings>
+
+                                <ScheduleTimeScale SlotCount="1" Interval="15"
+                                                   Enable="true"></ScheduleTimeScale>
+
+                                <ScheduleViews>
+                                    <ScheduleView FirstDayOfWeek="1" Option="View.Week"/>
+                                    <ScheduleView FirstDayOfWeek="1" Option="View.Day"/>
+                                    <ScheduleView FirstDayOfWeek="1" Option="View.Month"/>
+                                </ScheduleViews>
+                            </SfSchedule>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+            </MudStack>
+        }
+        else
+        {
+            <DexProgressBar/>
+        }
+    </Content>
+</DexDialog>
+
+@code{
+
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    private bool _processing;
+    View _currentView = View.Week;
+    List<AppointmentDto> _dataSource = new();
+    private HealthcareDto _selectedhealthcareDto = new();
+    private DateTime DateValue { get; set; } = DateTime.Now;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _processing = true;
+        _selectedhealthcareDto = HealthCares.FirstOrDefault(x => x.Id == UserId);
+        _dataSource = await UnitOfWork.Appointment.GetAllAppointmentsByHcp(_selectedhealthcareDto!.Id);
+        await Task.Delay(1000);
+        _processing = false;
+    }
+
+    private async Task OnHcpValueChange(ChangeEventArgs<HealthcareDto, HealthcareDto> obj)
+    {
+        if (obj.ItemData is not null)
+        {
+            _dataSource = await UnitOfWork.Appointment.GetAllAppointmentsByHcp(obj.ItemData.Id);
+        }
+    }
+
+}

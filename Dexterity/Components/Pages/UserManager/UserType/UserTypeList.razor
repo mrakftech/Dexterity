@@ -1,0 +1,76 @@
+﻿@using Domain.Entities.UserAccounts
+<TabTitle Title="User Types">
+    <ActionButtons>
+        <MudStack Row>
+            <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small"
+                    Label="Add New User Type" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+
+
+<MudItem>
+    <DexGrid DataSource="UsersTypeList" Loading="@_userLoading">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(UserType.Name)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as UserType);
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                       Color="MudColor.Primary" OnClick="() => UpsertUserModal(item.Id)"/>
+                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                       Color="MudColor.Error" OnClick="() => DeleteUserType(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+
+
+@code {
+    private List<UserType> UsersTypeList { get; set; } = new();
+
+    private bool _userLoading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetUserTypes();
+    }
+
+    private async Task GetUserTypes()
+    {
+        _userLoading = true;
+        await Task.Delay(500);
+        UsersTypeList = await UnitOfWork.User.GetUserTypes();
+        _userLoading = false;
+    }
+
+    private async Task DeleteUserType(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.User.DeleteUserType(id);
+            await GetUserTypes();
+            StateHasChanged();
+            Snackbar.SuccessMessage(userRes.Messages.First());
+        }
+    }
+
+    private async Task UpsertUserModal(Guid id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertUserTypeDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetUserTypes();
+        }
+    }
+
+}

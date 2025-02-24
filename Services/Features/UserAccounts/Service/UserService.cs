@@ -2,9 +2,11 @@ using AutoMapper;
 using Database;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
+using Services.Features.Appointments.Dtos.Availability;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Services.State;
+using Shared.Constants.Application;
 using Shared.Constants.Role;
 using Shared.Helper;
 using Shared.Wrapper;
@@ -16,15 +18,20 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 {
     #region User
 
-    [Obsolete("Obsolete")]
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
-            .SingleOrDefaultAsync(x => x.Username == dto.Username);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Username == dto.Username);
 
         if (userInDb is null)
         {
             return await Result<LoginResponseDto>.FailAsync("Invalid Credentials");
+        }
+
+        if (userInDb.IsLockOut)
+        {
+            return await Result<LoginResponseDto>.FailAsync("user account is lockout. contact support.");
         }
 
         if (!userInDb.IsActive || userInDb.IsDeleted)
@@ -34,7 +41,16 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
         var isValid = SecurePasswordHasher.Verify(dto.Password, userInDb.PasswordHash);
 
-        if (!isValid) return await Result<LoginResponseDto>.FailAsync("Invalid Credentials");
+        if (!isValid)
+        {
+            if (userInDb.Role.Name != RoleConstants.AdministratorRole)
+            {
+                //updating failed attempted
+                await UpdateFailedAttempted(userInDb.Id);
+            }
+
+            return await Result<LoginResponseDto>.FailAsync("Invalid Credentials");
+        }
 
         var response = new LoginResponseDto()
         {
@@ -46,8 +62,11 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             StartHour = userInDb.StartHour,
             EndHour = userInDb.EndHour,
             RoleId = userInDb.RoleId,
+            ResetPasswordAt = userInDb.ResetPasswordAt,
         };
         ApplicationState.Auth.CurrentUser = response;
+        //reseting failed attempted
+        await ResetFailedAttempted(userInDb.Id);
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
     }
 
@@ -74,7 +93,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return mapper.Map<UserResponseDto>(userInDb);
     }
 
-    public async Task<IResult> SaveUser(Guid id, CreateUserDto request)
+    public async Task<IResult> SaveUser(Guid id, UpdateUserDto request)
     {
         try
         {
@@ -87,33 +106,33 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
                 request.RoleId = request.RoleId;
                 request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
+                request.ResetPassword = request.ResetPassword;
                 request.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
-                var hashPassword = SecurePasswordHasher.Hash(request.Password);
+                var hashPassword = SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword);
                 var user = mapper.Map<User>(request);
-                user.WorkingDays = request.WorkingDays;
                 user.PasswordHash = hashPassword;
+
+
                 context.Users.Add(user);
-                await context.SaveChangesAsync();
-                return await Result.SuccessAsync("User saved");
             }
             else
             {
-                if (request.IsUpdatePassword)
-                {
-                    request.Password = SecurePasswordHasher.Hash(request.Password);
-                }
-
                 var userInDb = await context.Users.FirstOrDefaultAsync(x => x.Id == id);
                 request.RoleId = request.RoleId;
                 request.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
                 request.ModifiedDate = DateTime.Today;
                 request.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(request.ResetPassword);
                 userInDb = mapper.Map(request, userInDb);
-                userInDb.WorkingDays = request.WorkingDays;
+                if (request.IsUpdatePassword)
+                {
+                    userInDb.PasswordHash = SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword);
+                }
+
                 context.Users.Update(userInDb);
-                await context.SaveChangesAsync();
-                return await Result.SuccessAsync("User saved");
             }
+
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("User saved");
         }
         catch (Exception e)
         {
@@ -124,19 +143,39 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<IResult> DeleteUser(Guid id)
     {
         var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
-        if (userInDb.Role.Name == RoleConstants.AdministratorRole)
-        {
-            return await Result.FailAsync("Can't be delete admin user");
-        }
-
         if (userInDb is null)
         {
             return await Result.FailAsync("User not found.");
         }
 
+        if (userInDb.Role.Name == RoleConstants.AdministratorRole)
+        {
+            return await Result.FailAsync("Can't be delete admin user");
+        }
+
+
         userInDb.IsDeleted = true;
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("User has been deleted.");
+    }
+
+    public async Task<IResult> UnblockAccount(Guid userId)
+    {
+        var userInDb = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId);
+        if (userInDb is null)
+        {
+            return await Result.FailAsync("User not found.");
+        }
+
+        userInDb.IsLockOut = false;
+        userInDb.FailedAttempted = 0;
+        userInDb.IsForceReset = true;
+        context.ChangeTracker.Clear();
+        context.Users.Update(userInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("User is Unlocked.");
     }
 
     public async Task<List<Guid>> GetAdminIds()
@@ -155,6 +194,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     }
 
     #endregion
+
+    
 
     #region Roles
 
@@ -185,7 +226,6 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return data;
     }
 
-    
 
     public async Task<IResult> SaveRole(string name, Guid id)
     {
@@ -268,19 +308,23 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         return await Result.SuccessAsync("Permission Updated");
     }
 
-    public async Task<IResult> ResetPassword(ResetPasswordDto dto)
+    public async Task<IResult> ResetPassword(Guid userId, ResetPasswordDto dto)
     {
         var userInDb = await context.Users.Include(x => x.Role)
-            .FirstOrDefaultAsync(x => x.Id == ApplicationState.Auth.CurrentUser.UserId);
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId);
 
         if (userInDb == null)
         {
             return await Result.FailAsync("User not found.");
         }
 
-        var hashedPassword = SecurePasswordHasher.Hash(dto.NewPassword);
+        var hashedPassword = SecurePasswordHasher.HashPassword(dto.NewPassword);
         userInDb.IsForceReset = false;
         userInDb.PasswordHash = hashedPassword;
+        userInDb.ResetPasswordAt = DexHelperMethod.GetPasswordResetTime(userInDb.ResetPassword);
+        context.ChangeTracker.Clear();
+        context.Users.Update(userInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Password has been reset");
     }
@@ -288,6 +332,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     #endregion
 
     #region User Types
+
     public async Task<List<UserType>> GetUserTypes()
     {
         return await context.UserTypes.ToListAsync();
@@ -326,6 +371,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("User Type has been saved.");
     }
+
     public async Task<IResult> DeleteUserType(Guid id)
     {
         var userType = await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
@@ -337,10 +383,12 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("User Type has been deleted.");
     }
+
     public async Task<UserType> GetUserType(Guid id)
     {
         return await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
     }
+
     #endregion
 
     #region User Clinic
@@ -411,12 +459,12 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
         var users = await context.UserClinics
             .AsNoTracking()
             .Where(x => x.ClinicId == clinicId)
+            .Include(x => x.User.UserType)
             .Select(x => x.User)
-            .Include(user => user.UserType)
             .ToListAsync();
 
         return users.Where(x => x.UserTypeId == userTypeId).Select(mapper.Map<HealthcareDto>)
-            .Where(data => data.Id != ApplicationState.Auth.CurrentUser.UserId).ToList();
+           .ToList();
     }
 
     #endregion
@@ -427,6 +475,51 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         var userTypeInDb = await context.UserTypes.FirstOrDefaultAsync(x => x.Name == userType);
         return userTypeInDb?.Id ?? Guid.Empty;
+    }
+
+    private async Task UpdateFailedAttempted(Guid userId)
+    {
+        try
+        {
+            var user = await context.Users
+                .AsNoTracking()
+                .FirstOrDefaultAsync(x => x.Id == userId);
+            if (user is not null)
+            {
+                if (user.FailedAttempted == 5)
+                {
+                    user.IsLockOut = true;
+                }
+                else
+                {
+                    user.FailedAttempted++;
+                }
+
+                context.ChangeTracker.Clear();
+                context.Users.Update(user);
+                await context.SaveChangesAsync();
+            }
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    private async Task ResetFailedAttempted(Guid userId)
+    {
+        var user = await context.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == userId);
+        if (user is not null)
+        {
+            user.FailedAttempted = 0;
+            user.IsLockOut = false;
+            context.ChangeTracker.Clear();
+            context.Users.Update(user);
+            await context.SaveChangesAsync();
+        }
     }
 
     #endregion

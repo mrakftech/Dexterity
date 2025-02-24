@@ -1,6 +1,7 @@
 ﻿@layout MainLayout
 @page "/messaging"
 @using Dexterity.Components.Pages.Messaging.Tabs
+@using Dexterity.Components.Pages.Messaging.Components
 <TopTitleBar Title="Messaging"
              Image="modules/messaging/communication1.svg">
 </TopTitleBar>
@@ -11,7 +12,7 @@
             <DexMenuItem Text="User Tasks" Icon="user-task-icon" Click="@(() => ClickChanged(0))"/>
             <DexMenuItem Text="Contacts" Icon="contact-icon" Click="@(() => ClickChanged(1))"/>
             <DexMenuItem Text="Messaging" Icon="sms-message-icon" Click="@(() => ClickChanged(2))"/>
-            <DexMenuItem Text="Instant Messaging" Icon="text-message-icon" Click="@(() => ClickChanged(3))"/>
+            <DexMenuItem Text="Instant Messaging History" Icon="text-message-icon" Click="@(() => ClickChanged(3))"/>
             <DexMenuItem Text="Phone Directory" Icon="telephone-icon" Click="@(() => ClickChanged(4))"/>
         </NavigationItems>
 
@@ -21,19 +22,16 @@
                         <UserTasksTab/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
-
                     </MudTabPanel>
                     <MudTabPanel Text="">
                         <SmsTab/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
-
+                        <InstantMessageHistory/>
                     </MudTabPanel>
                     <MudTabPanel Text="">
-
                     </MudTabPanel>
                     <MudTabPanel Text="">
-
                     </MudTabPanel>
 
                 </MudTabs>

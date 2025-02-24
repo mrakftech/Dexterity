@@ -149,7 +149,7 @@
     private async Task GetImmunisationSchedules()
     {
         ImmunisationsSchedules = await UnitOfWork.Consultation
-            .GetImmunisationSchedule(ApplicationState.SelectedPatient.PatientId);
+            .GetImmunisationSchedule(ApplicationState.SelectedPatient.Id);
     }
 
     private async Task SelectSchedule(RowSelectEventArgs<ImmunisationScheduleDto> args)

@@ -7,6 +7,7 @@ using Domain.Entities.PatientManagement.Options;
 using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using PhoneNumbers;
+using Services.Features.Messaging.Dtos.InstantChat;
 using Services.Features.Messaging.Dtos.Sms;
 using Services.Features.Messaging.Dtos.UserTasks;
 using Services.Features.UserAccounts.Dtos.User;
@@ -37,7 +38,7 @@ public class MessagingService(
     public async Task<List<UserTask>> GetAllUserTasks()
     {
         return await context.UserTasks
-            .Where(x =>x.Status == UserTaskConstants.TaskStatusConstant.Active)
+            .Where(x => x.Status == UserTaskConstants.TaskStatusConstant.Active)
             .OrderByDescending(x => x.TaskDate)
             .ToListAsync();
     }
@@ -269,11 +270,10 @@ public class MessagingService(
         return await Result.SuccessAsync();
     }
 
-
-
     #endregion
 
     #region Instant Messaging
+
     public async Task<List<UserResponseDto>> GetUsers()
     {
         var users = await context.UserClinics
@@ -285,6 +285,7 @@ public class MessagingService(
 
         return mapper.Map<List<UserResponseDto>>(allUsers);
     }
+
     public async Task<IResult> SaveMessageAsync(ChatMessage message)
     {
         try
@@ -294,6 +295,9 @@ public class MessagingService(
             message.ToUserId = message.ToUserId;
             await context.ChatMessages.AddAsync(message);
             await context.SaveChangesAsync();
+
+            await AddChatHistory(message.Id);
+
             return await Result.SuccessAsync("");
         }
         catch (Exception e)
@@ -302,11 +306,41 @@ public class MessagingService(
         }
     }
 
+    private async Task AddChatHistory(int id)
+    {
+        var chatInDb = await context
+            .ChatMessages
+            .Include(a => a.FromUser)
+            .Include(a => a.ToUser)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        var chatHistoryList = new List<ChatHistory>()
+        {
+            new ChatHistory
+            {
+                Date = DateTime.Now,
+                Message = chatInDb.Message,
+                UserId = chatInDb.FromUserId,
+                Type = "Sent",
+                UserName = chatInDb.ToUser.FullName,
+            },
+            new ChatHistory
+            {
+                Date = DateTime.Now,
+                Message = chatInDb.Message,
+                UserId = chatInDb.ToUserId,
+                Type = "Received",
+                UserName = chatInDb.FromUser.FullName,
+            }
+        };
+        await context.ChatHistories.AddRangeAsync(chatHistoryList);
+        await context.SaveChangesAsync();
+    }
+
     public List<ChatMessage> GetConversationAsync(Guid contactId)
     {
         var userId = ApplicationState.Auth.CurrentUser.UserId;
 
-        var chats =  context.ChatMessages
+        var chats = context.ChatMessages
             .Where(h => (h.FromUserId == contactId && h.ToUserId == userId) ||
                         (h.FromUserId == userId && h.ToUserId == contactId))
             .OrderBy(a => a.CreatedDate)
@@ -325,6 +359,22 @@ public class MessagingService(
             }).ToList();
 
         return chats;
+    }
+
+    public async Task<List<ChatHistoryDto>> GetConversationHistoryAsync(Guid userId)
+    {
+        var messages = await context.ChatHistories
+            .AsNoTracking()
+            .Where(user => user.UserId == userId)
+            .Select(c => new ChatHistoryDto
+            {
+                Date = c.Date,
+                Message = c.Message,
+                Type = c.Type,
+                UserName = c.UserName,
+            })
+            .ToListAsync();
+        return messages;
     }
 
 

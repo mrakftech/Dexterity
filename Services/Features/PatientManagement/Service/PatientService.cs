@@ -1148,7 +1148,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     public async Task<List<PatientAllergyDto>> GetPatientAllergies()
     {
         var list = await context.PatientAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.Id)
             .ToListAsync();
         var data = mapper.Map<List<PatientAllergyDto>>(list);
         return data;
@@ -1210,7 +1210,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     public async Task<List<DrugAllergyDto>> GetPatientDrugAllergies()
     {
         var list = await context.PatientDrugAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.SelectedPatient.PatientId)
+            .Where(x => x.PatientId == ApplicationState.SelectedPatient.Id)
             .ToListAsync();
         var data = mapper.Map<List<DrugAllergyDto>>(list);
         return data;
@@ -1275,13 +1275,13 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         {
             var patient = await context.Patients.AsNoTracking()
                 .Include(x => x.PatientAccount)
-                .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatient.PatientId);
+                .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatient.Id);
 
             var allergyCount = await context.PatientAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.SelectedPatient.PatientId);
+                x.PatientId == ApplicationState.SelectedPatient.Id);
 
             var drugAllergyCount = await context.PatientDrugAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.SelectedPatient.PatientId);
+                x.PatientId == ApplicationState.SelectedPatient.Id);
 
             if (allergyCount > 0 || drugAllergyCount > 0)
             {
@@ -1292,7 +1292,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
                 patient.NkaFlag = true;
             }
 
-            patient.PatientAccount!.PatientId = ApplicationState.SelectedPatient.PatientId;
+            patient.PatientAccount!.PatientId = ApplicationState.SelectedPatient.Id;
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             await context.SaveChangesAsync();

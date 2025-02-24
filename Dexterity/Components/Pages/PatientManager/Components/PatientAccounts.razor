@@ -3,7 +3,7 @@
 @using Services.Features.PatientManagement.Dtos.Account
 
 <TabTitle Title="Patient Accounts"/>
-@if (ApplicationState.SelectedPatient.PatientId != Guid.Empty)
+@if (ApplicationState.SelectedPatient.Id != Guid.Empty)
 {
     <div style="height: 900px">
         <RadzenRow>
@@ -131,14 +131,14 @@ else
 
     private async Task SelectPatient(Guid patientId)
     {
-        ApplicationState.SelectedPatient.PatientId = patientId;
+        ApplicationState.SelectedPatient.Id = patientId;
         await GetAccountDetails();
         StateHasChanged();
     }
 
     private async Task GetAccountDetails()
     {
-        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatient.PatientId);
+        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatient.Id);
     }
 
     private async Task GetOutstanding()

@@ -2,6 +2,10 @@
 
 public static class AppointmentConstants
 {
+    public const int AppointmentInterval = 15;
+    public const int StartHour = 9;
+    public const int EndHour = 17;
+
     public static class Status
     {
         public const string Active = "Active";
@@ -16,4 +20,11 @@ public static class AppointmentConstants
         public const string Cancelled = "Cancelled";
         public const string Dna = "Did Not Attend (DNA)";
     }
+    public static class Availability
+    {
+        public const string Available = "Available";
+        public const string Unavailable = "Unavailable";
+    }
+    
+    
 }

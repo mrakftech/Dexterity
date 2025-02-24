@@ -1,0 +1,31 @@
+﻿@using Services.Features.Appointments.Dtos.Availability
+@using Services.Features.UserAccounts.Dtos.User
+@using Dexterity.Components.Pages.Appointments.ResourceAvailbility.Comps
+<DexDialog>
+    <DialogTitle>
+        Exception Manager
+    </DialogTitle>
+    <Content>
+        <RadzenTabs RenderMode="TabRenderMode.Client">
+            <Tabs>
+                <RadzenTabsItem Text="Standard Exception">
+                    <StandardException UserId="UserId" HealthCares="HealthCares"/>
+                </RadzenTabsItem>
+
+                <RadzenTabsItem Text="Recurring Exception">
+                    <RecurringException UserId="UserId" HealthCares="HealthCares"/>
+                </RadzenTabsItem>
+            </Tabs>
+        </RadzenTabs>
+
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+  
+
+
+}

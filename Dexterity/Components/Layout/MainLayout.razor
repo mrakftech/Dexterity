@@ -1,5 +1,6 @@
 ﻿@using Dexterity.Extensions
 @using Dexterity.Components.Layout.Components.User
+@using Dexterity.Components.Pages.UserManager.Permission
 @using Dexterity.Components.Layout.Components.Common
 @inherits LayoutComponentBase
 <style>
@@ -24,7 +25,7 @@
         <MudIconButton Icon="hamburger-icon" Color="MudColor.Inherit" Edge="Edge.Start"
                        OnClick="@ToggleDrawer"/>
         <MenuBar/>
-                   <MudSpacer/>
+        <MudSpacer/>
         <UserPersonalToolBar/>
         <MudTooltip Text="Change Theme">
             <MudToggleIconButton Icon="night-mode-icon" Color="MudColor.Info"
@@ -108,11 +109,12 @@
     private async Task CheckPasswordReset()
     {
         if (ApplicationState.Auth.CurrentUser.IsForceReset &&
+            ApplicationState.Auth.CurrentUser.ResetPasswordAt <= DateTime.UtcNow &&
             ApplicationState.Auth.CurrentUser.RoleName != RoleConstants.AdministratorRole)
         {
-            var parameters = new DialogParameters();
+            var parameters = new DialogParameters {{"UserId", ApplicationState.Auth.CurrentUser.UserId}};
             var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-            await DialogService.ShowAsync<PasswordResetModal>("", parameters, options);
+            await DialogService.ShowAsync<PasswordResetDialog>("", parameters, options);
         }
     }
 

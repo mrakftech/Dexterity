@@ -1,0 +1,98 @@
+﻿@using Orientation = Radzen.Orientation
+@using AlignItems = MudBlazor.AlignItems
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
+    <DialogTitle>Resource Availability Center</DialogTitle>
+    <Content>
+        <label class="e-form-label">HCP:</label>
+        <SfDropDownList TValue="HealthcareDto" TItem="HealthcareDto" Placeholder="Select Hcp"
+                        DataSource="@HealthCares" @bind-Value="@_selectedhealthcareDto">
+            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+        </SfDropDownList>
+        <RadzenFieldset Style="margin: 20px auto;">
+            <HeaderTemplate>
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.25rem">
+                    <RadzenIcon Icon="account_box"/>
+                    <b>Health Care Professional Summary</b>
+                </RadzenStack>
+            </HeaderTemplate>
+            <ChildContent>
+                <MudStack>
+                    @if (_selectedhealthcareDto is not null)
+                    {
+                        <MudItem>@($"Name: {_selectedhealthcareDto.Name}")</MudItem>
+                        <MudItem>@($"Address: {_selectedhealthcareDto.Address1}")</MudItem>
+                        <MudItem>@($"Position: {_selectedhealthcareDto.UserType}")</MudItem>
+                        <MudItem>@($"GSM Number: {_selectedhealthcareDto.GsmNumber}")</MudItem>
+                    }
+                    else
+                    {
+                        <MudText Color="Color.Warning">Please select HCP</MudText>
+                    }
+                </MudStack>
+            </ChildContent>
+        </RadzenFieldset>
+        @if (_selectedhealthcareDto is not null)
+        {
+            <MudItem>
+                <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <DexLoadingButton Name="Define Availability" Click="OpenResourceAvailability"/>
+                    <DexLoadingButton Name="Define Availability Exceptions" Click="OpenAvailabilityException"/>
+                </MudStack>
+            </MudItem>
+            <MudItem>
+                <MudStack Row Justify="Justify.Center" AlignItems="AlignItems.Center">
+                    <DexLoadingButton Class="px-14 mt-3" Name="View Availability" Click="OpenViewAvailability"/>
+
+                </MudStack>
+            </MudItem>
+        }
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    private HealthcareDto _selectedhealthcareDto = new();
+
+
+    private async Task OpenResourceAvailability()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("UserId", _selectedhealthcareDto.Id);
+        parameters.Add("HealthCares", HealthCares);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<DefineAvailabilityDialog>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task OpenAvailabilityException()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("UserId", _selectedhealthcareDto.Id);
+        parameters.Add("HealthCares", HealthCares);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<DefineAvailabilityException>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task OpenViewAvailability()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("UserId", _selectedhealthcareDto.Id);
+        parameters.Add("HealthCares", HealthCares);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<ViewAvailabilityDialog>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+}

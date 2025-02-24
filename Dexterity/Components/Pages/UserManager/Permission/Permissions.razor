@@ -1,0 +1,237 @@
+﻿@using Dexterity.Components.Pages.UserManager.Role
+@using Domain.Entities.Common
+@using global::Services.Features.UserAccounts.Dtos.User
+@using Shared.Constants.Permission
+
+<TabTitle Title="Permissions"></TabTitle>
+<MudGrid Justify="MudJustify.Center" Style="margin-top: 3%">
+    <MudItem md="12">
+        <MudStack Class="mt-5">
+            <MudItem>
+                <MudStack Row="true">
+                    <MudItem>
+                        <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
+                                        DataSource="@Roles">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                            <DropDownListEvents TValue="Guid" TItem="RoleResponseDto"
+                                                ValueChange="RoleChanged"></DropDownListEvents>
+                        </SfDropDownList>
+                    </MudItem>
+
+                    <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
+                        <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create Role
+                        </MudButton>
+                        <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary"
+                                   Disabled="_isRolesActionButtonsDisabled">Edit Role
+                        </MudButton>
+                        <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled"
+                                   OnClick="() => DeleteRole(_roleId)">Delete Role
+                        </MudButton>
+                    </MudButtonGroup>
+                </MudStack>
+            </MudItem>
+            <MudItem>
+                <SfDropDownList TValue="AppModule" TItem="AppModule" Enabled="!_isModuleDropdownDisabled"
+                                Placeholder="Modules" DataSource="@Modules">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    <DropDownListEvents TValue="AppModule" TItem="AppModule" ValueChange="ModuleChange"></DropDownListEvents>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem>
+                <DexSimpleButton Name="Load permissions" Disabled="_isLoadPermissionBtnDisabled"
+                                 Click="LoadPermissions"></DexSimpleButton>
+            </MudItem>
+            <MudItem>
+                <MudStack Row>
+                    <MudCheckBox @bind-Value="_create" Label="Create" T="bool"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_read" Label="Read" T="bool"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_update" Label="Update" T="bool"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_delete" Label="Delete" T="bool"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_print" Label="Print" T="bool"></MudCheckBox>
+                </MudStack>
+            </MudItem>
+            <MudItem Class="mb-10">
+                <DexSimpleButton Name="Save Permissions" Disabled="_isLoadPermissionBtnDisabled"
+                                 Click="SavePermission"></DexSimpleButton>
+            </MudItem>
+        </MudStack>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private List<RoleResponseDto> Roles { get; set; } = new();
+    private List<AppModule> Modules { get; set; } = new();
+    public List<PermissionResponseDto> PermissionList { get; set; } = new();
+    private bool _isModuleDropdownDisabled = true;
+    private bool _isLoadPermissionBtnDisabled = true;
+    private bool _isSavePermissionBtnDisabled = true;
+    private bool _isRolesActionButtonsDisabled = true;
+
+    private Guid _roleId;
+    private string _moduleName = "";
+    private Guid _moduleId;
+
+    private bool _create;
+    private Guid _createId;
+    private bool _update;
+    private Guid _updateId;
+    private bool _read;
+    private Guid _readId;
+    private bool _delete;
+    private Guid _deleteId;
+    private bool _print;
+    private Guid _printId;
+
+    protected override async Task OnInitializedAsync()
+    {
+       await GetModules();
+        await GetRoles();
+    }
+
+    private async Task GetRoles()
+    {
+        Roles = await UnitOfWork.User.GetRoles();
+    }
+
+    private void RoleChanged(ChangeEventArgs<Guid, RoleResponseDto> args)
+    {
+        var role = args.ItemData;
+        if (role.Id != Guid.Empty)
+        {
+            _roleId = role.Id;
+            _isModuleDropdownDisabled = false;
+            _isRolesActionButtonsDisabled = false;
+        }
+        else
+        {
+            _isModuleDropdownDisabled = true;
+            _isRolesActionButtonsDisabled = true;
+        }
+    }
+
+    private void ModuleChange(ChangeEventArgs<AppModule, AppModule> args)
+    {
+        if (args.Value is null) return;
+        _isLoadPermissionBtnDisabled = false;
+        _moduleName = args.Value.Name;
+        _moduleId = args.Value.Id;
+    }
+
+    private async Task LoadPermissions()
+    {
+        _isSavePermissionBtnDisabled = false;
+        var permissions = await UnitOfWork.User.GetPermissions(_roleId, _moduleId);
+        foreach (var item in permissions)
+        {
+            switch (item.ClaimName)
+            {
+                case PermissionConstants.Create:
+                    _create = item.Allowed;
+                    _createId = item.Id;
+                    break;
+                case PermissionConstants.Read:
+                    _read = item.Allowed;
+                    _readId = item.Id;
+                    break;
+                case PermissionConstants.Update:
+                    _update = item.Allowed;
+                    _updateId = item.Id;
+                    break;
+                case PermissionConstants.Delete:
+                    _delete = item.Allowed;
+                    _deleteId = item.Id;
+                    break;
+                case PermissionConstants.Print:
+                    _print = item.Allowed;
+                    _printId = item.Id;
+                    break;
+            }
+        }
+    }
+
+    private async Task SavePermission()
+    {
+        var list = new List<UpdatePermissionDto>()
+        {
+            new()
+            {
+                Id = _createId,
+                Value = _create
+            },
+            new()
+            {
+                Id = _readId,
+                Value = _read
+            },
+            new()
+            {
+                Id = _updateId,
+                Value = _update
+            },
+            new()
+            {
+                Id = _deleteId,
+                Value = _delete
+            },
+            new()
+            {
+                Id = _printId,
+                Value = _print
+            }
+        };
+        var res = await UnitOfWork.User.UpdatePermissions(list);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            _isLoadPermissionBtnDisabled = true;
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+    }
+
+    private async Task UpsertRoleModal(Guid id)
+    {
+        var title = id == Guid.Empty ? "New Role" : "Edit Role";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertRoleModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetRoles();
+        }
+    }
+
+    private async Task DeleteRole(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.User.DeleteRole(id);
+            if (res.Succeeded)
+            {
+                await GetRoles();
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+        }
+    }
+
+    public class Claim
+    {
+        public Guid Id { get; set; }
+        public bool ClaimValue { get; set; }
+    }
+
+    private async Task GetModules()
+    {
+        Modules = await UnitOfWork.App.GetAppModules();
+    }
+
+}

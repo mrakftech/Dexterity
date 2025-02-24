@@ -1,4 +1,5 @@
 using Domain.Entities.UserAccounts;
+using Services.Features.Appointments.Dtos.Availability;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Shared.Wrapper;
@@ -8,12 +9,14 @@ namespace Services.Features.UserAccounts.Service;
 public interface IUserService
 {
     Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto);
-
     Task<List<UserResponseDto>> GetUsers();
     Task<UserResponseDto> GetUser(Guid id);
-    Task<IResult> SaveUser(Guid id, CreateUserDto dto);
+    Task<IResult> SaveUser(Guid id, UpdateUserDto dto);
     Task<IResult> DeleteUser(Guid id);
+    Task<IResult> UnblockAccount(Guid userId);
     Task<List<Guid>> GetAdminIds();
+ 
+
     void Logout();
 
 
@@ -34,7 +37,7 @@ public interface IUserService
     bool CheckPermission(string claimName);
     Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, Guid moduleId);
     Task<IResult> UpdatePermissions(List<UpdatePermissionDto> request);
-    Task<IResult> ResetPassword(ResetPasswordDto dto);
+    Task<IResult> ResetPassword(Guid userId,ResetPasswordDto dto);
     Task<IResult> DeleteUserType(Guid id);
     Task<UserType> GetUserType(Guid id);
 
@@ -45,7 +48,6 @@ public interface IUserService
     Task<IResult> SaveUserType(string name, Guid id);
 
     #endregion
-
 
     #region User Clinics
 

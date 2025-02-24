@@ -1,0 +1,78 @@
+﻿@using Services.Features.UserAccounts.Dtos.User
+@using Services.Features.Appointments.Dtos.Availability
+<MudStack Row>
+    <MudText>@($"Availabile: {_avaiableCount}")</MudText>
+    <MudText>@($"Unavailabile: {_unAvaiableCount}")</MudText>
+    <MudText>@($"{_rule}")</MudText>
+</MudStack>
+<DexForm Model="_recurringExceptionData">
+    <Fields>
+        <FormGroup>
+            <FormItem Field="@nameof(RecurringExceptionDto.HcpId)">
+                <Template>
+                    <label class="e-form-label">HCP:</label>
+                    <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp"
+                                    DataSource="@HealthCares" @bind-Value="@_recurringExceptionData.HcpId">
+                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(RecurringExceptionDto.Type)" ColumnSpan="2">
+                <Template>
+                    <SfDropDownList TValue="string" TItem="string" Placeholder="Type" DataSource="@_types"
+                                    @bind-Value="_recurringExceptionData.Type"/>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(RecurringExceptionDto.Reason)" ColumnSpan="2"/>
+
+        </FormGroup>
+        <FormGroup>
+            <FormItem Field="@nameof(RecurringExceptionDto.StartTime)"
+                      EditorType="FormEditorType.DateTimePicker" ColumnSpan="1" LabelText="From">
+                <Template>
+                    <label class="e-form-label">From</label>
+                    <SfDateTimePicker TValue="DateTime"
+                                      @bind-Value="_recurringExceptionData.StartDate"
+                                      Min="@MinDate" ShowClearButton="true" FullScreen="true" Step="15"
+                                      MinTime="@MinTime" MaxTime="@MaxTime"></SfDateTimePicker>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(RecurringExceptionDto.EndTime)" EditorType="FormEditorType.DateTimePicker"
+                      ColumnSpan="1" LabelText="To">
+                <Template>
+                    <label class="e-form-label">To</label>
+                    <SfDateTimePicker TValue="DateTime"
+                                      @bind-Value="_recurringExceptionData.EndDate"
+                                      Min="@MinDate" MinTime="@MinTime" MaxTime="@MaxTime" ShowClearButton="true"
+                                      FullScreen="true" Step="15"></SfDateTimePicker>
+                </Template>
+            </FormItem>
+            <FormItem Field="@nameof(RecurringExceptionDto.HcpId)">
+                <Template>
+                    <SfRecurrenceEditor  @bind-Value="_rule" Frequencies="_repeats" EndTypes="@_endtypes"/>
+                </Template>
+            </FormItem>
+        </FormGroup>
+    </Fields>
+</DexForm>
+
+
+@code {
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    readonly List<string> _types = [AppointmentConstants.Availability.Available, AppointmentConstants.Availability.Unavailable];
+    private RecurringExceptionDto _recurringExceptionData = new();
+
+    private List<AvailabilityExceptionDto> _availabilityExceptions = new();
+    private bool _loading;
+    private int _avaiableCount;
+    private int _unAvaiableCount;
+    private DateTime MinDate { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, 1, 9, 00, 0);
+    private DateTime MinTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, 1, 9, 00, 0);
+    private DateTime MaxTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, 1, 17, 00, 0);
+    private DateTime _fromDate = DateTime.UtcNow;
+    private DateTime _toDate = DateTime.UtcNow;
+    private string _rule = string.Empty;
+    List<RepeatType> _repeats = [RepeatType.Weekly];
+    readonly List<EndType> _endtypes = [EndType.Never];
+}

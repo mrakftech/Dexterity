@@ -1,0 +1,59 @@
+﻿@using Services.Features.Messaging.Dtos.InstantChat
+@using Services.Features.UserAccounts.Dtos.User
+<label class="e-form-label">Users</label>
+<SfAutoComplete TValue="Guid" TItem="UserResponseDto" Placeholder="Select a user" DataSource="@_users"
+                Value="_userId" >
+    <AutoCompleteFieldSettings Value="Id" Text="FullName"/>
+    <AutoCompleteEvents TValue="Guid" TItem="UserResponseDto" ValueChange="OnChangeUser"></AutoCompleteEvents>
+</SfAutoComplete>
+
+<div class="ma-4">
+    <DexGrid DataSource="_messageHistory" Loading="@_userLoading" >
+        <DexGridColumns>
+            <GridColumn Field="@nameof(ChatHistoryDto.Date)" Format="g" Type="ColumnType.DateTime"
+                        HeaderText="Created Date" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(ChatHistoryDto.Type)" HeaderText="Type" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(ChatHistoryDto.UserName)" HeaderText="User" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(ChatHistoryDto.Message)" HeaderText="Message" Width="120px"></GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</div>
+
+@code {
+    private List<UserResponseDto> _users = [];
+    private List<ChatHistoryDto> _messageHistory = [];
+    private bool _userLoading;
+    private Guid _userId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _userId = ApplicationState.Auth.CurrentUser.UserId;
+        await GetUsers();
+    }
+
+    private async Task GetUsers()
+    {
+        var res = await UnitOfWork.User.GetUsers();
+        _users = res;
+    }
+
+    private async Task GetConversation(Guid userId)
+    {
+        var res = await UnitOfWork.Messaging.GetConversationHistoryAsync(userId);
+        _messageHistory = res;
+    }
+
+
+    private async Task OnChangeUser(ChangeEventArgs<Guid, UserResponseDto> obj)
+    {
+        _userLoading = true;
+        if (obj.Value != Guid.Empty)
+        {
+            _userId = obj.Value;
+            await GetConversation(obj.Value);
+        }
+        _userLoading = false;
+
+    }
+
+}

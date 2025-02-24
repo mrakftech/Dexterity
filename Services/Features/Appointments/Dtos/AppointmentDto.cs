@@ -9,10 +9,12 @@ public class AppointmentDto
     public Guid Id { get; set; }
     public string Subject { get; set; }
     public string Location { get; set; }
-    public DateTime StartTime { get; set; } =DateTime.Now;
+    public DateTime StartTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
     public DateTime EndTime { get; set; }
     public string Description { get; set; }
     public bool IsAllDay { get; set; }
+    public bool IsReadonly { get; set; }
+    public bool IsBlock { get; set; }
     public bool IsSeries { get; set; }
     public Guid CustomRecurrenceId { get; set; }
 
@@ -39,4 +41,5 @@ public class AppointmentDto
 
     public string Type { get; set; }
     public string PatientName { get; set; }
+    public string DoctorName { get; set; }
 }

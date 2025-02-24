@@ -8,16 +8,16 @@
                 <RadzenStack Gap="0">
                     <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-2 rz-my-0">Name</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@ApplicationState.SelectedPatient.PatientSummary.Name</b>
+                        <b>@ApplicationState.SelectedPatient.Summary.Name</b>
                     </RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@ApplicationState.SelectedPatient.PatientSummary.Address</b>
+                        <b>@ApplicationState.SelectedPatient.Summary.Address</b>
                     </RadzenText>
                 </RadzenStack>
                 <RadzenStack Gap="0">
                     <RadzenText TextStyle="TextStyle.Overline" class="rz-display-flex rz-mt-4 rz-mb-0">Date Of Birth</RadzenText>
                     <RadzenText TextStyle="TextStyle.Body1">
-                        <b>@ApplicationState.SelectedPatient.PatientSummary.DateOfBirth (@ApplicationState.SelectedPatient.PatientSummary.Age)</b>
+                        <b>@ApplicationState.SelectedPatient.Summary.DateOfBirth (@ApplicationState.SelectedPatient.Summary.Age)</b>
                     </RadzenText>
                 </RadzenStack>
             </RadzenStack>
@@ -72,7 +72,7 @@
         if (args.ItemData is null) return;
         var immunisationSetup = args.ItemData;
         _immunisationSchedule.ImmunisationProgramId = immunisationSetup.Id;
-        _immunisationSchedule.PatientId = ApplicationState.SelectedPatient.PatientId;
+        _immunisationSchedule.PatientId = ApplicationState.SelectedPatient.Id;
         _courses = await UnitOfWork.Setting.GetAssignedCoursesOfProgram(immunisationSetup.Id);
     }
 

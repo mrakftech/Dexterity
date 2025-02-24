@@ -1,0 +1,62 @@
+﻿@using Services.Features.Appointments.Dtos
+@using Services.Features.Appointments.Dtos.Availability
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
+    <DialogTitle>HCP Availability</DialogTitle>
+    <Content>
+        @if (!_processing)
+        {
+            <MudText Class="text-bold">@($"HCP: {_defineAvailabilityData.Name}")</MudText>
+            <SfSchedule TValue="AppointmentDto"
+                        Height="550px"
+                        @bind-CurrentView="@_currentView"
+                        WorkDays="_defineAvailabilityData.WorkingDays"
+                        ShowWeekend="false"
+                        StartHour="09:00"
+                        EndHour="17:00" AllowDragAndDrop="true">
+                <ScheduleEvents TValue="AppointmentDto" ></ScheduleEvents>
+                <ScheduleEventSettings AllowAdding="false"
+                                       AllowDeleting="false"
+                                       AllowEditing="false" 
+                                       TValue="AppointmentDto"
+                                       DataSource="@_dataSource"></ScheduleEventSettings>
+                
+                <ScheduleTimeScale SlotCount="1" Interval="@_defineAvailabilityData.SlotInterval"
+                                   Enable="true"></ScheduleTimeScale>
+                <ScheduleViews>
+                    <ScheduleView FirstDayOfWeek="1" Option="View.Week" />
+                </ScheduleViews>
+            </SfSchedule>
+        }
+        else
+        {
+            <DexProgressBar />
+        }
+    </Content>
+</DexDialog>
+
+@code {
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    private DefineAvailbilityDto _defineAvailabilityData = new();
+    private bool _processing;
+    View _currentView = View.Week;
+    List<AppointmentDto> _dataSource = new();
+   
+    protected override async Task OnInitializedAsync()
+    {
+        _processing = true;
+        await GetAvailability();
+        await Task.Delay(1500);
+        _processing = false;
+    }
+
+    private async Task GetAvailability()
+    {
+        var res = await UnitOfWork.Appointment.GetDefineAvailbility(UserId);
+        _defineAvailabilityData = res.Data;
+        _dataSource = res.Data.Exceptoins;
+    }
+
+   
+}

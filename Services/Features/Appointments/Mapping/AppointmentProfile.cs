@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Domain.Entities.Appointments;
 using Services.Features.Appointments.Dtos;
+using Services.Features.Appointments.Dtos.Availability;
 
 namespace Services.Features.Appointments.Mapping;
 
@@ -10,6 +11,7 @@ public class AppointmentProfile : Profile
     {
         CreateMap<Appointment, AppointmentDto>()
             .ForMember(x => x.PatientName, c => c.MapFrom(m => m.Patient.FullName))
+            .ForMember(x => x.DoctorName, c => c.MapFrom(m => m.Hcp.FullName))
             .ReverseMap();
         
         CreateMap<Appointment, SearchAppointmentDto>()
@@ -24,6 +26,9 @@ public class AppointmentProfile : Profile
             .ReverseMap();
         
         CreateMap<AppointmentSlotDto, AppointmentSlot>()
+            .ReverseMap();
+        
+        CreateMap<AvailabilityException, AvailabilityExceptionDto>()
             .ReverseMap();
     }
 }

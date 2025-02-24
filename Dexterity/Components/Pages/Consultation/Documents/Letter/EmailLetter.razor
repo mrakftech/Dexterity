@@ -34,7 +34,7 @@
     SfRichTextEditor _editorRef;
     private bool isProcessing;
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
     {
         Email.AttachFile = AttachedFile;
         Email.Details = $"The message is ready to be sent with the following file or link {Email.AttachFile}";
@@ -48,7 +48,7 @@
             {
                 Email.Details = $"The message is ready to be sent with the following file or link {file.FileInfo.Name}";
                 var ex = Path.GetExtension(file.FileInfo.Name);
-                file.FileInfo.Name = $"{ApplicationState.SelectedPatient.PatientId}-email{ex}";
+                file.FileInfo.Name = $"{ApplicationState.SelectedPatient.Id}-email{ex}";
                 var path = Path.Combine(UnitOfWork.FileService.GetTempPath(), file.FileInfo.Name);
                 var filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
                 await file.File.OpenReadStream(long.MaxValue).CopyToAsync(filestream);

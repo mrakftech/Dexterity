@@ -1,0 +1,253 @@
+﻿@using Dexterity.Components.Pages.UserManager.Permission
+@using global::Services.Features.UserAccounts.Dtos.User
+@using Domain.Entities.UserAccounts
+@using Dexterity.Components.Pages.UserManager.User.Form
+@if (!_loadScreen)
+{
+    <DexDialog>
+        <DialogTitle>@_title</DialogTitle>
+        <Content>
+            <DexForm Model="UserDto" OnValidSubmit="SaveUser" ColumnCount="4">
+                <Fields>
+                    <FormGroup LabelText="Basic Information" ColumnCount="2" ColumnSpacing="20px">
+                        <FormItem Field="@nameof(UpdateUserDto.FirstName)" LabelText="First Name"
+                                  ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.LastName)" LabelText="Last Name"
+                                  ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Mcn)" LabelText="MCN" ColumnSpan="2"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.UserTypeId)" ColumnSpan="1"
+                                  EditorType="FormEditorType.DropDownList">
+                            <Template>
+                                <label class="e-form-label">User Type</label>
+                                <SfDropDownList TValue="Guid" TItem="UserType"
+                                                Placeholder="Select user type"
+                                                DataSource="@_userTypes"
+                                                Value="@UserDto.UserTypeId">
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                    <DropDownListEvents TValue="Guid" TItem="UserType"
+                                                        ValueChange="OnUserTypeValueChange"></DropDownListEvents>
+                                </SfDropDownList>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.OtherField)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Roles</label>
+                                <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
+                                                DataSource="@Roles"
+                                                @bind-Value="@UserDto.RoleId">
+                                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </Template>
+                        </FormItem>
+                  
+                        <FormItem Field="@nameof(UpdateUserDto.Gender)" LabelText="Gender" ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Email)" LabelText="Email" ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.FaxNo)" LabelText="Fax No." ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.TelePhone)" LabelText="Phone" ColumnSpan="1"></FormItem>
+                    </FormGroup>
+                    <FormGroup LabelText="Other Information" ColumnCount="2" ColumnSpacing="20px">
+                      
+                        <FormItem Field="@nameof(UpdateUserDto.MobileNumber)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Mobile:</label>
+                                <SfMaskedTextBox Mask="000-000-0000"
+                                                 @bind-Value="UserDto.MobileNumber"></SfMaskedTextBox>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Address1)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Address 1:</label>
+                                <SfTextBox @bind-Value="@UserDto.Address1" Multiline></SfTextBox>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Address2)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Address 2:</label>
+                                <SfTextBox @bind-Value="@UserDto.Address2"></SfTextBox>
+                            </Template>
+                        </FormItem>
+
+                        <FormItem Field="@nameof(UpdateUserDto.Address3)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Address 3:</label>
+                                <SfTextBox @bind-Value="@UserDto.Address3" Multiline></SfTextBox>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Address4)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Address 4:</label>
+                                <SfTextBox @bind-Value="@UserDto.Address4"></SfTextBox>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.MedCouncilNumber)" LabelText="Med Council Number"
+                                  ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.GsmNumber)" LabelText="GSM Number" IsEnabled="@(_selectedUserType == UserTypeConstants.Doctor)"
+                                  ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.BordAltranaisNumber)" LabelText="Bord Altranais Number"
+                                  ColumnSpan="1" IsEnabled="@(_selectedUserType == UserTypeConstants.Nurse)"></FormItem>
+
+                    </FormGroup>
+                    <FormGroup LabelText="Login Information" ColumnCount="1">
+                        <FormItem Field="@nameof(UpdateUserDto.Username)" LabelText="Username" ColumnSpan="2"/>
+                        @if (UserId == Guid.Empty)
+                        {
+                            <FormItem Field="@nameof(UpdateUserDto.Username)" LabelText="Username" ColumnSpan="2">
+                                <Template>
+                                    <p class="text-bold text-warning">Default Password will be set as
+                                        : @ApplicationConstants.DefaultPassword</p>
+                                </Template>
+                            </FormItem>
+                        }
+                        <FormItem Field="@nameof(UpdateUserDto.IsActive)" LabelText="Active" ColumnSpan="1"
+                                  EditorType="FormEditorType.Checkbox"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.IsUpdatePassword)" LabelText="Update Password"
+                                  ColumnSpan="1"
+                                  EditorType="FormEditorType.Checkbox"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.IsForceReset)" LabelText="Force Reset" ColumnSpan="2"
+                                  EditorType="FormEditorType.Checkbox"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.ResetPassword)" ColumnSpan="1">
+                            <Template>
+                                <label class="e-form-label">Reset Password</label>
+                                <SfDropDownList TValue="string" TItem="ApplicationConstants.ResetDuration"
+                                                @bind-Value="@UserDto.ResetPassword"
+                                                Placeholder="Select reset password"
+                                                DataSource="@ResetPasswordDurations">
+                                    <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                                </SfDropDownList>
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.IsLockOut)">
+                            <Template>
+                                @if (UserDto.IsLockOut)
+                                {
+                                    <MudText Color="Color.Error">This account is locked</MudText>
+                                    <DexSimpleButton Name="Unblock" Click="UnBlockUser"/>
+                                }
+                            </Template>
+                        </FormItem>
+                        
+                    </FormGroup>
+
+                    @if (UserId != Guid.Empty)
+                    {
+                        <FormGroup LabelText="Clinics" ColumnCount="1">
+                            <FormItem Field="@nameof(UpdateUserDto.UserTypeId)" ColumnSpan="2">
+                                <Template>
+                                    <UserClinicTab UserId="@UserId"/>
+                                </Template>
+                            </FormItem>
+                        </FormGroup>
+                    }
+                </Fields>
+                <Buttons>
+                    <DexLoadingButton Name="Save User" Processing="_processing"
+                                      Icon="fas fa-floppy-disk"></DexLoadingButton>
+                </Buttons>
+            </DexForm>
+
+        </Content>
+    </DexDialog>
+}
+else
+{
+    <DexProgressBar/>
+}
+
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid UserId { get; set; } = Guid.Empty;
+    private UpdateUserDto UserDto { get; set; } = new();
+    private List<UserType> _userTypes = new();
+    private List<ApplicationConstants.ResetDuration> ResetPasswordDurations { get; set; } = ApplicationConstants.GetPasswordResetDuration();
+    private List<RoleResponseDto> Roles { get; set; } = new();
+    private bool _processing;
+    private bool _loadScreen;
+    private string _title = "";
+    private string _selectedUserType = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loadScreen = true;
+        _title = UserId != Guid.Empty ? "Edit User" : "New User";
+        await GetEditUser();
+        await GetRoles();
+        await GetUserTypes();
+         _loadScreen = false;
+    }
+
+    private async Task GetEditUser()
+    {
+        if (UserId != Guid.Empty)
+        {
+            var user = await UnitOfWork.User.GetUser(UserId);
+            var data = Mapper.Map<UpdateUserDto>(user);
+            UserDto = data;
+        }
+    }
+
+    private async Task SaveUser()
+    {
+        try
+        {
+            _processing = true;
+            await Task.Delay(500);
+            var res = await UnitOfWork.User.SaveUser(UserId, UserDto);
+            if (res.Succeeded)
+            {
+                MudDialog.Close();
+                Snackbar.SuccessMessage(res.Messages.First());
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+
+            _processing = false;
+        }
+        catch (Exception e)
+        {
+            Snackbar.FailMessage(e.Message);
+        }
+    }
+
+   
+
+    private async Task GetUserTypes()
+    {
+        _userTypes = await UnitOfWork.User.GetUserTypes();
+    }
+
+    private async Task GetRoles()
+    {
+        Roles = await UnitOfWork.User.GetRoles();
+    }
+
+    
+
+    private async Task UnBlockUser()
+    {
+        var parameters = new DialogParameters {{"UserId", UserId}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var resd = await DialogService.ShowAsync<PasswordResetDialog>("", parameters, options);
+        var result = await resd.Result;
+        if (!result.Canceled)
+        {
+            var resUnblock = await UnitOfWork.User.UnblockAccount(UserId);
+            if (resUnblock.Succeeded)
+            {
+                Snackbar.SuccessMessage("User has been unblock.");
+            }
+        }
+    }
+
+    private void OnUserTypeValueChange(ChangeEventArgs<Guid, UserType> obj)
+    {
+        if (obj.ItemData is not null)
+        {
+            UserDto.UserTypeId = obj.ItemData.Id;
+            _selectedUserType = obj.ItemData.Name;
+        }
+    }
+
+}

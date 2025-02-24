@@ -1,0 +1,180 @@
+﻿@using Services.Features.UserAccounts.Dtos.User
+@using Services.Features.Appointments.Dtos.Availability
+<MudStack Row>
+    <MudText>@($"Availabile: {_avaiableCount}")</MudText>
+    <MudText>@($"Unavailabile: {_unAvaiableCount}")</MudText>
+</MudStack>
+<DexForm Model="_availabilityExceptionData"
+         OnValidSubmit="SaveAvailableException">
+    <Fields>
+        <FormItem Field="@nameof(AvailabilityExceptionDto.HcpId)">
+            <Template>
+                <label class="e-form-label">HCP:</label>
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp"
+                                DataSource="@HealthCares" @bind-Value="@_availabilityExceptionData.HcpId">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </Template>
+        </FormItem>
+        <FormItem Field="@nameof(AvailabilityExceptionDto.Type)" ColumnSpan="2">
+            <Template>
+                <SfDropDownList TValue="string" TItem="string" Placeholder="Type" DataSource="@_types"
+                                @bind-Value="_availabilityExceptionData.Type"/>
+            </Template>
+        </FormItem>
+        <FormItem Field="@nameof(AvailabilityExceptionDto.Reason)" ColumnSpan="2"/>
+        <FormItem Field="@nameof(AvailabilityExceptionDto.StartTime)"
+                  EditorType="FormEditorType.DateTimePicker" ColumnSpan="1" LabelText="From">
+            <Template>
+                <label class="e-form-label">From</label>
+                <SfDateTimePicker TValue="DateTime"
+                                  @bind-Value="_availabilityExceptionData.StartTime"
+                                  Min="@MinDate" ShowClearButton="true" FullScreen="true" Step="15"
+                                  MinTime="@MinTime" MaxTime="@MaxTime"></SfDateTimePicker>
+            </Template>
+        </FormItem>
+        <FormItem Field="@nameof(AvailabilityExceptionDto.EndTime)" EditorType="FormEditorType.DateTimePicker"
+                  ColumnSpan="1" LabelText="To">
+            <Template>
+                <label class="e-form-label">To</label>
+                <SfDateTimePicker TValue="DateTime"
+                                  @bind-Value="_availabilityExceptionData.EndTime"
+                                  Min="@MinDate" MinTime="@MinTime" MaxTime="@MaxTime" ShowClearButton="true"
+                                  FullScreen="true" Step="15"></SfDateTimePicker>
+            </Template>
+        </FormItem>
+    </Fields>
+    <Buttons>
+        <DexLoadingButton Name="Save" Processing="_loading"/>
+        @if (_availabilityExceptionData.Id != Guid.Empty)
+        {
+            <DexSimpleButton Name="Delete" Color="Color.Error"
+                             Click="()=>DeleteException(_availabilityExceptionData.Id)"/>
+            <DexSimpleButton Name="New" Click="NewException"/>
+        }
+    </Buttons>
+</DexForm>
+
+<div>
+    <MudStack Row>
+        <MudItem Class="">
+            <label class="example-label mt-10">Filter By Date</label>
+        </MudItem>
+
+        <MudItem>
+            <label class="example-label mt-3">From Date</label>
+            <SfDatePicker TValue="DateTime" @bind-Value="_fromDate" Placeholder="From Date" FullScreen="true"
+                          ShowClearButton="true"></SfDatePicker>
+        </MudItem>
+
+        <MudItem>
+            <label class="example-label mt-3">To Date</label>
+            <SfDatePicker TValue="DateTime" @bind-Value="_toDate" Placeholder="To Date" FullScreen="true"
+                          ShowClearButton="true"></SfDatePicker>
+        </MudItem>
+        <MudItem Class="">
+            <SfButton CssClass="mt-8" @onclick="FilterByDate">Search</SfButton>
+        </MudItem>
+        <MudItem>
+            <SfButton CssClass="mt-8" @onclick="GetExceptions">Clear</SfButton>
+        </MudItem>
+    </MudStack>
+</div>
+<div class="mt-3">
+
+    <SfGrid DataSource="_availabilityExceptions" Height="200px" AllowPaging="false">
+        <GridEvents TValue="AvailabilityExceptionDto" RowSelected="SelectedException"></GridEvents>
+        <GridColumns>
+            <GridColumn Field="@nameof(AvailabilityExceptionDto.StartTime)" HeaderText="From"></GridColumn>
+            <GridColumn Field="@nameof(AvailabilityExceptionDto.EndTime)" HeaderText="To"></GridColumn>
+            <GridColumn Field="@nameof(AvailabilityExceptionDto.Type)"></GridColumn>
+            <GridColumn Field="@nameof(AvailabilityExceptionDto.Reason)"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+</div>
+
+@code {
+    [Parameter] public Guid UserId { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    readonly List<string> _types = [AppointmentConstants.Availability.Available, AppointmentConstants.Availability.Unavailable];
+    private AvailabilityExceptionDto _availabilityExceptionData = new();
+    private List<AvailabilityExceptionDto> _availabilityExceptions = new();
+    private bool _loading;
+    private int _avaiableCount;
+    private int _unAvaiableCount;
+    private DateTime MinDate { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
+    private DateTime MinTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
+    private DateTime MaxTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 17, 00, 0);
+    private DateTime _fromDate = DateTime.UtcNow;
+    private DateTime _toDate = DateTime.UtcNow;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        _availabilityExceptionData.HcpId = UserId;
+        await GetExceptions();
+    }
+
+    private async Task GetExceptions()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Appointment.GetStandardExceptions();
+        _availabilityExceptions = res.Data;
+        _avaiableCount = _availabilityExceptions.Count(x => x.Type == AppointmentConstants.Availability.Available);
+        _unAvaiableCount = _availabilityExceptions.Count(x => x.Type == AppointmentConstants.Availability.Unavailable);
+        _loading = false;
+    }
+
+    private async Task SaveAvailableException()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Appointment.SaveStandardException(_availabilityExceptionData);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.GetFirstMessage());
+            NewException();
+            await GetExceptions();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.GetFirstMessage());
+        }
+
+        _loading = false;
+    }
+
+    private void SelectedException(RowSelectEventArgs<AvailabilityExceptionDto> obj)
+    {
+        if (obj.Data is not null)
+        {
+            _availabilityExceptionData = obj.Data;
+        }
+    }
+
+    private void NewException()
+    {
+        _availabilityExceptionData = new();
+    }
+
+    private async Task DeleteException(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Appointment.DeleteStandardException(id);
+            Snackbar.SuccessMessage(userRes.Messages.First());
+            NewException();
+            await GetExceptions();
+        }
+    }
+
+    private void FilterByDate()
+    {
+        var data = _availabilityExceptions.Where(e => e.StartTime >= _fromDate && e.EndTime <= _toDate)
+            .ToList();
+        _availabilityExceptions = data;
+    }
+
+}

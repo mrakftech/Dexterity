@@ -1,10 +1,12 @@
 ﻿@layout MainLayout
 @page "/appointments"
-@using Dexterity.Components.Pages.Appointments.Components
-@using Dexterity.Components.Pages.Appointments.Components.Recurrence
-@using Dexterity.Components.Pages.Appointments.Dialogs
 @using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.UserAccounts.Dtos.User
+@using Dexterity.Components.Pages.Appointments.ResourceAvailbility
+@using Dexterity.Components.Pages.Appointments.Scheduler.Dialogs
+@using Dexterity.Components.Pages.Appointments.Recurrence
+@using Dexterity.Components.Pages.PatientManager.Components.Summary
+@using Dexterity.Components.Pages.Appointments.Scheduler
 
 <TopTitleBar Title="Appointments"
              Image="modules/appointment.svg">
@@ -32,9 +34,18 @@
                              Click="@(() => NewAppointment(new DateTime(2025, 1, 1, 0, 0, 0)))"/>
                 <DexMenuItem Text="Recurring Appointments" Icon="repeat-appointment-icon"
                              Click="@(() => ClickChanged(1))"/>
+                <DexMenuItem Text="Appointment Card" Icon="appt-card"
+                             Click="ViewAppointmentCard"
+                />
+
+                <DexMenuItem Text="View Consultation" Icon="view-consultation" Click="ViewConsultation"/>
+                <DexMenuItem Text="Patient Details" Icon="open-patient-icon" Click="ViewPatientDetails"/>
                 <DexMenuItem Text="Find Appointments" Icon="find-appointment-icon" Click="@(() => ClickChanged(2))"/>
+                <DexMenuItem Text="Find Slot" Icon="find-slot-icon" Click="FindSlot"/>
+                <DexMenuItem Text="Resource Availability" Icon="resource-availability-icon"
+                             Click="OpenResourceAvailabilityCenter"/>
                 <div class="m-2">
-                    <SfCalendar TValue="DateTime" @bind-Value="@DateValue" 
+                    <SfCalendar TValue="DateTime" @bind-Value="@DateValue"
                                 CssClass="mini-calendar"/>
                 </div>
             </NavigationItems>
@@ -65,6 +76,9 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
+        ApplicationState.SelectedAppointment.Id = Guid.Empty;
+        ApplicationState.SelectedAppointment.Appointment = null;
+        ApplicationState.SelectedPatient.Id = Guid.Empty;
         await GetHealthCares();
         await GetPatients();
         _loading = false;
@@ -78,7 +92,7 @@
     private async Task GetHealthCares()
     {
         HealthCares = await UnitOfWork.User
-            .GetUsersByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
+            .GetDoctors(ApplicationState.Auth.CurrentUser.ClinicId);
     }
 
     private async Task GetPatients()
@@ -93,13 +107,81 @@
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
         parameters.Add("HcpId", ApplicationState.Auth.CurrentUser.UserId);
-        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.PatientId);
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.Id);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
         }
+    }
+
+    private async Task OpenResourceAvailabilityCenter()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("HealthCares", HealthCares);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<ResourceAvailabilityDialog>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task FindSlot()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("HealthCares", HealthCares);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<FindSlot>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task ViewAppointmentCard()
+    {
+        if (ApplicationState.SelectedAppointment.Id == Guid.Empty)
+        {
+            Snackbar.SuccessMessage("Appointment Not Selected");
+        }
+        else
+        {
+            var parameters = new DialogParameters();
+            var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+            var dialogResult = await DialogService.ShowAsync<AppointmentCard>("", parameters, options);
+            var result = await dialogResult.Result;
+            if (!result.Canceled)
+            {
+            }
+        }
+    }
+
+    private async Task GetPatientSummary()
+    {
+        ApplicationState.SelectedPatient.Summary 
+            = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.SelectedPatient.Id);
+    }
+
+    private async Task ViewPatientDetails()
+    {
+        if (ApplicationState.SelectedPatient.Id == Guid.Empty)
+        {
+            Snackbar.SuccessMessage("Patient Not Selected");
+        }
+        else
+        {
+            await GetPatientSummary();
+            var parameters = new DialogParameters();
+            var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+            await DialogService.ShowAsync<PatientSummary>("", parameters, options);
+        }
+    }
+
+    private void ViewConsultation()
+    {
+        Snackbar.SuccessMessage("Consultation Not Selected");
     }
 
 }

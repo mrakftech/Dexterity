@@ -1,3 +1,4 @@
+using Services.Features.Appointments.Dtos;
 using Services.Features.Consultation.Dto;
 using Services.Features.PatientManagement.Dtos.Details;
 using Services.Features.UserAccounts.Dtos.User;
@@ -6,11 +7,16 @@ namespace Services.State;
 
 public static class ApplicationState
 {
+    public static class SelectedAppointment
+    {
+        public static Guid Id { get; set; }
+        public static AppointmentDto Appointment { get; set; }
+    }
     public static class SelectedPatient
     {
-        public static Guid PatientId { get; set; }
-        public static string PatientName { get; set; }
-        public static PatientSummaryDto PatientSummary { get; set; }
+        public static Guid Id { get; set; }
+        public static string Name { get; set; }
+        public static PatientSummaryDto Summary { get; set; }
     }
 
     public static class SelectedConsultation

@@ -1,0 +1,95 @@
+﻿@using Dexterity.Components.Pages.Appointments.Scheduler.Dialogs
+@using Services.Features.Appointments.Dtos.Slot
+@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.UserAccounts.Dtos.User
+<DexDialog>
+    <DialogTitle>
+        Find Slot
+    </DialogTitle>
+    <Content>
+        <MudStack>
+            <MudItem md="6">
+                <label>Date:</label>
+                <SfDatePicker Min="DateTime.Now" TValue="DateTime" Value="@_date">
+                </SfDatePicker>
+            </MudItem>
+            <MudItem>
+                <label>HCP:</label>
+                <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="Select Hcp" DataSource="@HealthCares"
+                                @bind-Value="_hcpId">
+                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                </SfDropDownList>
+            </MudItem>
+            <MudItem>
+                <DexSimpleButton Name="Search" Click="SearchSlots" Disabled="_hcpId==Guid.Empty"/>
+            </MudItem>
+            <MudItem>
+                <DexGrid Loading="_loading" DataSource="_freeSlots" Height="200px">
+                    <DexGridColumns>
+                        <GridColumn Field="@nameof(FindSlotDto.StartDate)"
+                                    Format="hh:mm tt"
+                                    HeaderText="Available Slots"
+                                    Width="80"/>
+
+                        <GridColumn HeaderText="Actions" Width="60">
+                            <Template>
+                                @{
+                                    var item = (context as FindSlotDto);
+                                    <DexSimpleButton Name="Select Slot" Click="()=>SelectSlot(item.StartDate)"
+                                                     />
+                                }
+                            </Template>
+                        </GridColumn>
+                    </DexGridColumns>
+                </DexGrid>
+            </MudItem>
+        </MudStack>
+    </Content>
+</DexDialog>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid SelectedPatientId { get; set; } = Guid.Empty;
+    [Parameter] public DateTime StartDate { get; set; }
+    [Parameter] public List<PatientListDto> PatientList { get; set; }
+    [Parameter] public List<HealthcareDto> HealthCares { get; set; } = new();
+    private readonly DateTime _date = DateTime.Now;
+    private List<FindSlotDto> _freeSlots = new();
+    private bool _loading;
+    private Guid _hcpId;
+
+    // protected override async Task OnInitializedAsync()
+    // {
+    //   
+    // }
+
+    private async Task NewAppointment(DateTime dateTime)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("StartDate", dateTime);
+        parameters.Add("PatientList", PatientList);
+        parameters.Add("HealthCares", HealthCares);
+        parameters.Add("HcpId", _hcpId);
+        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.Id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
+    }
+
+    private async Task SearchSlots()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Appointment.FindFreeSlots(_date, _hcpId);
+        _freeSlots = res.Data;
+        _loading = false;
+    }
+
+    private async Task SelectSlot(DateTime startTime)
+    {
+        await NewAppointment(startTime);
+    }
+
+}

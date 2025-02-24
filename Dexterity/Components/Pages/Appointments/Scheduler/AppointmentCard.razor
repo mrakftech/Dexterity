@@ -1,0 +1,61 @@
+﻿<DexDialog>
+    <DialogTitle>
+        Appointment Details
+    </DialogTitle>
+    <Content>
+        <MudCard Class="ma-4" Elevation="0">
+            <MudCardContent>
+                <MudText><p><strong>Patient Name:</strong> @ApplicationState.SelectedAppointment.Appointment.PatientName
+                    </p></MudText>
+                <MudText><p><strong>Appointment
+                            Date:</strong> @ApplicationState.SelectedAppointment.Appointment.StartTime.ToString("D")</p>
+                </MudText>
+                <MudText>
+
+                    <p>
+                        <strong>
+                            Appointment
+                            Time:
+                        </strong> @ApplicationState.SelectedAppointment.Appointment.StartTime.ToString("h:mm tt")
+                    </p>
+                </MudText>
+                <MudText>
+
+                    <p><strong>Doctor:</strong> @ApplicationState.SelectedAppointment.Appointment.DoctorName</p>
+                </MudText>
+                <MudText>
+
+                    <p><strong>Location:</strong> @ApplicationState.SelectedAppointment.Appointment.Location</p>
+                </MudText>
+            </MudCardContent>
+            <MudCardActions>
+                <DexSimpleButton Click="Print" Name="Print Appointment Card"/>
+            </MudCardActions>
+        </MudCard>
+    </Content>
+</DexDialog>
+<style>
+    button {
+        background-color: #007bff;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        padding: 10px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+        background-color: #0056b3;
+    }
+</style>
+
+@code {
+
+    public async Task Print()
+    {
+        await JsRuntime.InvokeVoidAsync("printInvoke");
+    }
+
+}

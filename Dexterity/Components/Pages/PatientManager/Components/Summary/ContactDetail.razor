@@ -239,15 +239,15 @@
 
     private async Task GetHcps()
     {
-        Hcps = await UnitOfWork.Patient.GetRealtedHcps(ApplicationState.SelectedPatient.PatientId);
+        Hcps = await UnitOfWork.Patient.GetRealtedHcps(ApplicationState.SelectedPatient.Id);
     }
 
     private async Task GetOccupations()
     {
-        Occupations = await UnitOfWork.Patient.GetPatientOccupations(ApplicationState.SelectedPatient.PatientId);
+        Occupations = await UnitOfWork.Patient.GetPatientOccupations(ApplicationState.SelectedPatient.Id);
     }
     private async Task GetContacts()
     {
-        Contacts = await UnitOfWork.Patient.GetPatientContacts(ApplicationState.SelectedPatient.PatientId);
+        Contacts = await UnitOfWork.Patient.GetPatientContacts(ApplicationState.SelectedPatient.Id);
     }
 }

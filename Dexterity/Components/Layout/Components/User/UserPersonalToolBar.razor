@@ -1,7 +1,12 @@
 ﻿@using Dexterity.Components.Pages.Messaging.Tabs
 <MudStack Row>
     <MudTooltip Text="Notifications">
-        <MudIconButton Icon="bell-icon" Color="MudColor.Info"></MudIconButton>
+        <MudIconButton Icon="" Color="MudColor.Info"></MudIconButton>
+        <MudMenu Icon="bell-icon"
+                 AriaLabel="Open user menu" AnchorOrigin="Origin.BottomCenter">
+            <MudMenuItem >4 Unread Referrals</MudMenuItem>
+            <MudMenuItem >1 Document Review</MudMenuItem>
+        </MudMenu>
     </MudTooltip>
     <MudTooltip Text="Instant Messaging">
         <MudIconButton Icon="chat-icon" Color="MudColor.Info" OnClick="OpenChatDialog"></MudIconButton>

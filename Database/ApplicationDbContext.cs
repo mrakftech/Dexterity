@@ -131,6 +131,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<UserClinic> UserClinics { get; set; }
     public DbSet<UserTask> UserTasks { get; set; }
     public DbSet<ChatMessage> ChatMessages { get; set; }
+    public DbSet<ChatHistory> ChatHistories { get; set; }
     public DbSet<PermissionClaim> PermissionClaims { get; set; }
 
     #endregion
@@ -161,6 +162,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
 
     public DbSet<AppointmentSlot> AppointmentSlots { get; set; }
     public DbSet<Appointment> Appointments { get; set; }
+    public DbSet<AvailabilityException> AvailabilityExceptions { get; set; }
     public DbSet<WaitingAppointment> WaitingAppointments { get; set; }
 
     #endregion

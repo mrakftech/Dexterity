@@ -64,7 +64,13 @@ namespace Database.Migrations
                     b.Property<bool>("IsAllDay")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsBlock")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsReadonly")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsSeries")
@@ -171,6 +177,41 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("AppointmentTypes", "Setting");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Appointments.AvailabilityException", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("EndTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("HcpId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<bool>("IsBlock")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reason")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("AvailabilityExceptions", "Scheduler");
                 });
 
             modelBuilder.Entity("Domain.Entities.Common.AppModule", b =>
@@ -914,6 +955,32 @@ namespace Database.Migrations
                     b.HasIndex("PatientId");
 
                     b.ToTable("Prescriptions", "Consultation");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Messaging.ChatHistory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Message")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Type")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("UserName")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ChatHistories", "Messaging");
                 });
 
             modelBuilder.Entity("Domain.Entities.Messaging.ChatMessage", b =>
@@ -3183,7 +3250,22 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Address1")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address2")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address3")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Address4")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Ban")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("BordAltranaisNumber")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
@@ -3198,22 +3280,34 @@ namespace Database.Migrations
                     b.Property<TimeSpan>("EndHour")
                         .HasColumnType("time");
 
+                    b.Property<int>("FailedAttempted")
+                        .HasColumnType("int");
+
+                    b.Property<string>("FaxNo")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("FirstName")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("FullName")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
+                    b.Property<string>("Gender")
+                        .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("IsBlocked")
+                    b.Property<string>("GsmNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsForceReset")
+                        .HasColumnType("bit");
+
+                    b.Property<bool>("IsLockOut")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsUpdatePassword")
@@ -3225,6 +3319,12 @@ namespace Database.Migrations
                     b.Property<string>("Mcn")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("MedCouncilNumber")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("MobileNumber")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<Guid?>("ModifiedBy")
                         .HasColumnType("uniqueidentifier");
 
@@ -3234,7 +3334,7 @@ namespace Database.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Phone")
+                    b.Property<string>("ResetPassword")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("ResetPasswordAt")
@@ -3243,8 +3343,14 @@ namespace Database.Migrations
                     b.Property<Guid>("RoleId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<int>("SlotInterval")
+                        .HasColumnType("int");
+
                     b.Property<TimeSpan>("StartHour")
                         .HasColumnType("time");
+
+                    b.Property<string>("TelePhone")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("UserTypeId")
                         .HasColumnType("uniqueidentifier");
