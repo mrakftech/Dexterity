@@ -175,12 +175,15 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
     {
         try
         {
-            var appointment = await context.Appointments.Include(x => x.Patient)
+            var appointment = await context.Appointments
                 .FirstOrDefaultAsync(x => x.Id == appointmentId);
+            
             if (appointment == null)
                 return await Result<AppointmentDto>.FailAsync("Appointment not found");
+            
             appointment.Status = AppointmentConstants.Status.Cancelled;
             appointment.CancelReasonId = cancelReasonId;
+            appointment.IsReadonly = true;
             context.Appointments.Update(appointment);
             await context.SaveChangesAsync();
             return await Result.SuccessAsync("Appointment Cancelled");

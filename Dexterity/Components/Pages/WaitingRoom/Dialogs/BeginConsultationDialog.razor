@@ -8,15 +8,20 @@
         <MudItem>
             <DexForm Model="ConsultationDto" OnValidSubmit="StartConsultation">
                 <Fields>
-                    <FormItem Field="@nameof(BeginConsultationDto.PatientName)" IsEnabled="false" LabelText="Patient Name"/>
+                    <FormItem Field="@nameof(BeginConsultationDto.PatientName)" IsEnabled="false"
+                              LabelText="Patient Name"/>
                     <FormItem Field="@nameof(BeginConsultationDto.DoctorName)" IsEnabled="false" LabelText="HCP"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationDate)" IsEnabled="false" EditorType="FormEditorType.DateTimePicker" LabelText="Date"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationClass)" IsEnabled="false" LabelText="Class"/>
-                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationType)" IsEnabled="false" LabelText="Type"/>
+                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationDate)" IsEnabled="false"
+                              EditorType="FormEditorType.DateTimePicker" LabelText="Date"/>
+                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationClass)" IsEnabled="false"
+                              LabelText="Class"/>
+                    <FormItem Field="@nameof(BeginConsultationDto.ConsultationType)" IsEnabled="false"
+                              LabelText="Type"/>
                     <FormItem Field="@nameof(BeginConsultationDto.ClinicSiteId)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Site:</label>
-                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site" DataSource="@ClinicSites" @bind-Value="@ConsultationDto.ClinicSiteId">
+                            <SfDropDownList TValue="Guid" TItem="ClinicSiteDto" Placeholder="Select Site"
+                                            DataSource="@ClinicSites" @bind-Value="@ConsultationDto.ClinicSiteId">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                             </SfDropDownList>
                         </Template>
@@ -34,21 +39,22 @@
     [CascadingParameter] MudDialogInstance MudDialog { get; set; }
     [Parameter] public Guid AppointmentId { get; set; }
     private bool _processing;
-    [CascadingParameter] public MudDialogInstance MudDiloag { get; set; }
     private BeginConsultationDto ConsultationDto { get; set; } = new();
     private List<ClinicSiteDto> ClinicSites { get; set; } = new();
-    
+
     private async Task StartConsultation()
     {
         _processing = true;
-        var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(AppointmentId, AppointmentConstants.WaitingStatus.InConsultation);
-        if (res.Succeeded)
+
+        var r = await UnitOfWork.Consultation.BeginConsultation(ConsultationDto);
+        if (r.Succeeded)
         {
-            var r = await UnitOfWork.Consultation.BeginConsultation(ConsultationDto);
-            if (r.Succeeded)
+            var res = await UnitOfWork.WaitingRoom
+                .UpdateWaitingAppointment(AppointmentId, AppointmentConstants.WaitingStatus.InConsultation, r.Data);
+            if (res.Succeeded)
             {
-                Snackbar.SuccessMessage(r.Messages.First());
-                MudDiloag.Close();
+                Snackbar.SuccessMessage(res.Messages.First());
+                MudDialog.Close();
             }
             else
             {
@@ -57,11 +63,12 @@
         }
         else
         {
-            Snackbar.FailMessage(res.Messages.First());
+            Snackbar.FailMessage(r.Messages.First());
         }
+
         _processing = false;
     }
-  
+
 
     protected override async Task OnInitializedAsync()
     {
@@ -72,4 +79,5 @@
     {
         ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ApplicationState.Auth.CurrentUser.ClinicId);
     }
+
 }

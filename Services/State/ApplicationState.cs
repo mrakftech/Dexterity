@@ -18,13 +18,11 @@ public static class ApplicationState
         public static string Name { get; set; }
         public static PatientSummaryDto Summary { get; set; }
     }
-
     public static class SelectedConsultation
     {
         public static GetConsultationDetailDto Detail { get; set; }
         public static Guid Id { get; set; }
     }
-
     public static class Auth
     {
         public static LoginResponseDto CurrentUser { get; set; }
@@ -32,7 +30,6 @@ public static class ApplicationState
         public static Guid SelectedModuleId { get; set; }
         
     }
-
     public static class Telehealth
     {
         public static string MeetingName { get; set; }

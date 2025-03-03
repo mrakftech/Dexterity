@@ -18,7 +18,7 @@ namespace Services.Features.Consultation.Service;
 
 public interface IConsultationService
 {
-    Task<IResult> BeginConsultation(BeginConsultationDto request);
+    Task<IResult<Guid>> BeginConsultation(BeginConsultationDto request);
     Task<IResult> EditConsultation(Guid id, EditConsultationDto request);
     Task<List<GetConsultationDetailDto>> GetConsultationDetails(Guid patientId);
     Task<EditConsultationDto> GetConsultationDetail(Guid id);

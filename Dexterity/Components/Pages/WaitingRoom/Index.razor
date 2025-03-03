@@ -1,10 +1,11 @@
 ﻿@page "/waiting-room"
+@using Dexterity.Components.Pages.Consultation.MainDetails.Dialogs
 @using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
-@using Dexterity.Components.Pages.WaitingRoom.Dialogs
 @using Services.Features.PatientManagement.Dtos.Account
 @using Services.Features.WaitingRoom.Dtos
 @using Services.Features.PatientManagement.Dtos.Details
 @using Dexterity.Components.Pages.WaitingRoom.Components
+@using BeginConsultationDialog = Dexterity.Components.Pages.WaitingRoom.Dialogs.BeginConsultationDialog
 @layout MainLayout
 <TopTitleBar Title="Waiting Room" Image="modules/patient-waiting.svg"/>
 <InnerLayout>
@@ -19,17 +20,21 @@
                      Click="@(() => ClickChangedTab(3))"/>
         <hr class="hr-custom"/>
         <RadzenPanelMenuItem Text="Patient Status" Icon="@DexHelperMethod.FaIcon("patient-status-icon")">
-            @if (_status == AppointmentConstants.WaitingStatus.Expected)
+
+            @if (_tabs.ActivePanelIndex is 0 or 1)
             {
-                <DexMenuItem Disabled="@_disableBtns" Text="@(AppointmentConstants.WaitingStatus.Arrived)"
-                             Icon="fas fa-house-return"
-                             Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Arrived))"/>
-            }
-            else
-            {
-                <DexMenuItem Disabled="@_disableBtns" Text="@(AppointmentConstants.WaitingStatus.Expected)"
-                             Icon="fas fa-house-return"
-                             Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Expected))"/>
+                @if (_status == AppointmentConstants.WaitingStatus.Expected)
+                {
+                    <DexMenuItem Disabled="@_disableBtns" Text="@(AppointmentConstants.WaitingStatus.Arrived)"
+                                 Icon="fas fa-house-return"
+                                 Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Arrived))"/>
+                }
+                else
+                {
+                    <DexMenuItem Disabled="@_disableBtns" Text="@(AppointmentConstants.WaitingStatus.Expected)"
+                                 Icon="fas fa-house-return"
+                                 Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Expected))"/>
+                }
             }
             @if (_tabs.ActivePanelIndex == 1)
             {
@@ -39,16 +44,23 @@
             }
             @if (_tabs.ActivePanelIndex == 2)
             {
-                <DexMenuItem Disabled="@_disableConsultationBtn" Text="Finished Consultation" Icon="fas fa-check-circle"
-                             Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Completed))"/>
+                if (_consultationId != Guid.Empty)
+                {
+                    <DexMenuItem Disabled="@_disableConsultationBtn" Text="Finished Consultation"
+                                 Icon="fas fa-check-circle"
+                                 Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Completed))"/>
 
-                <DexMenuItem Disabled="@_disableConsultationBtn" Text="Edit Consultation" Icon="fas fa-pencil"
-                             Click="@(() => ClickChangedTab(0))"/>
+                    <DexMenuItem Disabled="@_disableConsultationBtn" Text="Edit Consultation" Icon="fas fa-pencil"
+                                 Click="@(() =>EditBeginConsultationDialog(_consultationId))" />
+                }
             }
-            <DexMenuItem Disabled="@_disableBtns" Text="Cancelled" Icon="fas fa-ban"
-                         Click="@CancelAppointment"/>
-            <DexMenuItem Disabled="@_disableBtns" Text="Charge Patient" Icon="fas fa-credit-card"
-                         Click="@OpenChargeDialog"/>
+            @if (_status == AppointmentConstants.WaitingStatus.Expected)
+            {
+                <DexMenuItem Disabled="@_disableBtns" Text="Cancelled" Icon="fas fa-ban"
+                             Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Cancelled))"/>
+                <DexMenuItem Disabled="@_disableBtns" Text="Charge Patient" Icon="fas fa-credit-card"
+                             Click="@OpenChargeDialog"/>
+            }
         </RadzenPanelMenuItem>
         <hr class="hr-custom"/>
         @* <RadzenPanelMenuItem Text="Additional items" Icon="@DexHelperMethod.FaIcon("additional-items-icon")"> *@
@@ -128,13 +140,14 @@
 
 
     private Guid _patientId = Guid.Empty;
-    private Guid _appointmentId ;
+    private Guid _appointmentId;
+    private Guid _consultationId = Guid.Empty;
     private string _status;
 
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await GetWaitingPatients();
+        await GetWaitingRoom();
 
         //will refresh after 45 seconds
         //LoadRoomAfterTimer(45);
@@ -145,6 +158,7 @@
     {
         _patientId = Guid.Empty;
         _appointmentId = Guid.Empty;
+        _consultationId = Guid.Empty;
         _disableBtns = true;
         _disableConsultationBtn = true;
         _tabs.ActivatePanel(tabIndex);
@@ -157,20 +171,20 @@
 
     private async Task GetExpectedPatients()
     {
-        ExpectedPatients = await UnitOfWork.WaitingRoom.GetExpectedPatients();
+        ExpectedPatients = await UnitOfWork.WaitingRoom.GetWaitingRoomPatients();
     }
 
-    private async Task GetWaitingPatients()
+    private async Task GetWaitingRoom()
     {
-        ExpectedPatients = await UnitOfWork.WaitingRoom.GetExpectedPatients();
-        PresentPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.WaitingStatus.Arrived);
-        ConsultationPatients = await UnitOfWork.WaitingRoom.GetWaitingPatients(AppointmentConstants.WaitingStatus.InConsultation);
-        VisitHistoryPatients = await UnitOfWork.WaitingRoom.GetAllWaitingPatients();
+        ExpectedPatients = await UnitOfWork.WaitingRoom.GetWaitingRoomPatients();
+        PresentPatients = await UnitOfWork.WaitingRoom.GetWaitingRoomPatients(AppointmentConstants.WaitingStatus.Arrived);
+        ConsultationPatients = await UnitOfWork.WaitingRoom.GetWaitingRoomPatients(AppointmentConstants.WaitingStatus.InConsultation);
+        VisitHistoryPatients = await UnitOfWork.WaitingRoom.GetVisitHistory();
     }
 
     private async Task GetPatient()
     {
-        if (_patientId!=Guid.Empty)
+        if (_patientId != Guid.Empty)
         {
             _patient = await UnitOfWork.Patient.GetPatientSummary(_patientId);
             ApplicationState.SelectedPatient.Name = _patient.Name;
@@ -186,29 +200,24 @@
 
     private async Task UpdatePatientStatus(string status)
     {
-        var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(_appointmentId, status);
-        if (res.Succeeded)
-        {
-            Snackbar.SuccessMessage(res.Messages.First());
-            await GetWaitingPatients();
-            StateHasChanged();
-        }
-        else
-        {
-            Snackbar.FailMessage(res.Messages.First());
-        }
-    }
-
-    private async Task CancelAppointment()
-    {
         var parameters = new DialogParameters();
-        parameters.Add("AppointmentId", _appointmentId);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        var dialogResult = await DialogService.ShowAsync<CancelWaitingAppointment>("", parameters, options);
-        var result = await dialogResult.Result;
-        if (!result.Canceled)
+        parameters.Add("ContentText", $"are you sure you want to change status to {status}?");
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
         {
-            await GetWaitingPatients();
+            var res = await UnitOfWork.WaitingRoom.UpdateWaitingAppointment(_appointmentId, status, _consultationId);
+            if (res.Succeeded)
+            {
+                Snackbar.SuccessMessage(res.Messages.First());
+                await GetWaitingRoom();
+                ClickChangedTab(0);
+                StateHasChanged();
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
         }
     }
 
@@ -221,7 +230,8 @@
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
-            await GetWaitingPatients();
+            _disableBtns = true;
+            await GetWaitingRoom();
         }
     }
 
@@ -232,6 +242,7 @@
             _patientId = args.Data.PatientId;
             _appointmentId = args.Data.AppointmentId;
             _status = args.Data.Status;
+            _consultationId = args.Data.ConsultationId;
             if (_tabs.ActivePanelIndex == 0)
             {
             }
@@ -246,6 +257,12 @@
                 _disableConsultationBtn = false;
             }
 
+            if (_tabs.ActivePanelIndex == 3)
+            {
+                _disableConsultationBtn = true;
+                _disableBtns = true;
+            }
+
             _disableBtns = false;
             await GetPatient();
             StateHasChanged();
@@ -258,12 +275,31 @@
     {
         var parameters = new DialogParameters();
         parameters.Add("AppointmentId", _appointmentId);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions()
+        {
+            CloseButton = true, MaxWidth = MaxWidth.Small,
+            FullWidth = true, Position = DialogPosition.Center
+        };
         var dialogResult = await DialogService.ShowAsync<BeginConsultationDialog>("", parameters, options);
         var result = await dialogResult.Result;
         if (!result.Canceled)
         {
-            await GetWaitingPatients();
+            _disableBtns = true;
+            await GetWaitingRoom();
+        }
+    }
+
+    private async Task EditBeginConsultationDialog(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<EditConsultationDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            _disableBtns = true;
+            await GetWaitingRoom();
         }
     }
 
@@ -272,9 +308,9 @@
         var startTimeSpan = TimeSpan.Zero;
         var periodTimeSpan = TimeSpan.FromSeconds(seconds);
 
-        var timer = new System.Threading.Timer(async (e) =>
+        var timer = new Timer(async (e) =>
         {
-            await GetWaitingPatients();
+            await GetWaitingRoom();
             //Snackbar.SuccessMessge("Success");
         }, null, startTimeSpan, periodTimeSpan);
     }

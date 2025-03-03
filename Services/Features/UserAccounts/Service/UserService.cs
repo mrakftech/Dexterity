@@ -7,6 +7,7 @@ using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Services.State;
 using Shared.Constants.Application;
+using Shared.Constants.Permission;
 using Shared.Constants.Role;
 using Shared.Helper;
 using Shared.Wrapper;
@@ -195,7 +196,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-    
+
 
     #region Roles
 
@@ -243,6 +244,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
                 CreatedDate = DateTime.Today,
             };
             context.Roles.Add(role);
+            await AddPermissions(role.Name);
         }
         else
         {
@@ -279,7 +281,29 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     #endregion
 
     #region Persmissions
+    private async Task AddPermissions(string roleName)
+    {
+        var list = new List<PermissionClaim>();
+        var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
+        var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
+        foreach (var module in modules)
+        {
+            foreach (var claim in PermissionConstants.AllClaims)
+            {
+                var permissionClaim = new PermissionClaim
+                {
+                    ModuleName = module.Name,
+                    ModuleId = module.Id,
+                    RoleId = role.Id,
+                    ClaimName = claim,
+                    Allowed = false
+                };
+                list.Add(permissionClaim);
+            }
+        }
 
+        await context.PermissionClaims.AddRangeAsync(list);
+    }
     public bool CheckPermission(string claimName)
     {
         var permissionClaim = context.PermissionClaims.FirstOrDefault(x =>
@@ -300,8 +324,10 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         foreach (var request in requests)
         {
-            var p = await context.PermissionClaims.FirstOrDefaultAsync(x => x.Id == request.Id);
+            var p = await context.PermissionClaims.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
             p.Allowed = request.Value;
+            context.ChangeTracker.Clear();
+            context.PermissionClaims.Update(p);
             await context.SaveChangesAsync();
         }
 

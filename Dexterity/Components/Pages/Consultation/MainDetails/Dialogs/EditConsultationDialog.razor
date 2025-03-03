@@ -5,7 +5,7 @@
         Edit Consultation
     </DialogTitle>
     <Content>
-        @if (ConsultationDto.ConsultationDate == DateTime.Now)
+        @if (ConsultationDto.ConsultationDate.Date == DateTime.Now.Date)
         {
             <DexForm Model="ConsultationDto" OnValidSubmit="BeginConsultation">
                 <Fields>

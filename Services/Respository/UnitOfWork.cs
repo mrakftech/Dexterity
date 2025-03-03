@@ -35,8 +35,8 @@ public sealed class UnitOfWork(
     : IUnitOfWork
 {
     private bool _disposed;
-    
-    public IAppService App   
+
+    public IAppService App
     {
         get
         {
@@ -48,7 +48,7 @@ public sealed class UnitOfWork(
             return appService;
         }
     }
-    public IDashboardService Dashboard   
+    public IDashboardService Dashboard
     {
         get
         {
@@ -81,7 +81,7 @@ public sealed class UnitOfWork(
         {
             if (waitingRoom == null)
             {
-                waitingRoom = new WaitingRoomService(context, mapper);
+                waitingRoom = new WaitingRoomService(context, mapper, consultation,appointment);
             }
 
             return waitingRoom;
@@ -165,13 +165,13 @@ public sealed class UnitOfWork(
             return fileManager;
         }
     }
-    public IFlagService Flag   
+    public IFlagService Flag
     {
         get
         {
             if (flagService == null)
             {
-                flagService = new FlagService(context,mapper);
+                flagService = new FlagService(context, mapper);
             }
 
             return flagService;

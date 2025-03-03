@@ -14,7 +14,7 @@ public class WaitingAppointment
 
     public Guid AppointmentId { get; set; }
     public Appointment Appointment { get; set; }
-
+    public Guid ConsultationId { get; set; }
     public Clinic Clinic { get; set; }
     public int ClinicId { get; set; }
     

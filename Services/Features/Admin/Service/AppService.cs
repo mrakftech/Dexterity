@@ -9,13 +9,11 @@ public class AppService(ApplicationDbContext context) : IAppService
 {
     public async Task<List<AppModule>> GetAppNavigations()
     {
-        return await context.AppModules.OrderBy(x=>x.Order).ToListAsync();
-        
+        return await context.AppModules.Where(x => x.ParentId == null).OrderBy(x => x.Order).ToListAsync();
     }
 
     public async Task<List<AppModule>> GetAppModules()
     {
-        return await context.AppModules.OrderBy(x=>x.Order).ToListAsync();
-
+        return await context.AppModules.OrderBy(x => x.Order).ToListAsync();
     }
 }

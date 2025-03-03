@@ -34,20 +34,17 @@
                 <SfDropDownList TValue="AppModule" TItem="AppModule" Enabled="!_isModuleDropdownDisabled"
                                 Placeholder="Modules" DataSource="@Modules">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="AppModule" TItem="AppModule" ValueChange="ModuleChange"></DropDownListEvents>
+                    <DropDownListEvents TValue="AppModule" TItem="AppModule"
+                                        ValueChange="ModuleChange"></DropDownListEvents>
                 </SfDropDownList>
             </MudItem>
             <MudItem>
-                <DexSimpleButton Name="Load permissions" Disabled="_isLoadPermissionBtnDisabled"
-                                 Click="LoadPermissions"></DexSimpleButton>
-            </MudItem>
-            <MudItem>
                 <MudStack Row>
-                    <MudCheckBox @bind-Value="_create" Label="Create" T="bool"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_read" Label="Read" T="bool"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_update" Label="Update" T="bool"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_delete" Label="Delete" T="bool"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_print" Label="Print" T="bool"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_create" Label="Create" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_read" Label="Read" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_update" Label="Update" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_delete" Label="Delete" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                    <MudCheckBox @bind-Value="_print" Label="Print" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
                 </MudStack>
             </MudItem>
             <MudItem Class="mb-10">
@@ -84,7 +81,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-       await GetModules();
+        await GetModules();
         await GetRoles();
     }
 
@@ -109,12 +106,13 @@
         }
     }
 
-    private void ModuleChange(ChangeEventArgs<AppModule, AppModule> args)
+    private async Task ModuleChange(ChangeEventArgs<AppModule, AppModule> args)
     {
         if (args.Value is null) return;
         _isLoadPermissionBtnDisabled = false;
         _moduleName = args.Value.Name;
         _moduleId = args.Value.Id;
+        await LoadPermissions();
     }
 
     private async Task LoadPermissions()
@@ -183,7 +181,6 @@
         if (res.Succeeded)
         {
             Snackbar.SuccessMessage(res.Messages.First());
-            _isLoadPermissionBtnDisabled = true;
         }
         else
         {

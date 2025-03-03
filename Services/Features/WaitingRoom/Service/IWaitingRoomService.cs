@@ -6,8 +6,7 @@ namespace Services.Features.WaitingRoom.Service;
 
 public interface IWaitingRoomService
 {
-    Task<List<WaitingPatientDto>> GetExpectedPatients(string status = AppointmentConstants.WaitingStatus.Expected);
-    Task<List<WaitingPatientDto>> GetAllWaitingPatients();
-    Task<List<WaitingPatientDto>> GetWaitingPatients(string status = AppointmentConstants.WaitingStatus.Expected);
-    Task<IResult> UpdateWaitingAppointment(Guid appointmentId, string status);
+    Task<List<WaitingPatientDto>> GetWaitingRoomPatients(string status = AppointmentConstants.WaitingStatus.Expected);
+    Task<List<WaitingPatientDto>> GetVisitHistory();
+    Task<IResult> UpdateWaitingAppointment(Guid appointmentId, string status, Guid consultationId = default);
 }

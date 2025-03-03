@@ -68,7 +68,7 @@ public class ConsultationService(
         return list;
     }
 
-    public async Task<IResult> BeginConsultation(BeginConsultationDto request)
+    public async Task<IResult<Guid>> BeginConsultation(BeginConsultationDto request)
     {
         try
         {
@@ -83,7 +83,7 @@ public class ConsultationService(
             };
             context.ConsultationDetails.Add(consultation);
             await context.SaveChangesAsync();
-            return await Result.SuccessAsync("Consultation has been added.");
+            return await Result<Guid>.SuccessAsync(message: "Consultation has been added.", data: consultation.Id);
         }
         catch (Exception e)
         {
@@ -136,7 +136,6 @@ public class ConsultationService(
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("Consultation has been finished.");
     }
-
 
     #endregion
 

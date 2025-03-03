@@ -33,8 +33,6 @@ public class DatabaseSeeder(
         SeedClinics();
         SeedRoles();
         SeedUsers();
-        SeedAdminPermissions();
-        SeedUserPermissions();
         SeedAppointmentTypes();
         SeedAppointmentCancelReasons();
         SeedAlertCategory();
@@ -82,7 +80,7 @@ public class DatabaseSeeder(
             if (context.AppModules.Any())
                 return;
 
-            var c = new List<AppModule>()
+            var parentMenus = new List<AppModule>()
             {
                 new()
                 {
@@ -157,7 +155,51 @@ public class DatabaseSeeder(
                     Order = 9
                 },
             };
-            await context.AppModules.AddRangeAsync(c);
+
+
+            var childMenus = new List<AppModule>()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Appointments",
+                    Href = "",
+                    Icon = "appointments-icon",
+                    Order = 1,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "New Appointment",
+                    Href = "",
+                    Icon = "new-appointment-icon",
+                    Order = 2,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Recurring Appointments",
+                    Href = "",
+                    Icon = "repeat-appointment-icon",
+                    Order = 3,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Appointment Card",
+                    Href = "",
+                    Icon = "repeat-appointment-icon",
+                    Order = 3,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                }
+            };
+
+
+            await context.AppModules.AddRangeAsync(parentMenus);
+            //await context.AppModules.AddRangeAsync(childMenus);
             await context.SaveChangesAsync();
         }).GetAwaiter().GetResult();
     }
@@ -300,7 +342,7 @@ public class DatabaseSeeder(
         {
             await using var context = await contextFactory.CreateDbContextAsync();
 
-            var userTypeIds = context.UserTypes.ToList().Select(x=>x.Id);
+            var userTypeIds = context.UserTypes.ToList().Select(x => x.Id);
             var roleIds = context.Roles.Select(x => x.Id).ToList();
             if (context.Users.Count() == 2)
             {
@@ -318,7 +360,8 @@ public class DatabaseSeeder(
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.RoleId, x => x.PickRandom(roleIds))
                     .RuleFor(x => x.IsActive, true)
-                    .RuleFor(x => x.PasswordHash, SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword))
+                    .RuleFor(x => x.PasswordHash,
+                        SecurePasswordHasher.HashPassword(ApplicationConstants.DefaultPassword))
                     .RuleFor(x => x.MobileNumber, x => x.Person.Phone);
                 var users = fakeUsers.Generate(ApplicationConstants.SeedFakeUsersCount);
                 await context.Users.AddRangeAsync(users);
@@ -387,65 +430,32 @@ public class DatabaseSeeder(
         }).GetAwaiter().GetResult();
     }
 
-    private void SeedAdminPermissions()
+
+    private async Task SeedRolePermissions(string roleName, bool allowed = false)
     {
-        Task.Run(async () =>
+        await using var context = await contextFactory.CreateDbContextAsync();
+        var list = new List<PermissionClaim>();
+        var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
+        var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
+        foreach (var module in modules)
         {
-            await using var context = await contextFactory.CreateDbContextAsync();
-            if (context.PermissionClaims.Any())
-                return;
-            var list = new List<PermissionClaim>();
-            var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.AdministratorRole);
-            var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
-            foreach (var module in modules)
+            foreach (var claim in PermissionConstants.AllClaims)
             {
-                foreach (var claim in PermissionConstants.AllClaims)
+                var permissionClaim = new PermissionClaim
                 {
-                    var permissionClaim = new PermissionClaim();
-                    permissionClaim.ModuleName = module.Name;
-                    permissionClaim.ModuleId = module.Id;
-                    permissionClaim.RoleId = role.Id;
-                    permissionClaim.ClaimName = claim;
-                    permissionClaim.Allowed = true;
-                    list.Add(permissionClaim);
-                }
+                    ModuleName = module.Name,
+                    ModuleId = module.Id,
+                    RoleId = role.Id,
+                    ClaimName = claim,
+                    Allowed = allowed
+                };
+                list.Add(permissionClaim);
             }
+        }
 
-            await context.PermissionClaims.AddRangeAsync(list);
-            await context.SaveChangesAsync();
-        }).GetAwaiter().GetResult();
-    }
-
-    private void SeedUserPermissions()
-    {
-        Task.Run(async () =>
-        {
-            await using var context = await contextFactory.CreateDbContextAsync();
-            if (context.PermissionClaims.Any())
-                return;
-
-            var list = new List<PermissionClaim>();
-            var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.Nurse);
-            var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
-            foreach (var module in modules)
-            {
-                foreach (var claim in PermissionConstants.AllClaims)
-                {
-                    var permissionClaim = new PermissionClaim
-                    {
-                        ModuleName = module.Name,
-                        ModuleId = module.Id,
-                        RoleId = role.Id,
-                        ClaimName = claim,
-                        Allowed = false
-                    };
-                    list.Add(permissionClaim);
-                }
-            }
-
-            await context.PermissionClaims.AddRangeAsync(list);
-            await context.SaveChangesAsync();
-        }).GetAwaiter().GetResult();
+        await context.PermissionClaims.AddRangeAsync(list);
+        await context.SaveChangesAsync();
+        logger.LogInformation("{Count} are Permission added for {RoleName}", list.Count, roleName);
     }
 
     private void SeedClinics()
@@ -532,7 +542,6 @@ public class DatabaseSeeder(
 
             if (context.Roles.Any())
                 return;
-
             var roles = new List<Role>()
             {
                 new()
@@ -560,11 +569,14 @@ public class DatabaseSeeder(
                     IsDefualt = true
                 }
             };
-
             await context.Roles.AddRangeAsync(roles);
             await context.SaveChangesAsync();
+            await SeedRolePermissions(RoleConstants.AdministratorRole, true);
+            await SeedRolePermissions(RoleConstants.Nurse);
+            await SeedRolePermissions(RoleConstants.Doctor);
+            await SeedRolePermissions(RoleConstants.Receptionist);
+
             logger.LogInformation("Roles seeded");
         }).GetAwaiter().GetResult();
     }
-  
 }

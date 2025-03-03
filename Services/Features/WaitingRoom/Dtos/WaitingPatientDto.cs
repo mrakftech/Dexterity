@@ -11,4 +11,6 @@ public class WaitingPatientDto
     public string PersonalBalance { get; set; }
     public Guid AppointmentId { get; set; }
     public Guid PatientId { get; set; }
+    public Guid ConsultationId { get; set; }
+
 }
