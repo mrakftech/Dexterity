@@ -4,62 +4,148 @@
 @using Shared.Constants.Permission
 
 <TabTitle Title="Permissions"></TabTitle>
-<MudGrid Justify="MudJustify.Center" Style="margin-top: 3%">
-    <MudItem md="12">
-        <MudStack Class="mt-5">
-            <MudItem>
-                <MudStack Row="true">
-                    <MudItem>
-                        <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
-                                        DataSource="@Roles">
-                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                            <DropDownListEvents TValue="Guid" TItem="RoleResponseDto"
-                                                ValueChange="RoleChanged"></DropDownListEvents>
-                        </SfDropDownList>
-                    </MudItem>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudGrid Justify="MudJustify.Center" Style="margin-top: 3%">
+        <MudItem md="12">
+            <MudStack Class="mt-5">
+                <MudItem>
+                    <MudStack Row="true">
+                        <MudItem md="8">
+                            <label class="e-label">ROLES:</label>
+                            <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
+                                            DataSource="@Roles">
+                                <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                                <DropDownListEvents TValue="Guid" TItem="RoleResponseDto"
+                                                    ValueChange="RoleChanged"></DropDownListEvents>
+                            </SfDropDownList>
+                        </MudItem>
+                        <MudItem md="4">
+                            <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
+                                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+                                {
+                                    <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">
+                                        Create Role
+                                    </MudButton>
+                                }
 
-                    <MudButtonGroup Color="MudColor.Primary" Variant="Variant.Filled" Size="MudSize.Small">
-                        <MudButton OnClick="() => UpsertRoleModal(Guid.Empty)" Color="MudColor.Primary">Create Role
-                        </MudButton>
-                        <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary"
-                                   Disabled="_isRolesActionButtonsDisabled">Edit Role
-                        </MudButton>
-                        <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled"
-                                   OnClick="() => DeleteRole(_roleId)">Delete Role
-                        </MudButton>
-                    </MudButtonGroup>
-                </MudStack>
-            </MudItem>
-            <MudItem>
-                <SfDropDownList TValue="AppModule" TItem="AppModule" Enabled="!_isModuleDropdownDisabled"
-                                Placeholder="Modules" DataSource="@Modules">
-                    <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    <DropDownListEvents TValue="AppModule" TItem="AppModule"
-                                        ValueChange="ModuleChange"></DropDownListEvents>
-                </SfDropDownList>
-            </MudItem>
-            <MudItem>
-                <MudStack Row>
-                    <MudCheckBox @bind-Value="_create" Label="Create" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_read" Label="Read" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_update" Label="Update" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_delete" Label="Delete" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
-                    <MudCheckBox @bind-Value="_print" Label="Print" T="bool" Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
-                </MudStack>
-            </MudItem>
-            <MudItem Class="mb-10">
-                <DexSimpleButton Name="Save Permissions" Disabled="_isLoadPermissionBtnDisabled"
-                                 Click="SavePermission"></DexSimpleButton>
-            </MudItem>
-        </MudStack>
-    </MudItem>
-</MudGrid>
+                                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+                                {
+                                    <MudButton OnClick="() => UpsertRoleModal(_roleId)" Color="MudColor.Primary"
+                                               Disabled="_isRolesActionButtonsDisabled">Edit Role
+                                    </MudButton>
+                                }
+
+                                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                                {
+                                    <MudButton Color="MudColor.Error" Disabled="_isRolesActionButtonsDisabled"
+                                               OnClick="() => DeleteRole(_roleId)">Delete Role
+                                    </MudButton>
+                                }
+
+                            </MudButtonGroup>
+                        </MudItem>
+                    </MudStack>
+                </MudItem>
+                @if (_roleId != Guid.Empty)
+                {
+                    <MudItem>
+                        <div class="accordion " id="accordionExample">
+                            @foreach (var item in Modules.Where(x => x.ParentId == null).ToList())
+                            {
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header" id="@Guid.NewGuid()">
+                                        <button class="accordion-button collapsed" type="button"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#@item.Id" aria-controls="@item.Id"
+                                                @onclick="()=>Callback(item.Id)">
+                                            @item.Name
+                                        </button>
+                                    </h2>
+                                    <div id="@item.Id" class="accordion-collapse collapse "
+                                         aria-labelledby="@Guid.NewGuid()"
+                                         data-bs-parent="#accordionExample">
+                                        <div class="accordion-body">
+                                            @if (Modules.All(x => x.ParentId != item.Id))
+                                            {
+                                                <MudStack Row>
+                                                    <MudCheckBox @bind-Value="_create" Label="Create"
+                                                                 T="bool"
+                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                    <MudCheckBox @bind-Value="_read" Label="Read" T="bool"
+                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                    <MudCheckBox @bind-Value="_update" Label="Update"
+                                                                 T="bool"
+                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                    <MudCheckBox @bind-Value="_delete" Label="Delete"
+                                                                 T="bool"
+                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                    <MudCheckBox @bind-Value="_print" Label="Print" T="bool"
+                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                </MudStack>
+                                                <MudItem Class="mb-10">
+                                                    <DexSimpleButton Name="Save Permissions"
+                                                                     Disabled="_isLoadPermissionBtnDisabled"
+                                                                     Click="SavePermission"></DexSimpleButton>
+                                                </MudItem>
+                                            }
+                                            else
+                                            {
+                                                <RadzenAccordion>
+                                                    <Items>
+                                                        @foreach (var subModule in Modules.Where(x => x.ParentId == item.Id))
+                                                        {
+                                                            <RadzenAccordionItem Text="@subModule.Name"
+                                                                                 @onclick="() => Callback(subModule.Id)">
+                                                                <MudStack Row>
+                                                                    <MudCheckBox @bind-Value="_create" Label="Create"
+                                                                                 T="bool"
+                                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                                    <MudCheckBox @bind-Value="_read" Label="Read"
+                                                                                 T="bool"
+                                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                                    <MudCheckBox @bind-Value="_update" Label="Update"
+                                                                                 T="bool"
+                                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                                    <MudCheckBox @bind-Value="_delete" Label="Delete"
+                                                                                 T="bool"
+                                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                                    <MudCheckBox @bind-Value="_print" Label="Print"
+                                                                                 T="bool"
+                                                                                 Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
+                                                                </MudStack>
+                                                                <MudItem Class="mb-10">
+                                                                    <DexSimpleButton Name="Save Permissions"
+                                                                                     Disabled="_isLoadPermissionBtnDisabled"
+                                                                                     Click="SavePermission"></DexSimpleButton>
+                                                                </MudItem>
+                                                            </RadzenAccordionItem>
+                                                        }
+
+                                                    </Items>
+                                                </RadzenAccordion>
+                                            }
+
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </MudItem>
+                }
+            </MudStack>
+        </MudItem>
+    </MudGrid>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
     private List<RoleResponseDto> Roles { get; set; } = new();
     private List<AppModule> Modules { get; set; } = new();
-    public List<PermissionResponseDto> PermissionList { get; set; } = new();
-    private bool _isModuleDropdownDisabled = true;
     private bool _isLoadPermissionBtnDisabled = true;
     private bool _isSavePermissionBtnDisabled = true;
     private bool _isRolesActionButtonsDisabled = true;
@@ -92,27 +178,51 @@
 
     private void RoleChanged(ChangeEventArgs<Guid, RoleResponseDto> args)
     {
+        _roleId = Guid.Empty;
         var role = args.ItemData;
         if (role.Id != Guid.Empty)
         {
             _roleId = role.Id;
-            _isModuleDropdownDisabled = false;
             _isRolesActionButtonsDisabled = false;
         }
         else
         {
-            _isModuleDropdownDisabled = true;
             _isRolesActionButtonsDisabled = true;
+        }
+
+        StateHasChanged();
+    }
+
+    private async Task UpsertRoleModal(Guid id)
+    {
+        var title = id == Guid.Empty ? "New Role" : "Edit Role";
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<UpsertRoleModal>(title, parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetRoles();
         }
     }
 
-    private async Task ModuleChange(ChangeEventArgs<AppModule, AppModule> args)
+    private async Task DeleteRole(Guid id)
     {
-        if (args.Value is null) return;
-        _isLoadPermissionBtnDisabled = false;
-        _moduleName = args.Value.Name;
-        _moduleId = args.Value.Id;
-        await LoadPermissions();
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.User.DeleteRole(id);
+            if (res.Succeeded)
+            {
+                await GetRoles();
+            }
+            else
+            {
+                Snackbar.FailMessage(res.Messages.First());
+            }
+        }
     }
 
     private async Task LoadPermissions()
@@ -188,47 +298,16 @@
         }
     }
 
-    private async Task UpsertRoleModal(Guid id)
-    {
-        var title = id == Guid.Empty ? "New Role" : "Edit Role";
-        var parameters = new DialogParameters {{"Id", id}};
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult = await DialogService.ShowAsync<UpsertRoleModal>(title, parameters, options);
-        var res = await dialogresult.Result;
-        if (!res.Canceled)
-        {
-            await GetRoles();
-        }
-    }
-
-    private async Task DeleteRole(Guid id)
-    {
-        var parameters = new DialogParameters();
-        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
-        var result = await dialogresult.Result;
-        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
-        {
-            var res = await UnitOfWork.User.DeleteRole(id);
-            if (res.Succeeded)
-            {
-                await GetRoles();
-            }
-            else
-            {
-                Snackbar.FailMessage(res.Messages.First());
-            }
-        }
-    }
-
-    public class Claim
-    {
-        public Guid Id { get; set; }
-        public bool ClaimValue { get; set; }
-    }
-
     private async Task GetModules()
     {
         Modules = await UnitOfWork.App.GetAppModules();
+    }
+
+    private async Task Callback(Guid moduleId)
+    {
+        _isLoadPermissionBtnDisabled = false;
+        _moduleId = moduleId;
+        await LoadPermissions();
     }
 
 }

@@ -1,5 +1,5 @@
-﻿<MudText Class="text-bold" Color="Color.Error">Permission Denied</MudText>
+﻿<MudText Class="text-bold" Color="Color.Error">@Message</MudText>
 
 @code {
-
+    [Parameter] public string Message { get; set; } = "Permission Denied";
 }

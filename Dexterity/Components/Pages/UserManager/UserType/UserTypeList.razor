@@ -2,30 +2,47 @@
 <TabTitle Title="User Types">
     <ActionButtons>
         <MudStack Row>
-            <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small"
-                    Label="Add New User Type" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
+            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+            {
+                <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small"
+                        Label="Add New User Type" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
+            }
         </MudStack>
     </ActionButtons>
 </TabTitle>
 
 
 <MudItem>
-    <DexGrid DataSource="UsersTypeList" Loading="@_userLoading">
-        <DexGridColumns>
-            <GridColumn Field="@nameof(UserType.Name)" HeaderText="Name" Width="120px"></GridColumn>
-            <GridColumn HeaderText="Actions" Width="120">
-                <Template>
-                    @{
-                        var item = (context as UserType);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary" OnClick="() => UpsertUserModal(item.Id)"/>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteUserType(item.Id)"/>
-                    }
-                </Template>
-            </GridColumn>
-        </DexGridColumns>
-    </DexGrid>
+    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+    {
+        <DexGrid DataSource="UsersTypeList" Loading="@_userLoading">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(UserType.Name)" HeaderText="Name" Width="120px"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                            var item = (context as UserType);
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+                            {
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                               Color="MudColor.Primary" OnClick="() => UpsertUserModal(item.Id)"/>
+                            }
+
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                            {
+                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                               Color="MudColor.Error" OnClick="() => DeleteUserType(item.Id)"/>
+                            }
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    }
+    else
+    {
+        <PermissionDenied Message="No access for reading table."/>
+    }
 </MudItem>
 
 

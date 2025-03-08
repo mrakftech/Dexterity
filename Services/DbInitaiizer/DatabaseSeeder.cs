@@ -156,50 +156,43 @@ public class DatabaseSeeder(
                 },
             };
 
-
-            var childMenus = new List<AppModule>()
+            var appointment = new List<AppModule>()
+            {
+            };
+            var userManagerMenus = new List<AppModule>()
             {
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    Name = "Appointments",
+                    Name = "Users",
                     Href = "",
-                    Icon = "appointments-icon",
+                    Icon = "users-icon",
                     Order = 1,
-                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
                 },
                 new()
                 {
                     Id = Guid.NewGuid(),
-                    Name = "New Appointment",
+                    Name = "User Type",
                     Href = "",
-                    Icon = "new-appointment-icon",
-                    Order = 2,
-                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
+                    Icon = "users-icon",
+                    Order = 1,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
                 },
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Recurring Appointments",
-                    Href = "",
-                    Icon = "repeat-appointment-icon",
-                    Order = 3,
-                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
-                },
-                new()
-                {
-                    Id = Guid.NewGuid(),
-                    Name = "Appointment Card",
-                    Href = "",
-                    Icon = "repeat-appointment-icon",
-                    Order = 3,
-                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Appointment")!.Id,
-                }
+                // new()
+                // {
+                //     Id = Guid.NewGuid(),
+                //     Name = "Permissions",
+                //     Href = "",
+                //     Icon = "permissions-icon",
+                //     Order = 1,
+                //     ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
+                // },
             };
 
 
             await context.AppModules.AddRangeAsync(parentMenus);
-            //await context.AppModules.AddRangeAsync(childMenus);
+            await context.AppModules.AddRangeAsync(userManagerMenus);
             await context.SaveChangesAsync();
         }).GetAwaiter().GetResult();
     }
