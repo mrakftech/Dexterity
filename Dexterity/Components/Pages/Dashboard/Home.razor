@@ -30,7 +30,6 @@
             @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
             {
                 <MudItem md="12">
-
                     <MudGrid Justify="MudJustify.Center" Spacing="15">
                         <MudItem md="4">
                             <MetricsCard BgColor="bg-c-purple" Title="Patients" Count="@_patientCounts"
@@ -132,10 +131,11 @@
     protected override async Task OnInitializedAsync()
     {
         _loading = true;
-        await Task.Delay(1500);
+        await Task.Delay(500);
         await GetDashboardData(_clinicId);
         Clinics = await UnitOfWork.Setting.GetClinics();
         _loading = false;
+        StateHasChanged();
     }
 
     private async Task GetDashboardData(int clinicId)

@@ -177,10 +177,10 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         {
             var appointment = await context.Appointments
                 .FirstOrDefaultAsync(x => x.Id == appointmentId);
-            
+
             if (appointment == null)
                 return await Result<AppointmentDto>.FailAsync("Appointment not found");
-            
+
             appointment.Status = AppointmentConstants.Status.Cancelled;
             appointment.CancelReasonId = cancelReasonId;
             appointment.IsReadonly = true;
@@ -367,7 +367,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
                 if (isFree)
                 {
                     freeSlots.Add(new AppointmentSlotDto()
-                        {StartTime = date, EndTime = date.AddMinutes(duration), IsAvailable = true});
+                    { StartTime = date, EndTime = date.AddMinutes(duration), IsAvailable = true });
                 }
             }
         }
@@ -408,8 +408,9 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
         var startTime = DateTime.Today.AddHours(AppointmentConstants.StartHour);
         var endTime = DateTime.Today.AddHours(AppointmentConstants.EndHour);
 
+        var tempDate = new DateTime(date.Year, date.Month, date.Day, 9, 0, 0);
         // Start from the current time or the start of working hours, whichever is later
-        var currentSlot = date > startTime ? date : startTime;
+        var currentSlot = tempDate > startTime ? tempDate : startTime;
 
         // Round up to the nearest 15-minute interval
         if (currentSlot.Minute % AppointmentConstants.AppointmentInterval != 0)
@@ -423,7 +424,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
             // Check if the slot is not booked
             if (!bookedSlots.Contains(currentSlot))
             {
-                freeSlots.Add(new FindSlotDto() {StartDate = currentSlot});
+                freeSlots.Add(new FindSlotDto() { StartDate = currentSlot });
             }
 
             // Move to the next 15-minute slot
@@ -622,7 +623,7 @@ public class AppointmentService(ApplicationDbContext context, IMapper mapper) : 
 
         foreach (var day in days)
         {
-            var workingDay = (DayOfWeek) day;
+            var workingDay = (DayOfWeek)day;
             workingDays.Add(workingDay);
         }
 

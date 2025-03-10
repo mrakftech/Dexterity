@@ -459,22 +459,27 @@ public class DatabaseSeeder(
     private async Task SeedRolePermissions(string roleName, bool allowed = false)
     {
         await using var context = await contextFactory.CreateDbContextAsync();
-        var list = new List<PermissionClaim>();
+
         var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
+
         var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
-        foreach (var module in modules)
-        {
-            foreach (var claim in PermissionConstants.AllClaims)
+
+        var list = (from module in modules
+            from claim in PermissionConstants.AllClaims
+            select new PermissionClaim
             {
-                var permissionClaim = new PermissionClaim
-                {
-                    ModuleName = module.Name,
-                    ModuleId = module.Id,
-                    RoleId = role.Id,
-                    ClaimName = claim,
-                    Allowed = allowed
-                };
-                list.Add(permissionClaim);
+                ModuleName = module.Name,
+                ModuleId = module.Id,
+                RoleId = role.Id,
+                ClaimName = claim,
+                Allowed = allowed
+            }).ToList();
+
+        if (role.Name is RoleConstants.Nurse or RoleConstants.Doctor or RoleConstants.Receptionist)
+        {
+            foreach (var item in list.Where(x => x.ClaimName == PermissionConstants.Read))
+            {
+                item.Allowed = true;
             }
         }
 

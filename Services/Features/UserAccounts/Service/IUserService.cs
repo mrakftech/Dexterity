@@ -1,5 +1,4 @@
 using Domain.Entities.UserAccounts;
-using Services.Features.Appointments.Dtos.Availability;
 using Services.Features.UserAccounts.Dtos.Auth;
 using Services.Features.UserAccounts.Dtos.User;
 using Shared.Wrapper;

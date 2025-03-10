@@ -18,7 +18,7 @@
 
 @if (!_loading)
 {
-    <InnerLayout DrawerWidth="260px" >
+    <InnerLayout DrawerWidth="260px">
         <TopBarItems>
             @if (Patient.NkaFlag)
             {
@@ -96,7 +96,7 @@
             <RadzenPanelMenuItem Text="Documents" Icon="@DexHelperMethod.FaIcon("documents-icon")"
                                  Click="() => ClickChangedTab(5)">
             </RadzenPanelMenuItem>
-            <hr class="hr-custom m-1" />
+            <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Find Patient"
                                  Icon="@DexHelperMethod.FaIcon("find-patient-icon")"
                                  Click="FindPatient">
@@ -195,6 +195,7 @@
     private async Task OpenPatientSummaryModal()
     {
         var parameters = new DialogParameters();
+        parameters.Add("PatientId", ApplicationState.SelectedPatient.Id);
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
@@ -252,7 +253,7 @@
 
     public void SelectConsultationRow(RowSelectEventArgs<GetConsultationDetailDto> args)
     {
-        if (args.Data.Id !=Guid.Empty)
+        if (args.Data.Id != Guid.Empty)
         {
             _isConsultationSelected = true;
             ApplicationState.SelectedConsultation.Id = args.Data.Id;
