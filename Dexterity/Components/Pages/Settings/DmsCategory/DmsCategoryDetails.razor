@@ -1,37 +1,52 @@
 ﻿@using Domain.Entities.Settings.Templates.Dms
 <TabTitle Title="DMS Categories"></TabTitle>
-<RadzenColumn Size="12" SizeLG="4">
-    <div class="m-3">
-        <MudStack Row>
-            <MudItem md="2">
-                <SfTextBox Placeholder="Category Name" @bind-Value="_categoryName"/>
-            </MudItem>
-            <MudItem md="4">
-                <SfButton Content="Add Category" @onclick="@(() => AddDmsCategory(_categoryName))"/>
-                @if (_categoryId!=0)
-                {
-                    <SfButton CssClass="m-2" style="color: crimson;font-weight: bolder" Content="Delete" @onclick="@(() => DeleteDmsCategory(_categoryId))" Disabled="_categoryId == 0"/>
-                }
-            </MudItem>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <RadzenColumn Size="12" SizeLG="4">
+        <div class="m-3">
+            <MudStack Row>
+                <MudItem md="2">
+                    <SfTextBox Placeholder="Category Name" @bind-Value="_categoryName"/>
+                </MudItem>
+                <MudItem md="4">
+                    <MudStack Row>
+                        <DexCreateButton Label="Add Category" OnClick="@(() => AddDmsCategory(_categoryName))"/>
+                        @if (_categoryId != 0)
+                        {
+                            <DexDeleteButton Label="Delete" OnClick="@(() => DeleteDmsCategory(_categoryId))"/>
+                        }
+                    </MudStack>
 
-        </MudStack>
-    </div>
-    <RadzenCard>
-        <RadzenTree Data="@_documentCategories" Change="OnChange" Expand="OnExpand" Style="height: 300px;font-size: 16px">
-            <RadzenTreeLevel TextProperty="@nameof(DocumentCategory.Name)"/>
-        </RadzenTree>
-    </RadzenCard>
-    <div class="m-3">
-        <MudStack Row>
-            <MudItem md="2">
-                <SfTextBox Placeholder="Sub Category Name" @bind-Value="_subCategoryName"/>
-            </MudItem>
-            <MudItem md="2">
-                <SfButton Content="Add Sub Category" @onclick="@(() => AddDmsCategory(_subCategoryName, _categoryId))" Disabled="_categoryId == 0"/>
-            </MudItem>
-        </MudStack>
-    </div>
-</RadzenColumn>
+                </MudItem>
+
+            </MudStack>
+        </div>
+        <RadzenCard>
+            <RadzenTree Data="@_documentCategories" Change="OnChange" Expand="OnExpand"
+                        Style="height: 300px;font-size: 16px">
+                <RadzenTreeLevel TextProperty="@nameof(DocumentCategory.Name)"/>
+            </RadzenTree>
+        </RadzenCard>
+        <div class="m-3">
+            <MudStack Row>
+                <MudItem md="2">
+                    <SfTextBox Placeholder="Sub Category Name" @bind-Value="_subCategoryName"/>
+                </MudItem>
+                <MudItem md="2">
+                    @if (_categoryId != 0)
+                    {
+                        <DexCreateButton Label="Add Sub Category"
+                                         OnClick="@(() => AddDmsCategory(_subCategoryName, _categoryId))"/>
+                    }
+                </MudItem>
+            </MudStack>
+        </div>
+    </RadzenColumn>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 @code {
     private List<DocumentCategory> _documentCategories = new();

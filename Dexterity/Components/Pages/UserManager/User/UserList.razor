@@ -4,68 +4,47 @@
 <TabTitle Title="Users">
     <ActionButtons>
         <MudStack Row>
-            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
-            {
-                <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small"
-                        Label="Add New User" Class="ml-5" OnClick="() => UpsertUserModal(Guid.Empty)"/>
-            }
+            <DexCreateButton Label="Add New User" OnClick="() => UpsertUserModal(Guid.Empty)"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
 
 
 <MudItem>
-    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
-    {
-        <DexGrid DataSource="UsersList" Loading="@_userLoading">
-            <DexGridColumns>
-                <GridColumn Field="@nameof(UserResponseDto.CreatedDate)" Format="g" Type="ColumnType.DateTime"
-                            HeaderText="Created Date" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(UserResponseDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(UserResponseDto.Username)" HeaderText="Username" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(UserResponseDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(UserResponseDto.UserType)" HeaderText="User Type" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(UserResponseDto.IsActive)" HeaderText="Status" Width="120px">
-                    <Template>
-                        @{
-                            var item = (context as UserResponseDto);
-                            @if (item!.IsActive)
-                            {
-                                <MudText Color="MudColor.Primary"> Active</MudText>
-                            }
-                            else
-                            {
-                                <MudText Color="MudColor.Error"> Inactive</MudText>
-                            }
+    <DexGrid DataSource="UsersList" Loading="@_userLoading">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(UserResponseDto.CreatedDate)" Format="g" Type="ColumnType.DateTime"
+                        HeaderText="Created Date" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.Username)" HeaderText="Username" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.UserType)" HeaderText="User Type" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(UserResponseDto.IsActive)" HeaderText="Status" Width="120px">
+                <Template>
+                    @{
+                        var item = (context as UserResponseDto);
+                        @if (item!.IsActive)
+                        {
+                            <MudText Color="MudColor.Primary"> Active</MudText>
                         }
-                    </Template>
-                </GridColumn>
-                <GridColumn HeaderText="Actions" Width="120">
-                    <Template>
-                        @{
-                            var item = (context as UserResponseDto);
-                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
-                            {
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                               Color="MudColor.Primary" OnClick="() => UpsertUserModal(item.Id)"/>
-                            }
-
-                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
-                            {
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                               Color="MudColor.Error" OnClick="() => DeleteUser(item.Id)"/>
-                            }
+                        else
+                        {
+                            <MudText Color="MudColor.Error"> Inactive</MudText>
                         }
-                    </Template>
-                </GridColumn>
-            </DexGridColumns>
-        </DexGrid>
-    }
-    else
-    {
-        <PermissionDenied/>
-    }
-
+                    }
+                </Template>
+            </GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var item = (context as UserResponseDto);
+                        <DexUpdateButton OnClick="() => UpsertUserModal(item.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteUser(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
 </MudItem>
 
 

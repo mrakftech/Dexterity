@@ -24,7 +24,7 @@
                                 <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
                             </SfDropDownList>
                             <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
-                            <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
+                            <DexButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexButton>
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
                                 <MudPaper Outlined="true" Class="px-4 py-8">
                                     <MudStack>

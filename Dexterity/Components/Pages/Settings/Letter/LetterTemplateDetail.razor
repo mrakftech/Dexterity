@@ -1,40 +1,44 @@
 ﻿@using Services.Features.Settings.Dtos
 @using Domain.Entities.Settings.Templates.Letter
 <MudItem md="3">
-    <DexForm Model="@LetterTemplateData" OnValidSubmit="SaveLetterTemplate">
-        <Fields>
-            <FormItem Field="@nameof(LetterTemplateDto.Name)"/>
-            <FormItem Field="@nameof(LetterTemplateDto.LetterTypeId)">
-                <Template>
-                    <label class="e-form-label">Letter Type</label>
-                    <SfDropDownList CssClass="" TValue="Guid" TItem="LetterType" Placeholder="Letter Type"
-                                    DataSource="@_letterTypes" @bind-Value="@LetterTemplateData.LetterTypeId">
-                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                    </SfDropDownList>
-                </Template>
-            </FormItem>
-            <FormItem Field="@nameof(LetterTemplateDto.TemplateFile)" LabelText="">
-                <Template>
-                    <SfRichTextEditor @ref="EditorRef" ID="RT_Editor" ShowCharCount="true" AutoSaveOnIdle="true"
-                                      EnableTabKey="true" EnableXhtml="true" Placeholder="Write some text....."
-                                      @bind-Value="@LetterTemplateData.TemplateFile">
-                        <RichTextEditorToolbarSettings Items="@WordProcessorSetting.Tools"></RichTextEditorToolbarSettings>
-                        <RichTextEditorImportWord
-                            ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
-                        <RichTextEditorQuickToolbarSettings Table="@WordProcessorSetting.TableQuickToolbarItems"
-                                                            ShowOnRightClick="true"/>
-                    </SfRichTextEditor>
-                </Template>
-            </FormItem>
-        </Fields>
-        <Buttons>
-            <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="_processing"/>
-            @if (_id != Guid.Empty)
-            {
-                <DexLoadingButton Name="New" Click="NewLetterTemplate"/>
-            }
-        </Buttons>
-    </DexForm>
+    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+    {
+        <DexForm Model="@LetterTemplateData" OnValidSubmit="SaveLetterTemplate">
+            <Fields>
+                <FormItem Field="@nameof(LetterTemplateDto.Name)"/>
+                <FormItem Field="@nameof(LetterTemplateDto.LetterTypeId)">
+                    <Template>
+                        <label class="e-form-label">Letter Type</label>
+                        <SfDropDownList CssClass="" TValue="Guid" TItem="LetterType" Placeholder="Letter Type"
+                                        DataSource="@_letterTypes" @bind-Value="@LetterTemplateData.LetterTypeId">
+                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(LetterTemplateDto.TemplateFile)" LabelText="">
+                    <Template>
+                        <SfRichTextEditor @ref="EditorRef" ID="RT_Editor" ShowCharCount="true" AutoSaveOnIdle="true"
+                                          EnableTabKey="true" EnableXhtml="true" Placeholder="Write some text....."
+                                          @bind-Value="@LetterTemplateData.TemplateFile">
+                            <RichTextEditorToolbarSettings
+                                Items="@WordProcessorSetting.Tools"></RichTextEditorToolbarSettings>
+                            <RichTextEditorImportWord
+                                ServiceUrl="https://blazor.syncfusion.com/services/production/api/RichTextEditor/ImportFromWord"></RichTextEditorImportWord>
+                            <RichTextEditorQuickToolbarSettings Table="@WordProcessorSetting.TableQuickToolbarItems"
+                                                                ShowOnRightClick="true"/>
+                        </SfRichTextEditor>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" Processing="_processing"/>
+                @if (_id != Guid.Empty)
+                {
+                    <DexLoadingButton Name="New" Click="NewLetterTemplate"/>
+                }
+            </Buttons>
+        </DexForm>
+    }
 </MudItem>
 <MudItem md="4" Class="mt-3">
     <DexGrid DataSource="LetterTemplates" Height="250px">
@@ -52,10 +56,8 @@
                 <Template>
                     @{
                         var item = (context as LetterTemplate);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary" OnClick="() => EditLetterTemplate(item!.Id)"/>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteLetterTemplate(item!.Id)"/>
+                        <DexUpdateButton OnClick="() => EditLetterTemplate(item!.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteLetterTemplate(item!.Id)"/>
                     }
                 </Template>
             </GridColumn>
@@ -70,6 +72,7 @@
     private bool _processing;
     private Guid _id;
     SfRichTextEditor EditorRef;
+
     protected override async Task OnInitializedAsync()
     {
         await GetLetterTypes();
@@ -140,8 +143,6 @@
     {
         LetterTemplateData = new LetterTemplateDto();
     }
-
-
 
 
 }

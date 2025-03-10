@@ -1,0 +1,12 @@
+﻿<button class="@($"btn btn-sm btn-{Type}")" disabled="@Disabled" @onclick="Click">
+    <i class="@Icon mr-2"></i>@Name
+</button>
+
+@code {
+    [Parameter] public EventCallback Click { get; set; }
+    [Parameter] public string Name { get; set; }
+    [Parameter] public string Icon { get; set; } 
+    [Parameter] public string Type { get; set; } = UiConstants.Bootstrap.Primary;
+    [Parameter] public bool Disabled { get; set; }
+
+}

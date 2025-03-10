@@ -12,8 +12,7 @@
                 <MudItem>
                     <MudStack Row="true">
                         <MudItem md="8">
-                            <label class="e-label">ROLES:</label>
-                            <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
+                            <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="ROLES"
                                             DataSource="@Roles">
                                 <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                                 <DropDownListEvents TValue="Guid" TItem="RoleResponseDto"
@@ -84,9 +83,9 @@
                                                                  Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
                                                 </MudStack>
                                                 <MudItem Class="mb-10">
-                                                    <DexSimpleButton Name="Save Permissions"
+                                                    <DexButton Name="Save Permissions"
                                                                      Disabled="_isLoadPermissionBtnDisabled"
-                                                                     Click="SavePermission"></DexSimpleButton>
+                                                                     Click="SavePermission"></DexButton>
                                                 </MudItem>
                                             }
                                             else
@@ -115,9 +114,9 @@
                                                                                  Disabled="_isLoadPermissionBtnDisabled"></MudCheckBox>
                                                                 </MudStack>
                                                                 <MudItem Class="mb-10">
-                                                                    <DexSimpleButton Name="Save Permissions"
+                                                                    <DexButton Name="Save Permissions"
                                                                                      Disabled="_isLoadPermissionBtnDisabled"
-                                                                                     Click="SavePermission"></DexSimpleButton>
+                                                                                     Click="SavePermission"></DexButton>
                                                                 </MudItem>
                                                             </RadzenAccordionItem>
                                                         }
@@ -151,7 +150,6 @@ else
     private bool _isRolesActionButtonsDisabled = true;
 
     private Guid _roleId;
-    private string _moduleName = "";
     private Guid _moduleId;
 
     private bool _create;

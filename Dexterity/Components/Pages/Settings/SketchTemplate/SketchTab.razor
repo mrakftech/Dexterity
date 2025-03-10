@@ -1,81 +1,98 @@
 ﻿@using Domain.Entities.Settings.Templates
 @using UploadChangeEventArgs = Syncfusion.Blazor.Inputs.UploadChangeEventArgs
 <TabTitle Title="Sketch Templates"></TabTitle>
-<MudStack Row>
-    <MudItem md="4">
-        <SfGrid DataSource="_sketchCategories" AllowPaging="false" Height="400">
-            <GridEvents TValue="SketchCategory" RowSelected="SelectCategory"></GridEvents>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudStack Row>
+        <MudItem md="4">
+            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+            {
+                <SfGrid DataSource="_sketchCategories" AllowPaging="false" Height="400">
+                    <GridEvents TValue="SketchCategory" RowSelected="SelectCategory"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(SketchCategory.Name)"></GridColumn>
+                    </GridColumns>
+                </SfGrid>
+            }
 
-            <GridColumns>
-                <GridColumn Field="@nameof(SketchCategory.Name)"></GridColumn>
-            </GridColumns>
-        </SfGrid>
-    </MudItem>
-    <MudItem md="4">
-        @if (_categoryId != Guid.Empty)
-        {
-            <MudStack Row>
-                <MudItem>
-                    @if (_sketchId != Guid.Empty)
-                    {
-                        <DexLoadingButton Name="Add New" Click="AddNewSketch"/>
-                    }
-                </MudItem>
-            </MudStack>
-            <DexForm Model="SketchData" OnValidSubmit="SaveSketch">
-                <Fields>
-                    <FormItem Field="@nameof(Sketch.Name)"></FormItem>
-                    <FormItem Field="@nameof(Sketch.Description)"></FormItem>
-                    <FormItem Field="@nameof(Sketch.Image)">
-                        <Template>
-                            <SfUploader ID="UploadFiles" AllowMultiple="false" AllowedExtensions=".png, .jpg, .jpeg">
-                                <UploaderEvents ValueChange="@OnChange"
-                                                Progressing="@ProgressingHandler">
-                                </UploaderEvents>
-                            </SfUploader>
-                        </Template>
-                    </FormItem>
-                    <FormItem Field="@nameof(Sketch.IsActive)" EditorType="FormEditorType.Checkbox"
-                              LabelText="Active">
-                    </FormItem>
-                </Fields>
-                <Buttons>
-                    <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
-                    @if (_sketchId != Guid.Empty)
-                    {
-                        <DexLoadingButton Name="Delete" Color="Color.Secondary" Click="DeleteSketch"/>
-                    }
-                </Buttons>
-            </DexForm>
-        }
-
-    </MudItem>
-    <MudItem md="4">
-        @if (!_isProcessing)
-        {
-            <SfGrid DataSource="_sketches" AllowPaging="false" Height="700">
-                <GridEvents TValue="Sketch" RowSelected="SelectSketch"></GridEvents>
-                <GridColumns>
-                    <GridColumn Field="@nameof(Sketch.Image)">
-                        <Template>
-                            @{
-                                var sketch = (context as Sketch);
-                                <div class="image">
-                                    <MudImage Src="@sketch!.Image" Fluid="true"></MudImage>
-                                </div>
+        </MudItem>
+        <MudItem md="4">
+            @if (_categoryId != Guid.Empty)
+            {
+                <MudStack Row>
+                    <MudItem>
+                        @if (_sketchId != Guid.Empty)
+                        {
+                            <DexCreateButton Label="Add New" OnClick="AddNewSketch"/>
+                        }
+                    </MudItem>
+                </MudStack>
+                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+                {
+                    <DexForm Model="SketchData" OnValidSubmit="SaveSketch">
+                        <Fields>
+                            <FormItem Field="@nameof(Sketch.Name)"></FormItem>
+                            <FormItem Field="@nameof(Sketch.Description)"></FormItem>
+                            <FormItem Field="@nameof(Sketch.Image)">
+                                <Template>
+                                    <SfUploader ID="UploadFiles" AllowMultiple="false"
+                                                AllowedExtensions=".png, .jpg, .jpeg">
+                                        <UploaderEvents ValueChange="@OnChange"
+                                                        Progressing="@ProgressingHandler">
+                                        </UploaderEvents>
+                                    </SfUploader>
+                                </Template>
+                            </FormItem>
+                            <FormItem Field="@nameof(Sketch.IsActive)" EditorType="FormEditorType.Checkbox"
+                                      LabelText="Active">
+                            </FormItem>
+                        </Fields>
+                        <Buttons>
+                            <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                            @if (_sketchId != Guid.Empty)
+                            {
+                                <DexLoadingButton Name="Delete" Color="Color.Secondary" Click="DeleteSketch"/>
                             }
-                        </Template>
-                    </GridColumn>
-                </GridColumns>
-            </SfGrid>
-        }
-        else
-        {
-            <DexProgressBar/>
-        }
+                        </Buttons>
+                    </DexForm>
+                }
+            }
 
-    </MudItem>
-</MudStack>
+        </MudItem>
+        <MudItem md="4">
+            @if (!_isProcessing)
+            {
+                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+                {
+                    <SfGrid DataSource="_sketches" AllowPaging="false" Height="700">
+                        <GridEvents TValue="Sketch" RowSelected="SelectSketch"></GridEvents>
+                        <GridColumns>
+                            <GridColumn Field="@nameof(Sketch.Image)">
+                                <Template>
+                                    @{
+                                        var sketch = (context as Sketch);
+                                        <div class="image">
+                                            <MudImage Src="@sketch!.Image" Fluid="true"></MudImage>
+                                        </div>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </GridColumns>
+                    </SfGrid>
+                }
+            }
+            else
+            {
+                <DexProgressBar/>
+            }
+
+        </MudItem>
+    </MudStack>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 @code {
     private List<SketchCategory> _sketchCategories = new();
@@ -150,7 +167,6 @@
             Snackbar.SuccessMessage(res.Messages.First());
             SketchData = new();
             await GetSketches();
-
         }
         else
         {

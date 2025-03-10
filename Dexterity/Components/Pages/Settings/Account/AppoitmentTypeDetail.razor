@@ -2,16 +2,18 @@
 <TabTitle Title="Account Types" Icon="account-type.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => OpenUpsertClinicModal(0)">Add New Account Type</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAccountTypes" Variant="Variant.Filled">Load Account Types</MudButton>
+            <DexCreateButton Label="Add New Account Type" OnClick="() => OpenUpsertClinicModal(0)"/>
+            <DexReadButton Label="Load Account Types" OnClick="GetAccountTypes"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
-<MudItem >
+<MudItem>
+
     <DexGrid DataSource="AccountTypes" Loading="@_processing">
         <DexGridColumns>
             <GridColumn Field="@nameof(AccountTypeDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
-            <GridColumn Field="@nameof(AccountTypeDto.Amount)" HeaderText="Amount" Format="C" Width="120px" Type="ColumnType.Decimal"></GridColumn>
+            <GridColumn Field="@nameof(AccountTypeDto.Amount)" HeaderText="Amount" Format="C" Width="120px"
+                        Type="ColumnType.Decimal"></GridColumn>
             <GridColumn Field="@nameof(AccountTypeDto.TransactionType)" HeaderText="Type" Width="120px"></GridColumn>
             <GridColumn Field="@nameof(AccountTypeDto.IsActive)" HeaderText="Status" Width="120px">
                 <Template>
@@ -32,11 +34,8 @@
                 <Template>
                     @{
                         var item = (context as AccountTypeDto);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary"
-                                       OnClick="() => OpenUpsertClinicModal(item.Id)"/>
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteAccountType(item.Id)"/>
+                        <DexUpdateButton OnClick="() => OpenUpsertClinicModal(item.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteAccountType(item.Id)"/>
                     }
                 </Template>
             </GridColumn>

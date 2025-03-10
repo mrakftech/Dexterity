@@ -2,8 +2,8 @@
 <TabTitle Title="Appointment Type" Icon="appointment-type.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentTypeModal(Guid.Empty)" Variant="Variant.Filled">Add Appointment Type</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAppointmentTypeList" Variant="Variant.Filled">Load Appointment Types</MudButton>
+            <DexCreateButton Label="Appointment Type" OnClick="() => UpsertAppointmentTypeModal(Guid.Empty)"/>
+            <DexReadButton Label="Load Appointment Types" OnClick="GetAppointmentTypeList"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
@@ -11,16 +11,24 @@
     <DexGrid DataSource="AppointmentTypeList" Loading="@_processing">
         <DexGridColumns>
             <GridColumn Field="@nameof(AppointmentTypeDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
-            <GridColumn Field="@nameof(AppointmentTypeDto.Duration)" HeaderText="Duration" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(AppointmentTypeDto.Duration)" HeaderText="Duration"
+                        Width="120px"></GridColumn>
             <GridColumn HeaderText="Actions" Width="120">
                 <Template>
                     @{
                         var item = (context as AppointmentTypeDto);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary"
-                                       OnClick="() => UpsertAppointmentTypeModal(item.Id)" />
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteAppointmentType(item.Id)" />
+                        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+                        {
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                           Color="MudColor.Primary"
+                                           OnClick="() => UpsertAppointmentTypeModal(item.Id)"/>
+                        }
+
+                        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                        {
+                            <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                           Color="MudColor.Error" OnClick="() => DeleteAppointmentType(item.Id)"/>
+                        }
                     }
                 </Template>
             </GridColumn>
@@ -29,9 +37,7 @@
 </MudItem>
 
 @code {
-
     private List<AppointmentTypeDto> AppointmentTypeList { get; set; } = new();
-
     private bool _processing;
 
     protected override async Task OnInitializedAsync()
@@ -49,8 +55,8 @@
     private async Task UpsertAppointmentTypeModal(Guid id)
     {
         var title = id == Guid.Empty ? "New Appointment Type" : "Edit Appointment Type";
-        var parameters = new DialogParameters { { "Id", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<AppointmentTypeFormDialog>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)

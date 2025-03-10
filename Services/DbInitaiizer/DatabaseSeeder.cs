@@ -159,6 +159,37 @@ public class DatabaseSeeder(
             var appointment = new List<AppModule>()
             {
             };
+
+            var messaging = new List<AppModule>()
+            {
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "User Tasks",
+                    Href = "",
+                    Icon = "user-task-icon",
+                    Order = 0,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Messaging")!.Id,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Messaging",
+                    Href = "",
+                    Icon = "sms-message-icon",
+                    Order = 1,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Messaging")!.Id,
+                },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Instant Messaging History",
+                    Href = "",
+                    Icon = "text-message-icon",
+                    Order = 2,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "Messaging")!.Id,
+                },
+            };
             var userManagerMenus = new List<AppModule>()
             {
                 new()
@@ -167,7 +198,7 @@ public class DatabaseSeeder(
                     Name = "Users",
                     Href = "",
                     Icon = "users-icon",
-                    Order = 1,
+                    Order = 0,
                     ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
                 },
                 new()
@@ -179,20 +210,21 @@ public class DatabaseSeeder(
                     Order = 1,
                     ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
                 },
-                // new()
-                // {
-                //     Id = Guid.NewGuid(),
-                //     Name = "Permissions",
-                //     Href = "",
-                //     Icon = "permissions-icon",
-                //     Order = 1,
-                //     ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
-                // },
+                new()
+                {
+                    Id = Guid.NewGuid(),
+                    Name = "Permissions",
+                    Href = "",
+                    Icon = "permissions-icon",
+                    Order = 2,
+                    ParentId = parentMenus.FirstOrDefault(x => x.Name == "User Manager")!.Id,
+                },
             };
 
 
             await context.AppModules.AddRangeAsync(parentMenus);
             await context.AppModules.AddRangeAsync(userManagerMenus);
+            await context.AppModules.AddRangeAsync(messaging);
             await context.SaveChangesAsync();
         }).GetAwaiter().GetResult();
     }

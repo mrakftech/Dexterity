@@ -41,9 +41,13 @@
                 <DexMenuItem Text="Email Templates" Icon="fas fa-envelope-open-text" Click="@(() => ClickChanged(1))"/>
                 <DexMenuItem Text="Clinics" Icon="fas fa-house-chimney-medical" Click="@(() => ClickChanged(2))"/>
             </RadzenPanelMenuItem >
-            <RadzenPanelMenuItem Text="Admin Settings" Icon="@DexHelperMethod.FaIcon("wrench-16")">
-                <DexMenuItem Text="Flag Records" Icon="fas fa-flag" Click="@(() => ClickChanged(15))"/>
-            </RadzenPanelMenuItem>
+            @if (ApplicationState.Auth.CurrentUser.IsAdmin)
+            {
+                <RadzenPanelMenuItem Text="Admin Settings" Icon="@DexHelperMethod.FaIcon("wrench-16")">
+                    <DexMenuItem Text="Flag Records" Icon="fas fa-flag" Click="@(() => ClickChanged(15))"/>
+                </RadzenPanelMenuItem>   
+            }
+           
         </NavigationItems>
         <DexContentTabs>
             <MudTabs @ref="_tabs" Rounded="true" PanelClass="flex-grow-1">

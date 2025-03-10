@@ -55,7 +55,7 @@
         <FormGroup LabelText="Hospital Details" ColumnCount="1">
             <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
                 <Template>
-                    <DexSimpleButton Name="Add Hospital" Click="AddHospital"/>
+                    <DexButton Name="Add Hospital" Click="AddHospital"/>
                 </Template>
             </FormItem>
             <FormItem Field="@nameof(PatientExtraDetail.Status)">
@@ -83,7 +83,7 @@
             {
                 <FormItem Field="@nameof(PatientExtraDetail.Status)" ColumnSpan="1">
                     <Template>
-                        <DexSimpleButton Name="Delete" Click="DeleteHospital"/>
+                        <DexButton Name="Delete" Click="DeleteHospital"/>
                     </Template>
                 </FormItem>
             }

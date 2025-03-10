@@ -2,8 +2,8 @@
 <TabTitle Title="Note Templates" Icon="note-template.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertNoteTemplateModal(0)" Variant="Variant.Filled">Add Note Template</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetNoteTemplates" Variant="Variant.Filled">Load Templates</MudButton>
+            <DexUpdateButton Label="Add Note Template" OnClick="() => UpsertNoteTemplateModal(0)"/>
+            <DexReadButton Label="Load Templates" OnClick="GetNoteTemplates"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
@@ -23,11 +23,8 @@
                 <Template>
                     @{
                         var item = (context as NoteTemplateDto);
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                       Color="MudColor.Primary"
-                                       OnClick="() => UpsertNoteTemplateModal(item.Id)" />
-                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                       Color="MudColor.Error" OnClick="() => DeleteNoteTemplate(item.Id)" />
+                        <DexUpdateButton OnClick="() => UpsertNoteTemplateModal(item.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteNoteTemplate(item.Id)"/>
                     }
                 </Template>
             </GridColumn>
@@ -56,8 +53,8 @@
     private async Task UpsertNoteTemplateModal(int id)
     {
         var title = id == 0 ? "New Template" : "Edit Template";
-        var parameters = new DialogParameters { { "Id", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<NoteTemplateFormDialog>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)

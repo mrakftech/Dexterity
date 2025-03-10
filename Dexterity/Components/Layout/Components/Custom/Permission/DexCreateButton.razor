@@ -1,0 +1,11 @@
+﻿@if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+{
+    <MudFab Color="MudColor.Primary" StartIcon="@MudIcons.Material.Filled.Add" Size="MudSize.Small"
+            Label="@Label" Class="ml-5" OnClick="OnClick"/>
+}
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public string Label { get; set; }
+
+
+}

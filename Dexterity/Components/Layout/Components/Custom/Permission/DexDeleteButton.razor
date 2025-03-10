@@ -1,0 +1,10 @@
+﻿@if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+{
+    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                   Color="MudColor.Error" OnClick="OnClick"/>
+}
+
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public string Label { get; set; }
+}

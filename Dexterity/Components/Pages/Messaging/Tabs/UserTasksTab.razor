@@ -6,103 +6,109 @@
 }
 else
 {
-    <div>
-        <TabTitle Title="User Tasks">
-            <ActionButtons>
-                <DexSimpleButton Name="Add New Task" Click="() => UpsertUserTaskModal(Guid.Empty)"></DexSimpleButton>
-            </ActionButtons>
-        </TabTitle>
+    <TabTitle Title="User Tasks">
+        <ActionButtons>
+            <DexCreateButton Label="Add New Task" OnClick="() => UpsertUserTaskModal(Guid.Empty)"/>
+        </ActionButtons>
+    </TabTitle>
+    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+    {
+        <div>
+          
 
-        <MudStack Row Spacing="2" Class="m-4">
-            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All My Tasks" Class="" OnClick="AllTasks"/>
-            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks"/>
-            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
-            <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Month View" Class="" OnClick="MonthsTasks"/>
-            @if (_isAdmin)
-            {
-                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All User Task" Class="" OnClick="AllUserTasks"/>
-            }
-            <MudSpacer/>
-            <label class="e-form-label mt-3">Status:</label>
-            <MudItem md="2">
-                <MudSelect Dense="true" Margin="MudMargin.Dense" T="string" Variant="Variant.Outlined" ValueChanged="Callback">
-                    <MudSelectItem Value="@("All")"/>
-                    <MudSelectItem Value="@("Active")"/>
-                    <MudSelectItem Value="@("Inactive")"/>
-                </MudSelect>
-            </MudItem>
-        </MudStack>
-        <MudStack>
-            <DexGrid DataSource="UserTaskList" Loading="_userTaskLoading" Height="300px">
-                <DexGridColumns>
-                    <GridColumn Field="@nameof(UserTask.TaskDate)" Format="d" Type="ColumnType.DateTime" HeaderText="Task Date" Width="80px"></GridColumn>
-                    <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Subject" Width="100px"></GridColumn>
-                    <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Description" Width="200px"></GridColumn>
-                    <GridColumn HeaderText="Assigned By" Width="200px">
-                        <Template>
-                            @{
-                                var item = (context as UserTask);
-                                @if (item.AssignedBy != null)
-                                {
-                                    <MudText Color="MudColor.Primary">
-                                        @item.AssignedBy.FullName
-                                    </MudText>
+            <MudStack Row Spacing="2" Class="m-4">
+                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All My Tasks" Class="" OnClick="AllTasks"/>
+                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Day View" Class="" OnClick="DayTasks"/>
+                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Week View" Class="" OnClick="WeekTasks"/>
+                <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="Month View" Class=""
+                        OnClick="MonthsTasks"/>
+                @if (ApplicationState.Auth.CurrentUser.IsAdmin)
+                {
+                    <MudFab Color="MudColor.Primary" Size="MudSize.Small" Label="All User Task" Class=""
+                            OnClick="AllUserTasks"/>
+                }
+                <MudSpacer/>
+                <label class="e-form-label mt-3">Status:</label>
+                <MudItem md="2">
+                    <MudSelect Dense="true" Margin="MudMargin.Dense" T="string" Variant="Variant.Outlined"
+                               ValueChanged="Callback">
+                        <MudSelectItem Value="@("All")"/>
+                        <MudSelectItem Value="@("Active")"/>
+                        <MudSelectItem Value="@("Inactive")"/>
+                    </MudSelect>
+                </MudItem>
+            </MudStack>
+            <MudStack>
+                <DexGrid DataSource="UserTaskList" Loading="_userTaskLoading" Height="300px">
+                    <DexGridColumns>
+                        <GridColumn Field="@nameof(UserTask.TaskDate)" Format="d" Type="ColumnType.DateTime"
+                                    HeaderText="Task Date" Width="80px"></GridColumn>
+                        <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Subject" Width="100px"></GridColumn>
+                        <GridColumn Field="@nameof(UserTask.Subject)" HeaderText="Description"
+                                    Width="200px"></GridColumn>
+                        <GridColumn HeaderText="Assigned By" Width="200px">
+                            <Template>
+                                @{
+                                    var item = (context as UserTask);
+                                    @if (item.AssignedBy != null)
+                                    {
+                                        <MudText Color="MudColor.Primary">
+                                            @item.AssignedBy.FullName
+                                        </MudText>
+                                    }
+                                    else
+                                    {
+                                        <MudText Color="MudColor.Primary">
+                                            -
+                                        </MudText>
+                                    }
                                 }
-                                else
-                                {
-                                    <MudText Color="MudColor.Primary">
-                                        -
-                                    </MudText>
+                            </Template>
+                        </GridColumn>
+                        <GridColumn Field="@nameof(UserTask.Status)" HeaderText="Status" Width="120px"></GridColumn>
+                        <GridColumn HeaderText="Actions" Width="200px">
+                            <Template>
+                                @{
+                                    var item = (context as UserTask);
+                                    @if (item.AssignedById == null)
+                                    {
+                                        <DexUpdateButton OnClick="() => UpsertUserTaskModal(item.Id)"/>
+                                        <DexDeleteButton OnClick="() => DeleteUserTask(item.Id)"/>
+                                    }
+                                    else
+                                    {
+                                        <InputSelect TValue="string" @onchange="e => ChangeStatus(e, item.Id)">
+                                            @foreach (var item in UserTaskConstants.TaskStatusList)
+                                            {
+                                                <option value="@item.Name">@item.Name</option>
+                                            }
+                                        </InputSelect>
+                                    }
                                 }
-                            }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn Field="@nameof(UserTask.Status)" HeaderText="Status" Width="120px"></GridColumn>
-                    <GridColumn HeaderText="Actions" Width="200px">
-                        <Template>
-                            @{
-                                var item = (context as UserTask);
-                                @if (item.AssignedById == null)
-                                {
-                                    <MudIconButton
-                                        Size="@MudSize.Small"
-                                        Icon="@MudIcons.Material.Outlined.Edit"
-                                        Color="MudColor.Primary" OnClick="() => UpsertUserTaskModal(item.Id)"/>
-                                    <MudIconButton
-                                        Size="@MudSize.Small"
-                                        Icon="@MudIcons.Material.Outlined.Delete"
-                                        Color="MudColor.Error" OnClick="() => DeleteUserTask(item.Id)"/>
-                                }
-                                else
-                                {
-                                    <InputSelect TValue="string" @onchange="e => ChangeStatus(e, item.Id)">
-                                        @foreach (var item in UserTaskConstants.TaskStatusList)
-                                        {
-                                            <option value="@item.Name">@item.Name</option>
-                                        }
-                                    </InputSelect>
-                                }
-                            }
-                        </Template>
-                    </GridColumn>
+                            </Template>
+                        </GridColumn>
 
-                </DexGridColumns>
-            </DexGrid>
-        </MudStack>
-    </div>
+                    </DexGridColumns>
+                </DexGrid>
+            </MudStack>
+        </div>
+    }
+    else
+    {
+        <PermissionDenied/>
+    }
 }
 
 @code {
     private List<UserTask> UserTaskList { get; set; }
     private bool _comLoading;
     private bool _userTaskLoading;
-    private bool _isAdmin;
 
     protected override async Task OnInitializedAsync()
     {
         _comLoading = true;
+        await Task.Delay(1500);
         await GetUserTasks();
-        await IsAdmin();
         _comLoading = false;
     }
 
@@ -148,11 +154,8 @@ else
     {
         UserTaskList = await UnitOfWork.Messaging.GetUserTaskList();
     }
+
     
-    private async Task IsAdmin()
-    {
-        _isAdmin = await UnitOfWork.User.IsAdmin();
-    }
 
     private async Task DayTasks()
     {

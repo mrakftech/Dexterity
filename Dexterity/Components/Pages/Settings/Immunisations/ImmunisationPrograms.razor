@@ -89,80 +89,104 @@
 
 <TabTitle Title="Schedule Immunisations" Icon="immunisation-schedule1.png">
 </TabTitle>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudItem md="4">
 
-<MudItem md="4">
-
-    <SfDropDownList TValue="string" TItem="ImmunisationProgram" Placeholder="Select a Schedule" DataSource="@_setups" CssClass="mt-3">
-        <DropDownListFieldSettings Value="Name" Text="Name"/>
-        <DropDownListEvents TValue="string" TItem="ImmunisationProgram" ValueChange="OnChangeSetup"></DropDownListEvents>
-    </SfDropDownList>
-
-    <DexForm Model="_scheduleProgram" OnValidSubmit="SaveCourse" ColumnCount="3">
-        <Fields>
-            <FormItem Field="@nameof(ImmunisationProgram.Name)" LabelText="Title" ColumnSpan="3"/>
-            <FormItem Field="@nameof(ImmunisationProgram.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active" ColumnSpan="1"/>
-            <FormItem Field="@nameof(ImmunisationProgram.IsDefualt)" EditorType="FormEditorType.Checkbox" LabelText="Default" ColumnSpan="1"/>
-            <FormItem Field="@nameof(ImmunisationProgram.IsChildhood)" EditorType="FormEditorType.Checkbox" LabelText="Childhood" ColumnSpan="1"/>
-        </Fields>
-        <Buttons>
-
-            <button type="submit" class="e-btn">@(_scheduleProgram.Id != Guid.Empty ? "Update" : "Add New")</button>
-            <button class="e-btn" @onclick="ClearForm">Clear</button>
-        </Buttons>
-    </DexForm>
-</MudItem>
-<MudGrid>
-    @if (_scheduleProgram.Id != Guid.Empty)
-    {
-        <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
-            <div id="container">
-                <div class="sample flex">
-                    <div class="flex">
-                        <div class="padding">
-                            <p class="text-bold">All Course:</p>
-                            <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 1))"></SfTextBox>
-                            <SfListView DataSource="@_allCourses">
-                                <ListViewFieldSettings TValue="Course" Id="Id" Text="Name"></ListViewFieldSettings>
-                                <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 1))"></ListViewEvents>
-                            </SfListView>
-                            <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(2))">@("Add Item")</button>
-
-                        </div>
-                        <div class="flex vertical vertical__center flex__center padding">
+        <SfDropDownList TValue="string" TItem="ImmunisationProgram" Placeholder="Select a Schedule"
+                        DataSource="@_setups" CssClass="mt-3">
+            <DropDownListFieldSettings Value="Name" Text="Name"/>
+            <DropDownListEvents TValue="string" TItem="ImmunisationProgram"
+                                ValueChange="OnChangeSetup"></DropDownListEvents>
+        </SfDropDownList>
+        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create) || UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+        {
+            <DexForm Model="_scheduleProgram" OnValidSubmit="SaveCourse" ColumnCount="3">
+                <Fields>
+                    <FormItem Field="@nameof(ImmunisationProgram.Name)" LabelText="Title" ColumnSpan="3"/>
+                    <FormItem Field="@nameof(ImmunisationProgram.IsActive)" EditorType="FormEditorType.Checkbox"
+                              LabelText="Active" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(ImmunisationProgram.IsDefualt)" EditorType="FormEditorType.Checkbox"
+                              LabelText="Default" ColumnSpan="1"/>
+                    <FormItem Field="@nameof(ImmunisationProgram.IsChildhood)" EditorType="FormEditorType.Checkbox"
+                              LabelText="Childhood" ColumnSpan="1"/>
+                </Fields>
+                <Buttons>
+                    <button type="submit"
+                            class="e-btn">@(_scheduleProgram.Id != Guid.Empty ? "Update" : "Add New")</button>
+                    <button class="e-btn" @onclick="ClearForm">Clear</button>
+                    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                    {
+                        <button type="button" class="e-btn" @onclick="DeleteProgram">Delete</button>
+                    }
+                </Buttons>
+            </DexForm>
+        }
+        else
+        {
+            <PermissionDenied/>
+        }
+    </MudItem>
+    <MudGrid>
+        @if (_scheduleProgram.Id != Guid.Empty)
+        {
+            <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
+                <div id="container">
+                    <div class="sample flex">
+                        <div class="flex">
                             <div class="padding">
+                                <p class="text-bold">All Course:</p>
+                                <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 1))"></SfTextBox>
+                                <SfListView DataSource="@_allCourses">
+                                    <ListViewFieldSettings TValue="Course" Id="Id" Text="Name"></ListViewFieldSettings>
+                                    <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 1))"></ListViewEvents>
+                                </SfListView>
+                                <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3"
+                                        @onclick="@(() => OnButtonClick(2))">@("Add Item")</button>
+
+                            </div>
+                            <div class="flex vertical vertical__center flex__center padding">
+                                <div class="padding">
+                                </div>
+                                <div class="padding">
+                                </div>
                             </div>
                             <div class="padding">
-                            </div>
-                        </div>
-                        <div class="padding">
-                            <p class="text-bold">Selected Courses:@($"{_selectedCourse.Count}")</p>
-                            <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 2))"></SfTextBox>
-                            <SfListView DataSource="@_destinationList">
-                                <ListViewFieldSettings Id="Id" Text="Name" TValue="Course"></ListViewFieldSettings>
-                                <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 2))"></ListViewEvents>
-                            </SfListView>
-                            <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(3))">@("Remove Item")</button>
+                                <p class="text-bold">Selected Courses:@($"{_selectedCourse.Count}")</p>
+                                <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 2))"></SfTextBox>
+                                <SfListView DataSource="@_destinationList">
+                                    <ListViewFieldSettings Id="Id" Text="Name" TValue="Course"></ListViewFieldSettings>
+                                    <ListViewEvents TValue="Course" Clicked="@(e => OnSelected(e, 2))"></ListViewEvents>
+                                </SfListView>
+                                <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3"
+                                        @onclick="@(() => OnButtonClick(3))">@("Remove Item")</button>
 
+                            </div>
+                            @* <div class="flex vertical vertical__center flex__center padding"> *@
+                            @*     <div class="padding"> *@
+                            @*         <button class="e-btn" @onclick="MoveUp"> *@
+                            @*             <span class="fa fa-arrow-alt-circle-up"></span> *@
+                            @*         </button> *@
+                            @*     </div> *@
+                            @*     <div class="padding"> *@
+                            @*         <button class="e-btn" @onclick="MoveDown"> *@
+                            @*             <span class="fa fa-arrow-alt-circle-down"></span> *@
+                            @*         </button> *@
+                            @*     </div> *@
+                            @* </div> *@
                         </div>
-                        @* <div class="flex vertical vertical__center flex__center padding"> *@
-                        @*     <div class="padding"> *@
-                        @*         <button class="e-btn" @onclick="MoveUp"> *@
-                        @*             <span class="fa fa-arrow-alt-circle-up"></span> *@
-                        @*         </button> *@
-                        @*     </div> *@
-                        @*     <div class="padding"> *@
-                        @*         <button class="e-btn" @onclick="MoveDown"> *@
-                        @*             <span class="fa fa-arrow-alt-circle-down"></span> *@
-                        @*         </button> *@
-                        @*     </div> *@
-                        @* </div> *@
                     </div>
                 </div>
-            </div>
-            <button type="button" class="e-btn" @onclick="SelectCourse">Save</button>
-        </MudItem>
-    }
-</MudGrid>
+                <button type="button" class="e-btn" @onclick="SelectCourse">Save</button>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
     private List<ImmunisationProgram> _setups = new();
@@ -314,6 +338,19 @@
     {
         if (_destinationItemSelected != null)
         {
+        }
+    }
+
+    private async Task DeleteProgram()
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var userRes = await UnitOfWork.Setting.DeleteImmunisationProgram(_scheduleProgram.Id);
+            Snackbar.SuccessMessage(userRes.Messages.First());
+            await GetCourses();
         }
     }
 

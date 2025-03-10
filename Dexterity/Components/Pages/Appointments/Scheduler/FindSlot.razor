@@ -21,7 +21,7 @@
                 </SfDropDownList>
             </MudItem>
             <MudItem>
-                <DexSimpleButton Name="Search" Click="SearchSlots" Disabled="_hcpId==Guid.Empty"/>
+                <DexButton Name="Search" Click="SearchSlots" Disabled="_hcpId==Guid.Empty"/>
             </MudItem>
             <MudItem>
                 <DexGrid Loading="_loading" DataSource="_freeSlots" Height="200px">
@@ -35,7 +35,7 @@
                             <Template>
                                 @{
                                     var item = (context as FindSlotDto);
-                                    <DexSimpleButton Name="Select Slot" Click="()=>SelectSlot(item.StartDate)"
+                                    <DexButton Name="Select Slot" Click="()=>SelectSlot(item.StartDate)"
                                                      />
                                 }
                             </Template>

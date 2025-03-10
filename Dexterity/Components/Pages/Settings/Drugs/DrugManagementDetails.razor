@@ -2,7 +2,7 @@
 
 <TabTitle Title="Drugs" Icon="drug-management.png">
     <ActionButtons>
-        <DexSimpleButton Name="Add New Drug" Click="()=>DrugForm(0)" />
+        <DexCreateButton Label="Add New Drug" OnClick="()=>DrugForm(0)"/>
     </ActionButtons>
 </TabTitle>
 <DexGrid DataSource="_drugs">
@@ -20,8 +20,8 @@
             <Template>
                 @{
                     var item = (context as Drug);
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => DrugForm(item.Id)" />
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteDrug(item.Id)" />
+                    <DexUpdateButton OnClick="() => DrugForm(item.Id)"/>
+                    <DexDeleteButton OnClick="() => DeleteDrug(item.Id)"/>
                 }
             </Template>
         </GridColumn>
@@ -30,10 +30,12 @@
 
 @code {
     private List<Drug> _drugs = new();
+
     protected override async Task OnInitializedAsync()
     {
         await GetDrugs();
     }
+
     private async Task GetDrugs()
     {
         _drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
@@ -43,7 +45,7 @@
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<DrugFormDialog>("", parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
@@ -51,6 +53,7 @@
             await GetDrugs();
         }
     }
+
     private async Task DeleteDrug(int id)
     {
         var parameters = new DialogParameters();

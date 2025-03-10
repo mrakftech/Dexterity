@@ -6,8 +6,8 @@
         <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
         <DropDownListEvents TItem="PatientOccupationDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
     </SfDropDownList>
-    <DexSimpleButton FullWidth="false" Name="Edit" Click="EditOccupation" Disabled="_disableButtons"></DexSimpleButton>
-    <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteOccupation" Disabled="_disableButtons"></DexSimpleButton>
+    <DexButton FullWidth="false" Name="Edit" Click="EditOccupation" Disabled="_disableButtons"></DexButton>
+    <DexButton FullWidth="false" Name="Delete" Click="DeleteOccupation" Disabled="_disableButtons"></DexButton>
 </SfAppBar>
 <SfDataForm Model="@_patientOccupation"
             ColumnCount="3"

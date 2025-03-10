@@ -1,14 +1,15 @@
-﻿<DexDialog>
+﻿@using Services.Features.Appointments.Dtos
+<DexDialog>
     <DialogTitle>
         Appointment Details
     </DialogTitle>
     <Content>
         <MudCard Class="ma-4" Elevation="0">
             <MudCardContent>
-                <MudText><p><strong>Patient Name:</strong> @ApplicationState.SelectedAppointment.Appointment.PatientName
+                <MudText><p><strong>Patient Name:</strong> @Appointment.PatientName
                     </p></MudText>
                 <MudText><p><strong>Appointment
-                            Date:</strong> @ApplicationState.SelectedAppointment.Appointment.StartTime.ToString("D")</p>
+                            Date:</strong> @Appointment.StartTime.ToString("D")</p>
                 </MudText>
                 <MudText>
 
@@ -16,19 +17,19 @@
                         <strong>
                             Appointment
                             Time:
-                        </strong> @ApplicationState.SelectedAppointment.Appointment.StartTime.ToString("h:mm tt")
+                        </strong> @Appointment.StartTime.ToString("h:mm tt")
                     </p>
                 </MudText>
                 <MudText>
-                    <p><strong>Doctor:</strong> @ApplicationState.SelectedAppointment.Appointment.DoctorName</p>
+                    <p><strong>Doctor:</strong> @Appointment.DoctorName</p>
                 </MudText>
                 <MudText>
 
-                    <p><strong>Location:</strong> @ApplicationState.SelectedAppointment.Appointment.Location</p>
+                    <p><strong>Location:</strong> @Appointment.Location</p>
                 </MudText>
             </MudCardContent>
             <MudCardActions>
-                <DexSimpleButton Click="Print" Name="Print Appointment Card"/>
+                <DexButton Click="Print" Name="Print Appointment Card"/>
             </MudCardActions>
         </MudCard>
     </Content>
@@ -51,7 +52,7 @@
 </style>
 
 @code {
-
+[Parameter] public AppointmentDto Appointment { get; set; }
     public async Task Print()
     {
         await JsRuntime.InvokeVoidAsync("printInvoke");

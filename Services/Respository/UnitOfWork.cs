@@ -1,6 +1,7 @@
 using AutoMapper;
 using ClickATell.Services;
 using Database;
+using Microsoft.EntityFrameworkCore;
 using Services.Contracts.Repositroy;
 using Services.Features.Admin.Interfaces;
 using Services.Features.Admin.Service;
@@ -27,6 +28,7 @@ public sealed class UnitOfWork(
     IDashboardService dashboard,
     IWaitingRoomService waitingRoom,
     IFileManagerService fileManager,
+    IDbContextFactory<ApplicationDbContext> contextFactory,
     IMailService mail,
     IFlagService flagService,
     IAppService appService,
@@ -48,6 +50,7 @@ public sealed class UnitOfWork(
             return appService;
         }
     }
+
     public IDashboardService Dashboard
     {
         get
@@ -81,7 +84,7 @@ public sealed class UnitOfWork(
         {
             if (waitingRoom == null)
             {
-                waitingRoom = new WaitingRoomService(context, mapper, consultation,appointment);
+                waitingRoom = new WaitingRoomService(context, mapper, consultation, appointment);
             }
 
             return waitingRoom;
@@ -133,7 +136,7 @@ public sealed class UnitOfWork(
         {
             if (user == null)
             {
-                user = new UserService(context, mapper);
+                user = new UserService(mapper, contextFactory);
             }
 
             return user;
@@ -146,7 +149,7 @@ public sealed class UnitOfWork(
         {
             if (patient == null)
             {
-                user = new UserService(context, mapper);
+                patient = new PatientService(context, mapper, fileManager);
             }
 
             return patient;
@@ -165,6 +168,7 @@ public sealed class UnitOfWork(
             return fileManager;
         }
     }
+
     public IFlagService Flag
     {
         get
@@ -177,6 +181,7 @@ public sealed class UnitOfWork(
             return flagService;
         }
     }
+
     private void Dispose(bool disposing)
     {
         if (!_disposed)

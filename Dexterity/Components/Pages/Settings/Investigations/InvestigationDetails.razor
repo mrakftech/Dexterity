@@ -1,87 +1,130 @@
 ﻿@using Domain.Entities.Settings.Templates.InvestigationTemplates
 @using Services.Features.Settings.Dtos
 <TabTitle Title="Investigations"></TabTitle>
-<MudStack Row>
-    <MudItem md="3">
-        <SfGrid DataSource="_templates" Height="400px">
-            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationDto"></GridEvents>
-            <GridColumns>
-                <GridColumn Field="@nameof(InvestigationDto.Name)"/>
-            </GridColumns>
-        </SfGrid>
-        <DexForm Model="_template" ColumnCount="2" OnValidSubmit="SaveInvestigationTemplate">
-            <Fields>
-                <FormItem Field="@nameof(InvestigationDto.Name)" ColumnSpan="2"/>
-                <FormItem Field="@nameof(InvestigationDto.IsActive)" LabelText="Active" ColumnSpan="2"/>
-            </Fields>
-            <Buttons>
-                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
-                @if (_template.Id != Guid.Empty)
-                {
-                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteTemplate(_template.Id)"/>
-                }
-            </Buttons>
-        </DexForm>
-    </MudItem>
-    <MudItem md="8">
-        <DexForm Model="_detail" ColumnCount="2" OnValidSubmit="SaveDetails">
-            <Fields>
-                <FormItem Field="@nameof(InvestigationDetailDto.Name)" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.FieldType)" LabelText="Field Type" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)">
-                    <Template>
-                        <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder="" DataSource="@SettingConstants.FieldTypes" @bind-Value="@_detail.FieldType" Enabled="@(_template.Id != Guid.Empty)">
-                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
-                            <DropDownListEvents TValue="string" TItem="InvestigationFieldType" ValueChange="OnFieldTypeValueChange"></DropDownListEvents>
-                        </SfDropDownList>
-                        @if (_showListValue)
-                        {
-                            <div class="mt-2">
-                                <MudStack Row>
-                                    <MudItem>
-                                        <SfDropDownList TValue="Guid" TItem="InvestigationSelectionList" Placeholder="" DataSource="_selectionList" @bind-Value="@_detail.InvestigationSelectionListId">
-                                            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                        </SfDropDownList>
-                                    </MudItem>
-                                    <MudItem>
-                                        <button type="button" class="btn btn-sm btn-primary" @onclick="AddSelectionListValues">...</button>
-                                    </MudItem>
-                                </MudStack>
-
-                            </div>
-                        }
-                    </Template>
-                </FormItem>
-                <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.Description)" EditorType="FormEditorType.TextArea" ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.NormalMinimum)" ColumnSpan="1" LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.IsActive)" ColumnSpan="1" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.NormalMaximum)" ColumnSpan="1" LabelText="Normal Maximum" IsEnabled="@(_template.Id != Guid.Empty)"/>
-                <FormItem Field="@nameof(InvestigationDetailDto.IsMaindatory)" ColumnSpan="1" LabelText="Mandatory" EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
-            </Fields>
-            <Buttons>
-                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
-                @if (_detail.Id != Guid.Empty)
-                {
-                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteDetails(_detail.Id)"/>
-                }
-            </Buttons>
-        </DexForm>
-        <div class="mt-2">
-            <SfGrid DataSource="_details" Height="200px">
-                <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDetailDto"></GridEvents>
-
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudStack Row>
+        <MudItem md="3">
+            <SfGrid DataSource="_templates" Height="400px">
+                <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationDto"></GridEvents>
                 <GridColumns>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.Name)"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.FieldType)" HeaderText="Field Type"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.NormalMaximum)" HeaderText="Min"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.NormalMinimum)" HeaderText="Max"/>
-                    <GridColumn Field="@nameof(InvestigationDetailDto.Unit)"/>
+                    <GridColumn Field="@nameof(InvestigationDto.Name)"/>
                 </GridColumns>
             </SfGrid>
-        </div>
-    </MudItem>
-</MudStack>
+            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create) || UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+            {
+                <DexForm Model="_template" ColumnCount="2" OnValidSubmit="SaveInvestigationTemplate">
+                    <Fields>
+                        <FormItem Field="@nameof(InvestigationDto.Name)" ColumnSpan="2"/>
+                        <FormItem Field="@nameof(InvestigationDto.IsActive)" LabelText="Active" ColumnSpan="2"/>
+                    </Fields>
+                    <Buttons>
+                        <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                        @if (_template.Id != Guid.Empty)
+                        {
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                            {
+                                <DexLoadingButton Color="MudColor.Secondary" Name="Delete"
+                                                  Click="() => DeleteTemplate(_template.Id)"/>
+                                <DexDeleteButton/>
+                            }
+                        }
+                    </Buttons>
+                </DexForm>
+            }
+
+        </MudItem>
+        <MudItem md="8">
+            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create) || UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+            {
+                <DexForm Model="_detail" ColumnCount="2" OnValidSubmit="SaveDetails">
+                    <Fields>
+                        <FormItem Field="@nameof(InvestigationDetailDto.Name)" ColumnSpan="1"
+                                  IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMinimum)" LabelText="Absolute Minimum"
+                                  ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.FieldType)" LabelText="Field Type"
+                                  ColumnSpan="1"
+                                  IsEnabled="@(_template.Id != Guid.Empty)">
+                            <Template>
+                                <SfDropDownList TValue="string" TItem="InvestigationFieldType" Placeholder=""
+                                                DataSource="@SettingConstants.FieldTypes"
+                                                @bind-Value="@_detail.FieldType"
+                                                Enabled="@(_template.Id != Guid.Empty)">
+                                    <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                                    <DropDownListEvents TValue="string" TItem="InvestigationFieldType"
+                                                        ValueChange="OnFieldTypeValueChange"></DropDownListEvents>
+                                </SfDropDownList>
+                                @if (_showListValue)
+                                {
+                                    <div class="mt-2">
+                                        <MudStack Row>
+                                            <MudItem>
+                                                <SfDropDownList TValue="Guid" TItem="InvestigationSelectionList"
+                                                                Placeholder="" DataSource="_selectionList"
+                                                                @bind-Value="@_detail.InvestigationSelectionListId">
+                                                    <DropDownListFieldSettings Value="Id"
+                                                                               Text="Name"></DropDownListFieldSettings>
+                                                </SfDropDownList>
+                                            </MudItem>
+                                            <MudItem>
+                                                <button type="button" class="btn btn-sm btn-primary"
+                                                        @onclick="AddSelectionListValues">...
+                                                </button>
+                                            </MudItem>
+                                        </MudStack>
+
+                                    </div>
+                                }
+                            </Template>
+                        </FormItem>
+                        <FormItem Field="@nameof(InvestigationDetailDto.AbsoluteMaximum)" LabelText="Absolute Maximum"
+                                  ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.Description)"
+                                  EditorType="FormEditorType.TextArea"
+                                  ColumnSpan="1" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.NormalMinimum)" ColumnSpan="1"
+                                  LabelText="Normal Minimum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.IsActive)" ColumnSpan="1" LabelText="Active"
+                                  EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.NormalMaximum)" ColumnSpan="1"
+                                  LabelText="Normal Maximum" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                        <FormItem Field="@nameof(InvestigationDetailDto.IsMaindatory)" ColumnSpan="1"
+                                  LabelText="Mandatory"
+                                  EditorType="FormEditorType.Checkbox" IsEnabled="@(_template.Id != Guid.Empty)"/>
+                    </Fields>
+                    <Buttons>
+                        <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                        @if (_detail.Id != Guid.Empty)
+                        {
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                            {
+                                <DexLoadingButton Color="MudColor.Secondary" Name="Delete"
+                                                  Click="() => DeleteDetails(_detail.Id)"/>
+                            }
+                        }
+                    </Buttons>
+                </DexForm>
+            }
+            <div class="mt-2">
+                <SfGrid DataSource="_details" Height="200px">
+                    <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDetailDto"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(InvestigationDetailDto.Name)"/>
+                        <GridColumn Field="@nameof(InvestigationDetailDto.FieldType)" HeaderText="Field Type"/>
+                        <GridColumn Field="@nameof(InvestigationDetailDto.NormalMaximum)" HeaderText="Min"/>
+                        <GridColumn Field="@nameof(InvestigationDetailDto.NormalMinimum)" HeaderText="Max"/>
+                        <GridColumn Field="@nameof(InvestigationDetailDto.Unit)"/>
+                    </GridColumns>
+                </SfGrid>
+            </div>
+        </MudItem>
+    </MudStack>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 @code {
     private List<InvestigationDto> _templates = new();
@@ -206,7 +249,7 @@
     {
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
-        var dialogresult =   await DialogService.ShowAsync<SelectionListDialog>("", parameters, options);
+        var dialogresult = await DialogService.ShowAsync<SelectionListDialog>("", parameters, options);
         var result = await dialogresult.Result;
         if (result.Canceled)
         {

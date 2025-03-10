@@ -1,33 +1,41 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 <TabTitle Title="WhatsApp"></TabTitle>
-<div class="vertical-space">
-    <MudStack>
-        <MudItem>
-            <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
-        </MudItem>
-        <MudItem>
-            <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
-        </MudItem>
-        @if (!string.IsNullOrWhiteSpace(_waLink))
-        {
-            <MudItem md="6">
-                <MudButton FullWidth="false"
-                           Size="MudSize.Medium"
-                           Href="@_waLink"
-                           Color="MudColor.Primary"
-                           Variant="Variant.Filled"
-                           StartIcon="fab fa-whatsapp">Connect Chat</MudButton>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <div class="vertical-space">
+        <MudStack>
+            <MudItem>
+                <MudText Color="MudColor.Error" Class="text-bold">@_error</MudText>
             </MudItem>
-        }
-        <MudItem>
-            @if (!string.IsNullOrWhiteSpace(_mobile))
+            <MudItem>
+                <PatientAutoComplete PatientList="PatientList" OnChangePatient="ChangePatient"></PatientAutoComplete>
+            </MudItem>
+            @if (!string.IsNullOrWhiteSpace(_waLink))
             {
-                <DexLoadingButton Name="Generate Link" Click="SendSmsClick" />
+                <MudItem md="6">
+                    <MudButton FullWidth="false"
+                               Size="MudSize.Medium"
+                               Href="@_waLink"
+                               Color="MudColor.Primary"
+                               Variant="Variant.Filled"
+                               StartIcon="fab fa-whatsapp">Connect Chat
+                    </MudButton>
+                </MudItem>
             }
+            <MudItem>
+                @if (!string.IsNullOrWhiteSpace(_mobile))
+                {
+                    <DexLoadingButton Name="Generate Link" Click="SendSmsClick"/>
+                }
 
-        </MudItem>
-    </MudStack>
-</div>
+            </MudItem>
+        </MudStack>
+    </div>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 
 @code {
@@ -59,7 +67,6 @@
         else
         {
             _mobile = string.Empty;
-
         }
     }
 

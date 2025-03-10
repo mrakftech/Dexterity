@@ -4,7 +4,7 @@
     <MudItem md="6">
         <TabTitle Title="Next Of Kin">
             <ActionButtons>
-                <DexSimpleButton Name="Add Next of Kin" Click="@(() => OpenUpsertNextOfKinModal(0,"NextOfKin"))"/>
+                <DexButton Name="Add Next of Kin" Click="@(() => OpenUpsertNextOfKinModal(0,"NextOfKin"))"/>
             </ActionButtons>
         </TabTitle>
         <DexGrid DataSource="NextOfKins" Loading="_processing" Height="250px">
@@ -28,7 +28,7 @@
     <MudItem md="6">
         <TabTitle Title="Patient Carer">
             <ActionButtons>
-                <DexSimpleButton Name="Add Patient Carer" Click="@(() => OpenUpsertNextOfKinModal(0,"PatientCarer"))"/>
+                <DexButton Name="Add Patient Carer" Click="@(() => OpenUpsertNextOfKinModal(0,"PatientCarer"))"/>
             </ActionButtons>
         </TabTitle>
         <DexGrid DataSource="PatientCarers" Loading="_processing" Height="250px">

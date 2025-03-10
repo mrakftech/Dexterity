@@ -18,7 +18,7 @@
         {
             foreach (var (item, index) in _appNavigations.Select((item, index) => (item, index)))
             {
-                <DexMenuItem Text="@item.Name" Icon="@item.Icon" Click="@(() => ClickChanged(index, item.Id))"/>
+                <DexMenuItem Text="@item.Name" Icon="@item.Icon" Click="@(() => ClickChanged(item.Order, item.Id))"/>
             }
         }
 
@@ -30,12 +30,11 @@
                 <UserList/>
             </MudTabPanel>
             <MudTabPanel Text="">
-                <Permissions/>
-            </MudTabPanel>
-            <MudTabPanel Text="">
                 <UserTypeList/>
             </MudTabPanel>
-
+            <MudTabPanel Text="">
+                <Permissions/>
+            </MudTabPanel>
         </MudTabs>
     </DexContentTabs>
 </InnerLayout>

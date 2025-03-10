@@ -1,0 +1,60 @@
+﻿@if (IsPermissionForm)
+{
+    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+    {
+        <SfDataForm  ColumnCount="@ColumnCount" Model="@Model" OnValidSubmit="OnValidSubmit" ColumnSpacing="@ColumnSpacing" Width="@Width" ButtonsAlignment="FormButtonsAlignment.Left" >
+            <FormValidator>
+                <ObjectGraphDataAnnotationsValidator/>
+            </FormValidator>
+            <FormItems>
+                @Fields
+                @* <FormItem Field="" ColumnSpan="1" Placeholder="" LabelText=""> *@
+                @*     <Template> *@
+                @*         @TemplateField *@
+                @*     </Template> *@
+                @* </FormItem> *@
+            </FormItems>
+            <FormButtons >
+                @Buttons
+            </FormButtons>
+        </SfDataForm>
+    }
+    else
+    {
+        <PermissionDenied/>
+    }
+}
+else
+{
+    <SfDataForm  ColumnCount="@ColumnCount" Model="@Model" OnValidSubmit="OnValidSubmit" ColumnSpacing="@ColumnSpacing" Width="@Width" ButtonsAlignment="FormButtonsAlignment.Left" >
+        <FormValidator>
+            <ObjectGraphDataAnnotationsValidator/>
+        </FormValidator>
+        <FormItems>
+            @Fields
+            @* <FormItem Field="" ColumnSpan="1" Placeholder="" LabelText=""> *@
+            @*     <Template> *@
+            @*         @TemplateField *@
+            @*     </Template> *@
+            @* </FormItem> *@
+        </FormItems>
+        <FormButtons >
+            @Buttons
+        </FormButtons>
+    </SfDataForm>
+}
+
+
+@code {
+    [Parameter] public object Model { get; set; }
+    [Parameter] public int ColumnCount { get; set; } = 1;
+    [Parameter] public EventCallback<EditContext> OnValidSubmit { get; set; }
+    [Parameter] public RenderFragment Fields { get; set; }
+    //[Parameter] public RenderFragment TemplateField { get; set; }
+    [Parameter] public RenderFragment Buttons { get; set; }
+    [Parameter] public RenderFragment Group { get; set; }
+    [Parameter] public string ColumnSpacing { get; set; } = "20px";
+    [Parameter] public string Width { get; set; } = "100%";
+    [Parameter] public bool IsPermissionForm { get; set; } 
+
+}

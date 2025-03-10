@@ -1,136 +1,187 @@
 ﻿@using Services.Features.Settings.Dtos.Immunisations
 <TabTitle Title="Shots" Icon="flu-shot.png">
 </TabTitle>
-<MudStack Row>
-    <MudItem md="2">
-        <SfGrid DataSource="ShotsList" AllowPaging="false" Height="800px">
-            <GridEvents RowSelected="RowSelected" TValue="Shot"></GridEvents>
-            <GridColumns>
-                <GridColumn Field="@nameof(Shot.Name)" HeaderText="Shots" Width="120px"/>
-            </GridColumns>
-        </SfGrid>
-    </MudItem>
-    <MudItem md="10">
-        <MudStack Spacing="2">
-            <MudItem md="12">
-                <DexForm Model="Shot" ColumnCount="2" OnValidSubmit="SaveShot">
-                    <Fields>
-                        <FormGroup ColumnCount="1" LabelText="Basic Info">
-                            <FormItem Field="@nameof(Shot.Name)" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.Dose)" IsEnabled="_isFieldsEnable">
-                                <Template>
-                                    <SfDropDownList TValue="string" TItem="Dose" Placeholder="Dose" DataSource="@SettingConstants.Doses" @bind-Value="Shot.Dose">
-                                        <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
-                                    </SfDropDownList>
-                                </Template>
-                            </FormItem>
-                            <FormItem Field="@nameof(Shot.Method)" IsEnabled="_isFieldsEnable">
-                                <Template>
-                                    <SfDropDownList TValue="string" TItem="DoseMethod" Placeholder="Method" DataSource="@SettingConstants.Methods" @bind-Value="Shot.Method">
-                                        <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
-                                    </SfDropDownList>
-                                </Template>
-                            </FormItem>
-                            <FormItem Field="@nameof(Shot.IsActive)" LabelText="Active" EditorType="FormEditorType.Checkbox" IsEnabled="_isFieldsEnable"></FormItem>
-                        </FormGroup>
-                        <FormGroup ColumnCount="2" LabelText="Interval Detail" ColumnSpacing="20px">
-                            <FormItem Field="@nameof(Shot.IntervalType)" LabelText="Interval Type" ColumnSpan="2" IsEnabled="_isFieldsEnable">
-                                <Template>
-                                    <label class="e-form-label">Interval Type</label>
-                                    <SfDropDownList TValue="int" TItem="IntervalType" Placeholder="Select a interval type" DataSource="@SettingConstants.IntervalTypes">
-                                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                                        <DropDownListEvents TValue="int" TItem="IntervalType" ValueChange="OnIntervalTypeValueChange"></DropDownListEvents>
-                                    </SfDropDownList>
-                                </Template>
-                            </FormItem>
-                            <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max" ColumnSpan="1" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.ClaimForm)" LabelText="Claim Form" ColumnSpan="2" IsEnabled="_isFieldsEnable"></FormItem>
-                            <FormItem Field="@nameof(Shot.Comment)" ColumnSpan="2" EditorType="FormEditorType.TextArea" IsEnabled="_isFieldsEnable"></FormItem>
-                        </FormGroup>
-                    </Fields>
-                    <Buttons>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudStack Row>
+        <MudItem md="2">
+            <SfGrid DataSource="ShotsList" AllowPaging="false" Height="800px">
+                <GridEvents RowSelected="RowSelected" TValue="Shot"></GridEvents>
+                <GridColumns>
+                    <GridColumn Field="@nameof(Shot.Name)" HeaderText="Shots" Width="120px"/>
+                </GridColumns>
+            </SfGrid>
+        </MudItem>
+        <MudItem md="10">
+            <MudStack Spacing="2">
+                @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+                {
+                    <MudItem md="12">
+
+                        <DexForm Model="Shot" ColumnCount="2" OnValidSubmit="SaveShot">
+                            <Fields>
+                                <FormGroup ColumnCount="1" LabelText="Basic Info">
+                                    <FormItem Field="@nameof(Shot.Name)" IsEnabled="_isFieldsEnable"></FormItem>
+                                    <FormItem Field="@nameof(Shot.Dose)" IsEnabled="_isFieldsEnable">
+                                        <Template>
+                                            <SfDropDownList TValue="string" TItem="Dose" Placeholder="Dose"
+                                                            DataSource="@SettingConstants.Doses"
+                                                            @bind-Value="Shot.Dose">
+                                                <DropDownListFieldSettings Value="Name"
+                                                                           Text="Name"></DropDownListFieldSettings>
+                                            </SfDropDownList>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(Shot.Method)" IsEnabled="_isFieldsEnable">
+                                        <Template>
+                                            <SfDropDownList TValue="string" TItem="DoseMethod" Placeholder="Method"
+                                                            DataSource="@SettingConstants.Methods"
+                                                            @bind-Value="Shot.Method">
+                                                <DropDownListFieldSettings Value="Name"
+                                                                           Text="Name"></DropDownListFieldSettings>
+                                            </SfDropDownList>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(Shot.IsActive)" LabelText="Active"
+                                              EditorType="FormEditorType.Checkbox"
+                                              IsEnabled="_isFieldsEnable"></FormItem>
+                                </FormGroup>
+                                <FormGroup ColumnCount="2" LabelText="Interval Detail" ColumnSpacing="20px">
+                                    <FormItem Field="@nameof(Shot.IntervalType)" LabelText="Interval Type"
+                                              ColumnSpan="2"
+                                              IsEnabled="_isFieldsEnable">
+                                        <Template>
+                                            <label class="e-form-label">Interval Type</label>
+                                            <SfDropDownList TValue="int" TItem="IntervalType"
+                                                            Placeholder="Select a interval type"
+                                                            DataSource="@SettingConstants.IntervalTypes">
+                                                <DropDownListFieldSettings Value="Id"
+                                                                           Text="Name"></DropDownListFieldSettings>
+                                                <DropDownListEvents TValue="int" TItem="IntervalType"
+                                                                    ValueChange="OnIntervalTypeValueChange"></DropDownListEvents>
+                                            </SfDropDownList>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min" ColumnSpan="1"
+                                              IsEnabled="_isFieldsEnable"></FormItem>
+                                    <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max" ColumnSpan="1"
+                                              IsEnabled="_isFieldsEnable"></FormItem>
+                                    <FormItem Field="@nameof(Shot.ClaimForm)" LabelText="Claim Form" ColumnSpan="2"
+                                              IsEnabled="_isFieldsEnable"></FormItem>
+                                    <FormItem Field="@nameof(Shot.Comment)" ColumnSpan="2"
+                                              EditorType="FormEditorType.TextArea"
+                                              IsEnabled="_isFieldsEnable"></FormItem>
+                                </FormGroup>
+                            </Fields>
+                            <Buttons>
+                                @if (_shotId != Guid.Empty)
+                                {
+                                    <DexLoadingButton Name="Save Shot" Processing="_loading"
+                                                      Type="MudButtonType.Submit"/>
+                                    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                                    {
+                                        <DexLoadingButton Name="Delete" Click="DeleteShot"/>
+                                    }
+
+                                    <DexLoadingButton Name="Create New" Click="ResetForm"/>
+                                }
+                                else
+                                {
+                                    <DexLoadingButton Name="Save Shot" Processing="_loading"
+                                                      Type="MudButtonType.Submit"/>
+                                }
+                            </Buttons>
+                        </DexForm>
+                    </MudItem>
+                    <MudItem md="4">
                         @if (_shotId != Guid.Empty)
                         {
-                            <DexLoadingButton Name="Save Shot" Processing="_loading" Type="MudButtonType.Submit"/>
-                            <DexLoadingButton Name="Delete" Click="DeleteShot"/>
-                            <DexLoadingButton Name="Create New" Click="ResetForm"/>
-                        }
-                        else
-                        {
-                            <DexLoadingButton Name="Save Shot" Processing="_loading" Type="MudButtonType.Submit"/>
-                        }
-                    </Buttons>
-                </DexForm>
-            </MudItem>
-            <MudItem md="4">
-                @if (_shotId != Guid.Empty)
-                {
-                    <DexForm Model="AssignShotToBatch" OnValidSubmit="AssignBatchToShot">
-                        <Fields>
-                            <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" ColumnSpan="2">
-                                <Template>
-                                    <label class="e-form-label">Select Batch:</label>
-                                    <SfAutoComplete TValue="string" TItem="Batch" Placeholder="Batch Number" DataSource="@_batchList">
-                                        <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
-                                        <AutoCompleteEvents TValue="string" TItem="Batch" ValueChange="OnChangeBatch"></AutoCompleteEvents>
-                                    </SfAutoComplete>
-                                </Template>
-                            </FormItem>
-                        </Fields>
-                        <Buttons>
-                            @if (!_isBatchFound)
-                            {
-                                <DexLoadingButton Name="Create New Batch" Click="() => UpsertBatch(Guid.Empty)"/>
-                            }
-                            else
-                            {
-                                <DexLoadingButton Name="Assign Batch" Type="MudButtonType.Submit"/>
-                            }
-                            <DexLoadingButton Name="Search Batch" Click="SearchBatch"/>
-                        </Buttons>
-                    </DexForm>
-                }
-            </MudItem>
-            <MudItem md="12">
-                <DexGrid DataSource="ShotBatchDetails" Height="200px">
-                    <DexGridColumns>
-                        <GridColumn Field="@nameof(Batch.BatchNumber)" HeaderText="Batch" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(Batch.Expiry)" Format="d" Type="ColumnType.DateTime" HeaderText="Expiry" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(Batch.TradeName)" HeaderText="Trade Name" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(Batch.BatchCount)" HeaderText="Batch Total" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(Batch.Remaining)" HeaderText="Remaining" Width="120px"></GridColumn>
-                        <GridColumn Field="@nameof(Batch.IsActive)" HeaderText="Active" Width="120px">
-                            <Template>
-                                @{
-                                    var item = (context as Batch);
-                                    @if (item!.IsActive)
+                            <DexForm Model="AssignShotToBatch" OnValidSubmit="AssignBatchToShot">
+                                <Fields>
+                                    <FormItem Field="@nameof(UpsertBatchDto.BatchNumber)" ColumnSpan="2">
+                                        <Template>
+                                            <label class="e-form-label">Select Batch:</label>
+                                            <SfAutoComplete TValue="string" TItem="Batch" Placeholder="Batch Number"
+                                                            DataSource="@_batchList">
+                                                <AutoCompleteFieldSettings Value="BatchNumber" Text="BatchNumber"/>
+                                                <AutoCompleteEvents TValue="string" TItem="Batch"
+                                                                    ValueChange="OnChangeBatch"></AutoCompleteEvents>
+                                            </SfAutoComplete>
+                                        </Template>
+                                    </FormItem>
+                                </Fields>
+                                <Buttons>
+                                    @if (!_isBatchFound)
                                     {
-                                        <MudText Color="MudColor.Primary"> Yes</MudText>
+                                        <DexLoadingButton Name="Create New Batch"
+                                                          Click="() => UpsertBatch(Guid.Empty)"/>
                                     }
                                     else
                                     {
-                                        <MudText Color="MudColor.Error"> No</MudText>
+                                        <DexLoadingButton Name="Assign Batch" Type="MudButtonType.Submit"/>
                                     }
-                                }
-                            </Template>
+                                    <DexLoadingButton Name="Search Batch" Click="SearchBatch"/>
+                                </Buttons>
+                            </DexForm>
+                        }
+                    </MudItem>
+                }
+                else
+                {
+                    <PermissionDenied/>
+                }
+                <MudItem md="12">
+                    <DexGrid DataSource="ShotBatchDetails" Height="200px">
+                        <DexGridColumns>
+                            <GridColumn Field="@nameof(Batch.BatchNumber)" HeaderText="Batch"
+                                        Width="120px"></GridColumn>
+                            <GridColumn Field="@nameof(Batch.Expiry)" Format="d" Type="ColumnType.DateTime"
+                                        HeaderText="Expiry" Width="120px"></GridColumn>
+                            <GridColumn Field="@nameof(Batch.TradeName)" HeaderText="Trade Name"
+                                        Width="120px"></GridColumn>
+                            <GridColumn Field="@nameof(Batch.BatchCount)" HeaderText="Batch Total"
+                                        Width="120px"></GridColumn>
+                            <GridColumn Field="@nameof(Batch.Remaining)" HeaderText="Remaining"
+                                        Width="120px"></GridColumn>
+                            <GridColumn Field="@nameof(Batch.IsActive)" HeaderText="Active" Width="120px">
+                                <Template>
+                                    @{
+                                        var item = (context as Batch);
+                                        @if (item!.IsActive)
+                                        {
+                                            <MudText Color="MudColor.Primary"> Yes</MudText>
+                                        }
+                                        else
+                                        {
+                                            <MudText Color="MudColor.Error"> No</MudText>
+                                        }
+                                    }
+                                </Template>
 
-                        </GridColumn>
-                        <GridColumn HeaderText="Actions" Width="120">
-                            <Template>
-                                @{
-                                    var item = (context as Batch);
-                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
-                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit" Color="MudColor.Primary" OnClick="() => UpsertBatch(item!.Id)"/>
-                                }
-                            </Template>
-                        </GridColumn>
-                    </DexGridColumns>
-                </DexGrid>
-            </MudItem>
-        </MudStack>
-    </MudItem>
-</MudStack>
+                            </GridColumn>
+                            <GridColumn HeaderText="Actions" Width="120">
+                                <Template>
+                                    @{
+                                        var item = (context as Batch);
+                                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                                       Color="MudColor.Error" OnClick="() => DeleteBatch(item!.Id)"/>
+                                        <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                                                       Color="MudColor.Primary" OnClick="() => UpsertBatch(item!.Id)"/>
+                                    }
+                                </Template>
+                            </GridColumn>
+                        </DexGridColumns>
+                    </DexGrid>
+                </MudItem>
+            </MudStack>
+        </MudItem>
+    </MudStack>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
     private List<Shot> ShotsList { get; set; } = [];

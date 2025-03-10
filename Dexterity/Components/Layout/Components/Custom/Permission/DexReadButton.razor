@@ -1,0 +1,13 @@
+﻿@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="OnClick" Variant="Variant.Filled">
+       @Label
+    </MudButton>
+}
+
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public string Label { get; set; }
+
+
+}

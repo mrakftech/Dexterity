@@ -5,7 +5,7 @@
 <TabTitle Title="Send Email"></TabTitle>
 <div class="vertical-space">
 
-    <DexForm Model="@_mailRequest" OnValidSubmit="SendSmsClick">
+    <DexForm Model="@_mailRequest" OnValidSubmit="SendSmsClick" IsPermissionForm>
         <Fields>
             <FormItem Field="@nameof(MailRequest.Body)">
                 <Template>

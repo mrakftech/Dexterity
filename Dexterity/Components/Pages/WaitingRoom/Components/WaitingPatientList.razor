@@ -1,21 +1,41 @@
-﻿@using Services.Features.WaitingRoom.Dtos
-<SfGrid Toolbar="@(new List<string>() {"Search"})" @ref="@WaitingPatientGrid" DataSource="Patients" AllowSelection="true" AllowPaging="true">
-    <GridPageSettings PageSize="10"></GridPageSettings>
-    <GridEvents RowSelected="RowSelected" RowDeselected="RowDeselected" TValue="WaitingPatientDto"></GridEvents>
-    <GridColumns>
-        <GridColumn Field="@nameof(WaitingPatientDto.Time)" HeaderText="Time" Type="ColumnType.TimeOnly" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.PatientName)" HeaderText="Patient Name" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.PatientType)" HeaderText="Patient Type" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.AppointmentType)" HeaderText="Appointment Type" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.Hcp)" HeaderText="HCP" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.Status)" HeaderText="Status" Width="90"></GridColumn>
-        <GridColumn Field="@nameof(WaitingPatientDto.PersonalBalance)" HeaderText="Personal Balance" Format="C" Width="90"></GridColumn>
-    </GridColumns>
-</SfGrid>
-<SfSpinner @bind-Visible="@Loading">
-</SfSpinner>
+﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.WaitingRoom.Dtos
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <div class="ma-2">
+        <PatientInfoCard Patient="Patient"/>
+    </div>
+    
+    <SfGrid Toolbar="@(new List<string>() {"Search"})" @ref="@WaitingPatientGrid" DataSource="Patients"
+            AllowSelection="true" AllowPaging="true">
+        <GridPageSettings PageSize="10"></GridPageSettings>
+        <GridEvents RowSelected="RowSelected" RowDeselected="RowDeselected" TValue="WaitingPatientDto"></GridEvents>
+        <GridColumns>
+            <GridColumn Field="@nameof(WaitingPatientDto.Time)" HeaderText="Time" Type="ColumnType.TimeOnly"
+                        Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.PatientName)" HeaderText="Patient Name"
+                        Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.PatientType)" HeaderText="Patient Type"
+                        Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.AppointmentType)" HeaderText="Appointment Type"
+                        Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.Hcp)" HeaderText="HCP" Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.Status)" HeaderText="Status" Width="90"></GridColumn>
+            <GridColumn Field="@nameof(WaitingPatientDto.PersonalBalance)" HeaderText="Personal Balance" Format="C"
+                        Width="90"></GridColumn>
+        </GridColumns>
+    </SfGrid>
+    <SfSpinner @bind-Visible="@Loading">
+    </SfSpinner>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
+    [Parameter] public  PatientSummaryDto Patient { get; set; } = new();
     [Parameter] public List<WaitingPatientDto> Patients { get; set; } = new();
     [Parameter] public SfGrid<WaitingPatientDto> WaitingPatientGrid { get; set; } = new();
     [Parameter] public bool Loading { get; set; }

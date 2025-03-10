@@ -48,9 +48,9 @@
         <DexLoadingButton Name="Save" Processing="_loading"/>
         @if (_availabilityExceptionData.Id != Guid.Empty)
         {
-            <DexSimpleButton Name="Delete" Color="Color.Error"
+            <DexButton Name="Delete" Color="Color.Error"
                              Click="()=>DeleteException(_availabilityExceptionData.Id)"/>
-            <DexSimpleButton Name="New" Click="NewException"/>
+            <DexButton Name="New" Click="NewException"/>
         }
     </Buttons>
 </DexForm>

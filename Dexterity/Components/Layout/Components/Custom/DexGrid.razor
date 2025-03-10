@@ -1,24 +1,32 @@
-﻿<SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})" AllowPaging="ShowPager">
-    @if (ShowPager)
-    {
+﻿@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <SfGrid DataSource="@DataSource" Width="auto" Height="@Height" Toolbar="@(new List<string>() {"Search"})" AllowPaging="ShowPager">
+        @if (ShowPager)
+        {
 
-        <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
-    }
-    <GridTemplates>
-        @DexRowTemplate
-    </GridTemplates>
-    <GridTemplates>
-        <EmptyRecordTemplate>
-            <span>No records to display. create new one</span>
-        </EmptyRecordTemplate>
-    </GridTemplates>
-    <GridColumns>
-        @DexGridColumns
-    </GridColumns>
-    @DexTemplates
-    <SfSpinner @bind-Visible="@Loading">
-    </SfSpinner>
-</SfGrid>
+            <GridPageSettings PageCount="5" PageSizes="true"></GridPageSettings>
+        }
+        <GridTemplates>
+            @DexRowTemplate
+        </GridTemplates>
+        <GridTemplates>
+            <EmptyRecordTemplate>
+                <span>No records to display. create new one</span>
+            </EmptyRecordTemplate>
+        </GridTemplates>
+        <GridColumns>
+            @DexGridColumns
+        </GridColumns>
+        @DexTemplates
+        <SfSpinner @bind-Visible="@Loading">
+        </SfSpinner>
+    </SfGrid>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
     [Parameter] public IEnumerable<object> DataSource { get; set; }

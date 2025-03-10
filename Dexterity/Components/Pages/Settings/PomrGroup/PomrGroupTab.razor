@@ -2,8 +2,8 @@
 <TabTitle Title="POMR Groups" Icon="carrier-group.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertPomrGroupModal(0)" Variant="Variant.Filled">Add New POMR Group</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetPomrGroups" Variant="Variant.Filled">Load POMR Groups</MudButton>
+            <DexCreateButton Label="Add New POMR Group" OnClick="() => UpsertPomrGroupModal(0)"/>
+            <DexReadButton Label="Load POMR Groups"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
@@ -28,11 +28,8 @@
 </MudItem>
 
 @code{
-
     private List<PomrGroup> PomrGroups { get; set; } = new();
-    
     private bool _processing;
-
     protected override async Task OnInitializedAsync()
     {
         await GetPomrGroups();

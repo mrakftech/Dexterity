@@ -148,8 +148,8 @@
                 <DexLoadingButton Name="Save & Close" Processing="_loading" Click="() => SaveDetail(true)"/>
                 @if (_id != Guid.Empty)
                 {
-                    <DexSimpleButton Name="Delete" Click="() => Delete(_id)"/>
-                    <DexSimpleButton Name="New Detail" Click="NewDetail"/>
+                    <DexButton Name="Delete" Click="() => Delete(_id)"/>
+                    <DexButton Name="New Detail" Click="NewDetail"/>
                 }
 
             </Buttons>

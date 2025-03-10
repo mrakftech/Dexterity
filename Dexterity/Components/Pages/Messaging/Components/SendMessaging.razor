@@ -3,7 +3,7 @@
 @using Services.Features.PatientManagement.Dtos.Details
 <TabTitle Title="Send SMS"></TabTitle>
 <div class="vertical-space">
-    <DexForm Model="@_messageDto" OnValidSubmit="SendSmsClick">
+    <DexForm Model="@_messageDto" OnValidSubmit="SendSmsClick" IsPermissionForm>
         <Fields>
             <FormItem Field="@nameof(SendMessageDto.Content)">
                 <Template>

@@ -3,24 +3,23 @@
 <TabTitle Title="Appointment Cancel Reasons" Icon="appt-cancelled.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="() => UpsertAppointmentCancelModal(Guid.Empty)" Variant="Variant.Filled">Add  Appointment Cancel Reason</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetAppointmentTypeList" Variant="Variant.Filled">Load Appointment Cancel Reasons</MudButton>
+            <DexReadButton Label="Load Appointment Cancel Reasons" OnClick="GetAppointmentTypeList"/>
+            <DexUpdateButton Label="Add Appointment Cancel Reason"
+                             OnClick="() => UpsertAppointmentCancelModal(Guid.Empty)"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
-<MudItem >
+<MudItem>
     <DexGrid DataSource="AppointmentCancelReasonList" Loading="@_processing">
         <DexGridColumns>
-            <GridColumn Field="@nameof(AppointmentCancellationReason.Reason)" HeaderText="Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(AppointmentCancellationReason.Reason)" HeaderText="Name"
+                        Width="120px"></GridColumn>
             <GridColumn HeaderText="Actions" Width="120">
                 <Template>
                     @{
-                    var item = (context as AppointmentCancellationReason);
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                   Color="MudColor.Primary"
-                                   OnClick="() => UpsertAppointmentCancelModal(item!.Id)" />
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                   Color="MudColor.Error" OnClick="() => DeleteAppointmentReasonCancel(item.Id)" />
+                        var item = (context as AppointmentCancellationReason);
+                        <DexUpdateButton OnClick="() => UpsertAppointmentCancelModal(item!.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteAppointmentReasonCancel(item.Id)"/>
                     }
                 </Template>
             </GridColumn>
@@ -32,23 +31,24 @@
 
     private List<AppointmentCancellationReason> AppointmentCancelReasonList { get; set; } = new();
     private bool _processing;
-    
+
     protected override async Task OnInitializedAsync()
     {
         await GetAppointmentTypeList();
     }
+
     private async Task GetAppointmentTypeList()
     {
         _processing = true;
         AppointmentCancelReasonList = await UnitOfWork.Setting.GetAppointmentCancelReasons();
         _processing = false;
-
     }
+
     private async Task UpsertAppointmentCancelModal(Guid id)
     {
         var title = id == Guid.Empty ? "New Appointment Cancel Reason" : "Edit Appointment Cancel Reason";
-        var parameters = new DialogParameters { { "Id", id } };
-        var options = new DialogOptions() { CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center };
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<CancelReasonFormDialog>(title, parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)
@@ -56,6 +56,7 @@
             await GetAppointmentTypeList();
         }
     }
+
     private async Task DeleteAppointmentReasonCancel(Guid id)
     {
         var parameters = new DialogParameters();

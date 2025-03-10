@@ -25,7 +25,8 @@
                     <FormItem Field="@nameof(AppointmentDto.StartTime)" ColumnSpan="2">
                         <Template>
                             <label class="e-form-label">Start Time:</label>
-                            <SfDateTimePicker  Min="@MinDate" TValue="DateTime" Value="@Appointment.StartTime" MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
+                            <SfDateTimePicker Min="@MinDate" TValue="DateTime" Value="@Appointment.StartTime"
+                                              MinTime="@MinTime" MaxTime="@MaxTime" Step="15">
                                 <DateTimePickerEvents TValue="DateTime" ValueChange="@OnChange">
                                 </DateTimePickerEvents>
                             </SfDateTimePicker>
@@ -62,11 +63,13 @@
                             </SfDropDownList>
                         </Template>
                     </FormItem>
-                    <FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1" >
+                    <FormItem Field="@nameof(AppointmentDto.Duration)" ColumnSpan="1">
                         <Template>
                             <label class="e-form-label">Duration:</label>
-                            <SfNumericTextBox TValue="int" Value=@Appointment.Duration Min="@AppointmentConstants.AppointmentInterval" Step="@AppointmentConstants.AppointmentInterval"
-                                              Max="60" ></SfNumericTextBox>
+                            <SfNumericTextBox TValue="int" Value=@Appointment.Duration
+                                              Min="@AppointmentConstants.AppointmentInterval"
+                                              Step="@AppointmentConstants.AppointmentInterval"
+                                              Max="60"></SfNumericTextBox>
                         </Template>
                     </FormItem>
                     <FormItem Field="@nameof(AppointmentDto.Description)" ColumnSpan="2">
@@ -85,14 +88,27 @@
         <ActionButtons>
             @if (Id != Guid.Empty)
             {
-                <DexSimpleButton Name="Cancel " Click="@CancelAppointment" Icon="fas fa-ban" FullWidth=false
-                                 Color="MudColor.Secondary"></DexSimpleButton>
-                <DexSimpleButton Name="Delete" Click="() => DeleteAppointment(Id)" Icon="fas fa-trash"
-                                 FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                <MudMenu Label="View More Details" Color="Color.Primary" Variant="Variant.Filled">
+                    <MudMenuItem OnClick="ViewPatientDetails" >
+                        View Patient Details
+                    </MudMenuItem>
+                    <MudMenuItem OnClick="ViewConsultation">
+                        View Consultation Details
+                    </MudMenuItem>
+                    <MudMenuItem  OnClick="ViewAppointmentCard">
+                        View Appointment Card
+                    </MudMenuItem>
+                </MudMenu>
+                <BootstrapButton Name="Cancel" Click="CancelAppointment" Type="@UiConstants.Bootstrap.Danger"
+                              Icon="fas fa-ban"/>
+                <BootstrapButton Name="Delete" Click="() => DeleteAppointment(Id)" Type="@UiConstants.Bootstrap.Danger"
+                              Icon="fas fa-trash"/>
+
                 @if (Appointment.IsSeries)
                 {
-                    <DexSimpleButton Name="Delete Series" Click="() => DeleteAppointmentSeries(Appointment.CustomRecurrenceId)" Icon="fas fa-trash"
-                                     FullWidth=false Color="MudColor.Secondary"></DexSimpleButton>
+                    <BootstrapButton Name="Delete Series"
+                                  Click="() => DeleteAppointmentSeries(Appointment.CustomRecurrenceId)"
+                                  Type="@UiConstants.Bootstrap.Danger" Icon="fas fa-trash"/>
                 }
             }
         </ActionButtons>
@@ -124,6 +140,7 @@ else
 
     private DateTime MinTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 9, 00, 0);
     private DateTime MaxTime { get; set; } = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.Today.Day, 17, 00, 0);
+
     protected override async Task OnInitializedAsync()
     {
         _loadScreen = true;
@@ -250,11 +267,11 @@ else
             MudDialog.Close();
         }
     }
-    
+
     private async Task DeleteAppointmentSeries(Guid id)
     {
         var parameters = new DialogParameters();
-        parameters.Add("ContentText","are you sure you want to delete series?");
+        parameters.Add("ContentText", "are you sure you want to delete series?");
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
         var result = await dialogresult.Result;
         if (!result.Canceled)
@@ -269,6 +286,31 @@ else
     {
         Appointment.StartTime = args.Value;
         StateHasChanged();
+    }
+
+    private async Task ViewPatientDetails()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("PatientId", Appointment.PatientId);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<PatientSummary>("", parameters, options);
+    }
+
+    private void ViewConsultation()
+    {
+        Snackbar.SuccessMessage("Consultation Not Selected");
+    }
+
+    private async Task ViewAppointmentCard()
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Appointment", Appointment);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogResult = await DialogService.ShowAsync<AppointmentCard>("", parameters, options);
+        var result = await dialogResult.Result;
+        if (!result.Canceled)
+        {
+        }
     }
 
 }

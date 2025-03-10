@@ -2,12 +2,12 @@
 <TabTitle Title="Clinics" Icon="clinic.png">
     <ActionButtons>
         <MudStack Row>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" Variant="Variant.Filled" OnClick="() => OpenUpsertClinicModal(0)">Add New Clinic</MudButton>
-            <MudButton Color="MudColor.Primary" Size="MudSize.Small" OnClick="GetClinics" Variant="Variant.Filled">Load Clinics</MudButton>
+            <DexCreateButton Label="Add New Clinic" OnClick="() => OpenUpsertClinicModal(0)"/>
+            <DexReadButton Label="Load Clinics" OnClick="GetClinics"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
-<MudItem >
+<MudItem>
     <DexGrid DataSource="ClinicList" Loading="@_processing">
         <DexGridColumns>
             <GridColumn Field="@nameof(ClinicDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
@@ -15,21 +15,19 @@
             <GridColumn HeaderText="Actions" Width="80">
                 <Template>
                     @{
-                    var item = (context as ClinicDto);
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                   Color="MudColor.Primary"
-                                   OnClick="() => OpenUpsertClinicModal(item.Id)"/>
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                   Color="MudColor.Error" OnClick="() => DeleteClinic(item.Id)"/>
+                        var item = (context as ClinicDto);
+                        <DexUpdateButton OnClick="() => OpenUpsertClinicModal(item.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteClinic(item.Id)"/>
                     }
                 </Template>
             </GridColumn>
         </DexGridColumns>
     </DexGrid>
 </MudItem>
+
 @code {
     private List<ClinicDto> ClinicList { get; set; } = new();
-    
+
     private bool _processing;
 
     private async Task GetClinics()

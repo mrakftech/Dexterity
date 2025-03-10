@@ -1,0 +1,11 @@
+﻿@if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+{
+    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
+                   Color="MudColor.Primary" OnClick="OnClick"/>
+}
+
+
+@code {
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public string Label { get; set; }
+}

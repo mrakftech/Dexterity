@@ -3,7 +3,7 @@
 @using Services.Features.PatientManagement.Dtos.Details
 <TabTitle Title="Patient Group Alerts">
     <ActionButtons>
-        <DexSimpleButton Name="Load Patients" Click="GetPatients"/>
+        <DexButton Name="Load Patients" Click="GetPatients"/>
     </ActionButtons>
 </TabTitle>
 <SfTab CssClass="mt-5">
@@ -17,7 +17,7 @@
                     <ActionButtons>
                         @if (SelectedPatients.Count > 0)
                         {
-                            <DexSimpleButton Name="Create Alert" Click="AddNewPatientGroupAlert"/>
+                            <DexButton Name="Create Alert" Click="AddNewPatientGroupAlert"/>
                         }
                     </ActionButtons>
                 </TabTitle>

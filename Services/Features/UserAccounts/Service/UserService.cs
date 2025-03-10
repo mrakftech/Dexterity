@@ -14,13 +14,15 @@ using Shared.Wrapper;
 
 namespace Services.Features.UserAccounts.Service;
 
-public class UserService(ApplicationDbContext context, IMapper mapper)
+public class UserService(IMapper mapper, IDbContextFactory<ApplicationDbContext> contextFactory)
     : IUserService
 {
     #region User
 
     public async Task<Result<LoginResponseDto>> LoginAsync(LoginDto dto)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userInDb = await context.Users.Include(x => x.Role)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Username == dto.Username);
@@ -66,6 +68,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             ResetPasswordAt = userInDb.ResetPasswordAt,
         };
         ApplicationState.Auth.CurrentUser = response;
+        ApplicationState.Auth.CurrentUser.IsAdmin = await IsAdmin();
+        ApplicationState.Auth.CurrentUser.PermissionClaims = await GetPermissionsByRoles(response.RoleId);
         //reseting failed attempted
         await ResetFailedAttempted(userInDb.Id);
         return await Result<LoginResponseDto>.SuccessAsync("User Logged in successfully.");
@@ -73,6 +77,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserResponseDto>> GetUsers()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userList = await context.Users
             .Include(x => x.Role)
             .Include(x => x.UserType)
@@ -86,6 +92,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<UserResponseDto> GetUser(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var userInDb = await context.Users
             .Include(x => x.Role)
             .Include(x => x.UserClinics)
@@ -98,6 +105,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (id == Guid.Empty)
             {
                 if (context.Users.Any(x => x.Username == request.Username))
@@ -143,6 +152,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteUser(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
         if (userInDb is null)
         {
@@ -162,6 +173,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> UnblockAccount(Guid userId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userInDb = await context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId);
@@ -181,6 +194,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Guid>> GetAdminIds()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var adminRole = await context.Roles.FirstOrDefaultAsync(x => x.Name == RoleConstants.AdministratorRole);
         return await context.Users
             .Where(x => x.RoleId == adminRole.Id)
@@ -196,24 +211,28 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     #endregion
 
-
-
     #region Roles
 
     public async Task<RoleResponseDto> GetUserRole(Guid roleId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == roleId);
         return mapper.Map<RoleResponseDto>(roleInDb);
     }
 
     public async Task<Guid> GetRoleId(string name)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == name);
         return role.Id;
     }
 
     public async Task<bool> IsAdmin()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var isAdmin = await context.Roles.FirstOrDefaultAsync(x =>
             x.Id == ApplicationState.Auth.CurrentUser.RoleId && x.Name == RoleConstants.AdministratorRole);
         return isAdmin is not null;
@@ -222,6 +241,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<RoleResponseDto>> GetRoles()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var role = await context.Roles.ToListAsync();
         var data = mapper.Map<List<RoleResponseDto>>(role);
         return data;
@@ -230,6 +251,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveRole(string name, Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (context.Roles.Any(x => x.Name == name))
         {
             return await Result.FailAsync("Role name is already avaialble");
@@ -268,6 +291,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteRole(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var roleInDb = await context.Roles.FirstOrDefaultAsync(x => x.Id == id);
         if (roleInDb == null)
             return await Result.FailAsync("Role not found");
@@ -281,8 +306,11 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     #endregion
 
     #region Persmissions
+
     private async Task AddPermissions(string roleName)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = new List<PermissionClaim>();
         var role = await context.Roles.FirstOrDefaultAsync(x => x.Name == roleName);
         var modules = await context.AppModules.OrderBy(x => x.Order).ToListAsync();
@@ -304,17 +332,27 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
         await context.PermissionClaims.AddRangeAsync(list);
     }
+    private async Task<List<PermissionClaim>> GetPermissionsByRoles(Guid roleId)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.PermissionClaims.Where(x => x.RoleId == roleId).ToListAsync();
+    }
     public bool CheckPermission(string claimName)
     {
-        var permissionClaim = context.PermissionClaims.FirstOrDefault(x =>
+        var permissionClaim = ApplicationState.Auth.CurrentUser.PermissionClaims.FirstOrDefault(x =>
             x.RoleId == ApplicationState.Auth.CurrentUser.RoleId &&
             x.ModuleId == ApplicationState.Auth.SelectedModuleId && x.ClaimName == claimName);
         return permissionClaim is not null && permissionClaim.Allowed;
     }
 
+   
+
     public async Task<List<PermissionResponseDto>> GetPermissions(Guid roleId, Guid moduleId)
     {
-        var permissions = await context.PermissionClaims.Where(x => x.RoleId == roleId && x.ModuleId == moduleId)
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var permissions = await context.PermissionClaims.AsNoTracking()
+            .Where(x => x.RoleId == roleId && x.ModuleId == moduleId)
             .ToListAsync();
         var data = mapper.Map<List<PermissionResponseDto>>(permissions);
         return data;
@@ -322,6 +360,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> UpdatePermissions(List<UpdatePermissionDto> requests)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         foreach (var request in requests)
         {
             var p = await context.PermissionClaims.AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.Id);
@@ -336,6 +376,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> ResetPassword(Guid userId, ResetPasswordDto dto)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userInDb = await context.Users.Include(x => x.Role)
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId);
@@ -361,11 +403,15 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserType>> GetUserTypes()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.UserTypes.ToListAsync();
     }
 
     public async Task<IResult> SaveUserType(string name, Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (context.UserTypes.Any(x => x.Name == name))
         {
             return await Result.FailAsync("Role name is already avaialble");
@@ -400,6 +446,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteUserType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userType = await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
         if (userType == null)
             return await Result.FailAsync("User Type not found");
@@ -412,6 +460,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<UserType> GetUserType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         return await context.UserTypes.FirstOrDefaultAsync(x => x.Id == id);
     }
 
@@ -421,6 +470,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<UserClinic>> GetUserClinics(Guid userId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         return await context.UserClinics.Include(x => x.Clinic)
             .Where(x => x.UserId == userId)
             .Include(x => x.Clinic).ToListAsync();
@@ -428,6 +478,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveUserClinic(int id, UserClinic request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         if (id == 0)
         {
             if (context.UserClinics.Any(x => x.ClinicId == request.ClinicId && x.UserId == request.UserId))
@@ -451,6 +502,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteClinic(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var clinic = context.UserClinics.FirstOrDefault(x => x.Id == id);
         if (clinic == null)
             return await Result.FailAsync("clinic not found.");
@@ -463,6 +516,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     public async Task<List<HealthcareDto>> GetUsersByClinic(int clinicId)
     {
         var list = new List<HealthcareDto>();
+        await using var context = await contextFactory.CreateDbContextAsync();
 
         var users = await context.UserClinics
             .AsNoTracking()
@@ -481,6 +535,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<HealthcareDto>> GetDoctors(int clinicId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userTypeId = await GetUserType(UserTypeConstants.Doctor);
         var users = await context.UserClinics
             .AsNoTracking()
@@ -490,7 +546,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
             .ToListAsync();
 
         return users.Where(x => x.UserTypeId == userTypeId).Select(mapper.Map<HealthcareDto>)
-           .ToList();
+            .ToList();
     }
 
     #endregion
@@ -499,6 +555,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     private async Task<Guid> GetUserType(string userType)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userTypeInDb = await context.UserTypes.FirstOrDefaultAsync(x => x.Name == userType);
         return userTypeInDb?.Id ?? Guid.Empty;
     }
@@ -507,6 +565,8 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             var user = await context.Users
                 .AsNoTracking()
                 .FirstOrDefaultAsync(x => x.Id == userId);
@@ -535,6 +595,7 @@ public class UserService(ApplicationDbContext context, IMapper mapper)
 
     private async Task ResetFailedAttempted(Guid userId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var user = await context.Users
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == userId);

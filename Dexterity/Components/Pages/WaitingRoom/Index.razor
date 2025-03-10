@@ -51,7 +51,7 @@
                                  Click="@(() => UpdatePatientStatus(AppointmentConstants.WaitingStatus.Completed))"/>
 
                     <DexMenuItem Disabled="@_disableConsultationBtn" Text="Edit Consultation" Icon="fas fa-pencil"
-                                 Click="@(() =>EditBeginConsultationDialog(_consultationId))" />
+                                 Click="@(() => EditBeginConsultationDialog(_consultationId))"/>
                 }
             }
             @if (_status == AppointmentConstants.WaitingStatus.Expected)
@@ -83,39 +83,37 @@
             <MudTabPanel Text="">
                 <TabTitle Title="@($"Patients Expected ({ExpectedPatients.Count})")">
                     <ActionButtons>
-                        <DexSimpleButton Name="Refresh" Click="GetExpectedPatients"/>
+                        <DexButton Name="Refresh" Click="GetExpectedPatients"/>
                     </ActionButtons>
                 </TabTitle>
-                <PatientInfoCard Patient="_patient"/>
                 <WaitingPatientList Patients="ExpectedPatients"
                                     Loading="_loading"
                                     WaitingPatientGrid="_grid"
+                                    Patient="_patient"
                                     RowSelected="GetPatientSelectedRecords"/>
             </MudTabPanel>
             <MudTabPanel Text="">
                 <TabTitle Title="@($"Patients Present ({PresentPatients.Count})")"/>
-                <PatientInfoCard Patient="_patient"/>
                 <WaitingPatientList Patients="PresentPatients"
                                     Loading="_loading"
                                     WaitingPatientGrid="_grid"
+                                    Patient="_patient"
                                     RowSelected="GetPatientSelectedRecords"/>
             </MudTabPanel>
-
             <MudTabPanel Text="">
                 <TabTitle Title="@($"In Consultation ({ConsultationPatients.Count})")"/>
-                <PatientInfoCard Patient="_patient"/>
                 <WaitingPatientList Patients="ConsultationPatients"
                                     Loading="_loading"
                                     WaitingPatientGrid="_grid"
+                                    Patient="_patient"
                                     RowSelected="GetPatientSelectedRecords"/>
             </MudTabPanel>
-
             <MudTabPanel Text="">
                 <TabTitle Title="@($"Visit History ({VisitHistoryPatients.Count})")"/>
-                <PatientInfoCard Patient="_patient"/>
                 <WaitingPatientList Patients="VisitHistoryPatients"
                                     Loading="_loading"
                                     WaitingPatientGrid="_grid"
+                                    Patient="_patient"
                                     RowSelected="GetPatientSelectedRecords"/>
             </MudTabPanel>
         </MudTabs>

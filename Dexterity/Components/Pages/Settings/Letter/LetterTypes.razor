@@ -1,25 +1,30 @@
 ﻿@using  Domain.Entities.Settings.Templates.Letter
-<DexLoadingButton Name="Add New" Click="()=>OpenTypeFormDialog(Guid.Empty)" Class="m-3"/>
 
-<SfGrid DataSource="@_letterTypes" AllowPaging="true"
-        Height="315">
-    <GridColumns>
-        <GridColumn Field="@nameof(LetterType.Name)" HeaderText="Name" IsPrimaryKey="true" 
-                    Width="120"/>
-        <GridColumn>
-            <Template>
-                @{
-                    var item = (context as LetterType);
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Edit"
-                                   Color="MudColor.Primary"
-                                   OnClick="() => OpenTypeFormDialog(item.Id)" />
-                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
-                                   Color="MudColor.Error" OnClick="() => DeleteLetterType(item.Id)" />
-                }
-            </Template>
-        </GridColumn>
-    </GridColumns>
-</SfGrid>
+<DexCreateButton Label="Add New" OnClick="() => OpenTypeFormDialog(Guid.Empty)"/>
+
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <SfGrid DataSource="@_letterTypes" AllowPaging="true"
+            Height="315">
+        <GridColumns>
+            <GridColumn Field="@nameof(LetterType.Name)" HeaderText="Name" IsPrimaryKey="true"
+                        Width="120"/>
+            <GridColumn>
+                <Template>
+                    @{
+                        var item = (context as LetterType);
+                        <DexUpdateButton OnClick="() => OpenTypeFormDialog(item.Id)"/>
+                        <DexDeleteButton OnClick="() => DeleteLetterType(item.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </GridColumns>
+    </SfGrid>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 @code {
     private List<LetterType> _letterTypes = [];
@@ -46,8 +51,8 @@
             await GetLetterTypes();
         }
     }
-    
-    private async Task  DeleteLetterType(Guid id)
+
+    private async Task DeleteLetterType(Guid id)
     {
         var parameters = new DialogParameters();
         var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);

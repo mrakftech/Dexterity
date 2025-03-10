@@ -1,70 +1,91 @@
 ﻿@using Domain.Entities.Settings.Templates.InvestigationTemplates
 @using Services.Features.Settings.Dtos
 <TabTitle Title="Investigation Groups"></TabTitle>
-
-<MudStack Row>
-    <MudItem md="3">
-        <SfGrid DataSource="_groups" Height="400px">
-            <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationGroup"></GridEvents>
-            <GridColumns>
-                <GridColumn Field="@nameof(InvestigationGroup.Name)" />
-            </GridColumns>
-        </SfGrid>
-        <DexForm Model="_group" ColumnCount="2" OnValidSubmit="SaveInvestigationGroup">
-            <Fields>
-                <FormItem Field="@nameof(InvestigationGroup.Name)" ColumnSpan="2" />
-                <FormItem Field="@nameof(InvestigationGroup.IsActive)" LabelText="Active" ColumnSpan="2" />
-            </Fields>
-            <Buttons>
-                <DexLoadingButton Name="Save" Type="MudButtonType.Submit" />
-                @if (_group.Id != Guid.Empty)
-                {
-                    <DexLoadingButton Color="MudColor.Secondary" Name="Delete" Click="() => DeleteGroup(_group.Id)" />
-                }
-            </Buttons>
-        </DexForm>
-    </MudItem>
-    <MudItem md="8">
-        <div class="mt-2">
-            <SfGrid DataSource="_selectedInvestigations" Height="200px">
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudStack Row>
+        <MudItem md="3">
+            <SfGrid DataSource="_groups" Height="400px">
+                <GridEvents RowSelected="SelectedTemplateRow" TValue="InvestigationGroup"></GridEvents>
                 <GridColumns>
-                    <GridColumn Field="@nameof(AssignedInvestigationGroup.Id)" HeaderText="Investigations in Group">
-                        <Template>
-                            @{
-                                var item = (context as AssignedInvestigationGroup);
-                                <span>@item.InvestigationGroup.Name</span>
-                            }
-                        </Template>
-                    </GridColumn>
-                    <GridColumn HeaderText="Actions" Width="120">
-                        <Template>
-                            @{
-                                var item = (context as AssignedInvestigationGroup);
-                                <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete" Color="MudColor.Error" OnClick="() => DeleteAssignedGroup(item.Id)" />
-                            }
-                        </Template>
-                    </GridColumn>
+                    <GridColumn Field="@nameof(InvestigationGroup.Name)"/>
                 </GridColumns>
             </SfGrid>
-        </div>
-        <div class="mt-2">
-            @if (_selectedInvestigation.Id != Guid.Empty)
+            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create) || UnitOfWork.User.CheckPermission(PermissionConstants.Update))
             {
-                <button class="btn btn-sm btn-primary m-3" @onclick="AssignedInvestigations"><i class="fa fa-plus-circle"></i> Add</button>
+                <DexForm Model="_group" ColumnCount="2" OnValidSubmit="SaveInvestigationGroup">
+                    <Fields>
+                        <FormItem Field="@nameof(InvestigationGroup.Name)" ColumnSpan="2"/>
+                        <FormItem Field="@nameof(InvestigationGroup.IsActive)" LabelText="Active" ColumnSpan="2"/>
+                    </Fields>
+                    <Buttons>
+                        <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                        @if (_group.Id != Guid.Empty)
+                        {
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                            {
+                                <DexLoadingButton Color="MudColor.Secondary" Name="Delete"
+                                                  Click="() => DeleteGroup(_group.Id)"/>
+                            }
+                        }
+                    </Buttons>
+                </DexForm>
             }
-            @if (_group.Id != Guid.Empty)
+            else
             {
-                <SfGrid DataSource="_investigations" Height="200px">
-                    <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDto"></GridEvents>
+                <PermissionDenied/>
+            }
+        </MudItem>
+        <MudItem md="8">
+            <div class="mt-2">
+                <SfGrid DataSource="_selectedInvestigations" Height="200px">
                     <GridColumns>
-                        <GridColumn Field="@nameof(InvestigationDto.Name)" HeaderText="Add Investigation to Group" />
-
+                        <GridColumn Field="@nameof(AssignedInvestigationGroup.Id)" HeaderText="Investigations in Group">
+                            <Template>
+                                @{
+                                    var item = (context as AssignedInvestigationGroup);
+                                    <span>@item.InvestigationGroup.Name</span>
+                                }
+                            </Template>
+                        </GridColumn>
+                        <GridColumn HeaderText="Actions" Width="120">
+                            <Template>
+                                @{
+                                    var item = (context as AssignedInvestigationGroup);
+                                    <MudIconButton Size="@MudSize.Small" Icon="@MudIcons.Material.Outlined.Delete"
+                                                   Color="MudColor.Error" OnClick="() => DeleteAssignedGroup(item.Id)"/>
+                                }
+                            </Template>
+                        </GridColumn>
                     </GridColumns>
                 </SfGrid>
-            }
-        </div>
-    </MudItem>
-</MudStack>
+            </div>
+            <div class="mt-2">
+                @if (_selectedInvestigation.Id != Guid.Empty)
+                {
+                    <button class="btn btn-sm btn-primary m-3" @onclick="AssignedInvestigations">
+                        <i
+                            class="fa fa-plus-circle"></i> Add
+                    </button>
+                }
+                @if (_group.Id != Guid.Empty)
+                {
+                    <SfGrid DataSource="_investigations" Height="200px">
+                        <GridEvents RowSelected="SelectedDetailRow" TValue="InvestigationDto"></GridEvents>
+                        <GridColumns>
+                            <GridColumn Field="@nameof(InvestigationDto.Name)" HeaderText="Add Investigation to Group"/>
+
+                        </GridColumns>
+                    </SfGrid>
+                }
+            </div>
+        </MudItem>
+    </MudStack>
+}
+else
+{
+    <PermissionDenied/>
+}
 
 @code {
     private List<InvestigationGroup> _groups = new();

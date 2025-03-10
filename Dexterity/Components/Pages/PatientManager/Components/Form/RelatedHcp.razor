@@ -7,8 +7,8 @@
         <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
         <DropDownListEvents TItem="RelatedHcpDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
     </SfDropDownList>
-    <DexSimpleButton FullWidth="false" Name="Edit" Click="EditHcp" Disabled="_disableButtons"></DexSimpleButton>
-    <DexSimpleButton FullWidth="false" Name="Delete" Click="DeleteHcp" Disabled="_disableButtons"></DexSimpleButton>
+    <DexButton FullWidth="false" Name="Edit" Click="EditHcp" Disabled="_disableButtons"></DexButton>
+    <DexButton FullWidth="false" Name="Delete" Click="DeleteHcp" Disabled="_disableButtons"></DexButton>
     
 </SfAppBar>
 <SfDataForm Model="@_patientHcp"

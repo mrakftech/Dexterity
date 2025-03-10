@@ -22,7 +22,7 @@
                                 <DropDownListEvents TItem="AlertCategory" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
                             </SfDropDownList>
                             <MudButton Variant="Variant.Filled" Color="MudColor.Primary" DropShadow="false" OnClick="@ToggleOpen">Add</MudButton>
-                            <DexSimpleButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexSimpleButton>
+                            <DexButton FullWidth="false" Name="Delete" Disabled="_disableButtons" Click="DeleteCategory"></DexButton>
                             <MudPopover Open="_open" OverflowBehavior="OverflowBehavior.FlipAlways" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopCenter" Paper="false">
                                 <MudPaper Outlined="true" Class="px-4 py-8">
                                     <MudStack>
@@ -53,7 +53,7 @@
 <MudItem md="12" Class="mt-5">
     <TabTitle Title="Alerts">
         <ActionButtons>
-            <DexSimpleButton Name="Refresh" FullWidth="false" Click="() => GetPatientAlerts(Id)"></DexSimpleButton>
+            <DexButton Name="Refresh" FullWidth="false" Click="() => GetPatientAlerts(Id)"></DexButton>
         </ActionButtons>
     </TabTitle>
     <DexGrid DataSource="PatientAlertList" Loading="@_loading" Height="200px">
@@ -69,8 +69,8 @@
                     @{
                     var item = (context as PatientAlertDto);
                     <MudStack Row>
-                        <DexSimpleButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexSimpleButton>
-                        <DexSimpleButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexSimpleButton>
+                        <DexButton Color="MudColor.Default" Name="Delete" FullWidth="false" Click="() => DeletePatientAlert(item.Id)"></DexButton>
+                        <DexButton Color="MudColor.Default" Name="Resolve" FullWidth="false" Click="() => ResolvePatientAlert(item.Id)"></DexButton>
                     </MudStack>
                     }
                 </Template>

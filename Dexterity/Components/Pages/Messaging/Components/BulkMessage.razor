@@ -3,53 +3,64 @@
 @using SelectionType = Syncfusion.Blazor.Grids.SelectionType
 
 <TabTitle Title="Bulk SMS"></TabTitle>
-<div class="vertical-space">
-
-    <MudItem>
-        <MudStack>
-            <MudItem>
-                <MudStack Row>
-                    <MudItem>
-                        <RadzenMenu>
-                            <RadzenMenuItem Text="Load Group" Icon="home">
-                                <RadzenMenuItem Text="Patients">
-                                    <RadzenMenuItem Text="All Patients" Click="LoadPatients"></RadzenMenuItem>
-                                </RadzenMenuItem>
-                            </RadzenMenuItem>
-                        </RadzenMenu>
-                        
-                    </MudItem>
-                    @if (SelectedPatients is {Count: > 0})
-                    {
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <div class="vertical-space">
+        <MudItem>
+            <MudStack>
+                <MudItem>
+                    <MudStack Row>
                         <MudItem>
-                            <MudButton Color="MudColor.Primary" Variant="Variant.Filled" OnClick="SendBulkSms">Send Bulk Sms</MudButton>
-                        </MudItem>
-                    }
-                </MudStack>
-            </MudItem>
-            <MudItem>
+                            <RadzenMenu>
+                                <RadzenMenuItem Text="Load Group" Icon="home">
+                                    <RadzenMenuItem Text="Patients">
+                                        <RadzenMenuItem Text="All Patients" Click="LoadPatients"></RadzenMenuItem>
+                                    </RadzenMenuItem>
+                                </RadzenMenuItem>
+                            </RadzenMenu>
 
-            </MudItem>
-        </MudStack>
-    </MudItem>
-    @if (ValidPatients is {Count: > 0})
-    {
-        <SfGrid @ref="_grid" DataSource="@ValidPatients" Height="300px" AllowSelection="true" AllowPaging="true">
-            <GridPageSettings PageSize="10"></GridPageSettings>
-            <GridEvents RowSelected="GetSelectedRecords" RowDeselected="GetDeselectedRow" TValue="PatientListDto"/>
-            <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"/>
-            <GridColumns>
-                <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Name" Width="120px"/>
-                <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"/>
-                <GridColumn Field="@nameof(PatientListDto.MobilePhone)" HeaderText="Mobile" Width="120px"/>
-                <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"/>
-            </GridColumns>
-            <SfSpinner @bind-Visible="@_patientLoading">
-            </SfSpinner>
-        </SfGrid>
-    }
-</div>
+                        </MudItem>
+                        @if (SelectedPatients is {Count: > 0})
+                        {
+                            <MudItem>
+                                
+                                <MudButton Color="MudColor.Primary" Variant="Variant.Filled" OnClick="SendBulkSms">
+                                    Send Bulk Sms
+                                </MudButton>
+                            </MudItem>
+                        }
+                    </MudStack>
+                </MudItem>
+                <MudItem>
+
+                </MudItem>
+            </MudStack>
+        </MudItem>
+        @if (ValidPatients is {Count: > 0})
+        {
+            <SfGrid @ref="_grid" DataSource="@ValidPatients" Height="300px" AllowSelection="true" AllowPaging="true">
+                <GridPageSettings PageSize="10"></GridPageSettings>
+                <GridEvents RowSelected="GetSelectedRecords" RowDeselected="GetDeselectedRow" TValue="PatientListDto"/>
+                <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick"
+                                       Type="SelectionType.Multiple"/>
+                <GridColumns>
+                    <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
+                    <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Name" Width="120px"/>
+                    <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"/>
+                    <GridColumn Field="@nameof(PatientListDto.MobilePhone)" HeaderText="Mobile" Width="120px"/>
+                    <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"/>
+                </GridColumns>
+                <SfSpinner @bind-Visible="@_patientLoading">
+                </SfSpinner>
+            </SfGrid>
+        }
+    </div>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 
 @code {

@@ -1,77 +1,114 @@
 ﻿@using Domain.Entities.Settings.Templates.Forms
 <div class="m-2">
     <TabTitle Title="Custom Forms"></TabTitle>
-    <MudStack Row>
-        <MudItem md="3">
-            <SfGrid DataSource="CustomForms" AllowPaging="false">
-                <GridEvents TValue="CustomForm" RowSelected="SelectedCustomForm"></GridEvents>
-                <GridColumns>
-                    <GridColumn Field="@nameof(CustomForm.Name)"/>
-                </GridColumns>
-            </SfGrid>
-        </MudItem>
+    @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+    {
+        <MudStack Row>
+            <MudItem md="3">
+                <SfGrid DataSource="CustomForms" AllowPaging="false">
+                    <GridEvents TValue="CustomForm" RowSelected="SelectedCustomForm"></GridEvents>
+                    <GridColumns>
+                        <GridColumn Field="@nameof(CustomForm.Name)"/>
+                    </GridColumns>
+                </SfGrid>
+            </MudItem>
 
-        <MudItem md="9">
-            <MudStack>
-                <MudItem>
-                    <DexForm Model="CustomFormData" ColumnCount="2" OnValidSubmit="SaveCustomForm">
-                        <Fields>
-                            <FormItem Field="@nameof(CustomForm.Name)"/>
-                            <FormItem Field="@nameof(CustomForm.Type)">
-                                <Template>
-                                    <label class="e-form-label">Type</label>
-                                    <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string" Placeholder="Type" DataSource="@_types" @bind-Value="@CustomFormData.Type">
-                                        <DropDownListTemplates TItem="string">
-                                            <ItemTemplate Context="value">
-                                                <span>@value</span>
-                                            </ItemTemplate>
-                                        </DropDownListTemplates>
-                                    </SfDropDownList>
-                                </Template>
-                            </FormItem>
-                            <FormItem Field="@nameof(CustomForm.Description)" EditorType="FormEditorType.TextArea"/>
-                            <FormItem Field="@nameof(CustomForm.BasedOn)">
-                                <Template>
-                                    <label class="e-form-label">Based On</label>
-                                    <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string" Placeholder="Based On" DataSource="@_types" @bind-Value="@CustomFormData.Type">
-                                        <DropDownListTemplates TItem="string">
-                                            <ItemTemplate Context="value">
-                                                <span>@value</span>
-                                            </ItemTemplate>
-                                        </DropDownListTemplates>
-                                    </SfDropDownList>
-                                </Template>
-                            </FormItem>
-                            <FormItem Field="@nameof(CustomForm.IsActive)" LabelText="Active"/>
-                        </Fields>
-                        <Buttons>
-                            <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
-                            @if (_selectedFormId != Guid.Empty)
+            <MudItem md="9">
+                <MudStack>
+                    <MudItem>
+                        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
+                        {
+                            <DexForm Model="CustomFormData" ColumnCount="2" OnValidSubmit="SaveCustomForm">
+                                <Fields>
+                                    <FormItem Field="@nameof(CustomForm.Name)"/>
+                                    <FormItem Field="@nameof(CustomForm.Type)">
+                                        <Template>
+                                            <label class="e-form-label">Type</label>
+                                            <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string"
+                                                            Placeholder="Type" DataSource="@_types"
+                                                            @bind-Value="@CustomFormData.Type">
+                                                <DropDownListTemplates TItem="string">
+                                                    <ItemTemplate Context="value">
+                                                        <span>@value</span>
+                                                    </ItemTemplate>
+                                                </DropDownListTemplates>
+                                            </SfDropDownList>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(CustomForm.Description)"
+                                              EditorType="FormEditorType.TextArea"/>
+                                    <FormItem Field="@nameof(CustomForm.BasedOn)">
+                                        <Template>
+                                            <label class="e-form-label">Based On</label>
+                                            <SfDropDownList CssClass="" TValue="CustomFormType" TItem="string"
+                                                            Placeholder="Based On" DataSource="@_types"
+                                                            @bind-Value="@CustomFormData.Type">
+                                                <DropDownListTemplates TItem="string">
+                                                    <ItemTemplate Context="value">
+                                                        <span>@value</span>
+                                                    </ItemTemplate>
+                                                </DropDownListTemplates>
+                                            </SfDropDownList>
+                                        </Template>
+                                    </FormItem>
+                                    <FormItem Field="@nameof(CustomForm.IsActive)" LabelText="Active"/>
+                                </Fields>
+                                <Buttons>
+                                    <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                                    @if (_selectedFormId != Guid.Empty)
+                                    {
+                                        <DexLoadingButton Name="Add New" Click="NewCustomForm"/>
+                                    }
+                                </Buttons>
+                            </DexForm>
+                        }
+                    </MudItem>
+                    <MudItem>
+                        <MudStack Row>
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
                             {
-                                <DexLoadingButton Name="Add New" Click="NewCustomForm"/>
+                                <DexSfButton Name="Add Template" Disabled="@(_selectedFormId == Guid.Empty)"
+                                             Icon="plus.png"
+                                             Click="() => TemplateFormDialog(Guid.Empty)"/>
                             }
-                        </Buttons>
-                    </DexForm>
-                </MudItem>
-                <MudItem>
-                    <MudStack Row>
-                        <DexSfButton Name="Add Template" Disabled="@(_selectedFormId == Guid.Empty)" Icon="plus.png" Click="() => TemplateFormDialog(Guid.Empty)"/>
-                        <DexSfButton Name="Edit" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="edit.png" Click="() => TemplateFormDialog(_selectedFormTemplateId)"/>
-                        <DexSfButton Name="Copy" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="copy.png" Click="() => CopyTemplate(_selectedFormTemplateId)"/>
-                        <DexSfButton Name="Delete" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="delete.png" Click="() => DeleteFormTemplate(_selectedFormTemplateId)"/>
-                        <DexSfButton Name="Attach" Disabled="@(_selectedFormTemplateId == Guid.Empty)" Icon="attachment.png"/>
-                    </MudStack>
-                    <SfGrid DataSource="FormTemplates" Height="300px" AllowPaging="false">
-                        <GridEvents TValue="CustomFormTemplate" RowSelected="SelectedFormTemplate"></GridEvents>
-                        <GridColumns>
-                            <GridColumn Field="@nameof(CustomFormTemplate.Description)"/>
-                            <GridColumn Field="@nameof(CustomFormTemplate.Created)" Type="ColumnType.Date" Format="d"/>
-                        </GridColumns>
-                    </SfGrid>
-                </MudItem>
-            </MudStack>
-        </MudItem>
-    </MudStack>
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+                            {
+                                <DexSfButton Name="Edit" Disabled="@(_selectedFormTemplateId == Guid.Empty)"
+                                             Icon="edit.png"
+                                             Click="() => TemplateFormDialog(_selectedFormTemplateId)"/>
+                                <DexSfButton Name="Copy" Disabled="@(_selectedFormTemplateId == Guid.Empty)"
+                                             Icon="copy.png"
+                                             Click="() => CopyTemplate(_selectedFormTemplateId)"/>
+                            }
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                            {
+                                <DexSfButton Name="Delete" Disabled="@(_selectedFormTemplateId == Guid.Empty)"
+                                             Icon="delete.png"
+                                             Click="() => DeleteFormTemplate(_selectedFormTemplateId)"/>
+                            }
+                            @if (UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+                            {
+                                <DexSfButton Name="Attach" Disabled="@(_selectedFormTemplateId == Guid.Empty)"
+                                             Icon="attachment.png"/>
+                            }
+                        </MudStack>
+                        <SfGrid DataSource="FormTemplates" Height="300px" AllowPaging="false">
+                            <GridEvents TValue="CustomFormTemplate" RowSelected="SelectedFormTemplate"></GridEvents>
+                            <GridColumns>
+                                <GridColumn Field="@nameof(CustomFormTemplate.Description)"/>
+                                <GridColumn Field="@nameof(CustomFormTemplate.Created)" Type="ColumnType.Date"
+                                            Format="d"/>
+                            </GridColumns>
+                        </SfGrid>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        </MudStack>
+    }
+    else
+    {
+        <PermissionDenied/>
+    }
 </div>
 
 @code {
@@ -163,7 +200,6 @@
         if (!result.Canceled)
         {
             await GetCustomTemplates();
-
         }
     }
 

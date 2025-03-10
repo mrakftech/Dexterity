@@ -89,81 +89,96 @@
 
 <TabTitle Title="Courses" Icon="courses.png">
 </TabTitle>
+@if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+{
+    <MudItem md="4">
+        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create) || UnitOfWork.User.CheckPermission(PermissionConstants.Update))
+        {
+            <SfDropDownList TValue="string" TItem="Course" Placeholder="Select a Course" DataSource="@_courses"
+                            CssClass="mt-3">
+                <DropDownListFieldSettings Value="Name" Text="Name"/>
+                <DropDownListEvents TValue="string" TItem="Course" ValueChange="OnChangeCourse"></DropDownListEvents>
+            </SfDropDownList>
+            <DexForm Model="_course" OnValidSubmit="SaveCourse">
+                <Fields>
+                    <FormItem Field="@nameof(Course.Name)"/>
+                    <FormItem Field="@nameof(Course.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active"/>
+                </Fields>
+                <Buttons>
+                    <button type="submit" class="e-btn">@(_course.Id != Guid.Empty ? "Update" : "Add New")</button>
+                    <button class="e-btn" @onclick="ClearForm">Clear</button>
+                    @if (_course.Id != Guid.Empty)
+                    {
+                        @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
+                        {
+                            <button type="button" class="e-btn" @onclick="DeleteCourse">Delete</button>
+                        }
+                    }
+                </Buttons>
+            </DexForm>
+        }
 
-<MudItem md="4">
-
-    <SfDropDownList TValue="string" TItem="Course" Placeholder="Select a Course" DataSource="@_courses" CssClass="mt-3">
-        <DropDownListFieldSettings Value="Name" Text="Name"/>
-        <DropDownListEvents TValue="string" TItem="Course" ValueChange="OnChangeCourse"></DropDownListEvents>
-    </SfDropDownList>
-
-    <DexForm Model="_course" OnValidSubmit="SaveCourse">
-        <Fields>
-            <FormItem Field="@nameof(Course.Name)"/>
-            <FormItem Field="@nameof(Course.IsActive)" EditorType="FormEditorType.Checkbox" LabelText="Active"/>
-        </Fields>
-        <Buttons>
-            <button type="submit" class="e-btn">@(_course.Id != Guid.Empty ? "Update" : "Add New")</button>
-            <button class="e-btn" @onclick="ClearForm">Clear</button>
-            @if (_course.Id != Guid.Empty)
-            {
-                <button type="button" class="e-btn" @onclick="DeleteCourse">Delete</button>
-            }
-        </Buttons>
-    </DexForm>
-</MudItem>
-<MudGrid>
-    @if (_course.Id != Guid.Empty)
-    {
-        <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
-            <div id="container">
-                <div class="sample flex">
-                    <div class="flex">
-                        <div class="padding">
-                            <p class="text-bold">All Shots:</p>
-                            <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 1))"></SfTextBox>
-                            <SfListView DataSource="@_allShots">
-                                <ListViewFieldSettings TValue="Shot" Id="Id" Text="Name"></ListViewFieldSettings>
-                                <ListViewEvents TValue="Shot" Clicked="@(e => OnSelected(e, 1))"></ListViewEvents>
-                            </SfListView>
-                            <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(2))">@("Add Item")</button>
-
-                        </div>
-                        <div class="flex vertical vertical__center flex__center padding">
+    </MudItem>
+    <MudGrid>
+        @if (_course.Id != Guid.Empty)
+        {
+            <MudItem xs="12" sm="8" md="12" Class="d-flex flex-column align-center justify-center">
+                <div id="container">
+                    <div class="sample flex">
+                        <div class="flex">
                             <div class="padding">
+                                <p class="text-bold">All Shots:</p>
+                                <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 1))"></SfTextBox>
+                                <SfListView DataSource="@_allShots">
+                                    <ListViewFieldSettings TValue="Shot" Id="Id" Text="Name"></ListViewFieldSettings>
+                                    <ListViewEvents TValue="Shot" Clicked="@(e => OnSelected(e, 1))"></ListViewEvents>
+                                </SfListView>
+                                <button disabled="@(_sourceItemSelected == null)" class="e-btn m-3"
+                                        @onclick="@(() => OnButtonClick(2))">@("Add Item")</button>
+
+                            </div>
+                            <div class="flex vertical vertical__center flex__center padding">
+                                <div class="padding">
+                                </div>
+                                <div class="padding">
+                                </div>
                             </div>
                             <div class="padding">
-                            </div>
-                        </div>
-                        <div class="padding">
-                            <p class="text-bold">Selected Shots:@($"{_selectedShots.Count}")</p>
-                            <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 2))"></SfTextBox>
-                            <SfListView DataSource="@_destinationList">
-                                <ListViewFieldSettings Id="Id" Text="Name" TValue="Shot"></ListViewFieldSettings>
-                                <ListViewEvents TValue="Shot" Clicked="@(e => OnSelected(e, 2))"></ListViewEvents>
-                            </SfListView>
-                            <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3" @onclick="@(() => OnButtonClick(3))">@("Remove Item")</button>
+                                <p class="text-bold">Selected Shots:@($"{_selectedShots.Count}")</p>
+                                <SfTextBox Placeholder="Filter" Input="@(e => OnInput(e, 2))"></SfTextBox>
+                                <SfListView DataSource="@_destinationList">
+                                    <ListViewFieldSettings Id="Id" Text="Name" TValue="Shot"></ListViewFieldSettings>
+                                    <ListViewEvents TValue="Shot" Clicked="@(e => OnSelected(e, 2))"></ListViewEvents>
+                                </SfListView>
+                                <button disabled="@(_destinationItemSelected == null)" class="e-btn m-3"
+                                        @onclick="@(() => OnButtonClick(3))">@("Remove Item")</button>
 
+                            </div>
+                            @* <div class="flex vertical vertical__center flex__center padding"> *@
+                            @*     <div class="padding"> *@
+                            @*         <button class="e-btn" @onclick="MoveUp"> *@
+                            @*             <span class="fa fa-arrow-alt-circle-up"></span> *@
+                            @*         </button> *@
+                            @*     </div> *@
+                            @*     <div class="padding"> *@
+                            @*         <button class="e-btn" @onclick="MoveDown"> *@
+                            @*             <span class="fa fa-arrow-alt-circle-down"></span> *@
+                            @*         </button> *@
+                            @*     </div> *@
+                            @* </div> *@
                         </div>
-                        @* <div class="flex vertical vertical__center flex__center padding"> *@
-                        @*     <div class="padding"> *@
-                        @*         <button class="e-btn" @onclick="MoveUp"> *@
-                        @*             <span class="fa fa-arrow-alt-circle-up"></span> *@
-                        @*         </button> *@
-                        @*     </div> *@
-                        @*     <div class="padding"> *@
-                        @*         <button class="e-btn" @onclick="MoveDown"> *@
-                        @*             <span class="fa fa-arrow-alt-circle-down"></span> *@
-                        @*         </button> *@
-                        @*     </div> *@
-                        @* </div> *@
                     </div>
                 </div>
-            </div>
-            <button type="button" class="e-btn" @onclick="SelectCourse">Save</button>
-        </MudItem>
-    }
-</MudGrid>
+                <button type="button" class="e-btn" @onclick="SelectCourse">Save</button>
+            </MudItem>
+        }
+    </MudGrid>
+}
+else
+{
+    <PermissionDenied/>
+}
+
 
 @code {
     private List<Course> _courses = [];
