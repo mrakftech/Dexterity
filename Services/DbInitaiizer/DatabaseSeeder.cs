@@ -498,7 +498,7 @@ public class DatabaseSeeder(
             var c = new Clinic()
             {
                 Address = "Not set",
-                Name = "Clinic"
+                Name = "Clinic",
             };
             context.Clinics.Add(c);
             await context.SaveChangesAsync();

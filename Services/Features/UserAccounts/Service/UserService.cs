@@ -154,7 +154,10 @@ public class UserService(IMapper mapper, IDbContextFactory<ApplicationDbContext>
     {
         await using var context = await contextFactory.CreateDbContextAsync();
 
-        var userInDb = await context.Users.Include(x => x.Role).FirstOrDefaultAsync(x => x.Id == id);
+        var userInDb = await context.Users
+            .Include(x => x.Role)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(x => x.Id == id);
         if (userInDb is null)
         {
             return await Result.FailAsync("User not found.");
@@ -167,6 +170,7 @@ public class UserService(IMapper mapper, IDbContextFactory<ApplicationDbContext>
 
 
         userInDb.IsDeleted = true;
+        context.Users.Update(userInDb);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync("User has been deleted.");
     }

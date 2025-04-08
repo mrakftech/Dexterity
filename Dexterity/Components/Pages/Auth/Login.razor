@@ -49,6 +49,7 @@
                                 </SfDropDownList>
                                 <DexLoadingButton Name="Proceed" Processing="_processing"
                                                   Click="NavigateToDashboard"></DexLoadingButton>
+                                <DexButton Name="Back" Click="BackToLogin" Class="mt-3"/>
                             </MudItem>
                         </div>
                     </div>
@@ -167,6 +168,12 @@ else
             Console.WriteLine(e);
         }
         _processing = false;
+    }
+
+    private void BackToLogin()
+    {
+        LoginBoxDisplay = "";
+        ClinicBoxDisplay = "none";
     }
 
 }

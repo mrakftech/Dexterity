@@ -5,20 +5,20 @@ namespace Services.Features.UserAccounts.Dtos.User;
 
 public class UpdateUserDto
 {
-    [Required(ErrorMessage = "Required")] public string FirstName { get; set; }
+    [Required(ErrorMessage = "*")] public string FirstName { get; set; }
 
-    [Required(ErrorMessage = "Required")] public string LastName { get; set; }
+    [Required(ErrorMessage = "*")] public string LastName { get; set; }
 
-    [Required(ErrorMessage = "Required")]
+    [Required(ErrorMessage = "*")]
     [EmailAddress]
     public string Email { get; set; }
 
 
-    [Required(ErrorMessage = "Required")]
+    [Required(ErrorMessage = "*")]
     //[StringLength(50, MinimumLength = 1, ErrorMessage = "Username must be between 1 and 50 characters.")]
     public string Username { get; set; }
 
-    [Required(ErrorMessage = "Required")] public string Mcn { get; set; }
+    [Required(ErrorMessage = "*")] public string Mcn { get; set; }
 
     public DateTime ResetPasswordAt { get; set; }
     public string ResetPassword { get; set; }
@@ -42,8 +42,8 @@ public class UpdateUserDto
     public string GsmNumber { get; set; }
     public string BordAltranaisNumber { get; set; }
 
-    [NotEmpty(ErrorMessage = "Required")] public Guid RoleId { get; set; }
-    [NotEmpty(ErrorMessage = "Required")] public Guid UserTypeId { get; set; }
+    [NotEmpty(ErrorMessage = "*")] public Guid RoleId { get; set; }
+    [NotEmpty(ErrorMessage = "*")] public Guid UserTypeId { get; set; }
     public int OtherField { get; set; }
     public Guid CreatedBy { get; set; }
     public Guid? ModifiedBy { get; set; }

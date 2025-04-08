@@ -10,11 +10,13 @@ using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
+using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 using Services.State;
 using Shared.Constants.Module;
+using Shared.Constants.Role;
 using Shared.Wrapper;
 using AccountType = Domain.Entities.Settings.Account.AccountType;
 
@@ -73,6 +75,30 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         var data = await context.Clinics.ToListAsync();
         var mappedData = mapper.Map<List<ClinicDto>>(data);
         return mappedData;
+    }
+
+    public async Task<List<UserClinicDto>> GetUserClinics()
+    {
+        if (ApplicationState.Auth.CurrentUser.RoleName == RoleConstants.AdministratorRole)
+        {
+            return await context.Clinics
+                .Select(x => new UserClinicDto()
+                {
+                    ClinicId = x.Id,
+                    ClinicName = x.Name
+                })
+                .ToListAsync();
+        }
+
+        return await context.UserClinics
+            .Include(x => x.Clinic)
+            .Where(x => x.UserId == ApplicationState.Auth.CurrentUser.UserId)
+            .Select(x => new UserClinicDto()
+            {
+                ClinicId = x.ClinicId,
+                ClinicName = x.Clinic.Name
+            })
+            .ToListAsync();
     }
 
     public async Task<IResult<ClinicDto>> GetClinic(int id)
@@ -242,7 +268,6 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         return await Result<AppointmentTypeDto>.SuccessAsync(data);
     }
 
-  
 
     public async Task<IResult> SaveAppointmentType(Guid id, AppointmentTypeDto request)
     {
@@ -421,7 +446,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<PomrGroup>> GetAllPomrGroups()
     {
-        return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId).ToListAsync();
+        return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
+            .ToListAsync();
     }
 
     public async Task<IResult> SavePomrGroup(int id, PomrGroup request)

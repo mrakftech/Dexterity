@@ -10,15 +10,15 @@
             <DexForm Model="UserDto" OnValidSubmit="SaveUser" ColumnCount="4">
                 <Fields>
                     <FormGroup LabelText="Basic Information" ColumnCount="2" ColumnSpacing="20px">
-                        <FormItem Field="@nameof(UpdateUserDto.FirstName)" LabelText="First Name"
+                        <FormItem Field="@nameof(UpdateUserDto.FirstName)" LabelText="First Name *"
                                   ColumnSpan="1"></FormItem>
-                        <FormItem Field="@nameof(UpdateUserDto.LastName)" LabelText="Last Name"
+                        <FormItem Field="@nameof(UpdateUserDto.LastName)" LabelText="Last Name *"
                                   ColumnSpan="1"></FormItem>
-                        <FormItem Field="@nameof(UpdateUserDto.Mcn)" LabelText="MCN" ColumnSpan="2"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Mcn)" LabelText="MCN*" ColumnSpan="2"></FormItem>
                         <FormItem Field="@nameof(UpdateUserDto.UserTypeId)" ColumnSpan="1"
-                                  EditorType="FormEditorType.DropDownList">
+                                  >
                             <Template>
-                                <label class="e-form-label">User Type</label>
+                                <label class="e-form-label">User Type*</label>
                                 <SfDropDownList TValue="Guid" TItem="UserType"
                                                 Placeholder="Select user type"
                                                 DataSource="@_userTypes"
@@ -29,9 +29,9 @@
                                 </SfDropDownList>
                             </Template>
                         </FormItem>
-                        <FormItem Field="@nameof(UpdateUserDto.OtherField)" ColumnSpan="1">
+                        <FormItem Field="@nameof(UpdateUserDto.RoleId)" ColumnSpan="1">
                             <Template>
-                                <label class="e-form-label">Roles</label>
+                                <label class="e-form-label">Roles*</label>
                                 <SfDropDownList TValue="Guid" TItem="RoleResponseDto" Placeholder="Select role"
                                                 DataSource="@Roles"
                                                 @bind-Value="@UserDto.RoleId">
@@ -41,7 +41,7 @@
                         </FormItem>
                   
                         <FormItem Field="@nameof(UpdateUserDto.Gender)" LabelText="Gender" ColumnSpan="1"></FormItem>
-                        <FormItem Field="@nameof(UpdateUserDto.Email)" LabelText="Email" ColumnSpan="1"></FormItem>
+                        <FormItem Field="@nameof(UpdateUserDto.Email)" LabelText="Email*" ColumnSpan="1"></FormItem>
                         <FormItem Field="@nameof(UpdateUserDto.FaxNo)" LabelText="Fax No." ColumnSpan="1"></FormItem>
                         <FormItem Field="@nameof(UpdateUserDto.TelePhone)" LabelText="Phone" ColumnSpan="1"></FormItem>
                     </FormGroup>
@@ -88,10 +88,10 @@
 
                     </FormGroup>
                     <FormGroup LabelText="Login Information" ColumnCount="1">
-                        <FormItem Field="@nameof(UpdateUserDto.Username)" LabelText="Username" ColumnSpan="2"/>
+                        <FormItem Field="@nameof(UpdateUserDto.Username)" LabelText="Username*" ColumnSpan="2"/>
                         @if (UserId == Guid.Empty)
                         {
-                            <FormItem Field="@nameof(UpdateUserDto.Username)" LabelText="Username" ColumnSpan="2">
+                            <FormItem Field="@nameof(UpdateUserDto.IsUpdatePassword)"  ColumnSpan="2">
                                 <Template>
                                     <p class="text-bold text-warning">Default Password will be set as
                                         : @ApplicationConstants.DefaultPassword</p>
@@ -144,7 +144,7 @@
                                       Icon="fas fa-floppy-disk"></DexLoadingButton>
                 </Buttons>
             </DexForm>
-
+            <MandatoryFieldMessage/>
         </Content>
     </DexDialog>
 }

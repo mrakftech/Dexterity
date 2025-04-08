@@ -1,6 +1,7 @@
 ﻿@layout MainLayout
 @page "/home"
 @using Dexterity.Components.Pages.Dashboard.Components
+@using Domain.Entities.UserAccounts
 @using Position = MudBlazor.Position
 @using Services.Features.Settings.Dtos
 <MudContainer Style="margin-top:8%" MaxWidth="MaxWidth.ExtraExtraLarge">
@@ -10,10 +11,10 @@
                 <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="300"
                           Style="border-right:solid"></MudImage>
                 <MudItem Class="mt-5">
-                    <SfDropDownList TValue="int" TItem="ClinicDto" Placeholder="Clinics" DataSource="@Clinics"
+                    <SfDropDownList TValue="int" TItem="UserClinicDto" Placeholder="Clinics" DataSource="@_clinics"
                                     CssClass="drop-down-clinic">
-                        <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
-                        <DropDownListEvents TItem="ClinicDto" TValue="int"
+                        <DropDownListFieldSettings Value="ClinicId" Text="ClinicName"></DropDownListFieldSettings>
+                        <DropDownListEvents TItem="UserClinicDto" TValue="int"
                                             ValueChange="@ValueChangeHandler"></DropDownListEvents>
                     </SfDropDownList>
                 </MudItem>
@@ -105,7 +106,7 @@
 </MudContainer>
 
 @code {
-    private List<ClinicDto> Clinics = new();
+    private List<UserClinicDto> _clinics = new();
     private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.
     private double[] _data = [Convert.ToDouble(_patientCounts), Convert.ToDouble(_waitingCounts), Convert.ToDouble(_apptCounts), Convert.ToDouble(_apptCounts)];
     private readonly string[] _labels = ["Patient", "Waiting", "Appointment", "Messages"];
@@ -133,7 +134,7 @@
         _loading = true;
         await Task.Delay(500);
         await GetDashboardData(_clinicId);
-        Clinics = await UnitOfWork.Setting.GetClinics();
+        _clinics = await UnitOfWork.Setting.GetUserClinics();
         _loading = false;
         StateHasChanged();
     }
@@ -149,9 +150,9 @@
         _staffCounts = await UnitOfWork.Dashboard.GetStaffCount();
     }
 
-    private async Task ValueChangeHandler(ChangeEventArgs<int, ClinicDto> obj)
+    private async Task ValueChangeHandler(ChangeEventArgs<int, UserClinicDto> obj)
     {
-        _clinicId = obj.Value;
+        _clinicId = obj.ItemData.ClinicId;
         if (_clinicId > 0)
         {
             _loading = true;

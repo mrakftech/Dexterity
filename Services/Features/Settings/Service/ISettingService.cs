@@ -7,6 +7,7 @@ using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
+using Domain.Entities.UserAccounts;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
 using Shared.Constants.Module;
@@ -27,6 +28,7 @@ public interface ISettingService
 
     #region Hospital
 
+    public Task<List<UserClinicDto>> GetUserClinics();
     public Task<List<ClinicDto>> GetClinics();
     public Task<IResult<ClinicDto>> GetClinic(int id);
     public Task<IResult> SaveClinic(int id, ClinicDto request);

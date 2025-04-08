@@ -5,6 +5,7 @@
     <ActionButtons>
         <MudStack Row>
             <DexCreateButton Label="Add New User" OnClick="() => UpsertUserModal(Guid.Empty)"/>
+            <DexButton Name="Refresh" Click="GetUsers"/>
         </MudStack>
     </ActionButtons>
 </TabTitle>
