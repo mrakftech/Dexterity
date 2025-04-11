@@ -1,0 +1,32 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\External Apis\ClickATell\ClickATell.csproj" />
+    <ProjectReference Include="..\Database\Database.csproj" />
+    <ProjectReference Include="..\Domain\Domain.csproj" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
+  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="13.0.1" />
+		<PackageReference Include="Bogus" Version="35.4.0" />
+        <PackageReference Include="MailKit" Version="4.7.1.1" />
+        <PackageReference Include="Microsoft.Maui.Essentials" Version="8.0.72" />
+        <PackageReference Include="MimeKit" Version="4.7.1" />
+        <PackageReference Include="Syncfusion.Blazor" Version="26.2.5" />
+        <PackageReference Include="Syncfusion.DocIO.Net.Core" Version="27.2.4" />
+	</ItemGroup>
+	<ItemGroup>
+	  <Reference Include="PhoneNumbers">
+	    <HintPath>C:\Users\Muzammil\.nuget\packages\libphonenumber-csharp\8.13.40\lib\net7.0\PhoneNumbers.dll</HintPath>
+	  </Reference>
+	</ItemGroup>
+	<ItemGroup>
+	  <Compile Remove="Respository\RepositoryBase.cs" />
+	</ItemGroup>
+</Project>

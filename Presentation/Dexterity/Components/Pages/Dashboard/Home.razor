@@ -1,0 +1,199 @@
+﻿@layout MainLayout
+@page "/home"
+@using Dexterity.Components.Pages.Dashboard.Components
+@using Domain.Entities.UserAccounts
+@using Position = MudBlazor.Position
+@using Services.Features.Settings.Dtos
+<MudContainer Style="margin-top:8%" MaxWidth="MaxWidth.ExtraExtraLarge">
+    <MudGrid Justify="MudJustify.Center">
+        <MudItem>
+            <MudStack Row>
+                <MudItem>
+                    <MudImage Src="assets/images/large_logo.png" Alt="logo" Fluid="true" Width="500"
+                              Style="border-right:solid">
+                    </MudImage>
+                </MudItem>
+                <MudItem md="8" Class="mt-5">
+                    <SfMultiSelect TItem="UserClinicDto" TValue="int[]" Placeholder="e.g. Clinic 1" ShowSelectAll="true"
+                                   Mode="VisualMode.CheckBox"
+                                   DataSource="@_clinics">
+                        <MultiSelectEvents TItem="UserClinicDto" TValue="int[]" ValueChange="@ValueChangeHandler"></MultiSelectEvents>
+                        <MultiSelectFieldSettings Value="ClinicId" Text="ClinicName"></MultiSelectFieldSettings>
+                    </SfMultiSelect>
+                </MudItem>
+                <MudItem Class="mt-5">
+                    <DexButton Name="Show" Click="GetDashboardData"/>
+                </MudItem>
+            </MudStack>
+        </MudItem>
+        @if (_loading)
+        {
+            <MudItem md="12">
+                <DexProgressBar/>
+            </MudItem>
+        }
+        else
+        {
+            @* @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+            {
+            } *@
+
+            <MudItem md="12">
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-purple" : "bg-c-light-gray ")" Title="Patients" Count="@_patientCounts"
+                                     Image="patient-m-card-img" ForceColor="#FFF"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-blue" : "bg-c-light-gray ")" Title="Appointments" Count="@_apptCounts"
+                                     Image="appt-card-img"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-green" : "bg-c-light-gray ")" Title="Waiting" Count="@_waitingCounts"
+                                     Image="waiting-card-img"/>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12">
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-yellow " : "bg-c-light-gray ")" Title="Consultations" Count="@_consCounts"
+                                     Image="consultation-card-img"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-orange " : "bg-c-light-gray ")" Title="Messages" Count="0" Image="message-card-img"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-pink " : "bg-c-light-gray ")" Title="Emails" Count="@_tasksCounts" Image="emails"/>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12">
+                <MudGrid Justify="MudJustify.Center" Spacing="15">
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-steel-gray" : "bg-c-light-gray ")" Title="Doctors" Count="@_docCounts"
+                                     Image="doctor-1"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-light-green" : "bg-c-light-gray ")" Title="Staff" Count="@_staffCounts"
+                                     Image="staff-2"/>
+                    </MudItem>
+                    <MudItem md="4">
+                        <MetricsCard BgColor="@(_clinicIds.Length > 0 ? "bg-c-light-maroon" : "bg-c-light-gray ")" Title="My Tasks" Count="@_tasksCounts"
+                                     Image="my-task-card-img"/>
+                    </MudItem>
+                </MudGrid>
+            </MudItem>
+            <MudItem md="12" Style="margin-top: 5%">
+                <MudStack Row>
+                    <MudItem md="6">
+                        <MudPaper Style="@(_chartStyle)">
+                            <MudChart ChartType="ChartType.Bar"
+                                      ChartSeries="@_series"
+                                      @bind-SelectedIndex="_index"
+                                      LegendPosition="Position.Right"
+                                      XAxisLabels="@_xAxisLabels" Width="100%" Height="350px">
+                            </MudChart>
+                        </MudPaper>
+                    </MudItem>
+                    <MudSpacer/>
+                    <MudItem md="6">
+                        <MudPaper Style="@(_chartStyle)">
+                            <MudChart ChartType="ChartType.Donut"
+                                      LegendPosition="Position.Right" Width="300px" Height="350px"
+                                      InputData="@_data" InputLabels="@_labels">
+                            </MudChart>
+                        </MudPaper>
+                    </MudItem>
+                </MudStack>
+            </MudItem>
+        }
+
+    </MudGrid>
+</MudContainer>
+
+@code {
+    private List<UserClinicDto> _clinics = new();
+    private int _index = -1; //default value cannot be 0 -> first selectedindex is 0.
+    private double[] _data = [Convert.ToDouble(_patientCounts), Convert.ToDouble(_waitingCounts), Convert.ToDouble(_apptCounts), Convert.ToDouble(_apptCounts)];
+    private readonly string[] _labels = ["Patient", "Waiting", "Appointment", "Messages"];
+    private string _chartStyle = "background-color: gray;color: #ffffff";
+
+    private readonly List<ChartSeries> _series =
+    [
+        new() {Name = "Consultation", Data = [40, 20, 25, 27, 46, 60, 48, 80, 15]},
+    ];
+
+    private readonly string[] _xAxisLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+
+
+    private static int _patientCounts;
+    private static int _apptCounts;
+    private static int _waitingCounts;
+    private static int _tasksCounts;
+    private static int _consCounts;
+    private static int _docCounts;
+    private static int _staffCounts;
+    private int[] _clinicIds = [];
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        Reset();
+        await Task.Delay(500);
+        //await GetDashboardData(_clinicId);
+        _clinics = await UnitOfWork.Setting.GetUserClinics();
+        _loading = false;
+        StateHasChanged();
+    }
+
+    private async Task GetDashboardData()
+    {
+        _loading = true;
+        await Task.Delay(1000);
+        if (_clinicIds is {Length: > 0})
+        {
+            _chartStyle = "";
+            _patientCounts = await UnitOfWork.Dashboard.GetPatientCount(_clinicIds);
+            _apptCounts = await UnitOfWork.Dashboard.GetAppointmentCount(_clinicIds);
+            _waitingCounts = await UnitOfWork.Dashboard.GetWaitingPatientCount(_clinicIds);
+            _tasksCounts = await UnitOfWork.Dashboard.GetTasksCount();
+            _consCounts = await UnitOfWork.Dashboard.GetConsultationCount();
+            _docCounts = await UnitOfWork.Dashboard.GetDoctorsCount();
+            _staffCounts = await UnitOfWork.Dashboard.GetStaffCount();
+        }
+        else
+        {
+            Reset();
+        }
+
+        _loading = false;
+    }
+
+    private void ValueChangeHandler(MultiSelectChangeEventArgs<int[]> args)
+    {
+        if (args.Value is {Length: > 0})
+        {
+            _clinicIds = args.Value;
+        }
+        else
+        {
+            Reset();
+        }
+    }
+
+    private void Reset()
+    {
+        _clinicIds = [];
+        _patientCounts = 0;
+        _apptCounts = 0;
+        _waitingCounts = 0;
+        _tasksCounts = 0;
+        _consCounts = 0;
+        _docCounts = 0;
+        _staffCounts = 0;
+        _chartStyle = "background-color: gray;color: #ffffff";
+    }
+
+}

@@ -1,0 +1,17 @@
+﻿<div class="@($"card {BgColor} order-card")" style="color: @ForceColor">
+    <div class="card-block" style="background-image: url('@($"/assets/images/dashboard/{Image}.png")')">
+        <div>
+            <h2 class="text-right"><i class=""></i><span>@Count</span></h2>
+            <h6 class="m-b-20">@Title</h6>
+            @* <p class="m-b-0">Completed Orders<span class="f-right">351</span></p> *@
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "Patients";
+    [Parameter] public int Count { get; set; }
+    [Parameter] public string BgColor { get; set; } = "bg-c-gray";
+    [Parameter] public string ForceColor { get; set; } = "#FFF";
+    [Parameter] public string Image { get; set; } = "bg-c-blue";
+}
