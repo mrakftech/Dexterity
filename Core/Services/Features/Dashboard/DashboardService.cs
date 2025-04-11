@@ -44,10 +44,12 @@ public class DashboardService(ApplicationDbContext context) : IDashboardService
         foreach (var id in clinicIds)
         {
             var apptCount = await context.Appointments.CountAsync(x =>
-                x.ClinicId == id && x.HcpId == ApplicationState.Auth.CurrentUser.UserId);
+                x.ClinicId == id);
             count += apptCount;
         }
+      
 
+        
         return count;
     }
 
@@ -60,7 +62,6 @@ public class DashboardService(ApplicationDbContext context) : IDashboardService
         {
             var apptCount = await context.WaitingAppointments.CountAsync(x =>
                 x.ClinicId == id &&
-                x.Status == AppointmentConstants.WaitingStatus.Expected ||
                 x.Status == AppointmentConstants.WaitingStatus.Arrived);
             count += apptCount;
         }

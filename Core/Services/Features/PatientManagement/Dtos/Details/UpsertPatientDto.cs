@@ -49,7 +49,7 @@ namespace Services.Features.PatientManagement.Dtos.Details
         public string GmsStatus { get; set; } = "Inactive";
         public string GmsDoctor { get; set; }
 
-        [GmsNumber(ErrorMessage = "Invalid GMS number e.g: M567890A or 3130132D")]
+        // [GmsNumber(ErrorMessage = "Invalid GMS number e.g: M567890A or 3130132D")]
         public string GmsPatientNumber { get; set; } = "A123456B";
 
         public DateTime GmsReviewDate { get; set; } = DateTime.Now;

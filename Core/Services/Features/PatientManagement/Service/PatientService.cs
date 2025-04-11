@@ -35,7 +35,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
-            var patients = await context.Patients.Where(x => x.IsDeleted == false).ToListAsync();
+            var patients = await context.Patients
+                .Where(x => x.IsDeleted == false && x.ClinicId==ApplicationState.Auth.CurrentUser.ClinicId).ToListAsync();
             return mapper.Map<List<PatientListDto>>(patients);
         }
         catch (Exception e)
