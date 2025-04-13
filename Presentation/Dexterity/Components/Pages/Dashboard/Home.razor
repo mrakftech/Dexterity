@@ -16,6 +16,7 @@
                 <MudItem md="8" Class="mt-5">
                     <SfMultiSelect TItem="UserClinicDto" TValue="int[]" Placeholder="e.g. Clinic 1" ShowSelectAll="true"
                                    Mode="VisualMode.CheckBox"
+                                   @bind-Value="_clinicIds"
                                    DataSource="@_clinics">
                         <MultiSelectEvents TItem="UserClinicDto" TValue="int[]" ValueChange="@ValueChangeHandler"></MultiSelectEvents>
                         <MultiSelectFieldSettings Value="ClinicId" Text="ClinicName"></MultiSelectFieldSettings>
@@ -42,15 +43,15 @@
                 <MudGrid Justify="MudJustify.Center" Spacing="15">
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-purple" : "bg-c-light-gray ")" Title="Patients" Count="@_patientCounts"
-                                     Image="patient-m-card-img" ForceColor="#FFF"/>
+                                     Image="patient-m-card-img" ForceColor="#FFF" Href="/patient-management" />
                     </MudItem>
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-blue" : "bg-c-light-gray ")" Title="Appointments" Count="@_apptCounts"
-                                     Image="appt-card-img"/>
+                                     Image="appt-card-img" Href="/appointments"/>
                     </MudItem>
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-green" : "bg-c-light-gray ")" Title="Waiting" Count="@_waitingCounts"
-                                     Image="waiting-card-img"/>
+                                     Image="waiting-card-img" Href="/waiting-room"/>
                     </MudItem>
                 </MudGrid>
             </MudItem>
@@ -58,13 +59,13 @@
                 <MudGrid Justify="MudJustify.Center" Spacing="15">
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-yellow " : "bg-c-light-gray ")" Title="Consultations" Count="@_consCounts"
-                                     Image="consultation-card-img"/>
+                                     Image="consultation-card-img" Href="/consultation"/>
                     </MudItem>
                     <MudItem md="4">
-                        <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-orange " : "bg-c-light-gray ")" Title="Messages" Count="0" Image="message-card-img"/>
+                        <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-orange " : "bg-c-light-gray ")" Title="Messages" Count="0" Image="message-card-img" Href="/messaging"/>
                     </MudItem>
                     <MudItem md="4">
-                        <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-pink " : "bg-c-light-gray ")" Title="Emails" Count="@_tasksCounts" Image="emails"/>
+                        <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-pink " : "bg-c-light-gray ")" Title="Emails" Count="@_tasksCounts" Image="emails" Href="/messaging"/>
                     </MudItem>
                 </MudGrid>
             </MudItem>
@@ -72,15 +73,15 @@
                 <MudGrid Justify="MudJustify.Center" Spacing="15">
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-steel-gray" : "bg-c-light-gray ")" Title="Doctors" Count="@_docCounts"
-                                     Image="doctor-1"/>
+                                     Image="doctor-1" Href="/user-manager"/>
                     </MudItem>
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-light-green" : "bg-c-light-gray ")" Title="Staff" Count="@_staffCounts"
-                                     Image="staff-2"/>
+                                     Image="staff-2" Href="/user-manager"/>
                     </MudItem>
                     <MudItem md="4">
                         <MetricsCard BgColor="@(_isClinicSelected ? "bg-c-light-maroon" : "bg-c-light-gray ")" Title="My Tasks" Count="@_tasksCounts"
-                                     Image="my-task-card-img"/>
+                                     Image="my-task-card-img" Href="/messaging"/>
                     </MudItem>
                 </MudGrid>
             </MudItem>
@@ -142,9 +143,9 @@
     {
         _loading = true;
         Reset();
-        await Task.Delay(500);
-        //await GetDashboardData(_clinicId);
         _clinics = await UnitOfWork.Setting.GetUserClinics();
+        await Task.Delay(500);
+        await SetInitialClinicIds();
         _loading = false;
         StateHasChanged();
     }
@@ -197,7 +198,15 @@
         _staffCounts = 0;
         _chartStyle = "background-color: gray;color: #ffffff";
         _isClinicSelected = false;
+    }
 
+    private async Task SetInitialClinicIds()
+    {
+        _clinicIds = ApplicationState.Auth.CurrentUser.IsAdmin
+            ? _clinics.Select(x => x.ClinicId).ToArray()
+            : [ApplicationState.Auth.CurrentUser.ClinicId];
+
+        await GetDashboardData();
     }
 
 }

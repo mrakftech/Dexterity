@@ -11,7 +11,7 @@ else
             @foreach (var item in _appNavigations)
             {
                 <MudNavLink Match="NavLinkMatch.All" Icon="@item.Icon" IconColor="MudColor.Info"
-                            OnClick="()=>SelectNav(item.Id,item.Href)">
+                            OnClick="() => SelectNav(item.Id, item.Href)">
                     <MudText Color="MudColor.Info" Align="MudAlign.Left">@item.Name</MudText>
                 </MudNavLink>
             }

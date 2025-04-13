@@ -7,9 +7,9 @@ namespace Services.Features.PatientManagement.Dtos.Details
 {
     public class UpsertPatientDto
     {
-        [Required(ErrorMessage = "Required")] public string FamilyName { get; set; }
-        [Required(ErrorMessage = "Required")] public string FirstName { get; set; }
-        [Required(ErrorMessage = "Required")] public string LastName { get; set; }
+        [Required(ErrorMessage = "*")] public string FamilyName { get; set; }
+        [Required(ErrorMessage = "*")] public string FirstName { get; set; }
+        [Required(ErrorMessage = "*")] public string LastName { get; set; }
 
         public string IhiNumber { get; set; } = CryptographyHelper.GetUniqueKey();
         public string Ppsn { get; set; }
@@ -22,9 +22,9 @@ namespace Services.Features.PatientManagement.Dtos.Details
         public bool DispensingStatus { get; set; }
 
         public string HomePhone { get; set; }
-        [Required(ErrorMessage = "Required")] public string MobilePhone { get; set; }
+        [Required(ErrorMessage = "*")] public string MobilePhone { get; set; }
 
-        [Required(ErrorMessage = "Required")]
+        [Required(ErrorMessage = "*")]
         [EmailAddress]
         public string Email { get; set; }
 
@@ -33,7 +33,7 @@ namespace Services.Features.PatientManagement.Dtos.Details
 
         #region Address
 
-        [Required(ErrorMessage = "Required")] public string AddressLine1 { get; set; }
+        [Required(ErrorMessage = "*")] public string AddressLine1 { get; set; }
         public string AddressLine2 { get; set; } = "";
         public string City { get; set; } = "";
         public string County { get; set; } = "";
