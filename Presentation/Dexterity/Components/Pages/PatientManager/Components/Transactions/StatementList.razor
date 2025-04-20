@@ -8,19 +8,19 @@
             <SfGrid TValue="GetTransactionDto" DataSource="account.PatientTransactions" AllowPaging="true">
                 <GridPageSettings PageSize="5"></GridPageSettings>
                 <GridColumns>
-                    <GridColumn Field=@nameof(GetTransactionDto.CreatedDate) HeaderText="Date" Format="g"
+                    <GridColumn Field="@nameof(GetTransactionDto.CreatedDate)" HeaderText="Date" Format="g"
                                 Type="ColumnType.DateTime" Width="110"/>
-                    <GridColumn Field=@nameof(GetTransactionDto.Description) Width="500"/>
-                    <GridColumn Field=@nameof(GetTransactionDto.Debit) HeaderText="Debt" Format="C" Width="80"/>
-                    <GridColumn Field=@nameof(GetTransactionDto.Credit) HeaderText="Credit" Format="C" Width="80"/>
-                    <GridColumn Field=@nameof(GetTransactionDto.Balance) HeaderText="Balance" Format="C" Width="80"/>
+                    <GridColumn Field="@nameof(GetTransactionDto.Description)" Width="500"/>
+                    <GridColumn Field="@nameof(GetTransactionDto.Debit)" HeaderText="Debt" Format="C" Width="80"/>
+                    <GridColumn Field="@nameof(GetTransactionDto.Credit)" HeaderText="Credit" Format="C" Width="80"/>
+                    <GridColumn Field="@nameof(GetTransactionDto.Balance)" HeaderText="Balance" Format="C" Width="80"/>
                 </GridColumns>
             </SfGrid>
 
         </DetailTemplate>
     </GridTemplates>
     <GridColumns>
-        <GridColumn Field=@nameof(AccountStatementDto.Balance) Width="500" HeaderText="Info">
+        <GridColumn Field="@nameof(AccountStatementDto.Balance)" Width="500" HeaderText="Info">
             <Template>
                 @{
                     var account = (context as AccountStatementDto);
@@ -38,9 +38,9 @@
     [Parameter] public int AccountId { get; set; } = new();
     private decimal BroughtForwardBalance { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        BroughtForwardBalance = UnitOfWork.Patient.GetBroughtForwardBalance(AccountId);
-    }
+        BroughtForwardBalance =await UnitOfWork.Patient.GetBroughtForwardBalance(AccountId);
 
+    }
 }

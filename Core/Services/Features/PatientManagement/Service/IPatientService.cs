@@ -119,7 +119,7 @@ public interface IPatientService
     public Task<IResult> PaymentForAllocatedItems(PaymentAllocatedDto request);
     public Task<IResult> StrikeOff(StrikeOffDto request);
     public Task<IResult> DeleteTransaction(int transactionId);
-    public decimal GetBroughtForwardBalance(int accountId);
+    public Task<decimal> GetBroughtForwardBalance(int accountId);
 
     #endregion
 

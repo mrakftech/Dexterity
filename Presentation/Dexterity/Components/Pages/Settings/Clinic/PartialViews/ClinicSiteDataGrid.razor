@@ -4,7 +4,7 @@
         <DexButton FullWidth="false" Name="Add Clinic Site" Click="() => OpenUpsertClinicSiteModal(Guid.Empty)"></DexButton>
     </ActionButtons>
 </TabTitle>
-<DexGrid DataSource="ClinicSites" Height="300px">
+<DexGrid DataSource="ClinicSites" Height="200px">
     <DexGridColumns>
         <GridColumn Field="@nameof(ClinicSiteDto.Name)" HeaderText="Name" Width="120px"></GridColumn>
         <GridColumn HeaderText="Actions" Width="120">
@@ -61,7 +61,7 @@
 
     private async Task GetClinicSites()
     {
-        ClinicSites = await UnitOfWork.Setting.GetClinicSites();
+        ClinicSites = await UnitOfWork.Setting.GetSitesByClinic(ClinicId);
     }
 
 }

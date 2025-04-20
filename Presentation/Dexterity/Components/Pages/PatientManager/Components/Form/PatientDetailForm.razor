@@ -1,12 +1,13 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
+@using Services.Features.Settings.Dtos
 @using Services.Features.UserAccounts.Dtos.User
 
 
 <FormItems>
     <FormGroup LabelText="Patient Details" ColumnCount="2" ColumnSpacing="5px">
-        <FormItem Field="@nameof(Patient.FamilyName)" LabelText="Family Name" ColumnSpan="1"/>
-        <FormItem Field="@nameof(Patient.FirstName)" LabelText="First Name" ColumnSpan="1"/>
-        <FormItem Field="@nameof(Patient.LastName)" LabelText="Last Name" ColumnSpan="1"/>
+        <FormItem Field="@nameof(Patient.FamilyName)" LabelText="Family Name*" ColumnSpan="1"/>
+        <FormItem Field="@nameof(Patient.FirstName)" LabelText="First Name*" ColumnSpan="1"/>
+        <FormItem Field="@nameof(Patient.LastName)" LabelText="Last Name*" ColumnSpan="1"/>
         <FormItem Field="@nameof(Patient.IhiNumber)" ColumnSpan="1">
             <Template>
                 <label class="e-form-label">IHI Number:</label>
@@ -27,26 +28,26 @@
         </FormItem>
         <FormItem Field="@nameof(Patient.MobilePhone)" ColumnSpan="1">
             <Template>
-                <label class="e-form-label">Mobile:</label>
+                <label class="e-form-label">Mobile:*</label>
                 <SfMaskedTextBox Mask="000-000-0000" @bind-Value="Patient.MobilePhone"></SfMaskedTextBox>
             </Template>
         </FormItem>
         <FormItem Field="@nameof(Patient.Email)" ColumnSpan="1">
             <Template>
-                <label class="e-form-label">Email Address:</label>
+                <label class="e-form-label">Email Address:*</label>
                 <SfTextBox @bind-Value="@Patient.Email"></SfTextBox>
             </Template>
         </FormItem>
-        <FormItem Field="@nameof(Patient.DispensingStatus)" ColumnSpan="1">
+        <FormItem Field="@nameof(Patient.DispensingStatus)" ColumnSpan="3">
             <Template>
                 <SfCheckBox Label="Dispensing Status" @bind-Checked="Patient.DispensingStatus"></SfCheckBox>
             </Template>
         </FormItem>
     </FormGroup>
     <FormGroup LabelText="Address Details" ColumnCount="2" ColumnSpacing="5px">
-        <FormItem Field="@nameof(Patient.AddressLine1)" ColumnSpan="2">
+        <FormItem Field="@nameof(Patient.AddressLine1)" ColumnSpan="2" >
             <Template>
-                <label class="e-form-label">Address Line 1:</label>
+                <label class="e-form-label">Address Line 1:*</label>
                 <SfTextBox @bind-Value="@Patient.AddressLine1" Multiline></SfTextBox>
             </Template>
         </FormItem>
@@ -80,15 +81,28 @@
                 <SfTextBox @bind-Value="@Patient.Country"></SfTextBox>
             </Template>
         </FormItem>
-        <FormItem Field="@nameof(Patient.HcpId)" ColumnSpan="2">
+        <FormItem Field="@nameof(Patient.HcpId)" ColumnSpan="1">
             <Template>
-                <label class="e-form-label">HCP:</label>
+                <label class="e-form-label">HCP:*</label>
                 <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares"
                                 @bind-Value="@Patient.HcpId">
                     <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                 </SfDropDownList>
             </Template>
         </FormItem>
+        
+       @if (UnitOfWork.User.CheckPermission(PermissionConstants.Read))
+        {
+            <FormItem Field="@nameof(Patient.ClinicId)" ColumnSpan="1">
+                <Template>
+                    <label class="e-form-label">Clinic:*</label>
+                    <SfDropDownList TValue="int" TItem="UserClinicDto" Placeholder="Clinic" DataSource="@_clinics"
+                                    @bind-Value="@Patient.ClinicId">
+                        <DropDownListFieldSettings Value="ClinicId" Text="ClinicName"></DropDownListFieldSettings>
+                    </SfDropDownList>
+                </Template>
+            </FormItem>
+        }
         <FormItem Field="@nameof(Patient.PatientType)" LabelText="Patient Type" ColumnSpan="1"></FormItem>
         <FormItem Field="@nameof(Patient.PatientStatus)" LabelText="Patient Status" ColumnSpan="1"></FormItem>
     </FormGroup>
@@ -142,17 +156,24 @@
         </FormItem>
 
     </FormGroup>
+    <FormItem Field="@nameof(Patient.HomePhone)" ColumnSpan="3">
+        <Template>
+            <MandatoryFieldMessage/>
+        </Template>
+    </FormItem>
 </FormItems>
 
 
 @code {
     [Parameter] public UpsertPatientDto Patient { get; set; } = new();
     private List<HealthcareDto> HealthCares { get; set; } = new();
+    private List<UserClinicDto> _clinics = new();
 
 
     protected override async Task OnInitializedAsync()
     {
         await GetHealthCares();
+        _clinics = await UnitOfWork.Setting.GetUserClinics();
     }
 
     private async Task GetHealthCares()

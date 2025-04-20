@@ -1,17 +1,17 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 @using Services.Features.UserAccounts.Dtos.User
 <DexDialog>
-    <DialogTitle></DialogTitle>
+    <DialogTitle>Add New Patient</DialogTitle>
     <Content>
         <DexForm ColumnCount="2" Model="@_patient" OnValidSubmit="CreatePatient">
             <Fields>
-                <FormItem Field="@nameof(QuickAddPatientDto.FamilyName)" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.FirstName)" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.LastName)" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.DateOfBirth)" EditorType="FormEditorType.DatePicker" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.Gender)">
+                <FormItem Field="@nameof(QuickAddPatientDto.FamilyName)" ColumnSpan="1" LabelText="Family Name*"/>
+                <FormItem Field="@nameof(QuickAddPatientDto.FirstName)" ColumnSpan="1" LabelText="First Name*"/>
+                <FormItem Field="@nameof(QuickAddPatientDto.LastName)" ColumnSpan="1" LabelText="Last Name*" />
+                <FormItem Field="@nameof(QuickAddPatientDto.DateOfBirth)" EditorType="FormEditorType.DatePicker" ColumnSpan="1" LabelText="Date Of Birth" />
+                <FormItem Field="@nameof(QuickAddPatientDto.Gender)" LabelText="Gender*">
                     <Template>
-                        <label class="e-form-label">Gender</label>
+                        <label class="e-form-label">Gender*</label>
                         <SfDropDownList CssClass="" TValue="Gender" TItem="string" Placeholder="Gender" DataSource="@Genders" @bind-Value="@_patient.Gender">
                             <DropDownListTemplates TItem="string">
                                 <ItemTemplate Context="value">
@@ -21,18 +21,24 @@
                         </SfDropDownList>
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(QuickAddPatientDto.AddressLine1)">
+                <FormItem Field="@nameof(QuickAddPatientDto.AddressLine1)" LabelText="Address*">
                     <Template>
                         <DexInputBox Label="Address" @bind-FieldDataSource="@_patient.AddressLine1" IsMultiLine="true" />
                     </Template>
                 </FormItem>
-                <FormItem Field="@nameof(QuickAddPatientDto.Mobile)" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.Email)" ColumnSpan="1" />
-                <FormItem Field="@nameof(QuickAddPatientDto.HcpId)">
+                <FormItem Field="@nameof(QuickAddPatientDto.Mobile)" ColumnSpan="1" LabelText="Mobile*" />
+                <FormItem Field="@nameof(QuickAddPatientDto.Email)" ColumnSpan="1" LabelText="Email*"/>
+                <FormItem Field="@nameof(QuickAddPatientDto.HcpId)" ColumnSpan="2">
                     <Template>
+                        <label class="e-form-label">HCP*</label>
                         <SfDropDownList TValue="Guid" TItem="HealthcareDto" Placeholder="HCP" DataSource="@HealthCares" @bind-Value="@_patient.HcpId">
                             <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
                         </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(QuickAddPatientDto.DateOfBirth)" ColumnSpan="2">
+                    <Template>
+                        <MandatoryFieldMessage/>
                     </Template>
                 </FormItem>
             </Fields>

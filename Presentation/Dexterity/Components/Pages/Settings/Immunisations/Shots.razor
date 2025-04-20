@@ -62,9 +62,9 @@
                                             </SfDropDownList>
                                         </Template>
                                     </FormItem>
-                                    <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min" ColumnSpan="1"
+                                    <FormItem Field="@nameof(Shot.IntervalMin)" LabelText="Interval Min (Days)" ColumnSpan="1"
                                               IsEnabled="_isFieldsEnable"></FormItem>
-                                    <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max" ColumnSpan="1"
+                                    <FormItem Field="@nameof(Shot.IntervalMax)" LabelText="Interval Max (Days)" ColumnSpan="1"
                                               IsEnabled="_isFieldsEnable"></FormItem>
                                     <FormItem Field="@nameof(Shot.ClaimForm)" LabelText="Claim Form" ColumnSpan="2"
                                               IsEnabled="_isFieldsEnable"></FormItem>
@@ -80,10 +80,10 @@
                                                       Type="MudButtonType.Submit"/>
                                     @if (UnitOfWork.User.CheckPermission(PermissionConstants.Delete))
                                     {
-                                        <DexLoadingButton Name="Delete" Click="DeleteShot"/>
+                                        <DexLoadingButton Type="MudButtonType.Button" Name="Delete" Click="DeleteShot"/>
                                     }
 
-                                    <DexLoadingButton Name="Create New" Click="ResetForm"/>
+                                    <DexLoadingButton Type="MudButtonType.Button" Name="Create New" Click="ResetForm"/>
                                 }
                                 else
                                 {

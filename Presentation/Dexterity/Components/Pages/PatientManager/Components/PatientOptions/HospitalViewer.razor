@@ -1,7 +1,7 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Options
 <TabTitle Title="Hospital Viewer">
     <ActionButtons>
-        <DexButton Name="Add New Hospital" Click="NewHospital"/>
+        <DexButton Name="Add New Hospital" Click="NewHospital" Class="m-2"/>
         <DexButton Name="Delete Hospital" Disabled="_isButtonDisabled" Click="DeleteHospital"/>
     </ActionButtons>
 </TabTitle>
@@ -15,8 +15,8 @@
     <DexForm Model="Hospital" ColumnCount="2" OnValidSubmit="UpdateHospital">
         <Fields>
             <FormGroup LabelText="Hospital Information">
-                <FormItem Field="@nameof(Hospital.Name)" LabelText="Hospital Name"/>
-                <FormItem Field="@nameof(Hospital.Address1)" LabelText="Address 1"/>
+                <FormItem Field="@nameof(Hospital.Name)" LabelText="Hospital Name*"/>
+                <FormItem Field="@nameof(Hospital.Address1)" LabelText="Address 1*"/>
                 <FormItem Field="@nameof(Hospital.Address2)" LabelText="Address 2"/>
                 <FormItem Field="@nameof(Hospital.Address3)" LabelText="Address 3"/>
                 <FormItem Field="@nameof(Hospital.AlsoKnownAs)" LabelText="Also Known As"/>
@@ -24,7 +24,7 @@
                 <FormItem Field="@nameof(Hospital.HealthCode)" LabelText="Health Code"/>
             </FormGroup>
             <FormGroup LabelText="Contact Details">
-                <FormItem Field="@nameof(Hospital.Contact)" LabelText="Contact "/>
+                <FormItem Field="@nameof(Hospital.Contact)" LabelText="Contact*"/>
                 <FormItem Field="@nameof(Hospital.Fax)" LabelText="Fax"/>
                 <FormItem Field="@nameof(Hospital.Email)" LabelText="Email"/>
                 <FormItem Field="@nameof(Hospital.Website)" LabelText="Website"/>
@@ -32,6 +32,11 @@
                 <FormItem Field="@nameof(Hospital.Country)" LabelText="Country"/>
                 <FormItem Field="@nameof(Hospital.PostCode)" LabelText="PostCode"/>
             </FormGroup>
+            <FormItem Field="@nameof(Hospital.City)" ColumnSpan="2">
+                <Template>
+                    <MandatoryFieldMessage/>
+                </Template>
+            </FormItem>
         </Fields>
         <Buttons>
             <DexLoadingButton Name="@_submitName" Processing="_loading" Type="MudButtonType.Submit"/>
@@ -45,7 +50,7 @@
     private HospitalDto Hospital { get; set; } = new();
     private bool _loading;
     private bool _isButtonDisabled = true;
-    private string _submitName = "Add New";
+    private string _submitName = "Save";
     private int _hospitalId = 0;
 
 
@@ -65,8 +70,10 @@
     private void NewHospital()
     {
         _hospitalId = 0;
-        _submitName = "Add New";
+        _submitName = "Save";
         Hospital = new();
+        _isButtonDisabled = true;
+
     }
 
     private async Task GetHospitals()
@@ -87,7 +94,7 @@
         {
             Snackbar.FailMessage(res.Messages.First());
         }
-
+        _isButtonDisabled = true;
         _loading = false;
     }
 
@@ -101,6 +108,7 @@
             var res = await UnitOfWork.Patient.DeleteHospital(_hospitalId);
             StateHasChanged();
             await GetHospitals();
+            NewHospital();
             Snackbar.SuccessMessage(res.Messages.First());
         }
     }

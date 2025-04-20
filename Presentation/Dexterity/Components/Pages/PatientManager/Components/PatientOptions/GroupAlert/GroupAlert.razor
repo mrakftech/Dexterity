@@ -27,8 +27,8 @@
                     <GridSelectionSettings PersistSelection="true" CheckboxMode="CheckboxSelectionType.ResetOnRowClick" Type="SelectionType.Multiple"></GridSelectionSettings>
                     <GridColumns>
                         <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
-                        <GridColumn Field=@nameof(PatientListDto.FullName) HeaderText="Name" Width="90"></GridColumn>
-                        <GridColumn Field=@nameof(PatientListDto.DateOfBirth) HeaderText="Date Of Birth" Type="ColumnType.Date" Format="d" Width="90"></GridColumn>
+                        <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Name" Width="90"></GridColumn>
+                        <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Type="ColumnType.Date" Format="d" Width="90"></GridColumn>
                     </GridColumns>
                 </SfGrid>
                 <SfSpinner @bind-Visible="@_loading">

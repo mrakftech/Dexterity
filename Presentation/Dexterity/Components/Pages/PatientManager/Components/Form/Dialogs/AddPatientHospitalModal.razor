@@ -25,13 +25,13 @@
                 <FormItem Field="@nameof(_patientHospital.Name)">
                     <Template>
                         <label class="e-form-label">Name</label>
-                        <SfTextBox Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
+                        <SfTextBox Enabled="false" Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
                     </Template>
                 </FormItem>
                 <FormItem Field="@nameof(_patientHospital.Address)">
                     <Template>
                         <label class="e-form-label">Address</label>
-                        <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
+                        <SfTextBox Enabled="false" Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
                     </Template>
                 </FormItem>
             </Fields>
@@ -64,12 +64,12 @@
 
     private void ValueChangeHandler(ChangeEventArgs<int, HospitalDto> obj)
     {
-        var clinic = obj.ItemData;
-        _patientHospital.HospitalId = clinic.Id;
-        if (clinic.Id > 0)
+        var hospital = obj.ItemData;
+        _patientHospital.HospitalId = hospital.Id;
+        if (hospital.Id > 0)
         {
-            _patientHospital.Name = clinic.Name;
-            _patientHospital.Address = clinic.Address1;
+            _patientHospital.Name = hospital.Name;
+            _patientHospital.Address = hospital.Address1;
         }
     }
 

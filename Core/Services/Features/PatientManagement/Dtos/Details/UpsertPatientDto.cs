@@ -31,6 +31,8 @@ namespace Services.Features.PatientManagement.Dtos.Details
         [NotEmpty(ErrorMessage = "Please select HCP")]
         public Guid HcpId { get; set; }
 
+        [Range(1,Int32.MaxValue,ErrorMessage = "*")]public int ClinicId { get; set; }
+
         #region Address
 
         [Required(ErrorMessage = "*")] public string AddressLine1 { get; set; }

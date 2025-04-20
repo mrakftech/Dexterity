@@ -11,11 +11,11 @@
             </SfDropDownList>
         </MudItem>
         <MudItem xs="12" sm="6" md="12">
-            <DexInputBox Label="Group Head" @bind-FieldDataSource="GroupDto.GroupHead" IsFieldReadOnly/>
+            <DexInputBox Label="Group Head" @bind-FieldDataSource="GroupDto.GroupHead" IsFieldReadOnly IsFieldDisabled="true"/>
         </MudItem>
         <MudItem xs="12" sm="6" md="12">
             <label class="e-form-label">Balance:</label>
-            <SfNumericTextBox TValue="decimal" Value=@GroupDto.Balance Readonly></SfNumericTextBox>
+            <SfNumericTextBox TValue="decimal" Value="@GroupDto.Balance" Readonly Enabled="false"></SfNumericTextBox>
         </MudItem>
         @if (GroupDto.Id > 0)
         {

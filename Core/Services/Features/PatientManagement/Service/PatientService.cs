@@ -26,7 +26,10 @@ using Shared.Constants.Module;
 
 namespace Services.Features.PatientManagement.Service;
 
-public class PatientService(ApplicationDbContext context, IMapper mapper, IFileManagerService fileManagerService)
+public class PatientService(
+    IDbContextFactory<ApplicationDbContext> contextFactory,
+    IMapper mapper,
+    IFileManagerService fileManagerService)
     : IPatientService
 {
     #region Patient
@@ -35,8 +38,10 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
             var patients = await context.Patients
-                .Where(x => x.IsDeleted == false && x.ClinicId==ApplicationState.Auth.CurrentUser.ClinicId).ToListAsync();
+                .Where(x => x.IsDeleted == false && x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
+                .ToListAsync();
             return mapper.Map<List<PatientListDto>>(patients);
         }
         catch (Exception e)
@@ -48,6 +53,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientDto> GetPatient(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var patientInDb = await context.Patients.FirstOrDefaultAsync(x => x.Id == id);
         var data = mapper.Map<PatientDto>(patientInDb);
         return data;
@@ -55,6 +61,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<DateTime> GetPatientDob(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var patientInDb = await context.Patients.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         return patientInDb.DateOfBirth;
     }
@@ -63,6 +70,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync(cancellationToken);
             var patient = mapper.Map<Patient>(request);
             patient.Id = Guid.NewGuid();
             patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
@@ -91,6 +99,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeletePatient(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var patientInDb = await context.Patients.FirstOrDefaultAsync(x => x.Id == id);
         if (patientInDb is null)
         {
@@ -105,6 +114,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientSummaryDto> GetPatientSummary(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var patient = await context.Patients
             .Include(patient => patient.Hcp)
             .Include(x => x.Hospitals)
@@ -152,6 +162,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             var patient = mapper.Map<Patient>(request);
             patient.Id = Guid.NewGuid();
             patient.MedicalRecordNumber = CryptographyHelper.GenerateMrNumber();
@@ -197,17 +209,20 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
-            var patientInDb = await context.Patients.FirstOrDefaultAsync(x => x.Id == id);
+            await using var context = await contextFactory.CreateDbContextAsync();
+            var patientInDb = await context.Patients
+                .Include(x=>x.PatientAccount)
+                .FirstOrDefaultAsync(x => x.Id == id);
+            
             if (patientInDb is null)
             {
                 return await Result.FailAsync("Patient not found");
             }
 
             var patient = mapper.Map(request, patientInDb);
-            patient.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
+            patient.ClinicId = request.ClinicId;
             patient.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
             patient.ModifiedDate = DateTime.Now;
-            patient.RegistrationDate = DateTime.Now;
             patient.Gender = request.Gender.ToString();
             patient.PatientType = request.PatientType.ToString();
             //Address
@@ -245,6 +260,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
             var extraDetail = await context.Patients
                 .AsNoTracking().FirstOrDefaultAsync(x => x.Id == request.PatientId);
             if (extraDetail is null)
@@ -272,6 +288,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientContactDto>> GetPatientContacts(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var list = await context.PatientContacts.Where(x => x.PatientId == id).ToListAsync();
         var data = mapper.Map<List<PatientContactDto>>(list);
         return data;
@@ -279,6 +296,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientContactDto> GetPatientContact(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var contact = await context.PatientContacts.FirstOrDefaultAsync(x => x.Id == id);
         if (contact is null)
         {
@@ -290,6 +308,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeletePatientContact(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var contact = await context.PatientContacts.FirstOrDefaultAsync(x => x.Id == id);
         if (contact is null)
         {
@@ -303,6 +322,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> AddPatientContact(PatientContactDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var contact = mapper.Map<PatientContact>(request);
         await context.PatientContacts.AddAsync(contact);
         await context.SaveChangesAsync();
@@ -315,6 +335,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientOccupationDto>> GetPatientOccupations(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var list = await context.PatientOccupations.Where(x => x.PatientId == id).ToListAsync();
         var data = mapper.Map<List<PatientOccupationDto>>(list);
         return data;
@@ -322,6 +343,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientOccupationDto> GetPatientOccupation(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var occupation = await context.PatientOccupations.FirstOrDefaultAsync(x => x.Id == id);
         if (occupation is null)
         {
@@ -333,6 +355,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeletePatientOccupation(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var occupation = await context.PatientOccupations.FirstOrDefaultAsync(x => x.Id == id);
         if (occupation is null)
         {
@@ -346,6 +369,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> AddPatientOccupation(PatientOccupationDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var occupation = mapper.Map<PatientOccupation>(request);
         await context.PatientOccupations.AddAsync(occupation);
         await context.SaveChangesAsync();
@@ -358,6 +382,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientAlertDto>> GetPatientAlerts(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientAlerts
             .Include(x => x.AlertCategory)
             .Where(x => x.IsDeleted == false)
@@ -370,6 +396,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientAlertDto>> GetPatientAlertByModule(Guid patientId, string alertType)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientAlerts
             .Include(x => x.AlertCategory)
             .AsNoTracking()
@@ -387,6 +415,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientAlertDto> GetPatientAlert(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var alert = await context.PatientAlerts.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         context.ChangeTracker.Clear();
         var mappedData = mapper.Map<PatientAlertDto>(alert);
@@ -395,6 +425,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> SavePatientAlert(Guid id, PatientAlertCreateDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var alert = new PatientAlert
         {
             Details = request.Details,
@@ -412,6 +444,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeletePatientAlert(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var alert = await context.PatientAlerts
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -432,6 +466,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> ResolvePatientAlert(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var alert = await context.PatientAlerts
             .AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (alert is null)
@@ -453,11 +489,15 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<AlertCategory>> GetAlertCategories()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.AlertCategories.ToListAsync();
     }
 
     public async Task<IResult> AddAlertCategories(string name)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var alertCategory = new AlertCategory()
         {
             Name = name
@@ -469,6 +509,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteAlertCategory(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var category = await context.AlertCategories.FirstOrDefaultAsync(x => x.Id == id);
         if (category is null)
         {
@@ -488,6 +530,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<RelatedHcpDto>> GetRealtedHcps(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.RelatedHcps
             .Where(x => x.PatientId == patientId)
             .ToListAsync();
@@ -498,6 +542,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<RelatedHcpDto> GetRealtedHcp(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hcp = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == id);
         var mappedData = mapper.Map<RelatedHcpDto>(hcp);
         return mappedData;
@@ -507,6 +553,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (request.Id == 0)
             {
                 var hcp = new RelatedHcp()
@@ -543,6 +591,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteRelatedHcp(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hcpInDb = await context.RelatedHcps.FirstOrDefaultAsync(x => x.Id == id);
         if (hcpInDb == null) return await Result.FailAsync("HCP not found.");
 
@@ -557,6 +607,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientHospitalDto>> GetSelectedHospitals(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var data = await context.PatientHospitals
             .Include(x => x.Hospital)
             .Where(x => x.PatientId == patientId).ToListAsync();
@@ -566,6 +618,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> SelectHospital(PatientHospitalDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (await context.PatientHospitals.AnyAsync(x => x.HospitalId == request.HospitalId))
         {
             return await Result.FailAsync("Hospital already exists");
@@ -579,6 +633,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteSelectedHospital(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hospitalInDb = await context.PatientHospitals.FirstOrDefaultAsync(x => x.Id == id);
         if (hospitalInDb == null)
         {
@@ -596,6 +652,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GroupDto>> GetGroups()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.Groups.ToListAsync();
         var data = mapper.Map<List<GroupDto>>(list);
         return data;
@@ -603,6 +661,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<GroupDto> GetGroup(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var group = await context.Groups.Include(x => x.RegisteredPatients)
             .FirstOrDefaultAsync(x => x.Id == id);
         var data = mapper.Map<GroupDto>(group);
@@ -611,6 +671,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> SaveGroup(int id, UpsertGroupDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == 0)
         {
             if (await context.Groups.AnyAsync(x => x.Name == request.Name))
@@ -640,6 +702,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteGroup(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var groupInDb = await context.Groups.FirstOrDefaultAsync(x => x.Id == id);
         if (groupInDb == null)
         {
@@ -656,6 +720,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GroupPatientDto>> GetPatientsByGroup(int groupId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.GroupPatients
             .Include(x => x.Patient)
             .Where(x => x.GroupId == groupId)
@@ -666,6 +732,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<GroupDto> GetSelectedGroup(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var patientGroup = await context.GroupPatients
             .Include(x => x.Group)
             .FirstOrDefaultAsync(x => x.PatientId == patientId);
@@ -680,6 +748,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> RegisterPatientToGroup(GroupPatientDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var register = mapper.Map<GroupPatient>(request);
         await context.GroupPatients.AddAsync(register);
         await context.SaveChangesAsync();
@@ -694,6 +764,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<FamilyMemberDto>> GetFamilyMembers(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.FamilyMembers.Where(x => x.PatientId == patientId).ToListAsync();
         var mapped = mapper.Map<List<FamilyMemberDto>>(list);
         return mapped;
@@ -701,6 +773,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<FamilyMemberDto> GetFamilyMember(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var data = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
         var mapped = mapper.Map<FamilyMemberDto>(data);
         return mapped;
@@ -708,11 +782,12 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> SaveFamilyMember(int id, FamilyMemberDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == 0)
         {
             var nextOfKin = mapper.Map<FamilyMember>(request);
             await context.FamilyMembers.AddAsync(nextOfKin);
-            await context.SaveChangesAsync();
         }
         else
         {
@@ -724,14 +799,17 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
             nextOfKinInDb = mapper.Map(request, nextOfKinInDb);
             context.FamilyMembers.Update(nextOfKinInDb);
-            await context.SaveChangesAsync();
         }
+
+        await context.SaveChangesAsync();
 
         return await Result.SuccessAsync("Member has been saved.");
     }
 
     public async Task<IResult> DeleteFamilyMember(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var nextKin = await context.FamilyMembers.FirstOrDefaultAsync(x => x.Id == id);
         if (nextKin == null)
         {
@@ -749,6 +827,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<GetPatientAccountDto> GetPatientAccount(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var patient = await context.PatientAccounts
             .Include(x => x.Patient)
             .Include(x => x.PatientTransactions)
@@ -759,6 +839,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GetTransactionDto>> GetOutstanding(int accountId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientTransactions
             .Include(x => x.PatientAccount)
             .OrderByDescending(x => x.CreatedDate)
@@ -771,6 +853,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<AccountStatementDto>> GetStatement(int accountId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var statements = new List<AccountStatementDto>();
         var account = await context.PatientAccounts.Include(x =>
                 x.PatientTransactions.Where(t =>
@@ -783,6 +867,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GetTransactionDto>> GetPrintLog(int accountId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientTransactions
             .Include(x => x.PatientAccount)
             .Where(t => t.PatientAccountId == accountId
@@ -793,6 +879,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GetTransactionDto>> GetAudit(int accountId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientTransactions
             .Include(x => x.PatientAccount)
             .Where(t => t.PatientAccountId == accountId && t.IsDeleted).ToListAsync();
@@ -802,6 +890,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GetTransactionDto>> GetHistory(int accountId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientTransactions
             .Include(x => x.PatientAccount)
             .Where(t => t.PatientAccountId == accountId)
@@ -812,9 +902,11 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> Charge(ChargeDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         try
         {
-            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+            var previousBalance = await GetBroughtForwardBalance(request.AccountId);
             var chargedTransaction = new PatientTransaction
             {
                 CreatedBy = ApplicationState.Auth.CurrentUser.UserId,
@@ -855,7 +947,9 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     private async Task AddSinglePayment(ChargeDto request)
     {
-        var previousBalance = GetBroughtForwardBalance(request.AccountId);
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var previousBalance = await GetBroughtForwardBalance(request.AccountId);
         previousBalance -= request.PaidAmount;
         var paymentTransaction = new PatientTransaction()
         {
@@ -872,15 +966,17 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         };
         await context.PatientTransactions.AddAsync(paymentTransaction);
         await context.SaveChangesAsync();
-        UpdateTransaction(paymentTransaction.Id);
-        UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.PaidAmount);
+       await UpdateTransaction(paymentTransaction.Id);
+      await  UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.PaidAmount);
     }
 
     public async Task<IResult> PaymentForAllocatedItems(PaymentAllocatedDto request)
     {
         try
         {
-            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            var previousBalance = await GetBroughtForwardBalance(request.AccountId);
             foreach (var item in request.SelectedTransaction)
             {
                 previousBalance -= item.Amount;
@@ -900,11 +996,11 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
                 };
 
                 await context.PatientTransactions.AddAsync(transaction);
-                UpdateTransaction(item.Id);
+              await  UpdateTransaction(item.Id);
             }
 
             await context.SaveChangesAsync();
-            UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.Amount);
+           await UpdatePersonalBalance(request.AccountId, TransactionActionType.Payment, request.Amount);
             return await Result.SuccessAsync("Payment has been made successfully.");
         }
         catch (Exception e)
@@ -917,7 +1013,9 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
-            var previousBalance = GetBroughtForwardBalance(request.AccountId);
+            await using var context = await contextFactory.CreateDbContextAsync();
+
+            var previousBalance = await GetBroughtForwardBalance(request.AccountId);
 
             foreach (var item in request.SelectedTransaction)
             {
@@ -936,7 +1034,7 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
                     Balance = previousBalance
                 };
                 await context.PatientTransactions.AddAsync(transaction);
-                UpdateTransaction(item.Id);
+              await  UpdateTransaction(item.Id);
             }
 
             await context.SaveChangesAsync();
@@ -950,6 +1048,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteTransaction(int transactionId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var transaction = context.PatientTransactions
             .FirstOrDefault(x => x.Id == transactionId);
 
@@ -965,8 +1065,10 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         return await Result.SuccessAsync("Transactions has been deleted successfully.");
     }
 
-    private void UpdateTransaction(int transId)
+    private async Task UpdateTransaction(int transId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var transaction = context.PatientTransactions
             .AsNoTracking()
             .FirstOrDefault(x => x.Id == transId);
@@ -979,11 +1081,14 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
         }
     }
 
-    private decimal UpdatePersonalBalance(int accountId, TransactionActionType transactionType, decimal amount)
+    private async Task<decimal> UpdatePersonalBalance(int accountId, TransactionActionType transactionType,
+        decimal amount)
     {
-        var patientAccount = context.PatientAccounts
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var patientAccount = await context.PatientAccounts
             .AsNoTracking()
-            .FirstOrDefault(x => x.Id == accountId);
+            .FirstOrDefaultAsync(x => x.Id == accountId);
         decimal newBalance = 0;
         if (patientAccount is not null)
         {
@@ -998,27 +1103,30 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
             context.ChangeTracker.Clear();
             context.PatientAccounts.Update(patientAccount);
-            context.SaveChanges();
+            await context.SaveChangesAsync();
             newBalance = patientAccount.Balance;
         }
 
         return newBalance;
     }
 
-    private decimal GetPersonalBalance(int accountId)
+    private async Task<decimal> GetPersonalBalance(int accountId)
     {
-        var patientAccount = context.PatientAccounts
-            .FirstOrDefault(x => x.Id == accountId);
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var patientAccount = await context.PatientAccounts
+            .FirstOrDefaultAsync(x => x.Id == accountId);
 
         return patientAccount?.Balance ?? 0;
     }
 
-    public decimal GetBroughtForwardBalance(int accountId)
+    public async Task<decimal> GetBroughtForwardBalance(int accountId)
     {
-        var broughtForwardBalance = context.PatientTransactions
+        await using var context = await contextFactory.CreateDbContextAsync();
+        var broughtForwardBalance = await context.PatientTransactions
             .Where(t => t.CreatedDate.Date.Month == DateTime.Today.Month && t.PatientAccountId == accountId &&
                         !t.IsDeleted)
-            .Sum(t => t.Debit - t.Credit);
+            .SumAsync(t => t.Debit - t.Credit);
 
         return broughtForwardBalance;
     }
@@ -1031,6 +1139,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<HospitalDto>> GetHospitals()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hospitals = await context.Hospitals.ToListAsync();
         var mapped = mapper.Map<List<HospitalDto>>(hospitals);
         return mapped;
@@ -1038,6 +1148,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<HospitalDto> GetHospital(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hospital = await context.Hospitals.FirstOrDefaultAsync(x => x.Id == id);
         var mapped = mapper.Map<HospitalDto>(hospital);
         return mapped;
@@ -1045,6 +1157,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> SaveHospital(int id, HospitalDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hospital = mapper.Map<Hospital>(request);
         if (id == 0)
         {
@@ -1068,6 +1182,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteHospital(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var hospital = await context.Hospitals.FirstOrDefaultAsync(x => x.Id == id);
         if (hospital is null)
             return await Result.FailAsync("Hospital not found.");
@@ -1078,6 +1194,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> CreateGroupAlerts(CreatePatientGroupAlertDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         foreach (var alert in request.SelectedPatients.Select(item => new PatientAlert
                  {
                      Details = request.Details,
@@ -1098,6 +1216,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> ResolveGroupAlerts(List<GetGroupAlertDto> groupAlerts)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         foreach (var item in groupAlerts)
         {
             var alertInDb = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == item.Id);
@@ -1115,6 +1235,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> DeleteGroupAlerts(List<GetGroupAlertDto> groupAlerts)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         foreach (var item in groupAlerts)
         {
             var alertInDb = await context.PatientAlerts.FirstOrDefaultAsync(x => x.Id == item.Id);
@@ -1129,6 +1251,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<GetGroupAlertDto>> GetAllPatientAlerts()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientAlerts
             .Include(x => x.AlertCategory)
             .Include(x => x.Patient)
@@ -1148,6 +1272,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<PatientAllergyDto>> GetPatientAllergies()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientAllergies.AsNoTracking()
             .Where(x => x.PatientId == ApplicationState.SelectedPatient.Id)
             .ToListAsync();
@@ -1157,6 +1283,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<PatientAllergyDto> GetPatientAllergy(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var allergyInDb = await context.PatientAllergies.FirstOrDefaultAsync(x => x.Id == id);
         if (allergyInDb is null)
         {
@@ -1171,6 +1299,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (id == 0)
             {
                 var data = mapper.Map<PatientAllergy>(allergy);
@@ -1196,6 +1326,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> RemovePatientAllergy(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var allergyInDb = await context.PatientAllergies.FirstOrDefaultAsync(x => x.Id == id);
         if (allergyInDb is null)
         {
@@ -1210,6 +1342,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<List<DrugAllergyDto>> GetPatientDrugAllergies()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.PatientDrugAllergies.AsNoTracking()
             .Where(x => x.PatientId == ApplicationState.SelectedPatient.Id)
             .ToListAsync();
@@ -1221,6 +1355,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (id == 0)
             {
                 var data = mapper.Map<PatientDrugAllergy>(allergy);
@@ -1246,6 +1382,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<DrugAllergyDto> GetPatientDrugAllergy(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var allergyInDb = await context.PatientDrugAllergies.FirstOrDefaultAsync(x => x.Id == id);
         if (allergyInDb is null)
         {
@@ -1258,6 +1396,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
 
     public async Task<IResult> RemovePatientDrugAllergy(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var allergyInDb = await context.PatientDrugAllergies.FirstOrDefaultAsync(x => x.Id == id);
         if (allergyInDb is null)
         {
@@ -1274,6 +1414,8 @@ public class PatientService(ApplicationDbContext context, IMapper mapper, IFileM
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             var patient = await context.Patients.AsNoTracking()
                 .Include(x => x.PatientAccount)
                 .FirstOrDefaultAsync(x => x.Id == ApplicationState.SelectedPatient.Id);

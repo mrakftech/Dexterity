@@ -1,14 +1,15 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Grouping
 <DexDialog>
-    <DialogTitle></DialogTitle>
+    <DialogTitle>Patient Group Details</DialogTitle>
     <Content>
         <DexForm Model="_upsertGroupDto" OnValidSubmit="SaveGroup">
             <Fields>
                 <FormItem Field="@nameof(UpsertGroupDto.Name)" />
-                <FormItem Field="@nameof(UpsertGroupDto.GroupHead)" />
-                <FormItem Field="@nameof(UpsertGroupDto.Balance)">
+                <FormItem Field="@nameof(UpsertGroupDto.GroupHead)"  LabelText="Group Head"/>
+                <FormItem Field="@nameof(UpsertGroupDto.Balance)" LabelText="Balance">
                     <Template>
-                        <SfNumericTextBox TValue="decimal" @bind-Value="_upsertGroupDto.Balance" />
+                        <label class="e-form-label">Balance:</label>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="_upsertGroupDto.Balance"/>
                     </Template>
                 </FormItem>
             </Fields>
@@ -30,7 +31,6 @@
     {
         if (Id > 0)
         {
-
             await GetGroup(Id);
         }
     }

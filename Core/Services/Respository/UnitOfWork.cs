@@ -123,7 +123,7 @@ public sealed class UnitOfWork(
         {
             if (setting == null)
             {
-                setting = new SettingService(context, mapper);
+                setting = new SettingService(mapper, contextFactory);
             }
 
             return setting;
@@ -149,7 +149,7 @@ public sealed class UnitOfWork(
         {
             if (patient == null)
             {
-                patient = new PatientService(context, mapper, fileManager);
+                patient = new PatientService(contextFactory, mapper, fileManager);
             }
 
             return patient;

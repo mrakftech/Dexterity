@@ -48,7 +48,7 @@
                     </SfDropDownList>
                 </Template>
             </FormItem>
-            <FormItem Field="@nameof(PatientExtraDetail.StartDate)" EditorType="FormEditorType.DatePicker" LabelText="Start Date" ColumnSpan="1"/>
+            <FormItem Field="@nameof(PatientExtraDetail.StartDate)" EditorType="FormEditorType.DatePicker" LabelText="Start Date" ColumnSpan="1" />
             <FormItem Field="@nameof(PatientExtraDetail.EndDate)" EditorType="FormEditorType.DatePicker" LabelText="End Start" ColumnSpan="1"/>
 
         </FormGroup>
@@ -62,7 +62,7 @@
                 <Template>
                     <SfDropDownList TValue="int" Placeholder="e.g. hospital" TItem="PatientHospitalDto"
                                     @bind-Value="hospitalId" DataSource="@hospitals">
-                        <DropDownListFieldSettings Value="Id" Text="Clinic.Name"></DropDownListFieldSettings>
+                        <DropDownListFieldSettings Value="Id" Text="Hospital.Name"></DropDownListFieldSettings>
                         <DropDownListEvents TItem="PatientHospitalDto" TValue="int" ValueChange="@ValueChangeHandler"></DropDownListEvents>
                     </SfDropDownList>
                 </Template>
@@ -70,13 +70,13 @@
             <FormItem Field="@nameof(PatientExtraDetail.Status)">
                 <Template>
                     <label class="e-form-label">Name</label>
-                    <SfTextBox Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
+                    <SfTextBox Enabled="false" Readonly @bind-Value="@_patientHospital.Name"></SfTextBox>
                 </Template>
             </FormItem>
             <FormItem Field="@nameof(PatientExtraDetail.Status)">
                 <Template>
                     <label class="e-form-label">Address</label>
-                    <SfTextBox Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
+                    <SfTextBox Enabled="false" Readonly @bind-Value="@_patientHospital.Address"></SfTextBox>
                 </Template>
             </FormItem>
             @if (hospitalId > 0)
@@ -166,12 +166,12 @@
 
     private void ValueChangeHandler(ChangeEventArgs<int, PatientHospitalDto> obj)
     {
-        var clinic = obj.ItemData;
-        _patientHospital.HospitalId = clinic.Id;
-        if (clinic.Id > 0)
+        var hospital = obj.ItemData;
+        _patientHospital.HospitalId = hospital.Id;
+        if (hospital.Id > 0)
         {
-            _patientHospital.Name = clinic.Hospital.Name;
-            _patientHospital.Address = clinic.Hospital.Address1;
+            _patientHospital.Name = hospital.Hospital.Name;
+            _patientHospital.Address = hospital.Hospital.Address1;
         }
     }
 

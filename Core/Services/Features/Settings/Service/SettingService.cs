@@ -22,18 +22,21 @@ using AccountType = Domain.Entities.Settings.Account.AccountType;
 
 namespace Services.Features.Settings.Service;
 
-public class SettingService(ApplicationDbContext context, IMapper mapper)
+public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbContext> contextFactory)
     : ISettingService
 {
     #region Sms Templates
 
     public async Task<List<SmsTemplate>> GetSmsTemplates()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         return await context.SmsTemplates.ToListAsync();
     }
 
     public async Task<IResult<SmsTemplate>> GetSmsTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var smsTemplate = context.SmsTemplates.FirstOrDefault(x => x.Id == id);
         if (smsTemplate == null)
             return await Result<SmsTemplate>.FailAsync("template not found.");
@@ -43,6 +46,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveSmsTemplate(Guid id, SmsTemplate request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.SmsTemplates.AddAsync(request);
@@ -58,6 +63,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteSmsTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var smsTemplate = context.SmsTemplates.FirstOrDefault(x => x.Id == id);
         if (smsTemplate == null)
             return await Result.FailAsync("template not found.");
@@ -72,13 +79,17 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<ClinicDto>> GetClinics()
     {
-        var data = await context.Clinics.ToListAsync();
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var data = await context.Clinics.AsNoTracking().ToListAsync();
         var mappedData = mapper.Map<List<ClinicDto>>(data);
         return mappedData;
     }
 
     public async Task<List<UserClinicDto>> GetUserClinics()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (ApplicationState.Auth.CurrentUser.RoleName == RoleConstants.AdministratorRole)
         {
             var clinics = await context.Clinics
@@ -104,6 +115,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult<ClinicDto>> GetClinic(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var clinic = context.Clinics.FirstOrDefault(x => x.Id == id);
 
         if (clinic == null)
@@ -114,6 +127,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveClinic(int id, ClinicDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == 0)
         {
             var mappedData = mapper.Map<Clinic>(request);
@@ -122,7 +137,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
         }
         else
         {
-            var clinic = context.Clinics.FirstOrDefault(x => x.Id == id);
+            var clinic = context.Clinics.AsNoTracking().FirstOrDefault(x => x.Id == id);
 
             if (clinic == null)
                 return await Result<ClinicDto>.FailAsync("clinic not found.");
@@ -137,7 +152,9 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteClinic(int id)
     {
-        var clinic = context.Clinics.FirstOrDefault(x => x.Id == id);
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var clinic = context.Clinics.AsNoTracking().FirstOrDefault(x => x.Id == id);
         if (clinic == null)
             return await Result.FailAsync("clinic not found.");
 
@@ -148,6 +165,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<ClinicSiteDto>> GetClinicSites()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var data = await context.ClinicSites.ToListAsync();
         var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
         return mappedData;
@@ -155,6 +174,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<ClinicSiteDto>> GetSitesByClinic(int clinicId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var data = await context.ClinicSites.Where(x => x.ClinicId == clinicId).ToListAsync();
         var mappedData = mapper.Map<List<ClinicSiteDto>>(data);
         return mappedData;
@@ -162,6 +183,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult<ClinicSiteDto>> GetClinicSite(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
 
         if (clinic == null)
@@ -172,6 +195,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveClinicSite(Guid id, ClinicSiteDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             var mappedData = mapper.Map<ClinicSite>(request);
@@ -194,6 +219,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteClinicSite(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var clinic = context.ClinicSites.FirstOrDefault(x => x.Id == id);
         if (clinic == null)
             return await Result.FailAsync("clinic site not found.");
@@ -209,11 +236,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<EmailTemplate>> GetEmailTemplates()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.EmailTemplates.ToListAsync();
     }
 
     public async Task<IResult<EmailTemplate>> GetEmailTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var emailTemplate = context.EmailTemplates.FirstOrDefault(x => x.Id == id);
         if (emailTemplate == null)
             return await Result<EmailTemplate>.FailAsync("template not found.");
@@ -223,6 +254,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveEmailTemplate(Guid id, EmailTemplate request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.EmailTemplates.AddAsync(request);
@@ -238,6 +271,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteEmailTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var email = context.EmailTemplates.FirstOrDefault(x => x.Id == id);
         if (email == null)
             return await Result.FailAsync("template not found.");
@@ -252,6 +287,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AppointmentTypeDto>> GetAppointmentTypes()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.AppointmentTypes.ToListAsync();
         var data = mapper.Map<List<AppointmentTypeDto>>(list);
         return data;
@@ -259,6 +296,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult<AppointmentTypeDto>> GetAppointmentType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
 
         if (appointmentType == null)
@@ -272,6 +311,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveAppointmentType(Guid id, AppointmentTypeDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             var appt = mapper.Map<AppointmentType>(request);
@@ -289,6 +330,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteAppointmentType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var appointmentType = context.AppointmentTypes.FirstOrDefault(x => x.Id == id);
         if (appointmentType == null)
             return await Result.FailAsync("Appointment Type not found.");
@@ -303,11 +346,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AppointmentCancellationReason>> GetAppointmentCancelReasons()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.AppointmentCancellationReasons.ToListAsync();
     }
 
     public async Task<IResult<AppointmentCancellationReason>> GetAppointmentCancelReason(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var appointmentType = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
 
         if (appointmentType == null)
@@ -318,6 +365,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveAppointmentCancelReason(Guid id, AppointmentCancellationReason request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.AppointmentCancellationReasons.AddAsync(request);
@@ -333,6 +382,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteAppointmentCancelReason(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var cancellationReason = context.AppointmentCancellationReasons.FirstOrDefault(x => x.Id == id);
         if (cancellationReason == null)
             return await Result.FailAsync("Appointment reason not found..");
@@ -347,6 +398,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<AccountTypeDto> GetAccountType(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var accountInDb = await context.AccountTypes.FirstOrDefaultAsync(x => x.Id == id);
         if (accountInDb is null)
             return new AccountTypeDto();
@@ -356,6 +409,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AccountTypeDto>> GetAllAccountTypes(TransactionActionType? accountTypes)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         List<AccountType> list;
         switch (accountTypes)
         {
@@ -388,6 +443,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AccountTypeDto>> GetAllAccountTypes()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.AccountTypes.Where(x => x.IsActive).ToListAsync();
         var mapped = mapper.Map<List<AccountTypeDto>>(list);
         return mapped;
@@ -397,6 +454,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
             var account = mapper.Map<AccountType>(request);
             if (id == 0)
             {
@@ -427,6 +485,7 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteAccountType(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
         var accountInDb = await context.AccountTypes.FirstOrDefaultAsync(x => x.Id == id);
         if (accountInDb is null)
             return await Result.FailAsync("Account type is not found");
@@ -441,18 +500,25 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<PomrGroup> GetPomrGroup(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+
         var pomrGroup = await context.PomrGroups.FirstOrDefaultAsync(x => x.Id == id);
         return pomrGroup ?? new PomrGroup();
     }
 
     public async Task<List<PomrGroup>> GetAllPomrGroups()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.PomrGroups.Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
             .ToListAsync();
     }
 
     public async Task<IResult> SavePomrGroup(int id, PomrGroup request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == 0)
         {
             request.ClinicId = ApplicationState.Auth.CurrentUser.ClinicId;
@@ -474,6 +540,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeletePomrGroup(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var pomrGroup = await context.PomrGroups.FirstOrDefaultAsync(x => x.Id == id);
         if (pomrGroup is null)
             return await Result.FailAsync("POMR Group is not found");
@@ -489,12 +557,16 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<NoteTemplateDto> GetNoteTemplate(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var noteTemplate = await context.NoteTemplates.Include(x => x.HealthCode).FirstOrDefaultAsync(x => x.Id == id);
         return mapper.Map<NoteTemplateDto>(noteTemplate) ?? new NoteTemplateDto();
     }
 
     public async Task<List<NoteTemplateDto>> GetAllNoteTemplates()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.NoteTemplates
             .Include(x => x.HealthCode)
             .ToListAsync();
@@ -504,12 +576,13 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveNoteTemplate(int id, NoteTemplateDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var noteTemplate = mapper.Map<NoteTemplate>(request);
 
         if (id == 0)
         {
             await context.NoteTemplates.AddAsync(noteTemplate);
-            await context.SaveChangesAsync();
         }
         else
         {
@@ -520,14 +593,17 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
             template.IsActive = noteTemplate.IsActive;
             template.HealthCodeId = noteTemplate.HealthCodeId;
             context.NoteTemplates.Update(template);
-            await context.SaveChangesAsync();
         }
+
+        await context.SaveChangesAsync();
 
         return await Result.SuccessAsync("Note Template saved.");
     }
 
     public async Task<IResult> DeleteNoteTemplate(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var noteTemplate = await context.NoteTemplates.FirstOrDefaultAsync(x => x.Id == id);
         if (noteTemplate is null)
             return await Result.FailAsync("Note Template is not found");
@@ -543,11 +619,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IEnumerable<Drug>> GetAllDrugsAsync()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.Drugs.ToListAsync();
     }
 
     public async Task<Result<Drug>> GetDrugByIdAsync(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var drugInDb = await context.Drugs.FindAsync(id);
         if (drugInDb is not null)
         {
@@ -559,6 +639,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> UpsertDrugAsync(int id, Drug drug)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == 0)
         {
             context.Drugs.Add(drug);
@@ -581,6 +663,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteDrugAsync(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var drug = await context.Drugs.FindAsync(id);
         if (drug == null)
         {
@@ -595,6 +679,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     private async Task<bool> DrugExistsAsync(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.Drugs.AnyAsync(e => e.Id == id);
     }
 
@@ -606,11 +692,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Shot>> GetShotsList()
     {
-        return await context.Shots.Where(x => x.IsActive).ToListAsync();
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        return await context.Shots.ToListAsync();
     }
 
     public async Task<ShotDto> GetShotsDetail(Guid shotId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var shotInDb = await context.Shots.FirstOrDefaultAsync(x => x.Id == shotId);
         var batchDetails = await context.ShotBatches
             .Where(x => x.ShotId == shotId)
@@ -633,6 +723,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (shot.Id == Guid.Empty)
             {
                 await context.Shots.AddAsync(shot);
@@ -661,6 +753,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteShot(Guid shotId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var shot = await context.Shots.AsNoTracking().FirstOrDefaultAsync(x => x.Id == shotId);
         if (shot is null) return await Result.FailAsync("Error occured while deleting Shot");
         context.ChangeTracker.Clear();
@@ -671,6 +765,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteBatchFromShot(Guid batchId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batchInDb = await context.ShotBatches.AsNoTracking()
             .FirstOrDefaultAsync(x => x.BatchId == batchId);
         if (batchInDb is null)
@@ -685,6 +781,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> AssignBatchToShot(AssignShotToBatchDto assignShotToBatch)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batchInDb = await context.Batches
             .FirstOrDefaultAsync(x => x.BatchNumber == assignShotToBatch.BatchNumber && x.IsActive);
 
@@ -713,6 +811,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<ShotBatch> GetShotBatchByShotId(Guid shotId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var shotBatch = await context
             .ShotBatches
             .Include(x => x.Batch)
@@ -724,6 +824,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Batch>> GetAssignedBatches(Guid shotId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batches = await context
             .ShotBatches
             .Include(x => x.Batch)
@@ -739,6 +841,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> UpsertBatch(Guid batchId, Guid shotId, UpsertBatchDto batch)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         await using var transaction = await context.Database.BeginTransactionAsync();
 
         try
@@ -803,6 +907,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult<UpsertBatchDto>> GetUpdateBatchDetail(Guid batchId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batchInDb = await context.Batches
             .Include(x => x.Drug)
             .AsNoTracking()
@@ -818,6 +924,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteBatch(Guid batchId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batchInDb = await context.Batches.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == batchId);
         if (batchInDb is null)
@@ -832,6 +940,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DecreaseBatchQty(Guid batchId, int qty)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var batchInDb = await context.Batches.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == batchId);
         if (batchInDb is null)
@@ -847,6 +957,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Batch>> GetBatches()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var list = await context.Batches.ToListAsync();
         return list;
     }
@@ -857,11 +969,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Course>> GetCourses()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.Courses.Where(x => x.IsActive).ToListAsync();
     }
 
     public async Task<CourseDto> GetCourse(Guid courseId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == courseId);
         var shots = await context.CourseShots
             .Where(x => x.CourseId == courseId)
@@ -879,6 +995,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (courseId == Guid.Empty)
             {
                 await context.Courses.AddAsync(course);
@@ -903,6 +1021,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> AssignedShotToCourse(Guid courseId, List<Guid> shotIds)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         await ClearShotList(courseId);
         var list = shotIds.Select((item, index) => new CourseShot()
                 {CourseId = courseId, ShotId = item, Order = index + 1})
@@ -915,6 +1035,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     private async Task ClearShotList(Guid courseId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var cleanPreviousData =
             await context.CourseShots.AsNoTracking().Where(x => x.CourseId == courseId).ToListAsync();
         context.ChangeTracker.Clear();
@@ -924,6 +1046,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Shot>> GetAssignedShotToCourse(Guid courseId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.CourseShots
             .Where(x => x.CourseId == courseId)
             .OrderBy(x => x.Order)
@@ -935,6 +1059,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteCourse(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var courseInDb = await context.Courses.FirstOrDefaultAsync(x => x.Id == id);
         context.Courses.Remove(courseInDb);
         await context.SaveChangesAsync();
@@ -947,11 +1073,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<ImmunisationProgram>> GetImmunisationPrograms()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.ImmunisationPrograms.ToListAsync();
     }
 
     public async Task<ImmunisationSetupDto> GetImmunisationProgram(Guid programId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var immunisationProgram = await context.ImmunisationPrograms.FirstOrDefaultAsync(x => x.Id == programId);
         var courses = await context.ProgramCourses
             .Where(x => x.ImmunisationProgramId == programId)
@@ -969,6 +1099,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (setupId == Guid.Empty)
             {
                 await context.ImmunisationPrograms.AddAsync(program);
@@ -994,6 +1126,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> AssignedCourseToSchedule(Guid programId, List<Guid> courseIds)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         await ClearCourseList(programId);
         var list = courseIds.Select((item, index) => new ProgramCourse()
                 {ImmunisationProgramId = programId, CourseId = item, Order = index + 1})
@@ -1007,6 +1141,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Course>> GetAssignedCoursesOfProgram(Guid programId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.ProgramCourses
             .Where(x => x.ImmunisationProgramId == programId)
             .OrderBy(x => x.Order)
@@ -1017,6 +1153,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteImmunisationProgram(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var courseInDb = await context.ImmunisationPrograms.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         context.ImmunisationPrograms.Remove(courseInDb);
         await context.SaveChangesAsync();
@@ -1025,6 +1163,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     private async Task ClearCourseList(Guid programId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var cleanPreviousData =
             await context.ProgramCourses.AsNoTracking().Where(x => x.ImmunisationProgramId == programId)
                 .ToListAsync();
@@ -1041,6 +1181,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<InvestigationDto>> GetInvestigations()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var templates = await context.Investigations
             .AsNoTracking()
             .Where(x => x.IsActive).ToListAsync();
@@ -1050,6 +1192,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveInvestigation(InvestigationDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (request.Id == Guid.Empty)
         {
             var investigationTemplate = new Investigation()
@@ -1083,6 +1227,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteInvestigation(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var investigationInDb = await context
             .Investigations
             .AsNoTracking()
@@ -1099,6 +1245,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<InvestigationDetailDto>> GetInvestigationDetails(Guid investigationId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var details = await context.InvestigationDetails
             .AsNoTracking()
             .Where(x => x.IsActive && x.InvestigationId == investigationId)
@@ -1111,6 +1259,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             if (request.Id == Guid.Empty)
             {
                 var details = new InvestigationDetail()
@@ -1174,6 +1324,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteInvestigationDetails(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var investigationDetailInDb = await context
             .InvestigationDetails
             .AsNoTracking()
@@ -1189,11 +1341,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<InvestigationSelectionList>> GetInvestigationSelectionList()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.InvestigationSelectionList.ToListAsync();
     }
 
     public async Task<IResult> SaveInvestigationSelectionList(InvestigationSelectionList request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (request.Id == Guid.Empty)
         {
             var newInvestigationSelectionList = new InvestigationSelectionList()
@@ -1222,6 +1378,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteInvestigationSelectionList(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var listInDb = await context
             .InvestigationSelectionList
             .AsNoTracking()
@@ -1236,6 +1394,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<InvestigationSelectionValue>> GetInvestigationSelectionValues(Guid selectionId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.InvestigationSelectionValues
             .Where(x => x.InvestigationSelectionListId == selectionId)
             .ToListAsync();
@@ -1243,6 +1403,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveInvestigationSelectionListValue(InvestigationSelectionValue request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (request.Id == Guid.Empty)
         {
             request.Id = Guid.NewGuid();
@@ -1265,6 +1427,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteInvestigationSelectionListValue(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var listInDb = await context
             .InvestigationSelectionValues
             .AsNoTracking()
@@ -1279,11 +1443,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<InvestigationGroup>> GetInvestigationGroups()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.InvestigationGroups.AsNoTracking().Where(x => x.IsActive).ToListAsync();
     }
 
     public async Task<IResult> SaveInvestigationGroup(InvestigationGroup request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (request.Id == Guid.Empty)
         {
             var newInvestigationGroup = new InvestigationGroup()
@@ -1314,6 +1482,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteInvestigationGroup(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var groupInDb = await context.InvestigationGroups.AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
         if (groupInDb == null) return await Result.FailAsync("Investigation Group not found.");
@@ -1325,6 +1495,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> AssignInvestigationsToGroup(Guid groupId, Guid investigationId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var isExists = await context.AssignedInvestigationsGroup.AsNoTracking().AnyAsync(x =>
             x.InvestigationGroupId == groupId && x.InvestigationId == investigationId);
 
@@ -1346,6 +1518,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<AssignedInvestigationGroup>> GetAssignInvestigationsOfGroup(Guid groupId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.AssignedInvestigationsGroup
             .AsNoTracking()
             .Include(x => x.InvestigationGroup)
@@ -1355,6 +1529,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteAssignedInvestigationGroup(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var assignInDb = await context.AssignedInvestigationsGroup.FirstOrDefaultAsync(x => x.Id == id);
         if (assignInDb == null) return await Result.FailAsync("Assigned Investigation Group not found.");
 
@@ -1369,11 +1545,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<LetterType>> GetLetterTypes()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.LetterTypes.AsNoTracking().ToListAsync();
     }
 
     public async Task<IResult> SaveLetterType(Guid id, LetterType letterType)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.LetterTypes.AddAsync(letterType);
@@ -1393,6 +1573,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteLetterType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var letterInDb = await context.LetterTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (letterInDb == null) return await Result.FailAsync("Letter Type not found.");
 
@@ -1403,12 +1585,16 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<LetterType> GetLetterType(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var letterInDb = await context.LetterTypes.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         return letterInDb ?? new LetterType();
     }
 
     public async Task<List<LetterTemplate>> GetLetterTemplates()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.LetterTemplates
             .Include(x => x.LetterType)
             .AsNoTracking()
@@ -1417,12 +1603,16 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<string> GetLetterTemplateFile(Guid letterTemplateId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var templateInDb = await context.LetterTemplates.FirstOrDefaultAsync(x => x.Id == letterTemplateId);
         return templateInDb != null ? templateInDb.TemplateFile : "";
     }
 
     public async Task<List<LetterTemplate>> GetLetterTemplatesByType(Guid typeId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.LetterTemplates
             .Include(x => x.LetterType)
             .AsNoTracking()
@@ -1432,6 +1622,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveLetterTemplate(Guid id, LetterTemplateDto request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var letterTemplate = mapper.Map<LetterTemplate>(request);
         if (id == Guid.Empty)
         {
@@ -1456,6 +1648,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteLetterTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var letterInDb = await context.LetterTemplates
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -1473,6 +1667,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<SketchCategory>> GetSketchCategories()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.SketchCategories
             .Include(x => x.Sketches)
             .AsNoTracking().ToListAsync();
@@ -1480,6 +1676,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<Sketch>> GetSketcheByCategory(Guid categoryId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.Sketches
             .AsNoTracking()
             .Where(x => x.SketchCategoryId == categoryId)
@@ -1489,6 +1687,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveSketch(Guid id, Sketch request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.Sketches.AddAsync(request);
@@ -1517,6 +1717,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteSketch(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var sketchInDb = await context.Sketches
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -1533,6 +1735,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<CustomForm>> GetCustomForms()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.CustomForms
             .Where(x => x.IsActive)
             .ToListAsync();
@@ -1540,6 +1744,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveCustomForm(Guid id, CustomForm request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             await context.CustomForms.AddAsync(request);
@@ -1567,6 +1773,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<CustomFormTemplate>> GetCustomFormTemplates(Guid customFormId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.FormTemplates
             .Where(x => x.CustomFormId == customFormId)
             .ToListAsync();
@@ -1574,11 +1782,15 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<CustomFormTemplate> GetCustomFormTemplate(Guid templateId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.FormTemplates.FirstOrDefaultAsync(x => x.Id == templateId);
     }
 
     public async Task<IResult> SaveFormTemplate(Guid id, CustomFormTemplate request)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             var newTemplate = new CustomFormTemplate()
@@ -1610,6 +1822,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> CopyFormTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var formTemplate = await context.FormTemplates
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -1632,6 +1846,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteFormTemplate(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var formTemplate = await context.FormTemplates
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
@@ -1650,6 +1866,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<List<DocumentCategory>> GetAllCategoriesWithHierarchy()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.DocumentCategories
             .Include(c => c.SubCategories)
             .Where(c => c.ParentCategoryId == null) // Start from root categories
@@ -1658,6 +1876,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> SaveDmsCategory(string name, int? parentCategoryId = null)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var newCategory = new DocumentCategory
         {
             Name = name,
@@ -1671,6 +1891,8 @@ public class SettingService(ApplicationDbContext context, IMapper mapper)
 
     public async Task<IResult> DeleteDmsCategory(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var documentCategory = await context.DocumentCategories
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == id);
