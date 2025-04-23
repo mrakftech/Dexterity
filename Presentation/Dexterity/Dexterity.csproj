@@ -141,6 +141,7 @@
       <ProjectReference Include="..\..\Core\Services\Services.csproj" />
       <ProjectReference Include="..\..\External Apis\ClickATell\ClickATell.csproj" />
       <ProjectReference Include="..\..\External Apis\DailyCo\DailyCo.csproj" />
+      <ProjectReference Include="..\..\External Apis\ICDAPI\ICDAPI.csproj" />
     </ItemGroup>
 
 </Project>

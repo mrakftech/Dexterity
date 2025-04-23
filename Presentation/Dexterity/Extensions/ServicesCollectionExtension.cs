@@ -1,6 +1,7 @@
 ﻿using ClickATell.Extensions;
 using DailyCo.Extensions;
 using Dexterity.Adapters;
+using ICDAPI;
 using Services.Contracts.Repositroy;
 using Services.Features.Admin.Interfaces;
 using Services.Features.Admin.Service;
@@ -45,6 +46,7 @@ public static class ServicesCollectionExtension
     {
         services.AddDailyCoApiServices();
         services.AddClickATellApiServices();
+        services.AddIcdApi();
 
         return services;
     }

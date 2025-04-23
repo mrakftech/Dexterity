@@ -58,6 +58,7 @@
 @using Shared.Constants.Permission
 @using Dexterity.Components.Layout.Components.Common
 @using Dexterity.Components.Layout.Components.Custom.Bootstrap
+@using ICDAPI
 
 
 @inject ThemeService ThemeService
@@ -70,6 +71,7 @@
 @inject IMailService MailService;
 @inject IMapper Mapper;
 @inject RoomEnpoints DailyMeetingRoom;
+@inject HealthCodeService HealthCodeService;
 
 @using MudSize = MudBlazor.Size
 @using MudJustify = MudBlazor.Justify
