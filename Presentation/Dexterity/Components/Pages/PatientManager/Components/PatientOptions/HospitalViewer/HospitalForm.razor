@@ -1,0 +1,57 @@
+﻿@using Services.Features.PatientManagement.Dtos.Options
+<DexDialog>
+    <DialogTitle>Hospital Details</DialogTitle>
+    <Content>
+        <DexForm Model="Hospital" ColumnCount="2" OnValidSubmit="UpdateHospital">
+            <Fields>
+                <FormGroup LabelText="Hospital Information">
+                    <FormItem Field="@nameof(Hospital.Name)" LabelText="Hospital Name*"/>
+                    <FormItem Field="@nameof(Hospital.Address1)" LabelText="Address 1*"/>
+                    <FormItem Field="@nameof(Hospital.Address2)" LabelText="Address 2"/>
+                    <FormItem Field="@nameof(Hospital.Address3)" LabelText="Address 3"/>
+                    <FormItem Field="@nameof(Hospital.AlsoKnownAs)" LabelText="Also Known As"/>
+                    <FormItem Field="@nameof(Hospital.HealthBoard)" LabelText="Health Board"/>
+                    <FormItem Field="@nameof(Hospital.HealthCode)" LabelText="Health Code"/>
+                </FormGroup>
+                <FormGroup LabelText="Contact Details">
+                    <FormItem Field="@nameof(Hospital.Contact)" LabelText="Contact*"/>
+                    <FormItem Field="@nameof(Hospital.Fax)" LabelText="Fax"/>
+                    <FormItem Field="@nameof(Hospital.Email)" LabelText="Email"/>
+                    <FormItem Field="@nameof(Hospital.Website)" LabelText="Website"/>
+                    <FormItem Field="@nameof(Hospital.City)" LabelText="City"/>
+                    <FormItem Field="@nameof(Hospital.Country)" LabelText="Country"/>
+                    <FormItem Field="@nameof(Hospital.PostCode)" LabelText="PostCode"/>
+                </FormGroup>
+                <FormItem Field="@nameof(Hospital.City)" ColumnSpan="2">
+                    <Template>
+                        <MandatoryFieldMessage/>
+                    </Template>
+                </FormItem>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Processing="_loading" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+@code {
+    [Parameter] public int Id { get; set; }
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public HospitalDto Hospital { get; set; } = new();
+    private bool _loading;
+    private async Task UpdateHospital()
+    {
+        _loading = true;
+        var res = await UnitOfWork.Patient.SaveHospital(Id, Hospital);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.Messages.First());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.Messages.First());
+        }
+        _loading = false;
+    }
+}

@@ -2,6 +2,7 @@
 @page "/patient-management"
 @using Dexterity.Components.Pages.PatientManager.Components.PatientOptions
 @using Dexterity.Components.Pages.PatientManager.Components.PatientOptions.GroupAlert
+@using Dexterity.Components.Pages.PatientManager.Components.PatientOptions.HospitalViewer
 
 
 <TopTitleBar Title="Patient Management" Image="modules/patients.svg"/>
@@ -43,7 +44,7 @@
                     <PatientAccounts TabChangeClick="ClickChangedTab"/>
                 </MudTabPanel>
                 <MudTabPanel Text="">
-                    <HospitalViewer/>
+                    <HospitalList/>
                 </MudTabPanel>
                 <MudTabPanel Text="">
                     <AllSmsHistory/>

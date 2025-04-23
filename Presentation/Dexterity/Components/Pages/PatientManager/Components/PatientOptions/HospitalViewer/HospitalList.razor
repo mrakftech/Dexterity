@@ -1,0 +1,75 @@
+﻿@using Services.Features.PatientManagement.Dtos.Options
+<TabTitle Title="Hospital Viewer">
+    <ActionButtons>
+        <DexButton Name="Add New Hospital" Click="()=>OpenHospitalForm(0,new HospitalDto())" Class="m-2"/>
+    </ActionButtons>
+</TabTitle>
+<MudItem>
+    <DexGrid DataSource="@Hospitals" Loading="_loading">
+        <DexGridColumns>
+            <GridColumn Field="@nameof(HospitalDto.Name)" HeaderText="Full Name" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(HospitalDto.Contact)" HeaderText="Contact" Width="120px"></GridColumn>
+            <GridColumn Field="@nameof(HospitalDto.Address1)" HeaderText="Address" Width="120px"></GridColumn>
+            <GridColumn HeaderText="Actions" Width="120">
+                <Template>
+                    @{
+                        var hospital = (context as HospitalDto);
+                        <DexUpdateButton OnClick="() => OpenHospitalForm(hospital.Id,hospital)"/>
+                        <DexDeleteButton OnClick="() => DeleteHospital(hospital.Id)"/>
+                    }
+                </Template>
+            </GridColumn>
+        </DexGridColumns>
+    </DexGrid>
+</MudItem>
+<MudItem>
+
+</MudItem>
+
+@code {
+    private List<HospitalDto> Hospitals { get; set; } = new();
+    private bool _loading;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetHospitals();
+    }
+
+    private async Task OpenHospitalForm(int hospitalId, HospitalDto selectedHospital)
+    {
+        var parameters = new DialogParameters
+        {
+            {"Id", hospitalId},
+            {"Hospital", selectedHospital}
+        };
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<HospitalForm>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetHospitals();
+        }
+    }
+
+    private async Task GetHospitals()
+    {
+        Hospitals = await UnitOfWork.Patient.GetHospitals();
+    }
+
+
+    private async Task DeleteHospital(int hospitalId)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Patient.DeleteHospital(hospitalId);
+            StateHasChanged();
+            await GetHospitals();
+            Snackbar.SuccessMessage(res.Messages.First());
+        }
+    }
+
+}
