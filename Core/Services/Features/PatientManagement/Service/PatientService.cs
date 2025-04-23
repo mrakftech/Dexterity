@@ -39,10 +39,35 @@ public class PatientService(
         try
         {
             await using var context = await contextFactory.CreateDbContextAsync();
+            
             var patients = await context.Patients
                 .Where(x => x.IsDeleted == false && x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
                 .ToListAsync();
+            
             return mapper.Map<List<PatientListDto>>(patients);
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e);
+            throw;
+        }
+    }
+
+    public async Task<List<PatientListDto>> GetPatientsByClinic(int[] clinicIds)
+    {
+        try
+        {
+            var patientsList = new List<PatientListDto>();
+            await using var context = await contextFactory.CreateDbContextAsync();
+            foreach (var clinicId in clinicIds)
+            {
+                var patients = await context.Patients
+                    .Where(x => x.IsDeleted == false && x.ClinicId == clinicId)
+                    .ToListAsync();
+                patientsList= mapper.Map<List<PatientListDto>>(patients);
+                
+            }
+            return patientsList;    
         }
         catch (Exception e)
         {

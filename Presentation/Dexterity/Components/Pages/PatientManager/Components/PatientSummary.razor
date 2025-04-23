@@ -75,7 +75,7 @@
 }
 else
 {
-    <PatientList SelectPatient="SelectPatient"/>
+    <SelectPatientList SelectPatient="SelectPatient"/>
 }
 
 
@@ -103,21 +103,11 @@ else
         _tabs.ActivatePanel(_tabIndex);
     }
 
-    private void ClickChangedTab(int tabIndex)
-    {
-        _tabs.ActivatePanel(tabIndex);
-    }
-
-
-    protected async Task ChangeTab(int e)
-    {
-        await TabChangeClick.InvokeAsync(e);
-    }
 
     private async Task GetPateintSummary()
     {
         _loading = true;
-        _title = ApplicationState.SelectedPatient.Id == Guid.Empty ? "Search Patient" : "Patient Summary";
+        _title = ApplicationState.SelectedPatient.Id == Guid.Empty ? "Select a Patient" : "Patient Summary";
         var summary = await UnitOfWork.Patient.GetPatientSummary(PatientId);
         Patient = summary;
         _loading = false;
@@ -128,6 +118,17 @@ else
         ApplicationState.SelectedPatient.Id = patientId;
         await GetPateintSummary();
         StateHasChanged();
+    }
+
+    private void ClickChangedTab(int tabIndex)
+    {
+        _tabs.ActivatePanel(tabIndex);
+    }
+
+
+    protected async Task ChangeTab(int e)
+    {
+        await TabChangeClick.InvokeAsync(e);
     }
 
 }

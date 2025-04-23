@@ -4,10 +4,12 @@
     .e-tab .e-tab-header {
         background-image: linear-gradient(to top, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%);
     }
+
     .e-tab .e-tab-header .e-toolbar-item .e-tab-wrap {
-        color: white!important;
+        color: white !important;
         font-weight: bolder;
     }
+
     .e-tab .e-tab-header .e-toolbar-item.e-active {
         background: white;
         font-weight: bolder;
@@ -19,10 +21,19 @@
 }
 else
 {
+    <TabTitle Title="Edit Patient">
+        <ActionButtons>
+            @if (ApplicationState.SelectedPatient.Id != Guid.Empty)
+            {
+                <DexButton Name="Go Back" Click="GoBack"/>
+            }
+        </ActionButtons>
+    </TabTitle>
     <SfAppBar ColorMode="AppBarColor.Primary">
-        <span class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.CalculateAge(Patient.DateOfBirth)} , {Patient.Gender}")</span>
+        <span
+            class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.CalculateAge(Patient.DateOfBirth)} , {Patient.Gender}")</span>
     </SfAppBar>
-    <SfTab CssClass="mt-5" >
+    <SfTab CssClass="mt-5">
         <TabItems>
             <TabItem>
                 <ChildContent>
@@ -41,15 +52,15 @@ else
                         <PatientDetailForm Patient="Patient"/>
                         <FormButtons>
                             <div class="mb-3">
-                                <DexLoadingButton Name="Save Patient" 
-                                                  Processing="_processing" 
+                                <DexLoadingButton Name="Save Patient"
+                                                  Processing="_processing"
                                                   Type="MudButtonType.Submit" FullWidth="false"></DexLoadingButton>
                             </div>
                         </FormButtons>
                     </SfDataForm>
                 </ContentTemplate>
             </TabItem>
-            <TabItem >
+            <TabItem>
                 <ChildContent>
                     <TabHeader Text="Extra Details"></TabHeader>
                 </ChildContent>
@@ -57,7 +68,7 @@ else
                     <ExtraDetailFrom PatientExtraDetail="ExtraDetail"/>
                 </ContentTemplate>
             </TabItem>
-            <TabItem >
+            <TabItem>
                 <ChildContent>
                     <TabHeader Text="Contacts"></TabHeader>
                 </ChildContent>
@@ -65,7 +76,7 @@ else
                     <PatientContacts Id="Id"/>
                 </ContentTemplate>
             </TabItem>
-            <TabItem >
+            <TabItem>
                 <ChildContent>
                     <TabHeader Text="Patient Occupations"></TabHeader>
                 </ChildContent>
@@ -73,7 +84,7 @@ else
                     <PatientOccupations Id="Id"/>
                 </ContentTemplate>
             </TabItem>
-            <TabItem >
+            <TabItem>
                 <ChildContent>
                     <TabHeader Text="Patient Alerts"></TabHeader>
                 </ChildContent>
@@ -112,6 +123,8 @@ else
 
 @code {
     [Parameter] public Guid Id { get; set; }
+    [Parameter]
+    public EventCallback GoBack { get; set; }
     private UpsertPatientDto Patient { get; set; } = new();
     private PatientExtraDetailDto ExtraDetail { get; set; } = new();
     private bool _processing;
@@ -167,6 +180,5 @@ else
 
         _processing = false;
     }
-
 
 }

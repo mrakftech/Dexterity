@@ -1,0 +1,45 @@
+﻿@using Services.Features.PatientManagement.Dtos.Details
+<DexGrid DataSource="Patients" Loading="_patientLoading">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d" Type="ColumnType.DateTime"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as PatientListDto);
+                    <DexButton Name="Select Patient" Click="() => PatientChanged(item.Id)"/>
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<PatientListDto> Patients { get; set; } = new();
+    private bool _patientLoading;
+    [Parameter] public EventCallback<Guid> SelectPatient { get; set; }
+   
+    protected override async Task OnInitializedAsync()
+    {
+        await GetPatients();
+    }
+
+    private async Task GetPatients()
+    {
+        _patientLoading = true;
+        await Task.Delay(500);
+        Patients = await UnitOfWork.Patient.GetPatients();
+        _patientLoading = false;
+    }
+
+    private void PatientChanged(Guid patientId)
+    {
+        SelectPatient.InvokeAsync(patientId);
+        StateHasChanged();
+    }
+
+}

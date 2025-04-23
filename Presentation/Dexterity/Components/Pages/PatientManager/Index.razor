@@ -1,24 +1,25 @@
 ﻿@layout MainLayout
 @page "/patient-management"
 @using Dexterity.Components.Pages.PatientManager.Components.PatientOptions
+@using Dexterity.Components.Pages.PatientManager.Components.PatientOptions.GroupAlert
 <style>
     .mud-tabs-toolbar-content {
         overflow-x: scroll !important;
     }
 
-        .mud-tabs-toolbar-content::-webkit-scrollbar {
-            display: none !important;
-        }
+    .mud-tabs-toolbar-content::-webkit-scrollbar {
+        display: none !important;
+    }
 </style>
 
 <TopTitleBar Title="Patient Management" Image="modules/patients.svg"/>
 <MudItem md="12" Class="vertical-space">
-    <InnerLayout >
+    <InnerLayout>
         <NavigationItems>
             @if (UnitOfWork.User.CheckPermission(PermissionConstants.Create))
             {
                 <DexMenuItem Text="Quick Patient" Icon="quick-add-patient-icon" Click="@(AddNewPatient)"/>
-                <DexMenuItem Text="Add Patient" Icon="add-patient-icon" Click="@(() => ClickChangedTab(1))"/> 
+                <DexMenuItem Text="Add Patient" Icon="add-patient-icon" Click="@(() => ClickChangedTab(1))"/>
             }
             <DexMenuItem Text="Open Patient" Icon="open-patient-icon" Click="@(() => ClickChangedTab(0))"/>
             <DexMenuItem Text="Patient Group Centre" Icon="patient-family-icon" Click="@(() => ClickChangedTab(2))"/>
@@ -33,32 +34,32 @@
         </NavigationItems>
 
         <DexContentTabs>
-                <MudTabs @ref="_tabs">
-                    <MudTabPanel Text="">
-                        <OpenPatient TabChangeClick="ClickChangedTab"/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <AddNewPatient/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <PatientGroup/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <PatientSummary TabChangeClick="ClickChangedTab"/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <PatientAccounts/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <HospitalViewer/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <AllSmsHistory/>
-                    </MudTabPanel>
-                    <MudTabPanel Text="">
-                        <GroupAlert/>
-                    </MudTabPanel>
-                </MudTabs>
+            <MudTabs @ref="_tabs">
+                <MudTabPanel Text="">
+                    <OpenPatient TabChangeClick="ClickChangedTab"/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <AddNewPatient/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <PatientGroup/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <PatientSummary TabChangeClick="ClickChangedTab"/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <PatientAccounts/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <HospitalViewer/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <AllSmsHistory/>
+                </MudTabPanel>
+                <MudTabPanel Text="">
+                    <GroupAlert/>
+                </MudTabPanel>
+            </MudTabs>
         </DexContentTabs>
     </InnerLayout>
 </MudItem>
@@ -68,11 +69,10 @@
 
     private void ClickChangedTab(int tabIndex)
     {
-        if (tabIndex is 0 or  4)
+        if (tabIndex is 4)
         {
             ApplicationState.SelectedPatient.Id = Guid.Empty;
         }
-
         _tabs.ActivatePanel(tabIndex);
     }
 

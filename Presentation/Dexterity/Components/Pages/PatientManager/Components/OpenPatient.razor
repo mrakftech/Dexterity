@@ -1,82 +1,26 @@
-﻿@using Services.Features.PatientManagement.Dtos.Details
-<TabTitle Title="Open Patient">
-    <ActionButtons>
-        @if (ApplicationState.SelectedPatient.Id != Guid.Empty)
-        {
-            @* <DexSimpleButton Name="Patient Summary" Click="()=>ChangeTab(3)" Color="MudColor.Primary" FullWidth="false"/> *@
-            <DexButton Name="Go Back" Click="()=>ChangeTab(0)" Color="MudColor.Primary" FullWidth="false"/>
-        }
-        else
-        {
-            <DexButton Name="Load Patients" Click="GetPatients" Color="MudColor.Primary" FullWidth="false"/>
-
-        }
-    </ActionButtons>
-</TabTitle>
-<MudItem md="12">
+﻿<MudItem md="12">
     @if (ApplicationState.SelectedPatient.Id == Guid.Empty)
     {
-        <DexGrid DataSource="Patients" Loading="_patientLoading">
-            <DexGridColumns>
-                <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d" Type="ColumnType.DateTime"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
-                <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"></GridColumn>
-                <GridColumn HeaderText="Actions" Width="120">
-                    <Template>
-                        @{
-                            var patient = (context as PatientListDto);
-                            <DexUpdateButton OnClick="() => EditPatient(patient.Id)"/>
-                            <DexDeleteButton OnClick="() => DeletePatient(patient.Id)"/>
-                        }
-                    </Template>
-                </GridColumn>
-            </DexGridColumns>
-        </DexGrid>
+        <PatientList TabChangeClick="GotoEditPatient"/>
     }
     else
     {
-        <EditPatient Id="@ApplicationState.SelectedPatient.Id"/>
+      
+        <EditPatient Id="@ApplicationState.SelectedPatient.Id" GoBack="GoBack"/>
     }
 </MudItem>
 
 @code {
-    private List<PatientListDto> Patients { get; set; } = new();
-    private bool _patientLoading;
-
-    private async Task GetPatients()
-    {
-        _patientLoading = true;
-        await Task.Delay(1000);
-        Patients = await UnitOfWork.Patient.GetPatients();
-        _patientLoading = false;
-    }
-
-    private void EditPatient(Guid id)
-    {
-        ApplicationState.SelectedPatient.Id = id;
-        
-    }
-
-    private async Task DeletePatient(Guid id)
-    {
-        var parameters = new DialogParameters();
-        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
-        var result = await dialogresult.Result;
-        if (!result.Canceled)
-        {
-            var patientRes = await UnitOfWork.Patient.DeletePatient(id);
-            await GetPatients();
-            Snackbar.SuccessMessage(patientRes.Messages.First());
-        }
-    }
-
     [Parameter] public EventCallback<int> TabChangeClick { get; set; }
+    private async Task GoBack()
+    {
+        ApplicationState.SelectedPatient.Id=Guid.Empty;
+        await TabChangeClick.InvokeAsync(0);
+    }
     
-    protected async Task ChangeTab(int e)
+    protected async Task GotoEditPatient(int e)
     {
         await TabChangeClick.InvokeAsync(e);
     }
+
 }

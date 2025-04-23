@@ -16,6 +16,7 @@ public interface IPatientService
     #region Patient
 
     public Task<List<PatientListDto>> GetPatients();
+    public Task<List<PatientListDto>> GetPatientsByClinic(int[] clinicIds);
     public Task<PatientDto> GetPatient(Guid id);
     public Task<DateTime> GetPatientDob(Guid id);
     public Task<IResult> QuickCreatePatient(QuickAddPatientDto dto, CancellationToken cancellationToken);

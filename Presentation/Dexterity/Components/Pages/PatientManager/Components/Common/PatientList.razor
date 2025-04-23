@@ -1,45 +1,93 @@
-﻿@using Services.Features.PatientManagement.Dtos.Details
+﻿@using Services.Features.Settings.Dtos
+@using Services.Features.PatientManagement.Dtos.Details
+<TabTitle Title="Open Patient">
+</TabTitle>
+<MudStack Row Class="m-3">
+    <MudItem md="8">
+        <label>Select Clinic:</label>
+        <SfMultiSelect TItem="UserClinicDto" TValue="int[]" Placeholder="e.g. Clinic 1" ShowSelectAll="true"
+                       Mode="VisualMode.CheckBox"
+                       @bind-Value="_clinicIds"
+                       DataSource="@_clinics">
+            <MultiSelectEvents TItem="UserClinicDto" TValue="int[]" ValueChange="@ClinicChanged"></MultiSelectEvents>
+            <MultiSelectFieldSettings Value="ClinicId" Text="ClinicName"></MultiSelectFieldSettings>
+        </SfMultiSelect>
+    </MudItem>
+    <MudItem md="4">
+        <DexButton Name="Load Patients" Click="GetPatients" Class="mt-5"/>
+    </MudItem>
+</MudStack>
 <DexGrid DataSource="Patients" Loading="_patientLoading">
     <DexGridColumns>
-        <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g" Type="ColumnType.DateTime"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.CreatedDate)" HeaderText="Created Date" Width="120px" Format="g"
+                    Type="ColumnType.DateTime"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Full Name" Width="120px"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"></GridColumn>
-        <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d" Type="ColumnType.DateTime"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d"
+                    Type="ColumnType.DateTime"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
-        <GridColumn Field="@nameof(PatientListDto.AddressLine1)" HeaderText="Address" Width="120px"></GridColumn>
         <GridColumn HeaderText="Actions" Width="120">
             <Template>
                 @{
-                    var item = (context as PatientListDto);
-                    <DexButton Name="Select Patient" Click="() => PatientChanged(item.Id)"/>
+                    var patient = (context as PatientListDto);
+                    <DexUpdateButton OnClick="() => EditPatient(patient.Id)"/>
+                    <DexDeleteButton OnClick="() => DeletePatient(patient.Id)"/>
                 }
             </Template>
         </GridColumn>
     </DexGridColumns>
 </DexGrid>
 
-@code {
-    private List<PatientListDto> Patients { get; set; } = new();
+@code{
+    private List<UserClinicDto> _clinics = [];
+    private int[] _clinicIds = [];
+    private List<PatientListDto> Patients { get; set; } = [];
     private bool _patientLoading;
-    [Parameter] public EventCallback<Guid> SelectPatient { get; set; }
-   
+    [Parameter] public EventCallback<int> TabChangeClick { get; set; }
+
+
     protected override async Task OnInitializedAsync()
     {
-        await GetPatients();
+        _clinics = await UnitOfWork.Setting.GetUserClinics();
     }
 
     private async Task GetPatients()
     {
         _patientLoading = true;
         await Task.Delay(500);
-        Patients = await UnitOfWork.Patient.GetPatients();
+        Patients = await UnitOfWork.Patient.GetPatientsByClinic(_clinicIds);
         _patientLoading = false;
     }
 
-    private void PatientChanged(Guid patientId)
+    private async Task EditPatient(Guid id)
     {
-        SelectPatient.InvokeAsync(patientId);
+        ApplicationState.SelectedPatient.Id = id;
+        await ChangeTab(0);
         StateHasChanged();
+    }
+
+    private async Task DeletePatient(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            var patientRes = await UnitOfWork.Patient.DeletePatient(id);
+            await GetPatients();
+            Snackbar.SuccessMessage(patientRes.Messages.First());
+        }
+    }
+
+
+    private void ClinicChanged(MultiSelectChangeEventArgs<int[]> args)
+    {
+        _clinicIds = args.Value is {Length: > 0} ? args.Value : [];
+    }
+
+    private async Task ChangeTab(int e)
+    {
+        await TabChangeClick.InvokeAsync(e);
     }
 
 }

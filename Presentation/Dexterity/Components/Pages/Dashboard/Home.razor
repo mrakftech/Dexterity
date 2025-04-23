@@ -4,6 +4,7 @@
 @using Domain.Entities.UserAccounts
 @using Position = MudBlazor.Position
 @using Services.Features.Settings.Dtos
+@using Dexterity.Components.Layout.Components.User
 <MudContainer Style="margin-top:8%" MaxWidth="MaxWidth.ExtraExtraLarge">
     <MudGrid Justify="MudJustify.Center">
         <MudItem>
@@ -146,6 +147,7 @@
         _clinics = await UnitOfWork.Setting.GetUserClinics();
         await Task.Delay(500);
         await SetInitialClinicIds();
+        await GetDashboardData();
         _loading = false;
         StateHasChanged();
     }
@@ -206,7 +208,6 @@
             ? _clinics.Select(x => x.ClinicId).ToArray()
             : [ApplicationState.Auth.CurrentUser.ClinicId];
 
-        await GetDashboardData();
     }
 
 }
