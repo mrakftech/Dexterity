@@ -2,9 +2,9 @@
 @using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
 @using Services.Features.PatientManagement.Dtos.Account
 
-<TabTitle Title="Patient Accounts"/>
-@if (ApplicationState.SelectedPatient.Id != Guid.Empty)
+@if (ApplicationState.Patient.IsPatientSelected())
 {
+    <TabTitle Title="Patient Accounts" GoBack="GoBackToPatientList" ShowBackButton/>
     <div style="height: 900px">
         <RadzenRow>
             <RadzenCard Variant="RadVariant.Filled" class="rz-mx-auto" Style="width: 100%">
@@ -119,26 +119,21 @@ else
 }
 
 @code {
+    [Parameter] public EventCallback<int> TabChangeClick { get; set; }
     private GetPatientAccountDto AccountDto { get; set; } = new();
-    private List<GetTransactionDto> Transactions { get; set; } = new();
-    private List<AccountStatementDto> Statement { get; set; } = new();
-    MudTabs _tabs = new();
-
-    private void ClickChangedTab(int tabIndex)
-    {
-        _tabs.ActivatePanel(tabIndex);
-    }
+    private List<GetTransactionDto> Transactions { get; set; } =[];
+    private List<AccountStatementDto> Statement { get; set; } = [];
+    
 
     private async Task SelectPatient(Guid patientId)
     {
-        ApplicationState.SelectedPatient.Id = patientId;
         await GetAccountDetails();
         StateHasChanged();
     }
 
     private async Task GetAccountDetails()
     {
-        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatient.Id);
+        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.Patient.GetSelectPatientId());
     }
 
     private async Task GetOutstanding()
@@ -221,5 +216,9 @@ else
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PrintStatementModal>("", parameters, options);
     }
-
+    protected async Task GoBackToPatientList()
+    {
+        ApplicationState.Patient.ClearPatient();
+        await TabChangeClick.InvokeAsync(3);
+    }
 }

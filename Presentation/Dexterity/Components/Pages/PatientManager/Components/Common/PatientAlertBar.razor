@@ -60,10 +60,10 @@
 
     [Parameter] public string AlertType { get; set; }
 
-    private List<PatientAlertDto> PatientAlerts { get; set; } = new();
-    private List<PatientAlertDto> _lowSeverity = new();
-    private List<PatientAlertDto> _medSeverity = new();
-    private List<PatientAlertDto> _highSeverity = new();
+    private List<PatientAlertDto> PatientAlerts { get; set; } = [];
+    private List<PatientAlertDto> _lowSeverity = [];
+    private List<PatientAlertDto> _medSeverity = [];
+    private List<PatientAlertDto> _highSeverity = [];
 
 
     protected override async Task OnParametersSetAsync()
@@ -71,16 +71,16 @@
         if (PatientId != Guid.Empty)
         {
             PatientAlerts = await UnitOfWork.Patient.GetPatientAlertByModule(PatientId, AlertType);
-            _lowSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.Low.ToString()).ToList();
-            _medSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.Medium.ToString()).ToList();
-            _highSeverity = PatientAlerts.Where(x => x.Severity == AlertSeverity.High.ToString()).ToList();
+            _lowSeverity = PatientAlerts.Where(x => x.Severity == nameof(AlertSeverity.Low)).ToList();
+            _medSeverity = PatientAlerts.Where(x => x.Severity == nameof(AlertSeverity.Medium)).ToList();
+            _highSeverity = PatientAlerts.Where(x => x.Severity == nameof(AlertSeverity.High)).ToList();
         }
         else
         {
-            PatientAlerts = new();
-            _lowSeverity = new();
-            _medSeverity = new();
-            _highSeverity = new();
+            PatientAlerts = [];
+            _lowSeverity = [];
+            _medSeverity = [];
+            _highSeverity = [];
         }
 
         await Task.CompletedTask;

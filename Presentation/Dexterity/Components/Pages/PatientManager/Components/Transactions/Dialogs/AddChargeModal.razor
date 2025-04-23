@@ -58,7 +58,7 @@
 
     private async Task GetAccountDetails()
     {
-        PatientAccount = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.SelectedPatient.Id);
+        PatientAccount = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.Patient.GetSelectPatientId());
     }
 
     private async Task GetHealthCares()

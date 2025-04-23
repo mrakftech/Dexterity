@@ -185,14 +185,12 @@
         if (_patientId != Guid.Empty)
         {
             _patient = await UnitOfWork.Patient.GetPatientSummary(_patientId);
-            ApplicationState.SelectedPatient.Name = _patient.Name;
-            ApplicationState.SelectedPatient.Id = _patientId;
+            ApplicationState.Patient.SetPatientId(_patientId,_patient.Name);
             await GetAccountDetails();
         }
         else
         {
-            ApplicationState.SelectedPatient.Name = string.Empty;
-            ApplicationState.SelectedPatient.Id = Guid.Empty;
+            ApplicationState.Patient.ClearPatient();
         }
     }
 

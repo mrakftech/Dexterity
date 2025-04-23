@@ -1,27 +1,12 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 @using Dexterity.Components.Pages.PatientManager.Components.Summary
-<style>
-    .e-tab .e-tab-header {
-        background-image: linear-gradient(to top, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%);
-    }
 
-    .e-tab .e-tab-header .e-toolbar-item .e-tab-wrap {
-        color: white !important;
-        font-weight: bolder;
-    }
-
-    .e-tab .e-tab-header .e-toolbar-item.e-active {
-        background: white;
-        font-weight: bolder;
-    }
-</style>
-<TabTitle Title="@_title">
-</TabTitle>
-
-@if (ApplicationState.SelectedPatient.Id != Guid.Empty)
+@if (ApplicationState.Patient.IsPatientSelected())
 {
     if (!_loading)
     {
+        <TabTitle Title="Patient Summary" GoBack="GoBackToPatientList" ShowBackButton>
+        </TabTitle>
         <MudItem md="12" Class="vertical-space">
             <InnerLayout ShowHeader="false">
                 <NavigationItems>
@@ -81,42 +66,29 @@ else
 
 @code {
     [Parameter] public EventCallback<int> TabChangeClick { get; set; }
-    [Parameter] public Guid PatientId { get; set; }
     private PatientSummaryDto Patient { get; set; } = new();
     MudTabs _tabs = new();
     string _tabIndex = "0";
     private bool _loading;
-    private string _title = "";
 
     protected override async Task OnInitializedAsync()
     {
-        if (PatientId == Guid.Empty)
-        {
-            PatientId = ApplicationState.SelectedPatient.Id;
-        }
-        else
-        {
-            ApplicationState.SelectedPatient.Id = PatientId;
-        }
-
-        await GetPateintSummary();
+        await GetPateintSummary(ApplicationState.Patient.GetSelectPatientId());
         _tabs.ActivatePanel(_tabIndex);
     }
 
 
-    private async Task GetPateintSummary()
+    private async Task GetPateintSummary(Guid patientId)
     {
         _loading = true;
-        _title = ApplicationState.SelectedPatient.Id == Guid.Empty ? "Select a Patient" : "Patient Summary";
-        var summary = await UnitOfWork.Patient.GetPatientSummary(PatientId);
+        var summary = await UnitOfWork.Patient.GetPatientSummary(patientId);
         Patient = summary;
         _loading = false;
     }
 
     private async Task SelectPatient(Guid patientId)
     {
-        ApplicationState.SelectedPatient.Id = patientId;
-        await GetPateintSummary();
+        await GetPateintSummary(patientId);
         StateHasChanged();
     }
 
@@ -128,8 +100,14 @@ else
 
     protected async Task ChangeTab(int e)
     {
+
         await TabChangeClick.InvokeAsync(e);
     }
-
+    
+    protected async Task GoBackToPatientList()
+    {
+        ApplicationState.Patient.ClearPatient();
+        await TabChangeClick.InvokeAsync(3);
+    }
 }
 

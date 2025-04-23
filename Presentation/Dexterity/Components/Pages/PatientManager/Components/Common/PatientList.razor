@@ -26,6 +26,8 @@
         <GridColumn Field="@nameof(PatientListDto.DateOfBirth)" HeaderText="Date Of Birth" Width="120px" Format="d"
                     Type="ColumnType.DateTime"></GridColumn>
         <GridColumn Field="@nameof(PatientListDto.Email)" HeaderText="Email" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(PatientListDto.ClinicName)" HeaderText="Clinic" Width="120px"></GridColumn>
+
         <GridColumn HeaderText="Actions" Width="120">
             <Template>
                 @{
@@ -61,7 +63,7 @@
 
     private async Task EditPatient(Guid id)
     {
-        ApplicationState.SelectedPatient.Id = id;
+        ApplicationState.Patient.SetPatientId(id);
         await ChangeTab(0);
         StateHasChanged();
     }

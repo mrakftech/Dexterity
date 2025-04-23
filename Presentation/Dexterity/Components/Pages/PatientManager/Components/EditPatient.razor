@@ -1,33 +1,13 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Components.Form
 @using Services.Features.PatientManagement.Dtos.Details
-<style>
-    .e-tab .e-tab-header {
-        background-image: linear-gradient(to top, #505285 0%, #585e92 12%, #65689f 25%, #7474b0 37%, #7e7ebb 50%, #8389c7 62%, #9795d4 75%, #a2a1dc 87%, #b5aee4 100%);
-    }
 
-    .e-tab .e-tab-header .e-toolbar-item .e-tab-wrap {
-        color: white !important;
-        font-weight: bolder;
-    }
-
-    .e-tab .e-tab-header .e-toolbar-item.e-active {
-        background: white;
-        font-weight: bolder;
-    }
-</style>
 @if (_loading)
 {
     <MudProgressCircular Indeterminate="_loading" Color="MudColor.Primary"></MudProgressCircular>
 }
 else
 {
-    <TabTitle Title="Edit Patient">
-        <ActionButtons>
-            @if (ApplicationState.SelectedPatient.Id != Guid.Empty)
-            {
-                <DexButton Name="Go Back" Click="GoBack"/>
-            }
-        </ActionButtons>
+    <TabTitle Title="Edit Patient" GoBack="GoBack" ShowBackButton>
     </TabTitle>
     <SfAppBar ColorMode="AppBarColor.Primary">
         <span
@@ -132,6 +112,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        
         _loading = true;
         await Task.Delay(500);
         await GetPatient(Id);

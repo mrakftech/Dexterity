@@ -1,0 +1,44 @@
+﻿@using System.Linq.Expressions
+@using Services.Features.Settings.Dtos
+
+<SfMultiSelect TItem="UserClinicDto" TValue="int[]" Placeholder="e.g. Clinic 1" ShowSelectAll="true"
+               Mode="VisualMode.CheckBox"
+               @bind-Value="@FieldDataSource"
+               DataSource="@_clinics">
+    <MultiSelectEvents TItem="UserClinicDto" TValue="int[]" ValueChange="@ValueChangeHandler"></MultiSelectEvents>
+    <MultiSelectFieldSettings Value="ClinicId" Text="ClinicName"></MultiSelectFieldSettings>
+</SfMultiSelect>
+
+
+@code{
+    private List<UserClinicDto> _clinics = [];
+
+    [Parameter] public EventCallback<MultiSelectChangeEventArgs<int[]>> ValueChangeHandler { get; set; }
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        _clinics = await UnitOfWork.Setting.GetUserClinics();
+        await Task.Delay(500);
+        _loading = false;
+        StateHasChanged();
+    }
+
+    protected int[] _fieldDataSource;
+
+    [Parameter]
+    public int[] FieldDataSource
+    {
+        get => _fieldDataSource;
+        set
+        {
+            if (_fieldDataSource == value || value == null) return;
+            _fieldDataSource = value;
+            FieldDataSourceChanged.InvokeAsync(value);
+        }
+    }
+
+    [Parameter] public EventCallback<int[]> FieldDataSourceChanged { get; set; }
+    [Parameter] public Expression<Func<int[]>> FieldDataSourceExpression { get; set; }
+}

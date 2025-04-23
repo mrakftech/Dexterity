@@ -6,17 +6,26 @@
     <span class="regular text-bold ml-3"> @Title.ToUpper()</span>
     <AppBarSpacer></AppBarSpacer>
     @ActionButtons
+    @if (ApplicationState.Patient.IsPatientSelected())
+    {
+        if (ShowBackButton)
+        {
+            <DexButton Name="Go Back" Click="GoBack"/>
+        }
+    }
 </SfAppBar>
 
 <style>
-   
+
 </style>
+
 @code {
     [Parameter] public string Title { get; set; } = "";
     [Parameter] public string MarginTop { get; set; } = "3%";
     [Parameter] public RenderFragment ActionButtons { get; set; }
+    [Parameter] public string Icon { get; set; } = "";
     [Parameter]
-    public string Icon { get; set; } = "";
-
+    public EventCallback GoBack { get; set; }
+    [Parameter] public bool ShowBackButton { get; set; }
 
 }

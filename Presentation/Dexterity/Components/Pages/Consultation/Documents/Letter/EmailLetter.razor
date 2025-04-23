@@ -48,7 +48,7 @@
             {
                 Email.Details = $"The message is ready to be sent with the following file or link {file.FileInfo.Name}";
                 var ex = Path.GetExtension(file.FileInfo.Name);
-                file.FileInfo.Name = $"{ApplicationState.SelectedPatient.Id}-email{ex}";
+                file.FileInfo.Name = $"{ApplicationState.Patient.GetSelectPatientId()}-email{ex}";
                 var path = Path.Combine(UnitOfWork.FileService.GetTempPath(), file.FileInfo.Name);
                 var filestream = new FileStream(path, FileMode.Create, FileAccess.Write);
                 await file.File.OpenReadStream(long.MaxValue).CopyToAsync(filestream);

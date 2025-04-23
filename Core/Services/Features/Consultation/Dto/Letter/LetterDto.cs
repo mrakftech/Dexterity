@@ -7,7 +7,7 @@ public class LetterDto
 {
     public DateTime LetterDt { get; set; } = DateTime.Now;
     public string ReferTo { get; set; } = "The Patient";
-    public string Reference { get; set; } = ApplicationState.SelectedPatient.Name;
+    public string Reference { get; set; } = ApplicationState.Patient.Name;
     public string Description { get; set; }
 
    [NotEmpty(ErrorMessage = "Required")] public Guid LetterTypeId { get; set; }

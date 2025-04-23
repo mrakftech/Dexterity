@@ -132,7 +132,7 @@
     [Parameter] public List<ImmunisationScheduleDto> ImmunisationsSchedules { get; set; } = [];
     private List<AdministerShot> _administerShots = [];
     private List<Reaction> _reactions = [];
-    private List<Course> _courses = [];
+    //private List<Course> _courses = [];
     private Guid _scheduleId = Guid.Empty;
     private Guid _administerId;
 
@@ -149,7 +149,7 @@
     private async Task GetImmunisationSchedules()
     {
         ImmunisationsSchedules = await UnitOfWork.Consultation
-            .GetImmunisationSchedule(ApplicationState.SelectedPatient.Id);
+            .GetImmunisationSchedule(ApplicationState.Patient.GetSelectPatientId());
     }
 
     private async Task SelectSchedule(RowSelectEventArgs<ImmunisationScheduleDto> args)

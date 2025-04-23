@@ -14,7 +14,7 @@ public class UpsertConsultationNoteDto
     public bool IsSocialHistory { get; set; }
     public bool IsPrivate { get; set; }
     public Guid HcpId { get; set; } = ApplicationState.Auth.CurrentUser.UserId;
-    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.Id;
+    public Guid PatientId { get; set; } = ApplicationState.Patient.GetSelectPatientId();
     [Required] public string Notes { get; set; }
 
 

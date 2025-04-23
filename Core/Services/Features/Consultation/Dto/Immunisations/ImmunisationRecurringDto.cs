@@ -9,7 +9,7 @@ public class ImmunisationRecurringDto
     [NotEmpty(ErrorMessage = "Please select schedule")]
     public Guid ImmunisationProgramId { get; set; }
 
-    public Guid PatientId { get; set; } = ApplicationState.SelectedPatient.Id;
+    public Guid PatientId { get; set; } = ApplicationState.Patient.GetSelectPatientId();
     public DateTime StartDate { get; set; } = DateTime.Now;
     
     [Range(1, 15)]

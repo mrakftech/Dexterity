@@ -10,5 +10,6 @@ public class PatientListDto
     public string Email { get; set; }
     public string AddressLine1 { get; set; }
     public string MobilePhone { get; set; }
+    public string ClinicName { get; set; }
     public string IhiNumber { get; set; }
 }

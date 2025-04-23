@@ -58,8 +58,8 @@ relating to this patient or any other topic of choice"/>
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
         parameters.Add("HcpId", ApplicationState.Auth.CurrentUser.UserId);
-        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.Id);
-        parameters.Add("SelectedPatientName", ApplicationState.SelectedPatient.Name);
+        parameters.Add("SelectedPatientId", ApplicationState.Patient.GetSelectPatientId());
+        parameters.Add("SelectedPatientName", ApplicationState.Patient.GetSelectPatientName());
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;
@@ -71,8 +71,8 @@ relating to this patient or any other topic of choice"/>
     private async Task OpenTasksDialog(MouseEventArgs obj)
     {
         var parameters = new DialogParameters();
-        parameters.Add("SelectedPatientId", ApplicationState.SelectedPatient.Id);
-        parameters.Add("SelectedPatientName", ApplicationState.SelectedPatient.Name);
+        parameters.Add("SelectedPatientId", ApplicationState.Patient.GetSelectPatientId());
+        parameters.Add("SelectedPatientName", ApplicationState.Patient.GetSelectPatientName());
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<UpsertUserTaskDialog>("", parameters, options);
     }

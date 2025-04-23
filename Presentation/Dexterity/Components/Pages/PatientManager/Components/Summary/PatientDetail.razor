@@ -1,7 +1,7 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Family
 @using Services.Features.PatientManagement.Dtos.Details
 <TabTitle Title="Details"></TabTitle>
-@if (ApplicationState.SelectedPatient.Id != Guid.Empty)
+@if (ApplicationState.Patient.IsPatientSelected())
 {
     <PatientInfoCard Patient="Patient"/>
     <RadzenRow Gap="2rem" class="rz-p-0 rz-p-lg-4">

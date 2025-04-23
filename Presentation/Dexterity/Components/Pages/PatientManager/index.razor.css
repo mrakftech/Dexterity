@@ -1,0 +1,7 @@
+﻿.mud-tabs-toolbar-content {
+    overflow-x: scroll !important;
+}
+
+.mud-tabs-toolbar-content::-webkit-scrollbar {
+    display: none !important;
+}

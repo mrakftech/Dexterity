@@ -1,23 +1,23 @@
 ﻿<MudItem md="12">
-    @if (ApplicationState.SelectedPatient.Id == Guid.Empty)
+    @if (ApplicationState.Patient.IsPatientSelected())
     {
-        <PatientList TabChangeClick="GotoEditPatient"/>
+        <EditPatient Id="@ApplicationState.Patient.GetSelectPatientId()" GoBack="GoBack"/>
     }
     else
     {
-      
-        <EditPatient Id="@ApplicationState.SelectedPatient.Id" GoBack="GoBack"/>
+        <PatientList TabChangeClick="GotoEditPatient"/>
     }
 </MudItem>
 
 @code {
     [Parameter] public EventCallback<int> TabChangeClick { get; set; }
+
     private async Task GoBack()
     {
-        ApplicationState.SelectedPatient.Id=Guid.Empty;
+        ApplicationState.Patient.ClearPatient();
         await TabChangeClick.InvokeAsync(0);
     }
-    
+
     protected async Task GotoEditPatient(int e)
     {
         await TabChangeClick.InvokeAsync(e);
