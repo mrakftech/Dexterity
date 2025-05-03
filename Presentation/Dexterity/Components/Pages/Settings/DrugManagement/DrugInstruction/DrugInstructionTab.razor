@@ -1,0 +1,61 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+<div class="m-3">
+    <DexCreateButton Label="Add New Drug Instruction" OnClick="()=>DrugInstructionForm(Guid.Empty)"/>
+
+</div>
+<DexGrid DataSource="_drugInstructions">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(DrugInstruction.Description)" HeaderText="Description" Width="150"></GridColumn>
+        <GridColumn Field="@nameof(DrugInstruction.Code)" HeaderText="Code" Width="150"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as DrugInstruction);
+                    <DexUpdateButton OnClick="() => DrugInstructionForm(item.Id)"/>
+                    <DexDeleteButton OnClick="() => DeleteDrugInstruction(item.Id)"/>
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<DrugInstruction> _drugInstructions = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDrugInstructions();
+    }
+
+    private async Task GetDrugInstructions()
+    {
+        _drugInstructions = (await UnitOfWork.Setting.GetAllDrugInstructionsAsync()).ToList();
+    }
+
+    private async Task DrugInstructionForm(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<DrugInstructionForm>("", parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetDrugInstructions();
+        }
+    }
+
+    private async Task DeleteDrugInstruction(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteDrugInstructionAsync(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetDrugInstructions();
+        }
+    }
+
+}

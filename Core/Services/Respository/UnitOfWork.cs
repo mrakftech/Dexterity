@@ -110,7 +110,7 @@ public sealed class UnitOfWork(
         {
             if (messaging == null)
             {
-                messaging = new MessagingService(context, mapper, smsEndpoints);
+                messaging = new MessagingService(contextFactory, mapper, smsEndpoints);
             }
 
             return messaging;

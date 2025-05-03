@@ -4,13 +4,12 @@ using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
 using Domain.Entities.Settings.Templates.Letter;
-using Domain.Entities.UserAccounts;
 using Microsoft.EntityFrameworkCore;
 using Services.Features.Settings.Dtos;
 using Services.Features.Settings.Dtos.Immunisations;
@@ -615,6 +614,8 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
 
     #endregion
 
+    #region Drug Management
+
     #region Drug
 
     public async Task<IEnumerable<Drug>> GetAllDrugsAsync()
@@ -683,6 +684,230 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
 
         return await context.Drugs.AnyAsync(e => e.Id == id);
     }
+
+    #endregion
+
+    #region Drug Instructions
+
+    public async Task<IEnumerable<DrugInstruction>> GetAllDrugInstructionsAsync()
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.DrugInstructions.ToListAsync();
+    }
+
+    public async Task<Result<DrugInstruction>> GetDrugInstrctionByIdAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var drugInDb = await context.DrugInstructions.FindAsync(id);
+        if (drugInDb is not null)
+        {
+            return await Result<DrugInstruction>.SuccessAsync(drugInDb);
+        }
+
+        return await Result<DrugInstruction>.FailAsync("Drug instruction not found");
+    }
+
+    public async Task<IResult> UpsertDrugInstructionAsync(Guid id, DrugInstruction drug)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        if (id == Guid.Empty)
+        {
+            drug.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            drug.CreatedDate = DateTime.UtcNow;
+            context.DrugInstructions.Add(drug);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Drug instruction added");
+        }
+
+        var drugInDb = await context.DrugInstructions.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (drugInDb is null)
+        {
+            return await Result<Drug>.FailAsync("Drug instruction not found");
+        }
+
+        drug.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
+        drug.ModifiedDate = DateTime.UtcNow;
+        drugInDb = drug;
+        context.ChangeTracker.Clear();
+        context.DrugInstructions.Update(drugInDb);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug instruction saved");
+    }
+
+    public async Task<IResult> DeleteDrugInstructionAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var drug = await context.DrugInstructions.FindAsync(id);
+        if (drug == null)
+        {
+            return await Result.FailAsync("Drug Instruction not found");
+        }
+
+        context.DrugInstructions.Remove(drug);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug Instruction deleted");
+    }
+
+    #endregion
+
+    #region Standard Script
+
+    public async Task<IEnumerable<StandardScript>> GetAllStandardScriptAsync()
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.StandardScripts.ToListAsync();
+    }
+
+
+    public async Task<Result<StandardScript>> GetStandardScriptByIdAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var standardScript = await context.StandardScripts.FindAsync(id);
+        if (standardScript is not null)
+        {
+            return await Result<StandardScript>.SuccessAsync(standardScript);
+        }
+
+        return await Result<StandardScript>.FailAsync("Standard Script not found");
+    }
+
+    public async Task<IResult> UpsertStandardScriptAsync(Guid id, StandardScript script)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        if (id == Guid.Empty)
+        {
+            script.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            script.CreatedDate = DateTime.UtcNow;
+            context.StandardScripts.Add(script);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Standard script added");
+        }
+
+        var standardScript = await context.StandardScripts.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (standardScript is null)
+        {
+            return await Result<Drug>.FailAsync("Standard script not found");
+        }
+
+        script.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
+        script.ModifiedDate = DateTime.UtcNow;
+        standardScript = script;
+        context.ChangeTracker.Clear();
+        context.StandardScripts.Update(standardScript);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Standard script saved");
+    }
+
+    public async Task<IResult> DeleteStandardScriptAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var standardScript = await context.StandardScripts.FindAsync(id);
+        if (standardScript == null)
+        {
+            return await Result.FailAsync("Standard script not found");
+        }
+
+        context.StandardScripts.Remove(standardScript);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Standard script deleted");
+    }
+
+    #endregion
+
+    #region Drug Standard Script
+
+    public async Task<IEnumerable<DrugStandardScript>> GetAllDrugStandardScriptAsync()
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.DrugStandardScripts.ToListAsync();
+    }
+
+    public async Task<Result<DrugStandardScript>> GetDrugStandardScriptByDrugIdAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var standardScript = await context.DrugStandardScripts
+            .Include(x => x.Drug)
+            .FirstOrDefaultAsync(x => x.Id == id);
+        if (standardScript is not null)
+        {
+            return await Result<DrugStandardScript>.SuccessAsync(standardScript);
+        }
+
+        return await Result<DrugStandardScript>.FailAsync("Drug Standard Script not found");
+    }
+
+    public async Task<IResult> UpsertDrugStandardScriptAsync(Guid id, DrugStandardScript script)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        
+       
+
+        if (id == Guid.Empty)
+        {
+            var isExists = await context.DrugStandardScripts
+                .AnyAsync(x => x.DrugId == script.DrugId 
+                               && x.StandardScriptId == script.StandardScriptId);
+            if (isExists)
+            {
+                return await Result.FailAsync("Drug is already exists");
+            }
+            script.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            script.CreatedDate = DateTime.UtcNow;
+            context.DrugStandardScripts.Add(script);
+            await context.SaveChangesAsync();
+            return await Result.SuccessAsync("Drug Standard script added");
+        }
+
+        var standardScript =
+            await context.DrugStandardScripts.AsTracking()
+                .FirstOrDefaultAsync(x => x.Id == id && x.StandardScriptId == script.StandardScriptId);
+       
+        if (standardScript is null)
+        {
+            return await Result<Drug>.FailAsync("Drug Standard script not found");
+        }
+
+        script.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
+        script.ModifiedDate = DateTime.UtcNow;
+        standardScript = script;
+        context.ChangeTracker.Clear();
+        context.DrugStandardScripts.Update(standardScript);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug Standard script saved");
+    }
+
+    public async Task<IResult> DeleteDrugStandardScriptAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var standardScript =
+            await context.DrugStandardScripts.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (standardScript == null)
+        {
+            return await Result.FailAsync("Drug Standard script not found");
+        }
+
+        context.DrugStandardScripts.Remove(standardScript);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug Standard script deleted");
+    }
+
+    public async Task<IEnumerable<DrugStandardScript>> GetDrugsByScriptAsync(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.DrugStandardScripts.Where(x => x.StandardScriptId == id)
+            .Include(x => x.Drug)
+            .ToListAsync();
+    }
+
+    #endregion
 
     #endregion
 

@@ -1,0 +1,161 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+<DexDialog>
+    <DialogTitle>Drug Details</DialogTitle>
+    <Content>
+        <DexForm ColumnCount="2" Model="@Drug" OnValidSubmit="SaveDrug">
+            <Fields>
+                <FormItem Field="@nameof(Drug.TradeName)" LabelText="Trade Name" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.GenericName)" LabelText="Generic Name" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Manufacture)" LabelText="Manufacture" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Barcode)" LabelText="Bar code" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Ingredients)" LabelText="Ingredients" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.PackType)" LabelText="Pack Type" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Pack Type</label>
+
+                        <SfDropDownList TValue="string" TItem="@SettingConstants.PackType" @bind-Value="@Drug.PackType"
+                                        Placeholder="Pack Type"
+                                        DataSource="@SettingConstants.PackTypes">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.PackSize)" LabelText="Pack Size" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Pack Size</label>
+                        <SfDropDownList TValue="string" TItem="@SettingConstants.PackSize" @bind-Value="@Drug.PackSize"
+                                        Placeholder="Pack Size"
+                                        DataSource="@SettingConstants.PackSizes">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.PackSizeMark)" LabelText="Pack Size Mark" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Pack Size Mark</label>
+                        <SfDropDownList TValue="string" TItem="@SettingConstants.PackSizeMark"
+                                        @bind-Value="@Drug.PackSizeMark" Placeholder="Pack Size Mark"
+                                        DataSource="@SettingConstants.PackSizeMarks">
+                            <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.MinimumStock)" LabelText="Minimum Stock" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Minimum Stock</label>
+                        <SfNumericTextBox TValue="int" @bind-Value="@Drug.MinimumStock" Placeholder="Minimum Stock"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.Agent)" LabelText="Agent" ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Strength)" LabelText="Strength" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Strength</label>
+                        <SfDropDownList TValue="string" TItem="@SettingConstants.DrugStrength"
+                                        @bind-Value="@Drug.Strength"
+                                        Placeholder="Strength"
+                                        DataSource="@SettingConstants.DrugStrengths">
+                            <DropDownListFieldSettings Value="Value" Text="Text"></DropDownListFieldSettings>
+                        </SfDropDownList>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.InvoicedCostPrice)" LabelText="Invoiced Cost Price" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Invoiced Cost Price</label>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="@Drug.InvoicedCostPrice"
+                                          Placeholder="Invoiced Cost Price"
+                                          Format="C"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.RetailPrice)" LabelText="Retail Price" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Retail Price</label>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="@Drug.RetailPrice"
+                                          Placeholder="Retail Price"
+                                          Format="C"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.VAT)" LabelText="VAT" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">VAT</label>
+
+                        <SfNumericTextBox TValue="decimal" @bind-Value="@Drug.VAT" Placeholder="VAT"
+                                          Format="P0" Step="1" Min="0"
+                                          Max="100"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.CostChange)" LabelText="Cost Change" ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Cost Change</label>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="@Drug.CostChange" Placeholder="VAT"
+                                          Format="P0" Step="1" Min="0"
+                                          Max="100"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.PackingClass)" LabelText="Packing Class"
+                           ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.ProductAuthority)" LabelText="Product Authority"
+                           ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.FarmPrice)" LabelText="Farm Price" 
+                          ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.LastPrice)" LabelText="Last Price" 
+                          ColumnSpan="1">
+                    <Template>
+                        <label class="e-form-label">Last Price</label>
+                        <SfNumericTextBox TValue="decimal" @bind-Value="@Drug.LastPrice" Placeholder="Last Price"
+                                          Format="C"></SfNumericTextBox>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(Drug.DrugData)" LabelText="Drug Data" 
+                          ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Discount)" LabelText="Discount" 
+                          ColumnSpan="1" EditorType="FormEditorType.Checkbox"/>
+                <FormItem Field="@nameof(Drug.Ingredient1)" LabelText="Ingredient 1"
+                           ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Ingredient2)" LabelText="Ingredient 2"
+                           ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.ATC1)" LabelText="ATC 1" 
+                          ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.ATC2)" LabelText="ATC 2" 
+                          ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.CompositionCode)" LabelText="Composition Code"
+                           ColumnSpan="1"/>
+                <FormItem Field="@nameof(Drug.Forms)" LabelText="Forms" 
+                          ColumnSpan="1"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public int Id { get; set; }
+    private Drug Drug { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id > 0)
+        {
+            var res = await UnitOfWork.Setting.GetDrugByIdAsync(Id);
+            Drug = res.Data;
+        }
+    }
+
+    private async Task SaveDrug()
+    {
+        var res = await UnitOfWork.Setting.UpsertDrugAsync(Id, Drug);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage("Drug has been added.");
+            MudDialog.Close();
+        }
+    }
+
+    private void ResetForm()
+    {
+        Drug = new Drug();
+    }
+
+}

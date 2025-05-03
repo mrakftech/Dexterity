@@ -1,0 +1,44 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+<DexDialog>
+    <DialogTitle>Drug Details</DialogTitle>
+    <Content>
+        <DexForm ColumnCount="2" Model="@_drugInstruction" OnValidSubmit="SaveDrugInstruction">
+            <Fields>
+                <FormItem Field="@nameof(DrugInstruction.Description)" LabelText="Description" ColumnSpan="1"/>
+                <FormItem Field="@nameof(DrugInstruction.Code)" LabelText="Code" ColumnSpan="1"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+
+
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+
+    private DrugInstruction _drugInstruction = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            var res = await UnitOfWork.Setting.GetDrugInstrctionByIdAsync(Id);
+            _drugInstruction = res.Data;
+        }
+    }
+
+    private async Task SaveDrugInstruction()
+    {
+        var res = await UnitOfWork.Setting.UpsertDrugInstructionAsync(Id, _drugInstruction);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage("Drug Instruction has been added.");
+            MudDialog.Close();
+        }
+    }
+
+}

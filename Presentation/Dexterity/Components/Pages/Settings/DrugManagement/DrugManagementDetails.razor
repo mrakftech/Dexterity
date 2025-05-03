@@ -1,0 +1,50 @@
+﻿@using Dexterity.Components.Pages.Settings.DrugManagement.Drug
+@using Dexterity.Components.Pages.Settings.DrugManagement.DrugInstruction
+@using Dexterity.Components.Pages.Settings.DrugManagement.StandardScripts
+@using Dexterity.Components.Pages.Settings.DrugManagement.DrugForStandardScripts
+<TabTitle Title="Drug Management" Icon="drug-management.png">
+</TabTitle>
+
+<SfTab CssClass="mt-5">
+    <TabItems>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Drug"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <DrugTab/>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Drug Instructions"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <DrugInstructionTab/>
+            </ContentTemplate>
+        </TabItem>
+
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Standard Scripts"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <StandardScriptTab/>
+            </ContentTemplate>
+        </TabItem>
+        
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Drug for Standard Scripts"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <DrugForStandardScriptTab/>
+            </ContentTemplate>
+        </TabItem>
+    </TabItems>
+</SfTab>
+
+
+
+

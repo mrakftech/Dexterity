@@ -1,21 +1,14 @@
-﻿@using Domain.Entities.Settings.Drugs
+﻿@using Domain.Entities.Settings.DrugManagement
+<div class="m-3">
+    <DexCreateButton Label="Add New Drug" OnClick="()=>DrugForm(0)"/>
 
-<TabTitle Title="Drugs" Icon="drug-management.png">
-    <ActionButtons>
-        <DexCreateButton Label="Add New Drug" OnClick="()=>DrugForm(0)"/>
-    </ActionButtons>
-</TabTitle>
+</div>
 <DexGrid DataSource="_drugs">
     <DexGridColumns>
         <GridColumn Field="TradeName" HeaderText="Trade Name" Width="150"></GridColumn>
         <GridColumn Field="GenericName" HeaderText="Generic Name" Width="150"></GridColumn>
         <GridColumn Field="GenericName" HeaderText="Generic Name" Width="150"></GridColumn>
         <GridColumn Field="Manufacture" HeaderText="Manufacture" Width="150"></GridColumn>
-        @*      <GridColumn Field="Category" HeaderText="Category" Width="150"></GridColumn>
-        <GridColumn Field="PackSize" HeaderText="Pack Size" Width="100" TextAlign="TextAlign.Right"></GridColumn>
-        <GridColumn Field="IngredientCostPrice" HeaderText="Cost Price" Format="C2" Width="120" TextAlign="TextAlign.Right"></GridColumn>
-        <GridColumn Field="ItemPrice" HeaderText="Item Price" Format="C2" Width="120" TextAlign="TextAlign.Right"></GridColumn>
-        <GridColumn Field="VAT" HeaderText="VAT (%)" Width="80" TextAlign="TextAlign.Right"></GridColumn> *@
         <GridColumn HeaderText="Actions" Width="120">
             <Template>
                 @{
@@ -45,7 +38,7 @@
     {
         var parameters = new DialogParameters();
         parameters.Add("Id", id);
-        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         var dialogresult = await DialogService.ShowAsync<DrugFormDialog>("", parameters, options);
         var res = await dialogresult.Result;
         if (!res.Canceled)

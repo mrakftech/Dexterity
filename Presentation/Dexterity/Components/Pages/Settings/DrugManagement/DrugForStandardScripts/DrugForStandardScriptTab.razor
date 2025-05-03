@@ -1,0 +1,100 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+<MudStack>
+    <MudItem Class="m-3">
+        <label class="e-form-label">Script:</label>
+        <SfDropDownList TValue="Guid" TItem="StandardScript" Placeholder="Standard Script"
+                        DataSource="@_standardScripts"
+        >
+            <DropDownListFieldSettings Value="Id" Text="Name"></DropDownListFieldSettings>
+            <DropDownListEvents TItem="StandardScript" TValue="Guid" ValueChange="ChangedScript"></DropDownListEvents>
+        </SfDropDownList>
+
+    </MudItem>
+    <MudItem>
+        <DexButton Name="Add New Drug" Click="()=>DrugForm(Guid.Empty)" Disabled="_scriptId==Guid.Empty" Class="m-2"/>
+        <DexGrid DataSource="_drugs" Loading="_loading" Height="250px">
+            <DexGridColumns>
+                <GridColumn Field="Drug.GenericName" HeaderText="Generic Name" Width="150"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                            var item = (context as DrugStandardScript);
+                            <DexUpdateButton OnClick="() => DrugForm(item.Id)"/>
+                            <DexDeleteButton OnClick="() => DeleteDrug(item.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </MudItem>
+</MudStack>
+
+@code {
+
+    private List<StandardScript> _standardScripts = [];
+    private List<DrugStandardScript> _drugs = new();
+    private bool _loading;
+    private Guid _scriptId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetStandardScripts();
+    }
+
+    private async Task GetDrugs(Guid scriptId)
+    {
+        var drugs = await UnitOfWork.Setting.GetDrugsByScriptAsync(scriptId);
+        _drugs = drugs.ToList();
+    }
+
+    private async Task GetStandardScripts()
+    {
+        _standardScripts = (await UnitOfWork.Setting.GetAllStandardScriptAsync()).ToList();
+    }
+
+
+    private async Task ChangedScript(ChangeEventArgs<Guid, StandardScript> arg)
+    {
+        if (arg.ItemData is not null)
+        {
+            _loading = true;
+            await Task.Delay(500);
+            await GetDrugs(arg.Value);
+            _scriptId = arg.Value;
+            _loading = false;
+        }
+        else
+        {
+            _scriptId = Guid.Empty;
+        }
+    }
+
+    private async Task DrugForm(Guid id)
+    {
+        var parameters = new DialogParameters();
+        parameters.Add("Id", id);
+        parameters.Add("ScriptId", _scriptId);
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<ScriptDrugForm>("", parameters, options);
+        var res = await dialogresult.Result;
+        if (!res.Canceled)
+        {
+            await GetDrugs(_scriptId);
+        }
+        
+    }
+
+    private async Task DeleteDrug(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteDrugStandardScriptAsync(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetDrugs(_scriptId);
+        }
+    }
+
+}

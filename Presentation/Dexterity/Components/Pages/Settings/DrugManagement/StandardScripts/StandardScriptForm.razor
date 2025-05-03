@@ -1,0 +1,43 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+@using StandardScript = Domain.Entities.Settings.DrugManagement.StandardScript
+<DexDialog>
+    <DialogTitle>Standard Script Details</DialogTitle>
+    <Content>
+        <DexForm ColumnCount="1" Model="@_standardScript" OnValidSubmit="SaveDrugInstruction">
+            <Fields>
+                <FormItem Field="@nameof(StandardScript.Name)" LabelText="Description" ColumnSpan="1"/>
+                <FormItem Field="@nameof(StandardScript.IsActive)" LabelText="Active" ColumnSpan="1" EditorType="FormEditorType.Checkbox"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+
+
+    </Content>
+</DexDialog>
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    private StandardScript _standardScript = new();
+    
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            var res = await UnitOfWork.Setting.GetStandardScriptByIdAsync(Id);
+            _standardScript = res.Data;
+        }
+    }
+
+    private async Task SaveDrugInstruction()
+    {
+        var res = await UnitOfWork.Setting.UpsertStandardScriptAsync(Id, _standardScript);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.GetFirstMessage());
+            MudDialog.Close();
+        }
+    }
+
+}

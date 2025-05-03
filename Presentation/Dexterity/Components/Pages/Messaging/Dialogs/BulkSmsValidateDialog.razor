@@ -34,9 +34,8 @@
                     </MudStack>
                 </MudItem>
                 <MudItem>
-                    <SfGrid DataSource="@SelectedPatients" Height="100px" AllowSelection="true" AllowPaging="true">
+                    <SfGrid DataSource="@SelectedPatients" Height="100px" AllowPaging="true">
                         <GridColumns>
-                            <GridColumn Type="ColumnType.CheckBox" Width="50"></GridColumn>
                             <GridColumn Field="@nameof(PatientListDto.FullName)" HeaderText="Name" Width="120px"/>
                             <GridColumn Field="@nameof(PatientListDto.Gender)" HeaderText="Gender" Width="120px"/>
                             <GridColumn Field="@nameof(PatientListDto.MobilePhone)" HeaderText="Mobile" Width="120px"/>
@@ -44,7 +43,7 @@
                         </GridColumns>
                     </SfGrid>
                 </MudItem>
-                <MudItem>
+                <MudItem md="12">
                     <DexForm Model="_messageDto" OnValidSubmit="SendSmsClick">
                         <Fields>
                             <FormItem Field="@nameof(SendMessageDto.Content)">
@@ -91,7 +90,7 @@
     {
         _processing = true;
 
-        await Task.Delay(1500);
+        await Task.Delay(500);
         _messageDto.Patients = SelectedPatients.ToList();
         var res = await UnitOfWork.Messaging.SendBulkSms(_messageDto);
         if (res.Succeeded)
@@ -100,10 +99,8 @@
         }
         else
         {
-            foreach (var item in res.Messages)
-            {
-                Console.WriteLine(item);
-            }
+            Snackbar.FailMessage(res.GetFirstMessage());
+
         }
 
         _processing = false;

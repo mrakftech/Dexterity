@@ -20,7 +20,8 @@ using Shared.Wrapper;
 namespace Services.Features.Messaging.Service;
 
 public class MessagingService(
-    ApplicationDbContext context,
+    
+    IDbContextFactory<ApplicationDbContext> contextFactory,
     IMapper mapper,
     SmsEndpoints smsEndpoints)
     : IMessagingService
@@ -29,6 +30,8 @@ public class MessagingService(
 
     public async Task<List<UserTask>> GetUserTasksByPatient(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.UserTasks
             .Where(x => x.PatientId == patientId && x.Status == UserTaskConstants.TaskStatusConstant.Active)
             .OrderByDescending(x => x.TaskDate)
@@ -37,6 +40,8 @@ public class MessagingService(
 
     public async Task<List<UserTask>> GetAllUserTasks()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.UserTasks
             .Where(x => x.Status == UserTaskConstants.TaskStatusConstant.Active)
             .OrderByDescending(x => x.TaskDate)
@@ -45,12 +50,16 @@ public class MessagingService(
 
     public async Task<int> GetUserTasksCountByPatient(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.UserTasks
             .CountAsync(x => x.PatientId == patientId && x.Status == UserTaskConstants.TaskStatusConstant.Active);
     }
 
     public async Task<List<UserTask>> GetUserTaskList(string view = UserTaskConstants.All)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var startOfWeek = DateTime.Now.StartOfWeek(DayOfWeek.Monday);
         return view switch
         {
@@ -86,6 +95,8 @@ public class MessagingService(
 
     public async Task<IResult> SaveTask(Guid id, UserTaskDto dto)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         if (id == Guid.Empty)
         {
             var healthCares = dto.SelectedHealthCares.ToList();
@@ -130,6 +141,8 @@ public class MessagingService(
 
     public async Task<IResult> UpdateTaskStatus(Guid id, string status)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var taskInDb = await context.UserTasks.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
         if (taskInDb == null)
             return await Result.FailAsync("Task not found.");
@@ -142,6 +155,8 @@ public class MessagingService(
 
     public async Task<UserTaskDto> GetTask(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var taskInDb = await context.UserTasks.Include(x => x.Patient).FirstOrDefaultAsync(x => x.Id == id);
         var s = mapper.Map<UserTaskDto>(taskInDb);
         return s;
@@ -149,6 +164,8 @@ public class MessagingService(
 
     public async Task<IResult> DeleteTask(Guid id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var taskInDb = await context.UserTasks.FirstOrDefaultAsync(x => x.Id == id);
         if (taskInDb == null)
             return await Result.FailAsync("Task not found.");
@@ -165,6 +182,8 @@ public class MessagingService(
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             var sendRequest = new SmsRequest()
             {
                 Content = request.Content,
@@ -187,11 +206,10 @@ public class MessagingService(
 
                 await context.SaveChangesAsync();
                 await Result.SuccessAsync();
+                return await Result.SuccessAsync($"You Bulk SMS message has sent to {request.Patients.Count} Patients.");
             }
-            else
-            {
-                return await Result.FailAsync(res.Messages.First().ErrorDescription.ToString());
-            }
+
+            return await Result.FailAsync("Message sending has failed.");
         }
         catch (Exception e)
         {
@@ -205,6 +223,7 @@ public class MessagingService(
     {
         try
         {
+            
             var util = PhoneNumberUtil.GetInstance();
             var s = util.Parse(request.Mobile, ApplicationConstants.AppRegion);
             var n = util.Format(s, PhoneNumberFormat.E164);
@@ -241,12 +260,16 @@ public class MessagingService(
 
     public async Task<List<SmsHistory>> GetSmsHistory(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.PatientSmsHistories.Where(x => x.PatientId == patientId)
             .ToListAsync();
     }
 
     public async Task<int> GetSmsHistoryCount(Guid patientId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.PatientSmsHistories.CountAsync(x => x.PatientId == patientId);
     }
 
@@ -257,6 +280,8 @@ public class MessagingService(
 
     public async Task<List<SmsHistory>> FilterSmsHistory(Guid patientId, DateTime from, DateTime to)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.PatientSmsHistories
             .Where(x => x.PatientId == patientId && x.Date >= from && x.Date <= to)
             // .Where(m => m.Content.Contains(message, StringComparison.OrdinalIgnoreCase))
@@ -265,6 +290,8 @@ public class MessagingService(
 
     public async Task<IResult> AddMessageInPatietnHistory(SmsHistory smsHistory)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         await context.PatientSmsHistories.AddAsync(smsHistory);
         await context.SaveChangesAsync();
         return await Result.SuccessAsync();
@@ -276,6 +303,8 @@ public class MessagingService(
 
     public async Task<List<UserResponseDto>> GetUsers()
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var users = await context.UserClinics
             .AsNoTracking()
             .Where(x => x.ClinicId == ApplicationState.Auth.CurrentUser.ClinicId)
@@ -290,6 +319,8 @@ public class MessagingService(
     {
         try
         {
+            await using var context = await contextFactory.CreateDbContextAsync();
+
             message.CreatedDate = DateTime.Now;
             message.FromUserId = message.FromUserId;
             message.ToUserId = message.ToUserId;
@@ -308,6 +339,8 @@ public class MessagingService(
 
     private async Task AddChatHistory(int id)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var chatInDb = await context
             .ChatMessages
             .Include(a => a.FromUser)
@@ -336,8 +369,10 @@ public class MessagingService(
         await context.SaveChangesAsync();
     }
 
-    public List<ChatMessage> GetConversationAsync(Guid contactId)
+    public async Task<List<ChatMessage>> GetConversationAsync(Guid contactId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var userId = ApplicationState.Auth.CurrentUser.UserId;
 
         var chats = context.ChatMessages
@@ -363,6 +398,8 @@ public class MessagingService(
 
     public async Task<List<ChatHistoryDto>> GetConversationHistoryAsync(Guid userId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         var messages = await context.ChatHistories
             .AsNoTracking()
             .Where(user => user.UserId == userId)
@@ -380,6 +417,8 @@ public class MessagingService(
 
     public async Task<User> GetUserDetailsAsync(Guid userId)
     {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
         return await context.Users
             .AsNoTracking()
             .Where(user => user.Id == userId).FirstOrDefaultAsync();

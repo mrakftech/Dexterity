@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250426111848_UpdateDatabase418P")]
+    partial class UpdateDatabase418P
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2737,7 +2740,7 @@ namespace Database.Migrations
                     b.ToTable("PomrGroups", "Setting");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.Drug", b =>
+            modelBuilder.Entity("Domain.Entities.Settings.Drugs.Drug", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -2838,144 +2841,6 @@ namespace Database.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Drugs", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.DrugInstruction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("DrugInstructions", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.DrugStandardScript", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("DrugId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("DurationDays")
-                        .HasColumnType("int");
-
-                    b.Property<bool>("GenericOnly")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Instruction1")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instruction2")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instruction3")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instruction4")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Instruction5")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("PrescriptionType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<int>("Quantity")
-                        .HasColumnType("int");
-
-                    b.Property<string>("ScriptType")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("SizeAsAllowed")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid>("StandardScriptId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DrugId");
-
-                    b.HasIndex("StandardScriptId");
-
-                    b.ToTable("DrugStandardScripts", "Setting");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.StandardScript", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("CreatedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("bit");
-
-                    b.Property<Guid?>("ModifiedBy")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime?>("ModifiedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("StandardScripts", "Setting");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.Dms.DocumentCategory", b =>
@@ -3930,7 +3795,7 @@ namespace Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Domain.Entities.Settings.DrugManagement.Drug", "Drug")
+                    b.HasOne("Domain.Entities.Settings.Drugs.Drug", "Drug")
                         .WithMany()
                         .HasForeignKey("DrugId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -4176,7 +4041,7 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Settings.Consultation.Immunisation.Batch", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.DrugManagement.Drug", "Drug")
+                    b.HasOne("Domain.Entities.Settings.Drugs.Drug", "Drug")
                         .WithMany()
                         .HasForeignKey("DrugId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -4249,25 +4114,6 @@ namespace Database.Migrations
                         .HasForeignKey("HealthCodeId");
 
                     b.Navigation("HealthCode");
-                });
-
-            modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.DrugStandardScript", b =>
-                {
-                    b.HasOne("Domain.Entities.Settings.DrugManagement.Drug", "Drug")
-                        .WithMany()
-                        .HasForeignKey("DrugId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Domain.Entities.Settings.DrugManagement.StandardScript", "StandardScript")
-                        .WithMany()
-                        .HasForeignKey("StandardScriptId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Drug");
-
-                    b.Navigation("StandardScript");
                 });
 
             modelBuilder.Entity("Domain.Entities.Settings.Templates.Dms.DocumentCategory", b =>

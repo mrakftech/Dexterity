@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 
 namespace Domain.Entities.Settings.Consultation.Immunisation
 {

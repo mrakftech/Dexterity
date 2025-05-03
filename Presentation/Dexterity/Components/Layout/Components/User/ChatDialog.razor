@@ -215,7 +215,7 @@
             ContactId = contact.Id;
             ContactName = contact.FullName;
             _messages = new List<ChatMessage>();
-            _messages = UnitOfWork.Messaging.GetConversationAsync(ContactId);
+            _messages = await UnitOfWork.Messaging.GetConversationAsync(ContactId);
         }
         catch (Exception e)
         {
@@ -226,10 +226,10 @@
      
     }
 
-    private void LoadConversation()
+    private async Task LoadConversation()
     {
-        _messages = new List<ChatMessage>();
-        _messages = UnitOfWork.Messaging.GetConversationAsync(ContactId);
+        _messages = [];
+        _messages = await UnitOfWork.Messaging.GetConversationAsync(ContactId);
     }
 
     private Color GetUserStatusBadgeColor(bool isOnline)

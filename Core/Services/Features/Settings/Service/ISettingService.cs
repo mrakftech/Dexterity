@@ -1,7 +1,7 @@
 ﻿using Domain.Entities.Appointments;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
@@ -147,12 +147,44 @@ public interface ISettingService
 
     #endregion
 
+    #region Drug Management
+
     #region Drug
 
     Task<IEnumerable<Drug>> GetAllDrugsAsync();
     Task<Result<Drug>> GetDrugByIdAsync(int id);
     Task<IResult> UpsertDrugAsync(int id, Drug drug);
     Task<IResult> DeleteDrugAsync(int id);
+
+    #endregion
+
+    #region Drug Instructions
+
+    Task<IEnumerable<DrugInstruction>> GetAllDrugInstructionsAsync();
+    Task<Result<DrugInstruction>> GetDrugInstrctionByIdAsync(Guid id);
+    Task<IResult> UpsertDrugInstructionAsync(Guid id, DrugInstruction drug);
+    Task<IResult> DeleteDrugInstructionAsync(Guid id);
+
+    #endregion
+
+    #region Standard Script
+
+    Task<IEnumerable<StandardScript>> GetAllStandardScriptAsync();
+    Task<Result<StandardScript>> GetStandardScriptByIdAsync(Guid id);
+    Task<IResult> UpsertStandardScriptAsync(Guid id, StandardScript script);
+    Task<IResult> DeleteStandardScriptAsync(Guid id);
+
+    #endregion
+
+    #region Drug Standard Script
+
+    Task<IEnumerable<DrugStandardScript>> GetAllDrugStandardScriptAsync();
+    Task<Result<DrugStandardScript>> GetDrugStandardScriptByDrugIdAsync(Guid id);
+    Task<IResult> UpsertDrugStandardScriptAsync(Guid id, DrugStandardScript script);
+    Task<IResult> DeleteDrugStandardScriptAsync(Guid id);
+    Task<IEnumerable<DrugStandardScript>> GetDrugsByScriptAsync(Guid id);
+
+    #endregion
 
     #endregion
 
@@ -205,8 +237,9 @@ public interface ISettingService
     public Task<IResult> DeleteSketch(Guid id);
 
     #endregion
-    
+
     #region DMS
+
     public Task<List<DocumentCategory>> GetAllCategoriesWithHierarchy();
     public Task<IResult> SaveDmsCategory(string name, int? parentCategoryId = null);
     public Task<IResult> DeleteDmsCategory(int id);

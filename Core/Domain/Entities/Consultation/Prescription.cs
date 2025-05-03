@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using Domain.Contracts;
 using Domain.Entities.PatientManagement;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 using Domain.Entities.UserAccounts;
 using Shared.Constants.Module.Consultation;
 

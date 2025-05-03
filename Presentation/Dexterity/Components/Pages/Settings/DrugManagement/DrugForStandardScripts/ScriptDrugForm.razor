@@ -1,0 +1,152 @@
+﻿@using Domain.Entities.Settings.DrugManagement
+<DexDialog>
+    <DialogTitle>Drug Details</DialogTitle>
+    <Content>
+        <DexForm Model="_drugStandardScript" ColumnCount="1" OnValidSubmit="SaveDrugScript">
+            <Fields>
+                <FormGroup LabelText="Drug Details" ColumnCount="2">
+               
+                    <FormItem Field="@nameof(DrugStandardScript.DrugId)" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Drugs:</label>
+                            <SfAutoComplete @ref="_autoObj" TValue="string" TItem="Drug" Placeholder="Drug"
+                                            DataSource="@_drugs"
+                                            @bind-Value="@_selectedDrug"
+                                            Highlight="true">
+                                <AutoCompleteFieldSettings Value="GenericName" Text="GenericName"/>
+                                <AutoCompleteEvents TValue="string" TItem="Drug" ValueChange="ChangedDrug"
+                                                    Focus="CreateHandler"></AutoCompleteEvents>
+                            </SfAutoComplete>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.PrescriptionType)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="1">
+                        <Template>
+                            <label class="e-form-label">Prescription Type:</label>
+                            <SfDropDownList TValue="string" TItem="@SettingConstants.PrescriptionType"
+                                            Placeholder="Prescription Type"
+                                            DataSource="@SettingConstants.PrescriptionTypes"
+                                            @bind-Value="@_drugStandardScript.PrescriptionType">
+                                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                            </SfDropDownList>
+                        </Template>
+                    </FormItem>
+
+                    <FormItem Field="@nameof(DrugStandardScript.SizeAsAllowed)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="1" CssClass="mt-3 m-2"
+                              LabelText="Size As Allowed"/>
+
+                    <FormItem Field="@nameof(DrugStandardScript.ScriptType)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2">
+                        <Template>
+                            <label class="e-form-label">Script Type:</label>
+                            <SfDropDownList TValue="string" TItem="@SettingConstants.ScriptType"
+                                            Placeholder="Script Type"
+                                            DataSource="@SettingConstants.ScriptTypes"
+                                            @bind-Value="@_drugStandardScript.ScriptType">
+                                <DropDownListFieldSettings Value="Name" Text="Name"></DropDownListFieldSettings>
+                            </SfDropDownList>
+                        </Template>
+                    </FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Quantity)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+
+                    <FormItem Field="@nameof(DrugStandardScript.DurationDays)"
+                              LabelText="Duration (Days)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="1"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.GenericOnly)"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="1"
+                              EditorType="FormEditorType.Checkbox"
+                              CssClass="m-3" LabelText="Generic Only"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Instruction1)"
+                              LabelText="Instruction 1"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Instruction2)"
+                              LabelText="Instruction 2"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Instruction3)"
+                              LabelText="Instruction 3"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Instruction4)"
+                              LabelText="Instruction 4"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.Instruction5)"
+                              LabelText="Instruction 5"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2"></FormItem>
+                    <FormItem Field="@nameof(DrugStandardScript.IsActive)"
+                              LabelText="Active"
+                              IsEnabled="@(_drugStandardScript.DrugId > 0)" ColumnSpan="2" EditorType="FormEditorType.Checkbox"></FormItem>
+                </FormGroup>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save"  Type="MudButtonType.Submit"
+                                  Icon="fas fa-floppy-disk"></DexLoadingButton>
+            </Buttons>
+        </DexForm>
+
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+    [Parameter] public Guid ScriptId { get; set; }
+    private DrugStandardScript _drugStandardScript = new();
+    SfAutoComplete<string, Drug> _autoObj;
+    private List<Drug> _drugs = [];
+    private string _selectedDrug = string.Empty;
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDrugs();
+
+        if (Id != Guid.Empty)
+        {
+            var res = await UnitOfWork.Setting.GetDrugStandardScriptByDrugIdAsync(Id);
+            _drugStandardScript = res.Data;
+            _selectedDrug = _drugStandardScript.Drug.GenericName;
+
+        }
+        else
+        {
+            _drugStandardScript.StandardScriptId = ScriptId;
+        }
+    }
+
+    private void CreateHandler()
+    {
+        _autoObj.ShowPopupAsync();
+    }
+
+    private void ChangedDrug(ChangeEventArgs<string, Drug> obj)
+    {
+        if (obj.ItemData is not null)
+        {
+            _drugStandardScript.DrugId = obj.ItemData.Id;
+        }
+        else
+        {
+            _drugStandardScript.DrugId = 0;
+        }
+    }
+
+    private async Task GetDrugs()
+    {
+        _drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
+    }
+
+    private async Task SaveDrugScript()
+    {
+        var res = await UnitOfWork.Setting.UpsertDrugStandardScriptAsync(Id, _drugStandardScript);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.GetFirstMessage());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.GetFirstMessage());
+
+        }
+    }
+
+}

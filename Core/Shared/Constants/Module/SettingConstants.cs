@@ -51,6 +51,85 @@ public static class SettingConstants
     ];
 
     #endregion
+    
+    #region Drugs
+    public static List<PackType> PackTypes { get; set; } =
+    [
+        new(1, "Box"),
+        new(2, "Bottle"),
+        new(3, "Blister"),
+        new(4, "Tube"),
+    ];
+    public static List<PackSize> PackSizes { get; set; } =
+    [
+        new(1, "10"),
+        new(2, "20"),
+        new(2, "30"),
+        new(3, "50"),
+        new(4, "100"),
+    ];
+    public static List<PackSizeMark> PackSizeMarks { get; set; } =
+    [
+        new(1, "Tablets"),
+        new(2, "Capsules"),
+        new(2, "mL"),
+        new(3, "g"),
+    ];
+    public static List<DrugStrength> DrugStrengths { get; set; } =
+    [
+        new(1, "50mg"),
+        new(2, "100mg"),
+        new(3, "250mg"),
+        new(4, "500mg"),
+    ];
+    public static List<PrescriptionType> PrescriptionTypes { get; set; } =
+    [
+        new(1, "Anulu"),
+    ];
+    public static List<ScriptType> ScriptTypes { get; set; } =
+    [
+        new(1, "Private"),
+    ];
+    public class PackType(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+    }
+
+    public class PackSize(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+        
+    }
+
+    public class PackSizeMark(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+      
+    }
+
+    public class DrugStrength(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+      
+    }
+    
+    public class PrescriptionType(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+      
+    }
+    public class ScriptType(int id, string name)
+    {
+        public int Id { get; set; } = id;
+        public string Name { get; set; } = name;
+      
+    }
+    #endregion
 }
 
 public enum TransactionActionType
@@ -95,3 +174,5 @@ public class Side(int id, string name)
 }
 
 #endregion
+
+

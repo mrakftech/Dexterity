@@ -27,7 +27,7 @@ using Domain.Entities.Settings.Consultation;
 using Domain.Entities.WaitingRoom;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
 using Domain.Entities.Settings.Templates.InvestigationTemplates;
@@ -95,7 +95,6 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<PomrGroup> PomrGroups { get; set; }
     public DbSet<HealthCode> HealthConditionCodes { get; set; }
     public DbSet<NoteTemplate> NoteTemplates { get; set; }
-    public DbSet<Drug> Drugs { get; set; }
     public DbSet<Investigation> Investigations { get; set; }
     public DbSet<InvestigationDetail> InvestigationDetails { get; set; }
     public DbSet<InvestigationSelectionList> InvestigationSelectionList { get; set; }
@@ -106,8 +105,13 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<SketchCategory> SketchCategories { get; set; }
     public DbSet<CustomForm> CustomForms { get; set; }
     public DbSet<CustomFormTemplate> FormTemplates { get; set; }
-
     public DbSet<DocumentCategory> DocumentCategories { get; set; }
+    
+    public DbSet<Drug> Drugs { get; set; }
+    public DbSet<DrugInstruction> DrugInstructions { get; set; }
+    public DbSet<StandardScript> StandardScripts { get; set; }
+    public DbSet<DrugStandardScript> DrugStandardScripts { get; set; }
+
 
     #region Immunisations
 

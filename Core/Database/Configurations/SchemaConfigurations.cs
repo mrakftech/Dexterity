@@ -20,7 +20,7 @@ using Domain.Entities.Settings.Account;
 using Domain.Entities.Settings.Clinic;
 using Domain.Entities.Settings.Consultation;
 using Domain.Entities.Settings.Consultation.Immunisation;
-using Domain.Entities.Settings.Drugs;
+using Domain.Entities.Settings.DrugManagement;
 using Domain.Entities.Settings.Templates;
 using Domain.Entities.Settings.Templates.Dms;
 using Domain.Entities.Settings.Templates.Forms;
@@ -89,6 +89,9 @@ public static class SchemaConfigurations
             entity.ToTable(name: "AssignedInvestigationGroups", "Setting");
         });
         builder.Entity<Drug>(entity => { entity.ToTable(name: "Drugs", "Setting"); });
+        builder.Entity<DrugInstruction>(entity => { entity.ToTable(name: "DrugInstructions", "Setting"); });
+        builder.Entity<StandardScript>(entity => { entity.ToTable(name: "StandardScripts", "Setting"); });
+        builder.Entity<DrugStandardScript>(entity => { entity.ToTable(name: "DrugStandardScripts", "Setting"); });
 
         //Immuisation 
         builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Setting"); });

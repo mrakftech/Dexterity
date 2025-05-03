@@ -4,6 +4,7 @@ using Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Database.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20250428125734_UpdateDatabase556P")]
+    partial class UpdateDatabase556P
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2886,9 +2889,6 @@ namespace Database.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("DrugId")
-                        .HasColumnType("int");
-
                     b.Property<int>("DurationDays")
                         .HasColumnType("int");
 
@@ -2938,8 +2938,6 @@ namespace Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("DrugId");
 
                     b.HasIndex("StandardScriptId");
 
@@ -4253,19 +4251,11 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Settings.DrugManagement.DrugStandardScript", b =>
                 {
-                    b.HasOne("Domain.Entities.Settings.DrugManagement.Drug", "Drug")
-                        .WithMany()
-                        .HasForeignKey("DrugId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Settings.DrugManagement.StandardScript", "StandardScript")
                         .WithMany()
                         .HasForeignKey("StandardScriptId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("Drug");
 
                     b.Navigation("StandardScript");
                 });
