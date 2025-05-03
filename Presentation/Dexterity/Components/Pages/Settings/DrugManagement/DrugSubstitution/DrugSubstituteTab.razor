@@ -1,0 +1,177 @@
+﻿@using Services.Features.Settings.Dtos
+@using Domain.Entities.Settings.DrugManagement
+<MudStack>
+    <MudItem>
+        <DexForm Model="_drugSubstitute" OnValidSubmit="SaveDrugSubstitution">
+            <Fields>
+                <FormItem Field="@nameof(DrugSubstitute.OriginalDrugId)">
+                    <Template>
+                        <label class="e-form-label">Select Drug to substitute:</label>
+                        <SfAutoComplete @ref="_autoObj1" TValue="string" TItem="Drug" Placeholder="Drug"
+                                        DataSource="@_drugs"
+                                        @bind-Value="@_selectedOrgDrug"
+
+                                        Highlight="true">
+                            <AutoCompleteFieldSettings Value="GenericName" Text="GenericName"/>
+                            <AutoCompleteEvents TValue="string" TItem="Drug" ValueChange="ChangedOrgDrug"
+                                                Focus="CreateHandlerOrgDrug"></AutoCompleteEvents>
+                        </SfAutoComplete>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(DrugSubstitute.SubtituteDrugId)">
+                    <Template>
+                        <label class="e-form-label">Substitute Drug for:</label>
+                        <SfAutoComplete @ref="_autoObj2" TValue="string" TItem="Drug" Placeholder="Drug"
+                                        DataSource="@_drugs"
+                                        @bind-Value="@_selectedSubDrug"
+
+                                        Highlight="true">
+                            <AutoCompleteFieldSettings Value="GenericName" Text="GenericName"/>
+                            <AutoCompleteEvents TValue="string" TItem="Drug" ValueChange="ChangedSubsDrug"
+                                                Focus="CreateHandlerSubsDrug"></AutoCompleteEvents>
+                        </SfAutoComplete>
+                    </Template>
+                </FormItem>
+                <FormItem Field="@nameof(DrugSubstitute.Active)" EditorType="FormEditorType.Checkbox"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+                <DexLoadingButton Name="Clear" Type="MudButtonType.Button" Click="Clear"/>
+            </Buttons>
+        </DexForm>
+    </MudItem>
+
+    <MudItem>
+        <DexGrid DataSource="_drugSubstitutions" Height="250">
+            <DexGridColumns>
+                <GridColumn Field="@nameof(DrugSubstituteDto.OriginalDrugName)" HeaderText="Drug to Substitute" Width="150"></GridColumn>
+                <GridColumn Field="@nameof(DrugSubstituteDto.SubtituteDrugName)" HeaderText="Drug Substitute For" Width="150"></GridColumn>
+                <GridColumn HeaderText="Actions" Width="120">
+                    <Template>
+                        @{
+                            var item = (context as DrugSubstituteDto);
+                            <DexUpdateButton OnClick="() => EditDrugSubs(item.Id)"/>
+                            <DexDeleteButton OnClick="() => DeleteDrugSubs(item.Id)"/>
+                        }
+                    </Template>
+                </GridColumn>
+            </DexGridColumns>
+        </DexGrid>
+    </MudItem>
+</MudStack>
+
+@code {
+    SfAutoComplete<string, Drug> _autoObj1;
+    SfAutoComplete<string, Drug> _autoObj2;
+    private List<Drug> _drugs = [];
+    private List<DrugSubstituteDto> _drugSubstitutions = [];
+    private DrugSubstitute _drugSubstitute = new();
+    private Guid _substitueId = Guid.Empty;
+    private string _selectedOrgDrug = string.Empty;
+    private string _selectedSubDrug = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await GetDrugs();
+        await GetSubstitutions();
+    }
+
+    private async Task GetDrugs()
+    {
+        _drugs = (await UnitOfWork.Setting.GetAllDrugsAsync()).ToList();
+    }
+
+    private async Task GetSubstitutions()
+    {
+        _drugSubstitutions = await UnitOfWork.Setting.GetDrugSubstitutions();
+    }
+
+    private void CreateHandlerOrgDrug()
+    {
+        _autoObj1.ShowPopupAsync();
+    }
+
+    private void CreateHandlerSubsDrug()
+    {
+        _autoObj2.ShowPopupAsync();
+    }
+
+    private void ChangedOrgDrug(ChangeEventArgs<string, Drug> obj)
+    {
+        if (obj.ItemData is not null)
+        {
+            _drugSubstitute.OriginalDrugId = obj.ItemData.Id;
+        }
+        else
+        {
+            _drugSubstitute.OriginalDrugId = 0;
+        }
+    }
+
+    private void ChangedSubsDrug(ChangeEventArgs<string, Drug> obj)
+    {
+        if (obj.ItemData is not null)
+        {
+            _drugSubstitute.SubtituteDrugId = obj.ItemData.Id;
+        }
+        else
+        {
+            _drugSubstitute.SubtituteDrugId = 0;
+        }
+    }
+
+    private async Task SaveDrugSubstitution()
+    {
+        var res = await UnitOfWork.Setting.SaveDrugSubstitution(_substitueId, _drugSubstitute);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.GetFirstMessage());
+            await GetSubstitutions();
+            Clear();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.GetFirstMessage());
+        }
+    }
+
+    private void Clear()
+    {
+        _drugSubstitute = new();
+        _substitueId = Guid.Empty;
+        _selectedOrgDrug = string.Empty;
+        _selectedSubDrug = string.Empty;
+    }
+    private async Task DeleteDrugSubs(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+            var res = await UnitOfWork.Setting.DeleteDrugSubstitution(id);
+            Snackbar.SuccessMessage(res.Messages.First());
+            await GetSubstitutions();
+        }
+    }
+
+    private void EditDrugSubs(Guid itemId)
+    {
+        var sub = _drugSubstitutions.FirstOrDefault(x => x.Id == itemId);
+        if (sub is not null)
+        {
+            _drugSubstitute.Active = sub.Active;
+            _drugSubstitute.OriginalDrugId = sub.OriginalDrugId;
+            _drugSubstitute.SubtituteDrugId = sub.SubtituteDrugId;
+            _selectedOrgDrug = sub.OriginalDrugName;
+            _selectedSubDrug = sub.SubtituteDrugName;
+            _substitueId = sub.Id;
+
+        }
+        else
+        {
+            Clear();
+        }    
+    }
+
+}

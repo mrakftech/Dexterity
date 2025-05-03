@@ -92,6 +92,7 @@ public static class SchemaConfigurations
         builder.Entity<DrugInstruction>(entity => { entity.ToTable(name: "DrugInstructions", "Setting"); });
         builder.Entity<StandardScript>(entity => { entity.ToTable(name: "StandardScripts", "Setting"); });
         builder.Entity<DrugStandardScript>(entity => { entity.ToTable(name: "DrugStandardScripts", "Setting"); });
+        builder.Entity<DrugSubstitute>(entity => { entity.ToTable(name: "DrugSubstitutions", "Setting"); });
 
         //Immuisation 
         builder.Entity<Shot>(entity => { entity.ToTable(name: "Shots", "Setting"); });

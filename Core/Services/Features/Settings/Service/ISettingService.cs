@@ -186,6 +186,14 @@ public interface ISettingService
 
     #endregion
 
+    #region Drug Subsitution
+    Task<List<DrugSubstituteDto>> GetDrugSubstitutions();
+    Task<IResult> SaveDrugSubstitution(Guid id, DrugSubstitute drugSubstitute);
+    Task<IResult> DeleteDrugSubstitution(Guid id);
+
+    
+
+    #endregion
     #endregion
 
     #region Investigation

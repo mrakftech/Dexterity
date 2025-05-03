@@ -2,6 +2,7 @@
 @using Dexterity.Components.Pages.Settings.DrugManagement.DrugInstruction
 @using Dexterity.Components.Pages.Settings.DrugManagement.StandardScripts
 @using Dexterity.Components.Pages.Settings.DrugManagement.DrugForStandardScripts
+@using Dexterity.Components.Pages.Settings.DrugManagement.DrugSubstitution
 <TabTitle Title="Drug Management" Icon="drug-management.png">
 </TabTitle>
 
@@ -40,6 +41,14 @@
             </ChildContent>
             <ContentTemplate>
                 <DrugForStandardScriptTab/>
+            </ContentTemplate>
+        </TabItem>
+        <TabItem>
+            <ChildContent>
+                <TabHeader Text="Drug Substitution"></TabHeader>
+            </ChildContent>
+            <ContentTemplate>
+                <DrugSubstituteTab/>
             </ContentTemplate>
         </TabItem>
     </TabItems>

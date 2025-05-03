@@ -846,18 +846,18 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
     public async Task<IResult> UpsertDrugStandardScriptAsync(Guid id, DrugStandardScript script)
     {
         await using var context = await contextFactory.CreateDbContextAsync();
-        
-       
+
 
         if (id == Guid.Empty)
         {
             var isExists = await context.DrugStandardScripts
-                .AnyAsync(x => x.DrugId == script.DrugId 
+                .AnyAsync(x => x.DrugId == script.DrugId
                                && x.StandardScriptId == script.StandardScriptId);
             if (isExists)
             {
                 return await Result.FailAsync("Drug is already exists");
             }
+
             script.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
             script.CreatedDate = DateTime.UtcNow;
             context.DrugStandardScripts.Add(script);
@@ -868,7 +868,7 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
         var standardScript =
             await context.DrugStandardScripts.AsTracking()
                 .FirstOrDefaultAsync(x => x.Id == id && x.StandardScriptId == script.StandardScriptId);
-       
+
         if (standardScript is null)
         {
             return await Result<Drug>.FailAsync("Drug Standard script not found");
@@ -905,6 +905,93 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
         return await context.DrugStandardScripts.Where(x => x.StandardScriptId == id)
             .Include(x => x.Drug)
             .ToListAsync();
+    }
+
+    #endregion
+
+    #region Drug Subsitution
+
+    public async Task<List<DrugSubstituteDto>> GetDrugSubstitutions()
+    {
+        var subList = new List<DrugSubstituteDto>();
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var drugSubsitutions = await context.DrugSubstitutes.ToListAsync();
+        foreach (var item in drugSubsitutions)
+        {
+            var orgDrug = context.Drugs.FirstOrDefault(x => x.Id == item.OriginalDrugId);
+            var subDrug = context.Drugs.FirstOrDefault(x => x.Id == item.SubtituteDrugId);
+
+            var drugSub = new DrugSubstituteDto()
+            {
+                Id = item.Id,
+                Active = item.Active,
+                OriginalDrugId = orgDrug!.Id,
+                OriginalDrugName = orgDrug.GenericName,
+                SubtituteDrugId = subDrug!.Id,
+                SubtituteDrugName = subDrug.GenericName
+            };
+            subList.Add(drugSub);
+        }
+
+        return subList;
+    }
+
+    public async Task<IResult> SaveDrugSubstitution(Guid id, DrugSubstitute drugSubstitute)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        if (id == Guid.Empty)
+        {
+            var isExists = await context.DrugSubstitutes
+                .AnyAsync(x => x.OriginalDrugId == drugSubstitute.OriginalDrugId
+                               && x.SubtituteDrugId == drugSubstitute.SubtituteDrugId);
+            if (isExists)
+            {
+                return await Result.FailAsync("Drug substitute is already exists");
+            }
+
+            drugSubstitute.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            drugSubstitute.CreatedDate = DateTime.UtcNow;
+            context.DrugSubstitutes.Add(drugSubstitute);
+        }
+        else
+        {
+            var drugSubs =
+                await context.DrugSubstitutes.AsTracking()
+                    .FirstOrDefaultAsync(x => x.Id == id);
+
+            if (drugSubs is null)
+            {
+                return await Result<Drug>.FailAsync("Drug substitue not found");
+            }
+
+            drugSubs.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
+            drugSubs.ModifiedDate = DateTime.UtcNow;
+            drugSubs.OriginalDrugId = drugSubstitute.OriginalDrugId;
+            drugSubs.SubtituteDrugId = drugSubstitute.SubtituteDrugId;
+            context.ChangeTracker.Clear();
+            context.DrugSubstitutes.Update(drugSubs);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug substitute saved");
+    }
+
+    public async Task<IResult> DeleteDrugSubstitution(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var standardScript =
+            await context.DrugSubstitutes.AsTracking().FirstOrDefaultAsync(x => x.Id == id);
+        if (standardScript == null)
+        {
+            return await Result.FailAsync("Drug Substitute not found");
+        }
+
+        context.DrugSubstitutes.Remove(standardScript);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Drug Substitute deleted");
     }
 
     #endregion
