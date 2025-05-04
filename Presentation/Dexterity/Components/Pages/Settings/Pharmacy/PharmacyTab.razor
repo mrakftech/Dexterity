@@ -1,0 +1,84 @@
+﻿@using Domain.Entities.Settings.Templates
+<TabTitle Title="Pharmacies">
+    <ActionButtons>
+        <MudStack Row>
+            <DexCreateButton Label="Add Pharmacy" OnClick="() => PharmacyFormDialog(Guid.Empty)"/>
+            <DexButton Name="Refresh" Click="GetPharmacies"/>
+        </MudStack>
+    </ActionButtons>
+</TabTitle>
+
+<DexGrid DataSource="_pharmacies" Loading="@_loading">
+    <DexGridColumns>
+        <GridColumn Field="@nameof(Pharmacy.Name)" HeaderText="Name" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(Pharmacy.Address)" HeaderText="Address" Width="120px"></GridColumn>
+        <GridColumn Field="@nameof(Pharmacy.Contact)" HeaderText="Contact" Width="120px"></GridColumn>
+        <GridColumn HeaderText="Actions" Width="120">
+            <Template>
+                @{
+                    var item = (context as Pharmacy);
+                    <DexUpdateButton OnClick="() => PharmacyFormDialog(item.Id)"/>
+                    <DexDeleteButton OnClick="() => DeletePharmacy(item.Id)"/>
+                }
+            </Template>
+        </GridColumn>
+    </DexGridColumns>
+</DexGrid>
+
+@code {
+    private List<Pharmacy> _pharmacies = [];
+    private bool _loading;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _loading = true;
+        await GetPharmacies();
+        _loading = false;
+    }
+
+    private async Task GetPharmacies()
+    {
+        _pharmacies = await UnitOfWork.Setting.GetAllPharmacies();
+    }
+
+    private async Task PharmacyFormDialog(Guid id)
+    {
+        var parameters = new DialogParameters {{"Id", id}};
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
+        var dialogresult = await DialogService.ShowAsync<PharmacyFormDialog>("", parameters, options);
+        var result = await dialogresult.Result;
+        if (!result.Canceled)
+        {
+            await GetPharmacies();
+
+        }
+    }
+
+    private async Task DeletePharmacy(Guid id)
+    {
+        var parameters = new DialogParameters();
+        var dialogresult = await DialogService.ShowAsync<DialogConfirm>("Confirm", parameters);
+        var result = await dialogresult.Result;
+        if (!result.Canceled && Convert.ToBoolean(result.Data.ToString()))
+        {
+             await UnitOfWork.Setting.DeletePharmacy(id);
+             await GetPharmacies();
+
+        }
+
+        Snackbar.SuccessMessage("Pharmacy has been deleted.");
+    }
+    public class PopulationDetail
+    {
+        public string Name { get; set; }
+        public double Population { get; set; }
+        public double Density { get; set; }
+    };
+    private List<PopulationDetail> PopulationDetails = new List<PopulationDetail> {
+        new PopulationDetail {
+            Name= "Afghanistan",
+            Population= 29863010,
+            Density= 119
+        },
+    };
+}

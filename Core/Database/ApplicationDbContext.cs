@@ -112,6 +112,7 @@ public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options
     public DbSet<StandardScript> StandardScripts { get; set; }
     public DbSet<DrugStandardScript> DrugStandardScripts { get; set; }
     public DbSet<DrugSubstitute> DrugSubstitutes { get; set; }
+    public DbSet<Pharmacy> Pharmacies { get; set; }
 
 
     #region Immunisations

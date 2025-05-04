@@ -10,7 +10,7 @@ namespace Domain.Entities.Consultation;
 public class Prescription : IBaseId
 {
     [Key] public Guid Id { get; set; }
-    public string Status { get; set; }
+    public string Status { get; set; } = PrescriptionsConstants.Status.ToPrint;
     public int Quantity { get; set; }
     public int Duration { get; set; }
     public DateTime StartDate { get; set; }
@@ -21,14 +21,14 @@ public class Prescription : IBaseId
     public string Instruction3 { get; set; }
     public string Instruction4 { get; set; }
     public string AdditionalInstruction { get; set; }
-    public string Indication { get; set; } 
-    public PrescriptionsConstants.InitiatedEnum Initiated { get; set; } 
-    public PrescriptionsConstants.PrescriptionType Type { get; set; } 
+    public string Indication { get; set; }
+    public PrescriptionsConstants.InitiatedEnum Initiated { get; set; }
+    public PrescriptionsConstants.PrescriptionType Type { get; set; }
 
     public bool IsActive { get; set; }
     public bool IsInReview { get; set; }
-    
-    public Drug Drug { get; set; } 
+
+    public Drug Drug { get; set; }
     public int DrugId { get; set; }
 
     public Patient Patient { get; set; }

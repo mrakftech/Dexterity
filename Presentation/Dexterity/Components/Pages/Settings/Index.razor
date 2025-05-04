@@ -14,6 +14,7 @@
 @using Dexterity.Components.Pages.Settings.DmsCategory
 @using Dexterity.Components.Pages.Settings.Admin.Flags
 @using Dexterity.Components.Pages.Settings.DrugManagement
+@using Dexterity.Components.Pages.Settings.Pharmacy
 <TopTitleBar Title="Settings"
              Image="modules/settings.svg">
 </TopTitleBar>
@@ -29,6 +30,7 @@
                 <DexMenuItem Text="Sketch Categories" Icon="fas fa-list" Click="@(() => ClickChanged(12))"/>
                 <DexMenuItem Text="Custom Forms" Icon="fas fa-window-restore" Click="@(() => ClickChanged(13))"/>
                 <DexMenuItem Text="Dms Categories" Icon="fas fa-window-restore" Click="@(() => ClickChanged(14))"/>
+                <DexMenuItem Text="Pharmacies" Icon="fas fa-hospital" Click="@(() => ClickChanged(16))"/>
             </RadzenPanelMenuItem>
             <RadzenPanelMenuItem Text="Other Types" Icon="@DexHelperMethod.FaIcon("types-icon")">
                 <DexMenuItem Text="Shots" Icon="fas fa-syringe" Click="@(() => ClickChanged(8))"/>
@@ -97,6 +99,9 @@
                 </MudTabPanel>
                 <MudTabPanel>
                     <FlagRecords/>
+                </MudTabPanel>
+                <MudTabPanel>
+                    <PharmacyTab/>
                 </MudTabPanel>
             </MudTabs>
         </DexContentTabs>

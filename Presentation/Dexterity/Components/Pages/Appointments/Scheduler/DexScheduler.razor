@@ -120,7 +120,7 @@ else
                                         Appointment
                                     </MudButton>
                                     <MudButton Size="MudSize.Small" Variant="Variant.Filled" Color="MudColor.Primary"
-                                               OnClick="@(e => OnCloseClick(e, context as AppointmentDto))">
+                                               OnClick="@(e => OnCloseClick(context as AppointmentDto))">
                                         Close
                                     </MudButton>
                                 </div>
@@ -262,7 +262,7 @@ else
         }
     }
 
-    private async Task OnCloseClick(MouseEventArgs args, AppointmentDto data)
+    private async Task OnCloseClick(AppointmentDto data)
     {
         await _scheduleRef.CloseQuickInfoPopupAsync();
     }

@@ -44,7 +44,7 @@ relating to this patient or any other topic of choice"/>
         PatientList = await UnitOfWork.Patient.GetPatients();
     }
 
-    private async Task OpenChargeDialog(MouseEventArgs obj)
+    private async Task OpenChargeDialog()
     {
         var parameters = new DialogParameters();
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraSmall, FullWidth = true, Position = DialogPosition.Center};
@@ -68,7 +68,7 @@ relating to this patient or any other topic of choice"/>
         }
     }
 
-    private async Task OpenTasksDialog(MouseEventArgs obj)
+    private async Task OpenTasksDialog()
     {
         var parameters = new DialogParameters();
         parameters.Add("SelectedPatientId", ApplicationState.Patient.GetSelectPatientId());

@@ -253,6 +253,14 @@ public interface ISettingService
     public Task<IResult> DeleteDmsCategory(int id);
 
     #endregion
+    #region Pharmacy
+
+    public Task<List<Pharmacy>> GetAllPharmacies();
+    public Task<Pharmacy> GetPharmacy(Guid id);
+    public Task<IResult> SavePharmacy(Guid id, Pharmacy request);
+    public Task<IResult> DeletePharmacy(Guid id);
+
+    #endregion
 
     #region Custom Forms
 

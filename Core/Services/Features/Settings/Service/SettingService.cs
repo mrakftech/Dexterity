@@ -2219,4 +2219,61 @@ public class SettingService(IMapper mapper, IDbContextFactory<ApplicationDbConte
     }
 
     #endregion
+
+    #region Pharmacy
+
+    public async Task<List<Pharmacy>> GetAllPharmacies()
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        return await context.Pharmacies.ToListAsync();
+    }
+
+    public async Task<Pharmacy> GetPharmacy(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        var pharmacy = await context.Pharmacies.FirstOrDefaultAsync(x=>x.Id==id);
+        return pharmacy ?? new Pharmacy();
+    }
+
+    public async Task<IResult> SavePharmacy(Guid id, Pharmacy request)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+        if (id == Guid.Empty)
+        {
+            request.CreatedBy = ApplicationState.Auth.CurrentUser.UserId;
+            request.CreatedDate = DateTime.UtcNow;
+            context.Pharmacies.Add(request);
+        }
+        else
+        {
+            var pharmacy = await context.Pharmacies.FirstOrDefaultAsync(x => x.Id == id);
+            if (pharmacy is null)
+                return await Result.FailAsync("Pharmacy not found.");
+
+            pharmacy.ModifiedBy = ApplicationState.Auth.CurrentUser.UserId;
+            pharmacy.ModifiedDate = DateTime.UtcNow;
+            pharmacy.Name = request.Name;
+            pharmacy.Address = request.Address;
+            pharmacy.Contact = request.Contact;
+            context.Pharmacies.Update(pharmacy);
+        }
+
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Pharmacy has been saved.");
+    }
+
+    public async Task<IResult> DeletePharmacy(Guid id)
+    {
+        await using var context = await contextFactory.CreateDbContextAsync();
+
+        var pharmacy = await context.Pharmacies.FirstOrDefaultAsync(x => x.Id == id);
+        if (pharmacy is null)
+            return await Result.FailAsync("Pharmacy not found.");
+        context.Pharmacies.Remove(pharmacy);
+        await context.SaveChangesAsync();
+        return await Result.SuccessAsync("Pharmacy has been deleted.");
+        
+    }
+
+    #endregion
 }

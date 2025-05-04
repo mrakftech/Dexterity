@@ -84,7 +84,7 @@ public static class SettingConstants
     ];
     public static List<PrescriptionType> PrescriptionTypes { get; set; } =
     [
-        new(1, "Anulu"),
+        new(1, "Acute"),
     ];
     public static List<ScriptType> ScriptTypes { get; set; } =
     [

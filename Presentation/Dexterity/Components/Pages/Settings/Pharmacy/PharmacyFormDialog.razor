@@ -1,0 +1,46 @@
+﻿@using Domain.Entities.Settings.Templates
+<DexDialog>
+    <DialogTitle>Pharmacy Details</DialogTitle>
+    <Content>
+        <DexForm Model="_pharmacy" OnValidSubmit="SavePharmacy">
+            <Fields>
+                <FormItem Field="@nameof(Pharmacy.Name)"/>
+                <FormItem Field="@nameof(Pharmacy.Address)"/>
+                <FormItem Field="@nameof(Pharmacy.Contact)"/>
+            </Fields>
+            <Buttons>
+                <DexLoadingButton Name="Save" Type="MudButtonType.Submit"/>
+            </Buttons>
+        </DexForm>
+    </Content>
+</DexDialog>
+
+@code {
+    [CascadingParameter] public MudDialogInstance MudDialog { get; set; }
+    [Parameter] public Guid Id { get; set; }
+
+    private Pharmacy _pharmacy = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Id != Guid.Empty)
+        {
+            _pharmacy = await UnitOfWork.Setting.GetPharmacy(Id);
+        }
+    }
+
+    private async Task SavePharmacy()
+    {
+        var res = await UnitOfWork.Setting.SavePharmacy(Id, _pharmacy);
+        if (res.Succeeded)
+        {
+            Snackbar.SuccessMessage(res.GetFirstMessage());
+            MudDialog.Close();
+        }
+        else
+        {
+            Snackbar.FailMessage(res.GetFirstMessage());
+        }
+    }
+
+}

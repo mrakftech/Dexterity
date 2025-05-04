@@ -85,7 +85,7 @@ else
         _patientLoading = false;
     }
 
-    private async Task SendBulkSms(MouseEventArgs obj)
+    private async Task SendBulkSms()
     {
         var parameters = new DialogParameters {{"SelectedPatients", SelectedPatients}};
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Medium, FullWidth = true, Position = DialogPosition.Center};

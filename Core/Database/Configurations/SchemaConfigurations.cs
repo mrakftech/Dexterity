@@ -104,6 +104,7 @@ public static class SchemaConfigurations
         builder.Entity<CourseShot>(entity => { entity.ToTable(name: "CourseShots", "Setting"); });
         builder.Entity<Sketch>(entity => { entity.ToTable(name: "Sketches", "Setting"); });
         builder.Entity<SketchCategory>(entity => { entity.ToTable(name: "SketchCategories", "Setting"); });
+        builder.Entity<Pharmacy>(entity => { entity.ToTable(name: "Pharmacies", "Setting"); });
 
 
         builder.Entity<DoctorVisitCard>(entity => { entity.ToTable(name: "DoctorVisitCards", "PM"); });
