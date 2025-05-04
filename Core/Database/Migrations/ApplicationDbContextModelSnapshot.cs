@@ -892,11 +892,14 @@ namespace Database.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("AddedById")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<string>("AdditionalInstruction")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("DrugId")
                         .HasColumnType("int");
@@ -928,8 +931,17 @@ namespace Database.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsInReview")
                         .HasColumnType("bit");
+
+                    b.Property<Guid?>("ModifiedBy")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime?>("ModifiedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<Guid>("PatientId")
                         .HasColumnType("uniqueidentifier");
@@ -950,8 +962,6 @@ namespace Database.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("AddedById");
 
                     b.HasIndex("DrugId");
 
@@ -3298,9 +3308,11 @@ namespace Database.Migrations
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<string>("Address")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Contact")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<Guid>("CreatedBy")
@@ -3319,6 +3331,7 @@ namespace Database.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
@@ -3994,12 +4007,6 @@ namespace Database.Migrations
 
             modelBuilder.Entity("Domain.Entities.Consultation.Prescription", b =>
                 {
-                    b.HasOne("Domain.Entities.UserAccounts.User", "AddedBy")
-                        .WithMany()
-                        .HasForeignKey("AddedById")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Domain.Entities.Settings.DrugManagement.Drug", "Drug")
                         .WithMany()
                         .HasForeignKey("DrugId")
@@ -4011,8 +4018,6 @@ namespace Database.Migrations
                         .HasForeignKey("PatientId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.Navigation("AddedBy");
 
                     b.Navigation("Drug");
 
