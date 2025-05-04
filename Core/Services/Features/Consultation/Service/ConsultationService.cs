@@ -735,7 +735,6 @@ public class ConsultationService(
     {
         return await context.Prescriptions
             .Include(x => x.Drug)
-            .Include(x => x.AddedBy)
             .Where(x => x.Status == status && x.PatientId == ApplicationState.Patient.GetSelectPatientId()).ToListAsync();
     }
 

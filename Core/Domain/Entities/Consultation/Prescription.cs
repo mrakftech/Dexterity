@@ -7,9 +7,8 @@ using Shared.Constants.Module.Consultation;
 
 namespace Domain.Entities.Consultation;
 
-public class Prescription : IBaseId
+public class Prescription : BaseEntity
 {
-    [Key] public Guid Id { get; set; }
     public string Status { get; set; } = PrescriptionsConstants.Status.ToPrint;
     public int Quantity { get; set; }
     public int Duration { get; set; }
@@ -34,6 +33,4 @@ public class Prescription : IBaseId
     public Patient Patient { get; set; }
     public Guid PatientId { get; set; }
 
-    public User AddedBy { get; set; }
-    public Guid AddedById { get; set; }
 }

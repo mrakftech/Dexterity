@@ -15,14 +15,14 @@
             <GridColumn Field="@nameof(Prescription.Type)"/>
             <GridColumn Field="@nameof(Prescription.Duration)"/>
             <GridColumn Field="@nameof(Prescription.Initiated)"/>
-            <GridColumn Field="@nameof(Prescription.AddedBy)">
-                <Template>
-                    @{
-                    var item = (context as Prescription);
-                    <span>@item!.AddedBy.FullName</span>
-                    }
-                </Template>
-            </GridColumn>
+            @* <GridColumn Field="@nameof(Prescription.AddedBy)"> *@
+            @*     <Template> *@
+            @*         @{ *@
+            @*         var item = (context as Prescription); *@
+            @*         <span>@item!.AddedBy.FullName</span> *@
+            @*         } *@
+            @*     </Template> *@
+            @* </GridColumn> *@
 
         </GridColumns>
     </SfGrid>

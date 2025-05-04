@@ -78,7 +78,7 @@
             <hr class="hr-custom m-1"/>
             <RadzenPanelMenuItem Text="Prescriptions" Icon="@DexHelperMethod.FaIcon("consultation-prescription-icon")"
                                  Click="() => ClickChangedTab(3)">
-                <DexMenuItem Text="Add new" Icon="fas fa-prescription-bottle-medical"/>
+                <DexMenuItem Text="Add new" Icon="fas fa-prescription-bottle-medical" Click="NewPrescriptionDialog"/>
                 <DexMenuItem Text="Print" Icon="fas fa-print"/>
                 <DexMenuItem Text="Reprint" Icon="fas fa-print"/>
                 <DexMenuItem Text="Re-Issue" Icon="fas fa-arrows-rotate"/>
@@ -375,6 +375,15 @@
         }
     }
 
+    #endregion
+    
+    #region Prescription
+    private async Task NewPrescriptionDialog()
+    {
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<PrescriptionFormDialog>("", parameters, options);
+    }
     #endregion
 
 

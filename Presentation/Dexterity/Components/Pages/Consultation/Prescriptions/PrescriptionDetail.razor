@@ -70,9 +70,7 @@
 </style>
 
 @code {
-    
     private List<Prescription> Prescriptions { get; set; } = [];
-
     protected override async Task OnInitializedAsync()
     {
         await GetPrescriptions();
