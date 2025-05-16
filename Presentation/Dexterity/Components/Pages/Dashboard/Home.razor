@@ -146,7 +146,7 @@
         Reset();
         _clinics = await UnitOfWork.Setting.GetUserClinics();
         await Task.Delay(500);
-        await SetInitialClinicIds();
+        SetInitialClinicIds();
         await GetDashboardData();
         _loading = false;
         StateHasChanged();
@@ -181,6 +181,7 @@
         if (args.Value is {Length: > 0})
         {
             _clinicIds = args.Value;
+            ApplicationState.Auth.SelectedClinics = _clinicIds.ToList();
         }
         else
         {
@@ -202,11 +203,13 @@
         _isClinicSelected = false;
     }
 
-    private async Task SetInitialClinicIds()
+    private void SetInitialClinicIds()
     {
         _clinicIds = ApplicationState.Auth.CurrentUser.IsAdmin
             ? _clinics.Select(x => x.ClinicId).ToArray()
             : [ApplicationState.Auth.CurrentUser.ClinicId];
+
+        ApplicationState.Auth.SetClinicIds(_clinicIds.ToList());
 
     }
 

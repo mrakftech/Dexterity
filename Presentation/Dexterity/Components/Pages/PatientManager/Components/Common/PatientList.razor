@@ -51,6 +51,7 @@
     protected override async Task OnInitializedAsync()
     {
         _clinics = await UnitOfWork.Setting.GetUserClinics();
+        _clinicIds = ApplicationState.Auth.SelectedClinics.ToArray();
     }
 
     private async Task GetPatients()

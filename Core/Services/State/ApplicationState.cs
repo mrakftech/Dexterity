@@ -63,6 +63,12 @@ public static class ApplicationState
         public static LoginResponseDto CurrentUser { get; set; }
         public static bool IsLoggedIn { get; set; }
         public static Guid SelectedModuleId { get; set; }
+        public static List<int> SelectedClinics { get; set; }
+
+        public static void SetClinicIds(List<int> clinicIds)
+        {
+            SelectedClinics = clinicIds;
+        }
     }
 
     public static class Telehealth
