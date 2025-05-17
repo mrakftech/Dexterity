@@ -42,7 +42,7 @@
 
     private void PatientChanged(Guid patientId)
     {
-        ApplicationState.Patient.SetPatientId(patientId);
+        ApplicationState.SetPatientId(patientId);
         SelectPatient.InvokeAsync(patientId);
         StateHasChanged();
     }

@@ -7,6 +7,7 @@ namespace Services.State;
 
 public static class ApplicationState
 {
+    
     public static class SelectedAppointment
     {
         public static Guid Id { get; set; }
@@ -15,41 +16,11 @@ public static class ApplicationState
 
     public static class Patient
     {
-        private static Guid Id { get; set; } = Guid.Empty;
+        public static Guid Id { get; set; } = Guid.Empty;
         public static string Name { get; set; }
         public static PatientSummaryDto Summary { get; set; }
 
-        public static void ClearPatient()
-        {
-            Id = Guid.Empty;
-            Name = string.Empty;
-            Summary = new PatientSummaryDto();
-        }
-        public static void SetPatient(Guid patientId,PatientSummaryDto summary)
-        {
-            Id = patientId;
-            Name = summary.Name;
-            Summary = summary;
-        }
-
-        public static void SetPatientId(Guid patientId,string name=null)
-        {
-            Id = patientId;
-            Name = name ?? string.Empty;
-        }
-        
-        public static Guid GetSelectPatientId()
-        {
-            return Id;
-        }
-        public static string GetSelectPatientName()
-        {
-            return Name;
-        }
-        public static bool IsPatientSelected()
-        {
-            return Id != Guid.Empty;
-        }
+      
     }
 
     public static class SelectedConsultation
@@ -75,5 +46,41 @@ public static class ApplicationState
     {
         public static string MeetingName { get; set; }
         public static string MeetingLink { get; set; }
+    }
+    
+    
+    
+    
+    
+    public static void SetPatientId(Guid patientId,string name=null)
+    {
+        Patient.Id = patientId;
+        Patient.Name = name ?? string.Empty;
+    }
+    
+    public static void SetPatient(Guid patientId,PatientSummaryDto summary)
+    {
+        Patient.Id = patientId;
+        Patient.Name = summary.Name;
+        Patient. Summary = summary;
+    }
+
+      
+        
+    public static Guid GetSelectPatientId()
+    {
+        return Patient.Id;
+    }
+    public static string GetSelectPatientName()
+    {
+        return Patient.Name;
+    }
+ 
+    
+    public static void ClearPatient()
+    {
+        Patient.Id = Guid.Empty;
+        Patient.Name = string.Empty;
+        Patient.Summary = new PatientSummaryDto();
     }
 }

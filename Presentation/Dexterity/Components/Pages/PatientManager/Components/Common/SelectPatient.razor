@@ -15,10 +15,10 @@
     private async Task GetPateintSummary(Guid patientId)
     {
         var summary = await UnitOfWork.Patient.GetPatientSummary(patientId);
-        ApplicationState.Patient.SetPatient(patientId,summary);
-        // ApplicationState.Patient.Id = patientId;
-        // ApplicationState.Patient.Name = summary.Name;
-        // ApplicationState.Patient.Summary = summary;
+        ApplicationState.SetPatient(patientId,summary);
+        // ApplicationState.Id = patientId;
+        // ApplicationState.Name = summary.Name;
+        // ApplicationState.Summary = summary;
     }
 
 }

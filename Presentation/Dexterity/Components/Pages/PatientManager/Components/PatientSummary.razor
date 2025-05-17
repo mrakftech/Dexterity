@@ -1,7 +1,7 @@
 ﻿@using Services.Features.PatientManagement.Dtos.Details
 @using Dexterity.Components.Pages.PatientManager.Components.Summary
 
-@if (ApplicationState.Patient.IsPatientSelected())
+@if (ApplicationState.GetSelectPatientId() !=Guid.Empty)
 {
     if (!_loading)
     {
@@ -73,7 +73,7 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await GetPateintSummary(ApplicationState.Patient.GetSelectPatientId());
+        await GetPateintSummary(ApplicationState.GetSelectPatientId());
         _tabs.ActivatePanel(_tabIndex);
     }
 
@@ -106,7 +106,7 @@ else
     
     protected async Task GoBackToPatientList()
     {
-        ApplicationState.Patient.ClearPatient();
+        ApplicationState.ClearPatient();
         await TabChangeClick.InvokeAsync(3);
     }
 }

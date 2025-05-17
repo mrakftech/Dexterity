@@ -52,6 +52,7 @@
                 <MudTabPanel Text="">
                     <GroupAlert/>
                 </MudTabPanel>
+
             </MudTabs>
         </DexContentTabs>
     </InnerLayout>
@@ -62,7 +63,7 @@
 
     private void ClickChangedTab(int tabIndex)
     {
-        ApplicationState.Patient.ClearPatient();
+        ApplicationState.ClearPatient();
         _tabs.ActivatePanel(tabIndex);
     }
 

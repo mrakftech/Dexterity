@@ -81,7 +81,7 @@
         _loading = true;
         ApplicationState.SelectedAppointment.Id = Guid.Empty;
         ApplicationState.SelectedAppointment.Appointment = null;
-        ApplicationState.Patient.ClearPatient();
+        ApplicationState.ClearPatient();
         await GetHealthCares();
         await GetPatients();
         _loading = false;
@@ -110,7 +110,7 @@
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
         parameters.Add("HcpId", ApplicationState.Auth.CurrentUser.UserId);
-        parameters.Add("SelectedPatientId", ApplicationState.Patient.GetSelectPatientId());
+        parameters.Add("SelectedPatientId", ApplicationState.GetSelectPatientId());
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;

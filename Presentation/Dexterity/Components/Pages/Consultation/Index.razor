@@ -152,11 +152,11 @@
     {
         ClickChangedTab(0);
         _loading = true;
-        if (ApplicationState.Patient.IsPatientSelected())
+        if (ApplicationState.GetSelectPatientId() !=Guid.Empty)
         {
             _reminderCount = await UnitOfWork.Consultation.GetActiveRemindersCount();
-            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.Patient.GetSelectPatientId());
-            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.Patient.GetSelectPatientId());
+            _smsHistoryCount = await UnitOfWork.Messaging.GetSmsHistoryCount(ApplicationState.GetSelectPatientId());
+            _taskCount = await UnitOfWork.Messaging.GetUserTasksCountByPatient(ApplicationState.GetSelectPatientId());
             await GetPatientSummary();
             await GetConsultations();
             await GetConsultationNotes();
@@ -182,7 +182,7 @@
 
     private async Task GetPatientSummary()
     {
-        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.Patient.GetSelectPatientId());
+        Patient = await UnitOfWork.Patient.GetPatientSummary(ApplicationState.GetSelectPatientId());
         ApplicationState.Patient.Summary = Patient;
     }
 
@@ -195,7 +195,7 @@
     private async Task OpenPatientSummaryModal()
     {
         var parameters = new DialogParameters();
-        parameters.Add("PatientId", ApplicationState.Patient.GetSelectPatientId());
+        parameters.Add("PatientId", ApplicationState.GetSelectPatientId());
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Large, FullWidth = true, Position = DialogPosition.Center};
         await DialogService.ShowAsync<PatientSummary>("", parameters, options);
     }
@@ -206,7 +206,7 @@
 
     private async Task GetConsultations()
     {
-        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.Patient.GetSelectPatientId());
+        Consultations = await UnitOfWork.Consultation.GetConsultationDetails(ApplicationState.GetSelectPatientId());
     }
 
     private async Task OpenBeginConsultationDialog()
@@ -304,7 +304,7 @@
 
     private async Task GetImmunisationSchedules()
     {
-        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.Patient.GetSelectPatientId());
+        _immunisationsSchedules = await UnitOfWork.Consultation.GetImmunisationSchedule(ApplicationState.GetSelectPatientId());
     }
 
     #endregion

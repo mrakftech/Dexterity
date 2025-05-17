@@ -45,7 +45,6 @@
     private int[] _clinicIds = [];
     private List<PatientListDto> Patients { get; set; } = [];
     private bool _patientLoading;
-    [Parameter] public EventCallback<int> TabChangeClick { get; set; }
 
 
     protected override async Task OnInitializedAsync()
@@ -64,9 +63,10 @@
 
     private async Task EditPatient(Guid id)
     {
-        ApplicationState.Patient.SetPatientId(id);
-        await ChangeTab(0);
-        StateHasChanged();
+        ApplicationState.SetPatientId(id);
+        var parameters = new DialogParameters();
+        var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.ExtraLarge, FullWidth = true, Position = DialogPosition.Center};
+        await DialogService.ShowAsync<EditPatient>("", parameters, options);
     }
 
     private async Task DeletePatient(Guid id)
@@ -87,10 +87,5 @@
     {
         _clinicIds = args.Value is {Length: > 0} ? args.Value : [];
     }
-
-    private async Task ChangeTab(int e)
-    {
-        await TabChangeClick.InvokeAsync(e);
-    }
-
+    
 }

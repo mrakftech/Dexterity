@@ -1300,7 +1300,7 @@ public class PatientService(
         await using var context = await contextFactory.CreateDbContextAsync();
 
         var list = await context.PatientAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
         var data = mapper.Map<List<PatientAllergyDto>>(list);
         return data;
@@ -1370,7 +1370,7 @@ public class PatientService(
         await using var context = await contextFactory.CreateDbContextAsync();
 
         var list = await context.PatientDrugAllergies.AsNoTracking()
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
         var data = mapper.Map<List<DrugAllergyDto>>(list);
         return data;
@@ -1443,13 +1443,13 @@ public class PatientService(
 
             var patient = await context.Patients.AsNoTracking()
                 .Include(x => x.PatientAccount)
-                .FirstOrDefaultAsync(x => x.Id == ApplicationState.Patient.GetSelectPatientId());
+                .FirstOrDefaultAsync(x => x.Id == ApplicationState.GetSelectPatientId());
 
             var allergyCount = await context.PatientAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.Patient.GetSelectPatientId());
+                x.PatientId == ApplicationState.GetSelectPatientId());
 
             var drugAllergyCount = await context.PatientDrugAllergies.CountAsync(x =>
-                x.PatientId == ApplicationState.Patient.GetSelectPatientId());
+                x.PatientId == ApplicationState.GetSelectPatientId());
 
             if (allergyCount > 0 || drugAllergyCount > 0)
             {
@@ -1460,7 +1460,7 @@ public class PatientService(
                 patient.NkaFlag = true;
             }
 
-            patient.PatientAccount!.PatientId = ApplicationState.Patient.GetSelectPatientId();
+            patient.PatientAccount!.PatientId = ApplicationState.GetSelectPatientId();
             context.ChangeTracker.Clear();
             context.Patients.Update(patient);
             await context.SaveChangesAsync();

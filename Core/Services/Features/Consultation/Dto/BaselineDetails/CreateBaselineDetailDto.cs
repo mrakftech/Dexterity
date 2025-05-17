@@ -67,6 +67,6 @@ public class CreateBaselineDetailDto
 
     #endregion
 
-    public Guid PatientId { get; set; } = ApplicationState.Patient.GetSelectPatientId();
+    public Guid PatientId { get; set; } = ApplicationState.GetSelectPatientId();
     public Guid HcpId { get; set; } = ApplicationState.Auth.CurrentUser.UserId;
 }

@@ -14,7 +14,7 @@ public class FileManagerService : IFileManagerService
         try
         {
             var root = GetPatientDirectoryPath(foldername);
-            var tempPath = Path.Combine(GetTempPath(), $"{ApplicationState.Patient.GetSelectPatientId()}-temp.html");
+            var tempPath = Path.Combine(GetTempPath(), $"{ApplicationState.GetSelectPatientId()}-temp.html");
             await File.WriteAllTextAsync(tempPath, content);
 
             //Load an existing HTML file.
@@ -42,7 +42,7 @@ public class FileManagerService : IFileManagerService
     public string GetPatientDirectoryPath(string folderName)
     {
         return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-            $"wwwroot/Files/{ApplicationState.Patient.GetSelectPatientId()}/{folderName}");
+            $"wwwroot/Files/{ApplicationState.GetSelectPatientId()}/{folderName}");
     }
 
 
@@ -55,7 +55,7 @@ public class FileManagerService : IFileManagerService
     public string GetRootPath()
     {
         return Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-            $"wwwroot/Files/{ApplicationState.Patient.GetSelectPatientId()}");
+            $"wwwroot/Files/{ApplicationState.GetSelectPatientId()}");
     }
 
     public void CreatePatientDefualtDirectories(Guid patientId)

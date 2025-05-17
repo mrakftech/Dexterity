@@ -6,7 +6,7 @@
     <span class="regular text-bold ml-3"> @Title.ToUpper()</span>
     <AppBarSpacer></AppBarSpacer>
     @ActionButtons
-    @if (ApplicationState.Patient.IsPatientSelected())
+    @if (ApplicationState.GetSelectPatientId() !=Guid.Empty)
     {
         if (ShowBackButton)
         {

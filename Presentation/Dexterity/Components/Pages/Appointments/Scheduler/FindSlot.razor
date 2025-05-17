@@ -70,7 +70,7 @@
         parameters.Add("PatientList", PatientList);
         parameters.Add("HealthCares", HealthCares);
         parameters.Add("HcpId", _hcpId);
-        parameters.Add("SelectedPatientId", ApplicationState.Patient.GetSelectPatientId());
+        parameters.Add("SelectedPatientId", ApplicationState.GetSelectPatientId());
         var options = new DialogOptions() {CloseButton = true, MaxWidth = MaxWidth.Small, FullWidth = true, Position = DialogPosition.Center};
         var dialogResult = await DialogService.ShowAsync<UpsertAppointmentModal>("", parameters, options);
         var result = await dialogResult.Result;

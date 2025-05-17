@@ -2,7 +2,7 @@
 @using Dexterity.Components.Pages.PatientManager.Components.Transactions.Dialogs
 @using Services.Features.PatientManagement.Dtos.Account
 
-@if (ApplicationState.Patient.IsPatientSelected())
+@if (ApplicationState.GetSelectPatientId() !=Guid.Empty)
 {
     <TabTitle Title="Patient Accounts" GoBack="GoBackToPatientList" ShowBackButton/>
     <div style="height: 900px">
@@ -133,7 +133,7 @@ else
 
     private async Task GetAccountDetails()
     {
-        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.Patient.GetSelectPatientId());
+        AccountDto = await UnitOfWork.Patient.GetPatientAccount(ApplicationState.GetSelectPatientId());
     }
 
     private async Task GetOutstanding()
@@ -218,7 +218,7 @@ else
     }
     protected async Task GoBackToPatientList()
     {
-        ApplicationState.Patient.ClearPatient();
+        ApplicationState.ClearPatient();
         await TabChangeClick.InvokeAsync(3);
     }
 }

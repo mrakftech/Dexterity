@@ -1,110 +1,115 @@
 ﻿@using Dexterity.Components.Pages.PatientManager.Components.Form
 @using Services.Features.PatientManagement.Dtos.Details
+<DexDialog>
+    <DialogTitle>Patient Details</DialogTitle>
+    <Content>
 
-@if (_loading)
-{
-    <MudProgressCircular Indeterminate="_loading" Color="MudColor.Primary"></MudProgressCircular>
-}
-else
-{
-    <TabTitle Title="Edit Patient" GoBack="GoBack" ShowBackButton>
-    </TabTitle>
-    <SfAppBar ColorMode="AppBarColor.Primary">
-        <span
-            class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.CalculateAge(Patient.DateOfBirth)} , {Patient.Gender}")</span>
-    </SfAppBar>
-    <SfTab CssClass="mt-5">
-        <TabItems>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Patient Details"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <SfDataForm Model="@Patient"
-                                ColumnCount="3"
-                                Width="100%"
-                                ColumnSpacing="20px"
-                                ButtonsAlignment="FormButtonsAlignment.Left"
-                                OnValidSubmit="SavePatientInfo">
-                        <FormValidator>
-                            <ObjectGraphDataAnnotationsValidator/>
-                        </FormValidator>
-                        <PatientDetailForm Patient="Patient"/>
-                        <FormButtons>
-                            <div class="mb-3">
-                                <DexLoadingButton Name="Save Patient"
-                                                  Processing="_processing"
-                                                  Type="MudButtonType.Submit" FullWidth="false"></DexLoadingButton>
-                            </div>
-                        </FormButtons>
-                    </SfDataForm>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Extra Details"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <ExtraDetailFrom PatientExtraDetail="ExtraDetail"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Contacts"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <PatientContacts Id="Id"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Patient Occupations"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <PatientOccupations Id="Id"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Patient Alerts"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <PatientAlerts Id="Id"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Related Healthcare Professional"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <RelatedHcp Id="Id"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Register to Group"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <Grouping Id="Id"/>
-                </ContentTemplate>
-            </TabItem>
-            <TabItem>
-                <ChildContent>
-                    <TabHeader Text="Next Kin and Carers"></TabHeader>
-                </ChildContent>
-                <ContentTemplate>
-                    <PatientFamily/>
-                </ContentTemplate>
-            </TabItem>
-        </TabItems>
-    </SfTab>
-}
+        @if (_loading)
+        {
+            <MudProgressCircular Indeterminate="_loading" Color="MudColor.Primary"></MudProgressCircular>
+        }
+        else
+        {
+            <TabTitle Title="Edit Patient">
+            </TabTitle>
+            <SfAppBar ColorMode="AppBarColor.Primary">
+                <span
+                    class="regular text-bold"> @($" Edit - {@Patient.FirstName} {@Patient.LastName} , Age: {PatientConstants.CalculateAge(Patient.DateOfBirth)} , {Patient.Gender}")</span>
+            </SfAppBar>
+            <SfTab CssClass="mt-5">
+                <TabItems>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Patient Details"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <SfDataForm Model="@Patient"
+                                        ColumnCount="3"
+                                        Width="100%"
+                                        ColumnSpacing="20px"
+                                        ButtonsAlignment="FormButtonsAlignment.Left"
+                                        OnValidSubmit="SavePatientInfo">
+                                <FormValidator>
+                                    <ObjectGraphDataAnnotationsValidator/>
+                                </FormValidator>
+                                <PatientDetailForm Patient="Patient"/>
+                                <FormButtons>
+                                    <div class="mb-3">
+                                        <DexLoadingButton Name="Save Patient"
+                                                          Processing="_processing"
+                                                          Type="MudButtonType.Submit"
+                                                          FullWidth="false"></DexLoadingButton>
+                                    </div>
+                                </FormButtons>
+                            </SfDataForm>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Extra Details"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <ExtraDetailFrom PatientExtraDetail="ExtraDetail"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Contacts"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <PatientContacts Id="Id"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Patient Occupations"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <PatientOccupations Id="Id"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Patient Alerts"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <PatientAlerts Id="Id"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Related Healthcare Professional"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <RelatedHcp Id="Id"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Register to Group"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <Grouping Id="Id"/>
+                        </ContentTemplate>
+                    </TabItem>
+                    <TabItem>
+                        <ChildContent>
+                            <TabHeader Text="Next Kin and Carers"></TabHeader>
+                        </ChildContent>
+                        <ContentTemplate>
+                            <PatientFamily/>
+                        </ContentTemplate>
+                    </TabItem>
+                </TabItems>
+            </SfTab>
+        }
+    </Content>
+</DexDialog>
 
 
 @code {
-    [Parameter] public Guid Id { get; set; }
-    [Parameter]
-    public EventCallback GoBack { get; set; }
+    public Guid Id { get; set; }
+
     private UpsertPatientDto Patient { get; set; } = new();
     private PatientExtraDetailDto ExtraDetail { get; set; } = new();
     private bool _processing;
@@ -112,9 +117,9 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        
         _loading = true;
         await Task.Delay(500);
+        Id = ApplicationState.GetSelectPatientId();
         await GetPatient(Id);
         _loading = false;
     }

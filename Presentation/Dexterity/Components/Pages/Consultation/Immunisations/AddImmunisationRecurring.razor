@@ -64,7 +64,7 @@
         if (args.ItemData is null) return;
         var immunisationSetup = args.ItemData;
         ImmunisationRecurringSchedule.ImmunisationProgramId = immunisationSetup.Id;
-        ImmunisationRecurringSchedule.PatientId = ApplicationState.Patient.GetSelectPatientId();
+        ImmunisationRecurringSchedule.PatientId = ApplicationState.GetSelectPatientId();
         _courses = await UnitOfWork.Setting.GetAssignedCoursesOfProgram(immunisationSetup.Id);
     }
 

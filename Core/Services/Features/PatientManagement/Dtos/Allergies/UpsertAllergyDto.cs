@@ -9,7 +9,7 @@ public class UpsertAllergyDto
     [Required] public string AllergyName { get; set; }
     public string PatientName { get; set; } = ApplicationState.Patient.Name;
     
-    public Guid PatientId { get; set; }= ApplicationState.Patient.GetSelectPatientId();
+    public Guid PatientId { get; set; }= ApplicationState.GetSelectPatientId();
 
     [Required] public string Notes { get; set; }
 }

@@ -77,7 +77,7 @@ public class ConsultationService(
                 ConsultationDate = request.ConsultationDate,
                 ClinicSiteId = request.ClinicSiteId,
                 ConsultationClass = request.ConsultationClass,
-                PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                PatientId = ApplicationState.GetSelectPatientId(),
                 HcpId = ApplicationState.Auth.CurrentUser.UserId,
                 ConsultationType = request.ConsultationType
             };
@@ -145,7 +145,7 @@ public class ConsultationService(
     {
         var baselineDetails = await context.BaselineDetails
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
         var mapped = mapper.Map<List<BaselineDetailDto>>(baselineDetails);
         return mapped;
@@ -219,7 +219,7 @@ public class ConsultationService(
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
         var mapped = mapper.Map<List<ConsultationNoteDto>>(notes);
         return mapped;
@@ -230,7 +230,7 @@ public class ConsultationService(
         var notes = await context.ConsultationNotes
             .Include(x => x.HealthCode)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId() &&
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId() &&
                         x.IsActiveCondition)
             .AsNoTracking()
             .ToListAsync();
@@ -256,7 +256,7 @@ public class ConsultationService(
             .Include(x => x.HealthCode)
             .Include(x => x.Hcp)
             .Where(x =>
-                x.PatientId == ApplicationState.Patient.GetSelectPatientId() && x.IsPastHistory ||
+                x.PatientId == ApplicationState.GetSelectPatientId() && x.IsPastHistory ||
                 x.IsScoialHistory ||
                 x.IsFamilyHistory)
             .AsNoTracking()
@@ -328,7 +328,7 @@ public class ConsultationService(
     {
         var reminders = await context.Reminders
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
         var mapped = mapper.Map<List<GetReminderDto>>(reminders);
         return mapped;
@@ -337,7 +337,7 @@ public class ConsultationService(
     public async Task<int> GetActiveRemindersCount()
     {
         var reminders = await context.Reminders
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId() && x.IsActive)
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId() && x.IsActive)
             .ToListAsync();
 
         return reminders.Count;
@@ -459,7 +459,7 @@ public class ConsultationService(
 
             if (item.IntervalType == "From Birth")
             {
-                var dob = await patientService.GetPatientDob(ApplicationState.Patient.GetSelectPatientId());
+                var dob = await patientService.GetPatientDob(ApplicationState.GetSelectPatientId());
                 newAdministerShot.DueDate = dob.AddDays(item.IntervalMin);
             }
             else
@@ -577,7 +577,7 @@ public class ConsultationService(
             administerShotInDb.IsDue = false;
             administerShotInDb.IsGiven = true;
             administerShotInDb.IsCancelled = false;
-            administerShotInDb.PatientId = ApplicationState.Patient.GetSelectPatientId();
+            administerShotInDb.PatientId = ApplicationState.GetSelectPatientId();
             context.AdministerShots.Update(administerShotInDb);
             await settingService.DecreaseBatchQty(administerShotInDb.ShotBatch.BatchId, 1);
             await context.SaveChangesAsync();
@@ -735,7 +735,7 @@ public class ConsultationService(
     {
         return await context.Prescriptions
             .Include(x => x.Drug)
-            .Where(x => x.Status == status && x.PatientId == ApplicationState.Patient.GetSelectPatientId()).ToListAsync();
+            .Where(x => x.Status == status && x.PatientId == ApplicationState.GetSelectPatientId()).ToListAsync();
     }
 
     #endregion
@@ -773,7 +773,7 @@ public class ConsultationService(
         return await context.PatientInvestigations
             .Include(x => x.Investigation)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId() &&
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId() &&
                         x.Status != InvestigationStatus.Cancelled)
             .ToListAsync();
     }
@@ -792,7 +792,7 @@ public class ConsultationService(
                     Status = InvestigationStatus.Awaiting,
                     IsAbnormal = request.IsAbnormal,
                     HcpId = request.HcpId,
-                    PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                    PatientId = ApplicationState.GetSelectPatientId(),
                     InvestigationId = request.InvestigationId,
                     CreatedDate = DateTime.UtcNow,
                 };
@@ -982,7 +982,7 @@ public class ConsultationService(
                 Reference = request.Reference,
                 ReferTo = request.ReferTo,
                 HcpId = request.HcpId,
-                PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                PatientId = ApplicationState.GetSelectPatientId(),
                 LetterTemplateId = request.LetterTemplateId,
                 LetterTypeId = request.LetterTypeId,
                 Description = request.Description,
@@ -1047,7 +1047,7 @@ public class ConsultationService(
             .Include(x => x.LetterTemplate)
             .Include(x => x.LetterReplies)
             .Include(x => x.LetterTemplate.LetterType)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId() &&
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId() &&
                         x.Status != LetterConstants.Status.Cancelled)
             .AsNoTracking()
             .ToListAsync();
@@ -1093,7 +1093,7 @@ public class ConsultationService(
 
     public async Task<List<ScannedDocument>> GetScannedDocuments()
     {
-        return await context.ScannedDocuments.Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+        return await context.ScannedDocuments.Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
     }
 
@@ -1104,7 +1104,7 @@ public class ConsultationService(
             var newScannedDocument = new ScannedDocument()
             {
                 Id = Guid.NewGuid(),
-                PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                PatientId = ApplicationState.GetSelectPatientId(),
                 AdditionalNotes = request.AdditionalNotes,
                 Description = request.Description,
                 ScanDate = request.ScanDate,
@@ -1146,7 +1146,7 @@ public class ConsultationService(
             var patientSketch = new PatientSketch()
             {
                 Id = Guid.NewGuid(),
-                PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                PatientId = ApplicationState.GetSelectPatientId(),
                 Sketch = sketch
             };
             await context.PatientSketches.AddAsync(patientSketch);
@@ -1165,7 +1165,7 @@ public class ConsultationService(
         return await context.PatientCustomForms
             .Include(x => x.FormTemplate)
             .Include(x => x.Hcp)
-            .Where(x => x.PatientId == ApplicationState.Patient.GetSelectPatientId())
+            .Where(x => x.PatientId == ApplicationState.GetSelectPatientId())
             .ToListAsync();
     }
 
@@ -1185,7 +1185,7 @@ public class ConsultationService(
                     Id = Guid.NewGuid(),
                     RefNumber = CryptographyHelper.GetUniqueKey(),
                     CreatedDate = DateTime.UtcNow,
-                    PatientId = ApplicationState.Patient.GetSelectPatientId(),
+                    PatientId = ApplicationState.GetSelectPatientId(),
                     FormTemplateId = request.FormTemplateId,
                     HcpId = request.HcpId,
                     Status = request.Status,
